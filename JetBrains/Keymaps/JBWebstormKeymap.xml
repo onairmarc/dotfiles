@@ -1,0 +1,68 @@
+<keymap version="1" name="MB WebStorm Keymap" parent="VSCode">
+    <action id="ActivateBuildToolWindow">
+        <keyboard-shortcut first-keystroke="shift ctrl b"/>
+    </action>
+    <action id="ActivateCommitToolWindow">
+        <keyboard-shortcut first-keystroke="alt 0"/>
+        <keyboard-shortcut first-keystroke="shift alt g"/>
+        <keyboard-shortcut first-keystroke="ctrl g"/>
+    </action>
+    <action id="ActivateDebugToolWindow">
+        <keyboard-shortcut first-keystroke="shift ctrl y"/>
+    </action>
+    <action id="ActivateFindToolWindow"/>
+    <action id="ActivateNuGetToolWindow">
+        <keyboard-shortcut first-keystroke="shift ctrl n"/>
+    </action>
+    <action id="ActivateProjectToolWindow">
+        <keyboard-shortcut first-keystroke="shift ctrl e"/>
+        <keyboard-shortcut first-keystroke="ctrl b"/>
+    </action>
+    <action id="ActivateTerminalToolWindow">
+        <keyboard-shortcut first-keystroke="ctrl t"/>
+    </action>
+    <action id="ActivateUnitTestsToolWindow">
+        <keyboard-shortcut first-keystroke="shift ctrl t"/>
+    </action>
+    <action id="BuildSolutionAction"/>
+    <action id="CommentByBlockComment">
+        <keyboard-shortcut first-keystroke="shift alt a"/>
+        <keyboard-shortcut first-keystroke="shift ctrl slash"/>
+    </action>
+    <action id="CompileDirty"/>
+    <action id="EditorDuplicateLines">
+        <keyboard-shortcut first-keystroke="shift ctrl d"/>
+    </action>
+    <action id="EditorPasteSimple">
+        <keyboard-shortcut first-keystroke="shift ctrl alt v"/>
+        <keyboard-shortcut first-keystroke="shift ctrl v"/>
+    </action>
+    <action id="GotoLine"/>
+    <action id="GotoRow"/>
+    <action id="GotoSymbol">
+        <keyboard-shortcut first-keystroke="shift ctrl o"/>
+    </action>
+    <action id="HideSideWindows"/>
+    <action id="Markdown.Layout.PreviewOnly"/>
+    <action id="MoveLineDown">
+        <keyboard-shortcut first-keystroke="alt down"/>
+        <keyboard-shortcut first-keystroke="ctrl down"/>
+    </action>
+    <action id="MoveLineUp">
+        <keyboard-shortcut first-keystroke="alt up"/>
+        <keyboard-shortcut first-keystroke="ctrl up"/>
+    </action>
+    <action id="MyPlugin.Editor.actions.OpenInCodeSnapAction">
+        <keyboard-shortcut first-keystroke="shift alt 4"/>
+    </action>
+    <action id="ReopenClosedTab"/>
+    <action id="RiderUnitTestTreeTextFilterAction"/>
+    <action id="ScrollPane-unitScrollDown"/>
+    <action id="ScrollPane-unitScrollUp"/>
+    <action id="ServiceView.ShowServices"/>
+    <action id="hg4idea.QGotoFromPatches"/>
+    <action id="one.util.ideaplugin.screenshoter.SaveImageAction">
+        <keyboard-shortcut first-keystroke="shift alt 4"/>
+    </action>
+    <action id="org.intellij.plugins.markdown.ui.actions.styling.ToggleBoldAction"/>
+</keymap>
