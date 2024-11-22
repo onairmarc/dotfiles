@@ -9,6 +9,24 @@ dotfiles_update() {
   cd "$current_dir"
 }
 
+git_assume_unchanged() {
+  if [ -z "$1" ]; then
+    echo -e "${COL_RED}Error: Filepath is required.${COL_RESET}"
+    return 1
+  fi
+
+  git update-index --assume-unchanged $1
+}
+
+git_assume_changed() {
+  if [ -z "$1" ]; then
+    echo -e "${COL_RED}Error: Filepath is required.${COL_RESET}"
+    return 1
+  fi
+
+  git update-index --no-assume-unchanged $1
+}
+
 loc() {
   phploc . --exclude=vendor
 }
