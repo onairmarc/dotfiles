@@ -1,3 +1,13 @@
+dotfiles_update() {
+  local current_dir=$(pwd)
+  dotfiles
+  echo -e "${COL_GREEN}Updating dotfiles...${COL_RESET}"
+  gpo
+  dfp
+  echo -e "${COL_GREEN}Updating dotfiles-private${COL_RESET}"
+  gpo
+  cd "$current_dir"
+}
 
 loc() {
   phploc . --exclude=vendor
