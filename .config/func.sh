@@ -3,7 +3,7 @@ dotfiles_update() {
   dotfiles
   echo -e "${COL_GREEN}Updating dotfiles...${COL_RESET}"
   gpo
-  dfp
+  cd ~/Documents/GitHub/dotfiles-private
   echo -e "${COL_GREEN}Updating dotfiles-private${COL_RESET}"
   gpo
   cd "$current_dir"
