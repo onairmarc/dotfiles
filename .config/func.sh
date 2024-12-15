@@ -67,6 +67,17 @@ sys_env_decrypt() {
   rm -f ./.env.$environment
   
   php artisan env:decrypt --env=$environment --key=$ENCORE_DIGITAL_ENV_ENCRYPTION_KEY
+  
+  #special local environment handling
+  if [ "$environment" = "local" ]; then
+      # if .env exists, delete it.
+      if [ -f ./.env ]; then
+        rm ./.env
+      fi
+      
+      #rename .env.local to .env
+      mv ./.env.local ./.env
+    fi
 }
 
 sys_env_encrypt() {
@@ -76,9 +87,26 @@ sys_env_encrypt() {
     fi
   
   local environment=$1
-  
+
+  # Special local environment handling
+  if [ "$environment" = "local" ]; then
+    # If .env.local exists, delete it
+    if [ -f ./.env.local ]; then
+      rm ./.env.local
+    fi
+
+    # Rename .env to .env.local
+    mv ./.env ./.env.local
+  fi
+
+  # Run the encryption command
   rm -f ./.env.$environment.encrypted
   php artisan env:encrypt --env=$environment --key=$ENCORE_DIGITAL_ENV_ENCRYPTION_KEY
+
+  # Rename .env.local back to .env for local environment
+  if [ "$environment" = "local" ]; then
+    mv ./.env.local ./.env
+  fi
 }
 
 tf_import_repo () {
