@@ -82,6 +82,7 @@ zsh-syntax-highlighting
 source $ZSH/oh-my-zsh.sh
 source ~/Documents/GitHub/dotfiles/.config/config.sh
 source ~/Documents/GitHub/dotfiles/.config/mac.sh
+source ~/Documents/GitHub/dotfiles/.config/tmux.sh
 
 # AutoComplete Configuration
 bindkey '^I' autosuggest-accept
