@@ -92,5 +92,6 @@ install_tool "shottr" "brew install --cask shottr" "/Applications/Shottr.app"
 install_tool "1password" "brew install --cask 1password" "/Applications/1Password.app"
 install_tool "1password-cli" "brew install 1password-cli" ""  # CLI tool, no specific app path
 install_tool "tmux" "brew install tmux" ""  # CLI tool, no specific app path
+install_tool "htop" "brew install htop" ""  # CLI tool, no specific app path
 
 echo "Setup completed! You may need to restart your terminal for some changes to take effect."
