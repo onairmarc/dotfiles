@@ -79,7 +79,8 @@
     <keyboard-shortcut first-keystroke="shift delete" />
     <keyboard-shortcut first-keystroke="shift meta back_space" />
   </action>
-  <action id="EditorDuplicateLines">
+   <action id="EditorDuplicateLines">
+    <keyboard-shortcut first-keystroke="shift ctrl d" />
     <keyboard-shortcut first-keystroke="shift meta d" />
   </action>
   <action id="EditorLineEnd">
