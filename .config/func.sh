@@ -31,6 +31,10 @@ loc() {
   phploc . --exclude=vendor
 }
 
+mac_cleanup () {
+  mac-cleanup
+}
+
 nah() {
     git reset --hard;
 }
@@ -176,7 +180,7 @@ zpw-refresh() {
 }
 
 zpm-refresh() {
-  source ~/.zshrc;
+  source ~/.zshrc && mac_cleanup_check;
 }
 
 zpw() {

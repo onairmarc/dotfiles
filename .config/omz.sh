@@ -83,6 +83,7 @@ source $ZSH/oh-my-zsh.sh
 source ~/Documents/GitHub/dotfiles/.config/config.sh
 source ~/Documents/GitHub/dotfiles/.config/mac.sh
 source ~/Documents/GitHub/dotfiles/.config/tmux.sh
+source ~/Documents/GitHub/dotfiles/.tools/mac_cleanup_checker.sh
 
 # AutoComplete Configuration
 bindkey '^I' autosuggest-accept
