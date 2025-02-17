@@ -1,3 +1,11 @@
+art() {
+    if [ -f "artisan" ]; then
+        php artisan "$@"
+    else
+        php vendor/bin/testbench "$@"
+    fi
+}
+
 dotfiles_update() {
   local current_dir=$(pwd)
   dotfiles

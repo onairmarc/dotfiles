@@ -2,7 +2,7 @@
 
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable chang$
 alias analize='XDEBUG_MODE=off vendor/bin/phpstan analyse'
-alias art='php artisan'
+#alias art='php artisan'
 alias build='npm run build'
 alias battery='pmset -g batt'
 alias ccc='npm cache clean --force && composer clear-cache'
