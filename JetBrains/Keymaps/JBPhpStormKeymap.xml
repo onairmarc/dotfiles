@@ -1,38 +1,16 @@
-<keymap version="1" name="MB PhpStorm Keymap" parent="VSCode">
+<keymap version="1" name="MB PhpStorm Keymap" parent="MB Base Keymap">
   <action id="$Copy">
-    <keyboard-shortcut first-keystroke="ctrl c" />
     <keyboard-shortcut first-keystroke="ctrl insert" />
-    <keyboard-shortcut first-keystroke="meta c" />
-  </action>
-  <action id="$Cut">
-    <keyboard-shortcut first-keystroke="ctrl x" />
-    <keyboard-shortcut first-keystroke="meta x" />
   </action>
   <action id="$Paste">
-    <keyboard-shortcut first-keystroke="ctrl v" />
     <keyboard-shortcut first-keystroke="shift insert" />
-    <keyboard-shortcut first-keystroke="meta v" />
   </action>
   <action id="$Redo">
-    <keyboard-shortcut first-keystroke="ctrl y" />
-    <keyboard-shortcut first-keystroke="shift ctrl z" />
-    <keyboard-shortcut first-keystroke="shift alt back_space" />
-    <keyboard-shortcut first-keystroke="shift meta z" />
     <keyboard-shortcut first-keystroke="meta y" />
-  </action>
-  <action id="$SelectAll">
-    <keyboard-shortcut first-keystroke="ctrl a" />
-    <keyboard-shortcut first-keystroke="meta a" />
-  </action>
-  <action id="$Undo">
-    <keyboard-shortcut first-keystroke="ctrl z" />
-    <keyboard-shortcut first-keystroke="alt back_space" />
-    <keyboard-shortcut first-keystroke="meta z" />
   </action>
   <action id="ActivateCommitToolWindow">
     <keyboard-shortcut first-keystroke="alt 0" />
     <keyboard-shortcut first-keystroke="ctrl g" />
-    <keyboard-shortcut first-keystroke="meta g" />
   </action>
   <action id="ActivateDebugToolWindow">
     <keyboard-shortcut first-keystroke="shift ctrl y" />
@@ -44,11 +22,6 @@
   </action>
   <action id="ActivateTerminalToolWindow">
     <keyboard-shortcut first-keystroke="ctrl back_quote" />
-    <keyboard-shortcut first-keystroke="ctrl t" />
-  </action>
-  <action id="ActivateVersionControlToolWindow">
-    <keyboard-shortcut first-keystroke="shift ctrl g" />
-    <keyboard-shortcut first-keystroke="shift meta g" />
   </action>
   <action id="Back">
     <mouse-shortcut keystroke="button4" />
@@ -71,28 +44,16 @@
   <action id="Documentation.Forward">
     <mouse-shortcut keystroke="button5" />
   </action>
-  <action id="Editor Cut">
-    <keyboard-shortcut first-keystroke="meta x" />
-  </action>
   <action id="EditorDeleteLine">
-    <keyboard-shortcut first-keystroke="shift ctrl k" />
     <keyboard-shortcut first-keystroke="shift delete" />
     <keyboard-shortcut first-keystroke="shift meta back_space" />
   </action>
-  <action id="EditorDuplicateLines">
-    <keyboard-shortcut first-keystroke="shift meta d" />
-  </action>
   <action id="EditorLineEnd">
-    <keyboard-shortcut first-keystroke="end" />
     <keyboard-shortcut first-keystroke="meta right" />
   </action>
   <action id="EditorLineEndWithSelection">
     <keyboard-shortcut first-keystroke="shift end" />
     <keyboard-shortcut first-keystroke="shift meta right" />
-  </action>
-  <action id="EditorLineStart">
-    <keyboard-shortcut first-keystroke="home" />
-    <keyboard-shortcut first-keystroke="meta left" />
   </action>
   <action id="EditorLineStartWithSelection">
     <keyboard-shortcut first-keystroke="shift home" />
@@ -114,7 +75,6 @@
     <keyboard-shortcut first-keystroke="shift ctrl left" />
     <keyboard-shortcut first-keystroke="shift alt left" />
   </action>
-  <action id="EditorSelectWord" />
   <action id="FileChooser.GoForward">
     <mouse-shortcut keystroke="button5" />
   </action>
@@ -136,14 +96,6 @@
   <action id="GotoSymbol">
     <keyboard-shortcut first-keystroke="shift ctrl o" />
   </action>
-  <action id="MoveLineDown">
-    <keyboard-shortcut first-keystroke="alt down" />
-    <keyboard-shortcut first-keystroke="meta down" />
-  </action>
-  <action id="MoveLineUp">
-    <keyboard-shortcut first-keystroke="alt up" />
-    <keyboard-shortcut first-keystroke="meta up" />
-  </action>
   <action id="OpenInlineChatAction">
     <keyboard-shortcut first-keystroke="shift ctrl g" />
   </action>
@@ -159,12 +111,7 @@
     <keyboard-shortcut first-keystroke="ctrl period" />
     <keyboard-shortcut first-keystroke="meta period" />
   </action>
-  <action id="SmartSelect" />
-  <action id="SmartUnSelect" />
-  <action id="TableResult.GrowSelection" />
-  <action id="TableResult.SelectColumn" />
   <action id="Vcs.QuickListPopupAction">
-    <keyboard-shortcut first-keystroke="alt back_quote" />
     <keyboard-shortcut first-keystroke="meta back_quote" />
   </action>
 </keymap>

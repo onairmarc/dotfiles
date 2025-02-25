@@ -1,10 +1,9 @@
-<keymap version="1" name="JBIdeaKeymap" parent="VSCode OSX">
+<keymap version="1" name="JBIdeaKeymap" parent="MB Base Keymap">
   <action id="$Cut">
     <keyboard-shortcut first-keystroke="meta x" />
   </action>
   <action id="ActivateCommitToolWindow">
     <keyboard-shortcut first-keystroke="meta 0" />
-    <keyboard-shortcut first-keystroke="meta g" />
   </action>
   <action id="ActivateDebugToolWindow">
     <keyboard-shortcut first-keystroke="shift meta y" />
@@ -19,12 +18,6 @@
   </action>
   <action id="ActivateTerminalToolWindow">
     <keyboard-shortcut first-keystroke="ctrl back_quote" />
-    <keyboard-shortcut first-keystroke="ctrl t" />
-  </action>
-  <action id="ActivateVersionControlToolWindow">
-    <keyboard-shortcut first-keystroke="shift ctrl g" />
-    <keyboard-shortcut first-keystroke="ctrl g" />
-    <keyboard-shortcut first-keystroke="shift meta g" />
   </action>
   <action id="Console.Jdbc.Execute">
     <keyboard-shortcut first-keystroke="meta enter" />
@@ -32,26 +25,10 @@
   <action id="DatabaseView.DataSourceCutAction">
     <keyboard-shortcut first-keystroke="meta x" />
   </action>
-  <action id="EditorCut">
-    <keyboard-shortcut first-keystroke="meta x" />
-  </action>
   <action id="EditorDeleteLine">
     <keyboard-shortcut first-keystroke="shift meta k" />
     <keyboard-shortcut first-keystroke="shift delete" />
   </action>
-  <action id="EditorDuplicateLines">
-    <keyboard-shortcut first-keystroke="shift meta d" />
-  </action>
-  <action id="EditorLineStart">
-    <keyboard-shortcut first-keystroke="meta left" />
-    <keyboard-shortcut first-keystroke="ctrl a" />
-    <keyboard-shortcut first-keystroke="home" />
-  </action>
-  <action id="EditorStartNewLine" />
-  <action id="EditorTextEnd" />
-  <action id="EditorTextStart" />
-  <action id="EditorTranspose" />
-  <action id="FileChooserList.LevelUp" />
   <action id="FindNext">
     <keyboard-shortcut first-keystroke="f3" />
     <keyboard-shortcut first-keystroke="meta k" second-keystroke="meta d" />
@@ -60,19 +37,6 @@
     <keyboard-shortcut first-keystroke="shift f3" />
     <keyboard-shortcut first-keystroke="shift meta f5" />
   </action>
-  <action id="GotoLine" />
-  <action id="GotoRow" />
-  <action id="HideSideWindows" />
-  <action id="Markdown.Layout.PreviewOnly" />
-  <action id="MoveLineDown">
-    <keyboard-shortcut first-keystroke="alt down" />
-    <keyboard-shortcut first-keystroke="meta down" />
-  </action>
-  <action id="MoveLineUp">
-    <keyboard-shortcut first-keystroke="alt up" />
-    <keyboard-shortcut first-keystroke="meta up" />
-  </action>
-  <action id="ParameterInfo" />
   <action id="QuickJavaDoc">
     <mouse-shortcut keystroke="control button2" />
     <keyboard-shortcut first-keystroke="meta k" second-keystroke="meta i" />
@@ -82,20 +46,10 @@
     <keyboard-shortcut first-keystroke="meta f2" />
     <keyboard-shortcut first-keystroke="shift meta l" />
   </action>
-  <action id="ServiceView.GroupByContributor" />
-  <action id="Table-selectFirstRow" />
-  <action id="Tree-selectFirst" />
-  <action id="UsageGrouping.UsageType" />
   <action id="UsageView.Remove">
     <keyboard-shortcut first-keystroke="meta x" />
   </action>
   <action id="Vcs.Push">
     <keyboard-shortcut first-keystroke="meta p" />
   </action>
-  <action id="Vcs.QuickListPopupAction">
-    <keyboard-shortcut first-keystroke="ctrl v" />
-    <keyboard-shortcut first-keystroke="shift meta v" />
-    <keyboard-shortcut first-keystroke="alt back_quote" />
-  </action>
-  <action id="org.intellij.plugins.markdown.ui.actions.styling.ToggleBoldAction" />
 </keymap>
