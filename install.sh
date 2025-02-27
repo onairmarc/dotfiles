@@ -94,6 +94,8 @@ install_tool "1password-cli" "brew install 1password-cli" ""  # CLI tool, no spe
 install_tool "tmux" "brew install tmux" ""  # CLI tool, no specific app path
 install_tool "htop" "brew install htop" ""  # CLI tool, no specific app path
 install_tool "nano" "brew install nano" ""  # CLI tool, no specific app path
+install_tool "zsh-autosuggestions" "brew install zsh-autosuggestions" ""  # CLI tool, no specific app path
+install_tool "zsh-syntax-highlighting" "brew install zsh-syntax-highlighting" ""  # CLI tool, no specific app path
 install_tool "mac-cleanup" "brew tap fwartner/tap && brew install fwartner/tap/mac-cleanup" "" #CLI tool, no specific app path
 
 echo "Setup completed! You may need to restart your terminal for some changes to take effect."

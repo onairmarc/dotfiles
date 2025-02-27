@@ -65,6 +65,8 @@ COMPLETION_WAITING_DOTS="true"
 
 # Would you like to use another custom folder than $ZSH/custom?
 ZSH_CUSTOM=~/Documents/GitHub/dotfiles/ohmyzsh/custom
+source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 # Which plugins would you like to load?
 # Standard plugins can be found in $ZSH/plugins/
@@ -72,11 +74,8 @@ ZSH_CUSTOM=~/Documents/GitHub/dotfiles/ohmyzsh/custom
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
-colorize
 git
 terraform
-zsh-autosuggestions
-zsh-syntax-highlighting
 )
 
 source $ZSH/oh-my-zsh.sh
