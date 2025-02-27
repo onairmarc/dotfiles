@@ -63,6 +63,10 @@ rollback() {
     art migrate:rollback;
 }
 
+rt () {
+  rector && phpunit
+}
+
 sys_env_clean() {
   rm -f .env.testing
   rm -f .env.production
@@ -73,20 +77,20 @@ sys_env_decrypt() {
       echo -e "${COL_RED}Error: Environment is required.${COL_RESET}"
       return 1
     fi
-  
+
   local environment=$1
-  
+
   rm -f ./.env.$environment
-  
+
   php artisan env:decrypt --env=$environment --key=$ENCORE_DIGITAL_ENV_ENCRYPTION_KEY
-  
+
   #special local environment handling
   if [ "$environment" = "local" ]; then
       # if .env exists, delete it.
       if [ -f ./.env ]; then
         rm ./.env
       fi
-      
+
       #rename .env.local to .env
       mv ./.env.local ./.env
     fi
