@@ -120,7 +120,7 @@ unset BREW_LIST
 unset BREW_CASK_LIST
 
 echo -e "${COL_CYAN}"
-stripe completion
+stripe completion &>/dev/null
 echo -e "${COL_RESET}"
 if [ ! -f "$HOME/.stripe" ]; then
   rm -rf "$HOME/.stripe"  
@@ -131,3 +131,4 @@ mv ./stripe-completion.zsh "$HOME/.stripe"
 
 echo
 echo -e "${COL_GREEN}Setup completed! You may need to restart your terminal for some changes to take effect.${COL_RESET}"
+echo
