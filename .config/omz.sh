@@ -80,10 +80,10 @@ source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zs
 
 source $ZSH/oh-my-zsh.sh
 
-
 # AutoComplete Configuration
 bindkey '^I' autosuggest-accept
-ZSH_AUTOSUGGEST_COMPLETION_IGNORE="(stripe *)"
+ZSH_AUTOSUGGEST_COMPLETION_IGNORE=("stripe*")
+ZSH_AUTOSUGGEST_HISTORY_IGNORE=("stripe*")
 
 # User configuration
 
