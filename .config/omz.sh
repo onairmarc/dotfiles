@@ -88,6 +88,7 @@ source ~/Documents/GitHub/dotfiles/.tools/stripe.sh
 
 # AutoComplete Configuration
 bindkey '^I' autosuggest-accept
+ZSH_AUTOSUGGEST_COMPLETION_IGNORE="(stripe *)"
 
 # User configuration
 
