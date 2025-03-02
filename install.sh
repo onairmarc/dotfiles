@@ -126,6 +126,7 @@ if [ ! -f "$HOME/.stripe" ]; then
   rm -rf "$HOME/.stripe"  
   mkdir "$HOME/.stripe"
 fi
+cp ./stripe-completion.zsh "$ZSH/completions/stripe-completion.sh"
 mv ./stripe-completion.zsh "$HOME/.stripe"
 
 echo
