@@ -86,6 +86,7 @@ install_tool() {
 # Install software
 install_tool "raycast" "brew install --cask raycast" "/Applications/Raycast.app"
 install_tool "jetbrains-toolbox" "brew install --cask jetbrains-toolbox" "/Applications/JetBrains Toolbox.app"
+install_tool "chrome" "brew install --cask google-chrome" "/Applications/Google Chrome.app"
 install_tool "herd" "brew install --cask herd" "/Applications/Herd.app"
 install_tool "shottr" "brew install --cask shottr" "/Applications/Shottr.app"
 install_tool "1password" "brew install --cask 1password" "/Applications/1Password.app"
