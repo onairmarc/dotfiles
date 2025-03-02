@@ -84,6 +84,7 @@ source ~/Documents/GitHub/dotfiles/.config/mac.sh
 source ~/Documents/GitHub/dotfiles/.config/tmux.sh
 source ~/Documents/GitHub/dotfiles/.tools/nano.sh
 source ~/Documents/GitHub/dotfiles/.tools/mac_cleanup_checker.sh
+source ~/Documents/GitHub/dotfiles/.tools/stripe.sh
 
 # AutoComplete Configuration
 bindkey '^I' autosuggest-accept
