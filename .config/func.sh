@@ -6,6 +6,18 @@ art() {
     fi
 }
 
+brew_uninstall () {
+  while [[ `brew list | wc -l` -ne 0 ]]; do
+      for EACH in `brew list`; do
+          brew uninstall --force --ignore-dependencies $EACH
+      done
+  done
+  
+  echo "Uninstalling Homebrew..."
+  
+  bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)"
+}
+
 dotfiles_update() {
   local current_dir=$(pwd)
   dotfiles
