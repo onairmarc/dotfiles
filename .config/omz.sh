@@ -64,7 +64,7 @@ COMPLETION_WAITING_DOTS="true"
 # HIST_STAMPS="mm/dd/yyyy"
 
 # Would you like to use another custom folder than $ZSH/custom?
-ZSH_CUSTOM=~/Documents/GitHub/dotfiles/ohmyzsh/custom
+ZSH_CUSTOM="$DF_ROOT_DIRECTORY/ohmyzsh/custom"
 source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
@@ -79,12 +79,7 @@ source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zs
 #)
 
 source $ZSH/oh-my-zsh.sh
-source ~/Documents/GitHub/dotfiles/.config/config.sh
-source ~/Documents/GitHub/dotfiles/.config/mac.sh
-source ~/Documents/GitHub/dotfiles/.config/tmux.sh
-source ~/Documents/GitHub/dotfiles/.tools/nano.sh
-source ~/Documents/GitHub/dotfiles/.tools/mac_cleanup_checker.sh
-source ~/Documents/GitHub/dotfiles/.tools/stripe.sh
+
 
 # AutoComplete Configuration
 bindkey '^I' autosuggest-accept

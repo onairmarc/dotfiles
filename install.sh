@@ -2,7 +2,8 @@
 
 set -e  # Exit immediately if a command exits with a non-zero status.
 set -u  # Treat unset variables as an error.
-source $HOME/Documents/GitHub/dotfiles/.config/color.sh
+source "./.autoloader/autoloader.sh"
+source "$DF_CONFIG_DIRECTORY/color.sh"
 
 echo "Starting Mac setup..."
 
