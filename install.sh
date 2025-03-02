@@ -9,7 +9,7 @@ echo "Starting Mac setup..."
 
 # Variables
 DOTFILES_REPO="https://github.com/onairmarc/dotfiles.git"
-DOTFILES_DIRECTORY="~/Documents/GitHub/dotfiles"
+DOTFILES_DIRECTORY="$HOME/Documents/GitHub/dotfiles"
 ENTRYPOINT_SCRIPT="$DOTFILES_DIRECTORY/entrypoint.sh"
 
 # Ensure Homebrew is installed
@@ -122,11 +122,11 @@ unset BREW_CASK_LIST
 echo -e "${COL_CYAN}"
 stripe completion
 echo -e "${COL_RESET}"
-if [ ! -f ~/.stripe ]; then
-  rm -rf ~/.stripe  
-  mkdir -p ~/.stripe
+if [ ! -f "$HOME/.stripe" ]; then
+  rm -rf "$HOME/.stripe"  
+  mkdir "$HOME/.stripe"
 fi
-mv stripe-completion.zsh ~/.stripe
+mv ./stripe-completion.zsh "$HOME/.stripe"
 
 echo
 echo -e "${COL_GREEN}Setup completed! You may need to restart your terminal for some changes to take effect.${COL_RESET}"
