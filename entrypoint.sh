@@ -1,5 +1,7 @@
+source "$DF_ROOT_DIRECTORY/.autoloader/autoloader.sh"
+
 if [ "$OSTYPE" != "msys" ]; then
-  source ~/Documents/GitHub/dotfiles/.config/omz.sh
+  source "$DF_AUTOLOADER_DIRECTORY/mac.sh"
 else
-  source ~/Documents/GitHub/dotfiles/.config/config.sh
+  source "$DF_AUTOLOADER_DIRECTORY/windows.sh"
 fi

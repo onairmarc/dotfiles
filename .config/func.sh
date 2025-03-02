@@ -192,7 +192,7 @@ tf_apply() {
 }
 
 zp() {
-  nano ~/Documents/GitHub/dotfiles/.config/config.sh;
+  nano "$DF_CONFIG_DIRECTORY/config.sh";
 }
 
 zpew() {
@@ -200,25 +200,25 @@ zpew() {
 }
 
 zpw-refresh() {
-  source ~/.bash_profile;
+  source "$HOME/.bash_profile";
 }
 
 zpm-refresh() {
-  source ~/.zshrc && mac_cleanup_check;
+  source "$HOME/.zshrc" && mac_cleanup_check;
 }
 
 zpw() {
-    rm ~/.bash_profile && cp ~/Documents/GitHub/dotfiles/.zshrc ~/.bash_profile && zpw-refresh;
+    rm "$HOME/.bash_profile" && cp "$DF_ROOT_DIRECTORY/.zshrc" "$HOME/.bash_profile" && zpw-refresh;
 }
 
 zpwi() {
-    cp ~/Documents/GitHub/dotfiles/.zshrc ~/.bash_profile && zpw-refresh;
+    cp "$DF_ROOT_DIRECTORY/.zshrc" "$HOME/.bash_profile" && zpw-refresh;
 }
 
 zpm() {
-	rm ~/.zshrc && ln -s ~/Documents/GitHub/dotfiles/.zshrc ~/.zshrc && zpm-refresh;
+	rm "$HOME/.zshrc" && ln -s "$DF_ROOT_DIRECTORY/.zshrc" "$HOME/.zshrc" && zpm-refresh;
 }
 
 zpi() {
-    rm ~/.zshrc && ln -s ~/dotfiles/.zshrc ~/.zshrc && zpm-refresh;
+    rm "$HOME/.zshrc" && ln -s "$HOME/dotfiles/.zshrc" "$HOME/.zshrc" && zpm-refresh;
 }
