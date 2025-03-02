@@ -84,19 +84,28 @@ install_tool() {
 }
 
 # Install software
-install_tool "raycast" "brew install --cask raycast" "/Applications/Raycast.app"
-install_tool "jetbrains-toolbox" "brew install --cask jetbrains-toolbox" "/Applications/JetBrains Toolbox.app"
-install_tool "chrome" "brew install --cask google-chrome" "/Applications/Google Chrome.app"
-install_tool "herd" "brew install --cask herd" "/Applications/Herd.app"
-install_tool "shottr" "brew install --cask shottr" "/Applications/Shottr.app"
 install_tool "1password" "brew install --cask 1password" "/Applications/1Password.app"
-install_tool "1password-cli" "brew install 1password-cli" ""  # CLI tool, no specific app path
-install_tool "tmux" "brew install tmux" ""  # CLI tool, no specific app path
-install_tool "htop" "brew install htop" ""  # CLI tool, no specific app path
-install_tool "nano" "brew install nano" ""  # CLI tool, no specific app path
-install_tool "zsh-autosuggestions" "brew install zsh-autosuggestions" ""  # CLI tool, no specific app path
-install_tool "zsh-syntax-highlighting" "brew install zsh-syntax-highlighting" ""  # CLI tool, no specific app path
-install_tool "stripe-cli" "brew install stripe/stripe-cli/stripe" "" #CLI tool, no specific app path
-install_tool "mac-cleanup" "brew tap fwartner/tap && brew install fwartner/tap/mac-cleanup" "" #CLI tool, no specific app path
+install_tool "1password-cli" "brew install 1password-cli" ""
+install_tool "chroma" "brew install chroma" "/Applications/Google Chrome.app"
+install_tool "chrome" "brew install --cask google-chrome" "/Applications/Google Chrome.app"
+install_tool "doctl" "brew install doctl" ""
+install_tool "git-extras" "brew install git-extras" ""
+install_tool "git-filter-repo" "brew install git-filter-repo" ""
+install_tool "herd" "brew install --cask herd" "/Applications/Herd.app"
+install_tool "htop" "brew install htop" ""
+install_tool "jetbrains-toolbox" "brew install --cask jetbrains-toolbox" "/Applications/JetBrains Toolbox.app"
+install_tool "jq" "brew install jq" ""
+install_tool "mac-cleanup" "brew tap fwartner/tap && brew install fwartner/tap/mac-cleanup" ""
+install_tool "nano" "brew install nano" ""
+install_tool "pygments" "brew install pygments" ""
+install_tool "raycast" "brew install --cask raycast" "/Applications/Raycast.app"
+install_tool "rsync" "brew install rsync" ""
+install_tool "saml2aws" "brew install saml2aws" ""
+install_tool "shottr" "brew install --cask shottr" "/Applications/Shottr.app"
+install_tool "stripe-cli" "brew install stripe/stripe-cli/stripe" ""
+install_tool "terraform" "brew install terraform" ""
+install_tool "tmux" "brew install tmux" ""
+install_tool "zsh-autosuggestions" "brew install zsh-autosuggestions" ""
+install_tool "zsh-syntax-highlighting" "brew install zsh-syntax-highlighting" ""
 
 echo "Setup completed! You may need to restart your terminal for some changes to take effect."
