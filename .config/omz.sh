@@ -73,10 +73,10 @@ source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zs
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(
-git
-terraform
-)
+#plugins=(
+#git
+#terraform
+#)
 
 source $ZSH/oh-my-zsh.sh
 source ~/Documents/GitHub/dotfiles/.config/config.sh
