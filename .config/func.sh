@@ -47,6 +47,27 @@ git_assume_changed() {
   git update-index --no-assume-unchanged $1
 }
 
+is_windows() {
+  if [ $OSTYPE = "msys" ]; then
+    return true
+  fi
+  return false
+}
+
+is_mac() {
+  if [ $OSTYPE = "darwin" ]; then
+    return true
+  fi
+  return false
+}
+
+is_linux() {
+  if [ $OSTYPE = "linux-gnu" ]; then
+    return true
+  fi
+  return false
+}
+
 loc() {
   phploc . --exclude=vendor
 }
