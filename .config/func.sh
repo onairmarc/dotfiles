@@ -6,15 +6,15 @@ art() {
     fi
 }
 
-brew_uninstall () {
+brew_uninstall() {
   while [[ `brew list | wc -l` -ne 0 ]]; do
       for EACH in `brew list`; do
           brew uninstall --force --ignore-dependencies $EACH
       done
   done
-  
+
   echo "Uninstalling Homebrew..."
-  
+
   bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)"
 }
 
@@ -48,24 +48,15 @@ git_assume_changed() {
 }
 
 is_windows() {
-  if [ $OSTYPE = "msys" ]; then
-    return true
-  fi
-  return false
+  [[ "$OSTYPE" == "msys" ]]
 }
 
 is_mac() {
-  if [ $OSTYPE = "darwin" ]; then
-    return true
-  fi
-  return false
+  [[ "$OSTYPE" == darwin* ]]
 }
 
 is_linux() {
-  if [ $OSTYPE = "linux-gnu" ]; then
-    return true
-  fi
-  return false
+  [[ "$OSTYPE" == "linux-gnu" ]]
 }
 
 loc() {

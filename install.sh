@@ -23,7 +23,7 @@ install_tool() {
 }
 
 main() {
-    if [ is_windows ]; then
+    if [ $OSTYPE == "msys" ]; then
         echo -e "${COL_RED} Operating System is Windows. Cannot Run Installer.${COL_RESET}";
         return
     fi
