@@ -116,7 +116,7 @@ main() {
     install_tool "saml2aws" "brew install saml2aws"
     install_tool "shottr" "brew install --cask shottr" "/Applications/Shottr.app"
     install_tool "stripe-cli" "brew install stripe-cli"
-    install_tool "terraform" "brew install terraform"
+    install_tool "terraform" "brew tap hashicorp/tap && brew install hashicorp/tap/terraform"
     install_tool "tmux" "brew install tmux"
     install_tool "zsh-autosuggestions" "brew install zsh-autosuggestions"
     install_tool "zsh-syntax-highlighting" "brew install zsh-syntax-highlighting"
