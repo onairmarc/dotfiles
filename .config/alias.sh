@@ -34,6 +34,7 @@ alias mono='vendor/bin/monorepo-builder'
 alias mpc='art'
 alias peck='vendor/bin/peck'
 alias pest='vendor/bin/pest'
+alias phpacker="vendor/bin/phpacker"
 alias phpunit='vendor/bin/phpunit'
 alias rector='vendor/bin/rector'
 alias sail='vendor/bin/sail'
