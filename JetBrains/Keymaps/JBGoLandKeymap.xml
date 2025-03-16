@@ -1,4 +1,4 @@
-<keymap version="1" name="MB PhpStorm Keymap" parent="MB Base Keymap">
+<keymap version="1" name="MB GoLand Keymap" parent="MB Base Keymap">
     <action id="FileChooser.GoForward">
         <mouse-shortcut keystroke="button5"/>
     </action>
