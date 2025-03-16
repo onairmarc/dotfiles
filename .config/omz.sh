@@ -64,31 +64,31 @@ COMPLETION_WAITING_DOTS="true"
 # HIST_STAMPS="mm/dd/yyyy"
 
 # Would you like to use another custom folder than $ZSH/custom?
-ZSH_CUSTOM=~/Documents/GitHub/dotfiles/ohmyzsh/custom
+ZSH_CUSTOM="$DF_ROOT_DIRECTORY/ohmyzsh/custom"
+source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 # Which plugins would you like to load?
 # Standard plugins can be found in $ZSH/plugins/
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(
-colorize
-git
-terraform
-zsh-autosuggestions
-zsh-syntax-highlighting
-)
+#plugins=(
+#git
+#terraform
+#)
 
 source $ZSH/oh-my-zsh.sh
-source ~/Documents/GitHub/dotfiles/.config/config.sh
-source ~/Documents/GitHub/dotfiles/.config/mac.sh
-source ~/Documents/GitHub/dotfiles/.config/tmux.sh
-source ~/Documents/GitHub/dotfiles/.tools/mac_cleanup_checker.sh
 
 # AutoComplete Configuration
 bindkey '^I' autosuggest-accept
+#ZSH_AUTOSUGGEST_COMPLETION_IGNORE=("stripe*")
+#ZSH_AUTOSUGGEST_HISTORY_IGNORE=("stripe*")
 
 # User configuration
+
+ZSH_COLORIZE_TOOL=chroma
+ZSH_COLORIZE_STYLE="colorful"
 
 # export MANPATH="/usr/local/man:$MANPATH"
 

@@ -1,6 +1,5 @@
 #background=dark
 
-# Add RVM to PATH for scripting. Make sure this is the last PATH variable chang$
 alias analize='XDEBUG_MODE=off vendor/bin/phpstan analyse'
 #alias art='php artisan'
 alias build='npm run build'
@@ -24,7 +23,6 @@ alias epp='art'
 alias gh='github'
 alias gs='git status'
 alias github='cd ~/Documents/GitHub'
-alias gitnah='git reset --hard'
 alias gpo='git pull origin'
 alias home='cd ~'
 alias install='npm install && composer install --ignore-platform-reqs'
@@ -36,6 +34,7 @@ alias mono='vendor/bin/monorepo-builder'
 alias mpc='art'
 alias peck='vendor/bin/peck'
 alias pest='vendor/bin/pest'
+alias phpacker="vendor/bin/phpacker"
 alias phpunit='vendor/bin/phpunit'
 alias rector='vendor/bin/rector'
 alias sail='vendor/bin/sail'

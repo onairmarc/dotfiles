@@ -6,6 +6,18 @@ art() {
     fi
 }
 
+brew_uninstall() {
+  while [[ `brew list | wc -l` -ne 0 ]]; do
+      for EACH in `brew list`; do
+          brew uninstall --force --ignore-dependencies $EACH
+      done
+  done
+
+  echo "Uninstalling Homebrew..."
+
+  bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)"
+}
+
 dotfiles_update() {
   local current_dir=$(pwd)
   dotfiles
@@ -33,6 +45,18 @@ git_assume_changed() {
   fi
 
   git update-index --no-assume-unchanged $1
+}
+
+is_windows() {
+  [[ "$OSTYPE" == "msys" ]]
+}
+
+is_mac() {
+  [[ "$OSTYPE" == darwin* ]]
+}
+
+is_linux() {
+  [[ "$OSTYPE" == "linux-gnu" ]]
 }
 
 loc() {
@@ -63,6 +87,10 @@ rollback() {
     art migrate:rollback;
 }
 
+rt () {
+  rector && phpunit
+}
+
 sys_env_clean() {
   rm -f .env.testing
   rm -f .env.production
@@ -73,20 +101,20 @@ sys_env_decrypt() {
       echo -e "${COL_RED}Error: Environment is required.${COL_RESET}"
       return 1
     fi
-  
+
   local environment=$1
-  
+
   rm -f ./.env.$environment
-  
+
   php artisan env:decrypt --env=$environment --key=$ENCORE_DIGITAL_ENV_ENCRYPTION_KEY
-  
+
   #special local environment handling
   if [ "$environment" = "local" ]; then
       # if .env exists, delete it.
       if [ -f ./.env ]; then
         rm ./.env
       fi
-      
+
       #rename .env.local to .env
       mv ./.env.local ./.env
     fi
@@ -176,7 +204,7 @@ tf_apply() {
 }
 
 zp() {
-  nano ~/Documents/GitHub/dotfiles/.config/config.sh;
+  nano "$DF_CONFIG_DIRECTORY/config.sh";
 }
 
 zpew() {
@@ -184,25 +212,25 @@ zpew() {
 }
 
 zpw-refresh() {
-  source ~/.bash_profile;
+  source "$HOME/.bash_profile";
 }
 
 zpm-refresh() {
-  source ~/.zshrc && mac_cleanup_check;
+  source "$HOME/.zshrc" && mac_cleanup_check;
 }
 
 zpw() {
-    rm ~/.bash_profile && cp ~/Documents/GitHub/dotfiles/.zshrc ~/.bash_profile && zpw-refresh;
+    rm "$HOME/.bash_profile" && cp "$DF_ROOT_DIRECTORY/.zshrc" "$HOME/.bash_profile" && zpw-refresh;
 }
 
 zpwi() {
-    cp ~/Documents/GitHub/dotfiles/.zshrc ~/.bash_profile && zpw-refresh;
+    cp "$DF_ROOT_DIRECTORY/.zshrc" "$HOME/.bash_profile" && zpw-refresh;
 }
 
 zpm() {
-	rm ~/.zshrc && ln -s ~/Documents/GitHub/dotfiles/.zshrc ~/.zshrc && zpm-refresh;
+	rm "$HOME/.zshrc" && ln -s "$DF_ROOT_DIRECTORY/.zshrc" "$HOME/.zshrc" && zpm-refresh;
 }
 
 zpi() {
-    rm ~/.zshrc && ln -s ~/dotfiles/.zshrc ~/.zshrc && zpm-refresh;
+    rm "$HOME/.zshrc" && ln -s "$HOME/dotfiles/.zshrc" "$HOME/.zshrc" && zpm-refresh;
 }
