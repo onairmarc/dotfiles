@@ -1,8 +1,6 @@
 #background=dark
 
 alias analize='XDEBUG_MODE=off vendor/bin/phpstan analyse'
-#alias art='php artisan'
-alias build='npm run build'
 alias battery='pmset -g batt'
 alias ccc='npm cache clean --force && composer clear-cache'
 alias cf='composer format'
