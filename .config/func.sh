@@ -18,6 +18,18 @@ brew_uninstall() {
   bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)"
 }
 
+build() {
+    if [ -f "package.json" ]; then
+        npm run build
+    elif [ -f "main.go" ]; then
+        go build "$@"
+    elif ls *.sln > /dev/null 2>&1; then
+        dotnet build "$@"
+    else
+        echo -e "${COL_RED}No build conditions have been met.${COL_RESET}"
+    fi
+}
+
 dotfiles_update() {
   local current_dir=$(pwd)
   dotfiles
