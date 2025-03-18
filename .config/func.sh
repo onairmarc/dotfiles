@@ -19,7 +19,9 @@ brew_uninstall() {
 }
 
 build() {
-    if [ -f "package.json" ]; then
+    if [ -f "build.sh" ]; then
+        bash build.sh
+    elif [ -f "package.json" ]; then
         npm run build
     elif [ -f "main.go" ]; then
         go build "$@"
