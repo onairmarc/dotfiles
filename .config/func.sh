@@ -73,6 +73,16 @@ is_linux() {
   [[ "$OSTYPE" == "linux-gnu" ]]
 }
 
+install() {
+  if [ -f "package.json" ]; then
+    npm install
+  fi
+  
+  if [ -f "composer.json" ]; then
+    composer install --ignore-platform-reqs
+  fi 
+}
+
 loc() {
   phploc . --exclude=vendor
 }
@@ -90,7 +100,31 @@ npmcc() {
 }
 
 rebuild() {
-    rmd && ccc && install && build;
+  local clean_flag=false
+  
+  # Check for --clean flag
+  for arg in "$@"; do
+    if [ "$arg" = "--clean" ]; then
+      clean_flag=true
+      break
+    fi
+  done
+  
+  echo "${COL_GREEN}Cleaning...${COL_RESET}"
+  rmd
+  
+  if [ "$clean_flag" = true ]; then
+    echo "${COL_GREEN}Deep cleaning...${COL_RESET}"
+    ccc
+  fi
+  
+  echo "${COL_GREEN}Installing...${COL_RESET}"
+  install
+  
+  echo "${COL_GREEN}Building...${COL_RESET}"
+  build
+  
+  echo "${COL_GREEN}Done${COL_RESET}"
 }
 
 rmd() {
