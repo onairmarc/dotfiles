@@ -175,7 +175,7 @@ tf_import_repo () {
     # Add your code for Action A here
   elif [ "$tf_mode" = "encore" ]; then
     # Action B: Do something if mode is encore
-    tf import module.github_repos.module.$repo_name.github_repository.repo $repo_id
+    tf import module.githubRepos.module.$repo_name.github_repository.repo $repo_id
     # Add your code for Action B here
   else
     echo -e "${COL_RED}Unknown Terraform Mode: $tf_mode${COL_RESET}"
