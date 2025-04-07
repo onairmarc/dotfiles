@@ -1,6 +1,8 @@
 art() {
     if [ -f "artisan" ]; then
         php artisan "$@"
+    elif [ -f "application/artisan" ]; then
+        php application/artisan "$@"
     else
         php vendor/bin/testbench "$@"
     fi
