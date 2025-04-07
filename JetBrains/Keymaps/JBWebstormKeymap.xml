@@ -1,117 +1,14 @@
 <keymap version="1" name="MB WebStorm Keymap" parent="MB Base Keymap">
-  <action id="$Copy">
-    <keyboard-shortcut first-keystroke="ctrl insert" />
-  </action>
-  <action id="$Paste">
-    <keyboard-shortcut first-keystroke="shift insert" />
-  </action>
-  <action id="$Redo">
-    <keyboard-shortcut first-keystroke="meta y" />
-  </action>
-  <action id="ActivateCommitToolWindow">
-    <keyboard-shortcut first-keystroke="alt 0" />
-    <keyboard-shortcut first-keystroke="ctrl g" />
-  </action>
-  <action id="ActivateDebugToolWindow">
-    <keyboard-shortcut first-keystroke="shift ctrl y" />
-  </action>
-  <action id="ActivateProjectToolWindow">
-    <keyboard-shortcut first-keystroke="shift ctrl e" />
-    <keyboard-shortcut first-keystroke="ctrl b" />
-    <keyboard-shortcut first-keystroke="shift ctrl b" />
-  </action>
-  <action id="ActivateTerminalToolWindow">
-    <keyboard-shortcut first-keystroke="ctrl back_quote" />
-  </action>
-  <action id="Back">
-    <keyboard-shortcut first-keystroke="meta alt left" />
-    <keyboard-shortcut first-keystroke="ctrl alt left" />
-  </action>
-  <action id="CloseProject">
-    <keyboard-shortcut first-keystroke="ctrl k" second-keystroke="f" />
-    <keyboard-shortcut first-keystroke="shift ctrl w" />
-    <keyboard-shortcut first-keystroke="meta k" second-keystroke="meta f" />
-  </action>
-  <action id="CommentByLineComment">
-    <keyboard-shortcut first-keystroke="ctrl k" second-keystroke="ctrl c" />
-    <keyboard-shortcut first-keystroke="ctrl k" second-keystroke="ctrl u" />
-    <keyboard-shortcut first-keystroke="ctrl slash" />
-    <keyboard-shortcut first-keystroke="meta slash" />
-  </action>
-  <action id="Console.TableResult.Submit">
-    <keyboard-shortcut first-keystroke="shift meta enter" />
-  </action>
-  <action id="Documentation.Forward">
-    <mouse-shortcut keystroke="button5" />
-  </action>
-  <action id="EditorDeleteLine">
-    <keyboard-shortcut first-keystroke="shift delete" />
-    <keyboard-shortcut first-keystroke="shift meta back_space" />
-  </action>
-  <action id="EditorDuplicateLines">
-    <keyboard-shortcut first-keystroke="shift ctrl d" />
-  </action>
-  <action id="EditorLineEndWithSelection">
-    <keyboard-shortcut first-keystroke="shift end" />
-    <keyboard-shortcut first-keystroke="shift meta right" />
-  </action>
-  <action id="EditorLineStartWithSelection">
-    <keyboard-shortcut first-keystroke="shift home" />
-    <keyboard-shortcut first-keystroke="shift meta left" />
-  </action>
-  <action id="EditorNextWord">
-    <keyboard-shortcut first-keystroke="ctrl right" />
-    <keyboard-shortcut first-keystroke="alt right" />
-  </action>
-  <action id="EditorNextWordWithSelection">
-    <keyboard-shortcut first-keystroke="shift ctrl right" />
-    <keyboard-shortcut first-keystroke="shift alt right" />
-  </action>
-  <action id="EditorPreviousWord">
-    <keyboard-shortcut first-keystroke="ctrl left" />
-    <keyboard-shortcut first-keystroke="alt left" />
-  </action>
-  <action id="EditorPreviousWordWithSelection">
-    <keyboard-shortcut first-keystroke="shift ctrl left" />
-    <keyboard-shortcut first-keystroke="shift alt left" />
-  </action>
   <action id="FileChooser.GoForward">
-    <mouse-shortcut keystroke="button5" />
-  </action>
-  <action id="Find">
-    <keyboard-shortcut first-keystroke="ctrl f" />
-    <keyboard-shortcut first-keystroke="meta f" />
-  </action>
-  <action id="FindInPath">
-    <keyboard-shortcut first-keystroke="shift ctrl f" />
-    <keyboard-shortcut first-keystroke="shift meta f" />
-  </action>
-  <action id="Forward">
-    <keyboard-shortcut first-keystroke="meta alt right" />
-    <keyboard-shortcut first-keystroke="ctrl alt right" />
-  </action>
-  <action id="GotoDeclarationOnly">
-    <mouse-shortcut keystroke="meta button1" />
-  </action>
-  <action id="GotoSymbol">
-    <keyboard-shortcut first-keystroke="shift ctrl o" />
-  </action>
-  <action id="OpenInlineChatAction">
-    <keyboard-shortcut first-keystroke="shift ctrl g" />
-  </action>
-  <action id="ReplaceInPath">
-    <keyboard-shortcut first-keystroke="shift ctrl h" />
-    <keyboard-shortcut first-keystroke="shift meta h" />
-  </action>
-  <action id="SaveDocument">
-    <keyboard-shortcut first-keystroke="ctrl s" />
-    <keyboard-shortcut first-keystroke="meta s" />
-  </action>
-  <action id="ShowIntentionActions">
-    <keyboard-shortcut first-keystroke="ctrl period" />
-    <keyboard-shortcut first-keystroke="meta period" />
-  </action>
-  <action id="Vcs.QuickListPopupAction">
-    <keyboard-shortcut first-keystroke="meta back_quote" />
-  </action>
+        <mouse-shortcut keystroke="button5"/>
+    </action>
+    <action id="GotoDeclarationOnly">
+        <mouse-shortcut keystroke="meta button1"/>
+    </action>
+    <action id="GotoSymbol">
+        <keyboard-shortcut first-keystroke="shift ctrl o"/>
+    </action>
+    <action id="OpenInlineChatAction">
+        <keyboard-shortcut first-keystroke="shift ctrl g"/>
+    </action>
 </keymap>
