@@ -102,6 +102,7 @@ main() {
     install_tool "chroma" "brew install chroma"
     install_tool "chrome" "brew install --cask google-chrome" "/Applications/Google Chrome.app"
     install_tool "doctl" "brew install doctl"
+    install_tool "font-jetbrains-maple-mono" "brew install --cask font-jetbrains-maple-mono"
     install_tool "git-extras" "brew install git-extras"
     install_tool "git-filter-repo" "brew install git-filter-repo"
     install_tool "herd" "brew install --cask herd" "/Applications/Herd.app"
