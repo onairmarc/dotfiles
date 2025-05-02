@@ -43,6 +43,12 @@ dotfiles_update() {
   echo -e "${COL_GREEN}Updating dotfiles-private${COL_RESET}"
   gpo
   cd "$current_dir"
+
+  if [ "$OSTYPE" != "msys" ]; then
+    echo -e "${COL_YELLOW}Run 'zpm' to apply the update.${COL_RESET}"
+  else
+    echo -e "${COL_YELLOW}Run 'zpw' to apply the update.${COL_RESET}"
+  fi
 }
 
 git_assume_unchanged() {
