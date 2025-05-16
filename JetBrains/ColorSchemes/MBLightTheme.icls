@@ -1,8 +1,7 @@
 <scheme name="MB Light Theme" version="142" parent_scheme="Default">
   <metaInfo>
-    <property name="ide">PhpStorm</property>
-    <property name="ideVersion">2025.1.1.0.0</property>
-    <property name="originalScheme">MB Light Theme</property>
+    <property name="ide">Rider</property>
+    <property name="ideVersion">2025.1.2.0.0</property>
   </metaInfo>
   <colors>
     <option name="ADDED_LINES_COLOR" value="BFDEB3" />
@@ -744,7 +743,7 @@
     </option>
     <option name="DEFAULT_STRING">
       <value>
-        <option name="FOREGROUND" value="8000" />
+        <option name="FOREGROUND" value="248700" />
       </value>
     </option>
     <option name="DEFAULT_TAG">
@@ -1137,6 +1136,11 @@
     <option name="JS.STATIC_MEMBER_VARIABLE">
       <value>
         <option name="FOREGROUND" value="93a1" />
+      </value>
+    </option>
+    <option name="JS.STRING">
+      <value>
+        <option name="FOREGROUND" value="8c6c41" />
       </value>
     </option>
     <option name="JS.VALID_STRING_ESCAPE">
@@ -2375,6 +2379,11 @@
     <option name="TS.STATIC_MEMBER_VARIABLE">
       <value>
         <option name="FOREGROUND" value="93a1" />
+      </value>
+    </option>
+    <option name="TS.STRING">
+      <value>
+        <option name="FOREGROUND" value="8c6c41" />
       </value>
     </option>
     <option name="TS.TYPE_PARAMETER">
