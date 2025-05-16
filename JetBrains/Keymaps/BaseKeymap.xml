@@ -36,6 +36,11 @@
         <keyboard-shortcut first-keystroke="meta s"/>
     </action>
 
+    <!-- Theme Controls -->
+     <action id="com.intellij.themeswitcher.ThemeSwitcherAction">
+        <keyboard-shortcut first-keystroke="shift ctrl i" />
+    </action>
+
     <!-- Database Actions -->
     <action id="Console.TableResult.Submit">
         <keyboard-shortcut first-keystroke="shift meta enter"/>
