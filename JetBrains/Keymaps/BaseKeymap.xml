@@ -1,4 +1,7 @@
 <keymap version="1" name="MB Base Keymap" parent="VSCode">
+    <!--  Removals  -->
+    <action id="EditorSelectWord"/>
+
     <!-- Basic Editing -->
     <action id="$Copy">
         <keyboard-shortcut first-keystroke="ctrl c"/>
@@ -37,8 +40,8 @@
     </action>
 
     <!-- Theme Controls -->
-     <action id="com.intellij.themeswitcher.ThemeSwitcherAction">
-        <keyboard-shortcut first-keystroke="shift ctrl i" />
+    <action id="com.intellij.themeswitcher.ThemeSwitcherAction">
+        <keyboard-shortcut first-keystroke="shift ctrl i"/>
     </action>
 
     <!-- Database Actions -->
@@ -72,8 +75,8 @@
         <keyboard-shortcut first-keystroke="shift meta back_space"/>
     </action>
     <action id="EditorDuplicateLines">
-        <keyboard-shortcut first-keystroke="shift meta d" />
-        <keyboard-shortcut first-keystroke="shift ctrl d" />
+        <keyboard-shortcut first-keystroke="shift meta d"/>
+        <keyboard-shortcut first-keystroke="shift ctrl d"/>
     </action>
     <action id="EditorLineStart">
         <keyboard-shortcut first-keystroke="home"/>
@@ -168,9 +171,9 @@
 
     <!-- Navigation and Search -->
     <action id="Back">
-        <mouse-shortcut keystroke="button4" />
-        <keyboard-shortcut first-keystroke="meta alt left" />
-        <keyboard-shortcut first-keystroke="ctrl alt left" />
+        <mouse-shortcut keystroke="button4"/>
+        <keyboard-shortcut first-keystroke="meta alt left"/>
+        <keyboard-shortcut first-keystroke="ctrl alt left"/>
     </action>
     <action id="CloseProject">
         <keyboard-shortcut first-keystroke="ctrl k" second-keystroke="f"/>
@@ -178,9 +181,9 @@
         <keyboard-shortcut first-keystroke="meta k" second-keystroke="meta f"/>
     </action>
     <action id="Forward">
-        <mouse-shortcut keystroke="button5" />
-        <keyboard-shortcut first-keystroke="meta alt right" />
-        <keyboard-shortcut first-keystroke="ctrl alt right" />
+        <mouse-shortcut keystroke="button5"/>
+        <keyboard-shortcut first-keystroke="meta alt right"/>
+        <keyboard-shortcut first-keystroke="ctrl alt right"/>
     </action>
     <action id="GotoDeclaration">
         <keyboard-shortcut first-keystroke="f12"/>
