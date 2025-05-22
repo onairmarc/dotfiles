@@ -49,6 +49,10 @@
         <keyboard-shortcut first-keystroke="shift meta enter"/>
     </action>
 
+    <action id="Console.Jdbc.Execute">
+        <keyboard-shortcut first-keystroke="shift meta enter"/>
+    </action>
+
     <!-- Editor Actions -->
     <action id="CommentByLineComment">
         <keyboard-shortcut first-keystroke="ctrl k" second-keystroke="ctrl c"/>
