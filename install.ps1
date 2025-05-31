@@ -1,9 +1,9 @@
 #Requires -Version 5.1
 
-Write-Host "[!] This script is not yet ready for production use." -ForegroundColor Yellow
-Write-Host "[!] Press any key to exit." -ForegroundColor Yellow
-[void][System.Console]::ReadKey($true)
-exit
+# Write-Host "[!] This script is not yet ready for production use." -ForegroundColor Yellow
+# Write-Host "[!] Press any key to exit." -ForegroundColor Yellow
+# [void][System.Console]::ReadKey($true)
+# exit
 
 # Set strict mode and error handling
 Set-StrictMode -Version Latest
