@@ -24,7 +24,7 @@ function Install-ChocoTool {
     } else {
         Write-Host "[*] Installing $ToolName..." -ForegroundColor Yellow
         try {
-            choco install $ChocoId -y | Out-Null
+            choco install $ChocoId -y
         } catch {
             Write-Host "[-] Failed to install $ToolName." -ForegroundColor Red
             throw $_
