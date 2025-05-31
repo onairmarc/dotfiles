@@ -29,11 +29,20 @@ get_aws_secret() {
     return 1
   fi
 
-  # Iterate over the cleaned SecretString content, extracting key-value pairs
-  echo "$secret_string_clean" | jq -r 'to_entries | .[] | "\(.key)=\(.value)"' | while IFS= read -r line; do
-    key=$(echo "$line" | cut -d= -f1) # Extract the key name
-    export "$line"                     # Export the key=value as an environment variable
-  done
+  if [[ "$OSTYPE" == "msys" ]]; then
+    # Windows
+    local kv_pairs=$(echo "$secret_string_clean" | jq -r 'to_entries | .[] | "\(.key)=\(.value)"')
+    
+    while IFS= read -r line; do
+      export "$line"
+    done <<< "$kv_pairs"
+  else
+    # macOS/Linux
+    echo "$secret_string_clean" | jq -r 'to_entries | .[] | "\(.key)=\(.value)"' | while IFS= read -r line; do
+      key=$(echo "$line" | cut -d= -f1) # Extract the key name
+      export "$line"                     # Export the key=value as an environment variable
+    done
+  fi
 
   return 0
 }
