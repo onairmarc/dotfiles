@@ -118,21 +118,21 @@ rebuild() {
     fi
   done
   
-  echo "${COL_GREEN}Cleaning...${COL_RESET}"
+  echo -e "${COL_GREEN}Cleaning...${COL_RESET}"
   rmd
   
   if [ "$clean_flag" = true ]; then
-    echo "${COL_GREEN}Deep cleaning...${COL_RESET}"
+    echo -e "${COL_GREEN}Deep cleaning...${COL_RESET}"
     ccc
   fi
   
-  echo "${COL_GREEN}Installing...${COL_RESET}"
+  echo -e "${COL_GREEN}Installing...${COL_RESET}"
   install
   
-  echo "${COL_GREEN}Building...${COL_RESET}"
+  echo -e "${COL_GREEN}Building...${COL_RESET}"
   build
   
-  echo "${COL_GREEN}Done${COL_RESET}"
+  echo -e "${COL_GREEN}Done${COL_RESET}"
 }
 
 rmd() {
