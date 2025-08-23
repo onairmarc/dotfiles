@@ -16,4 +16,4 @@ export HOMEBREW_NO_AUTO_UPDATE=1
 export ZSH_COLORIZE_TOOL="pygmentize"
 export ZSH_COLORIZE_STYLE="colorful"
 
-export XDEBUG_MODE="coverage,debug,develop"
+export XDEBUG_MODE="coverage"

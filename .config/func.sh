@@ -259,6 +259,14 @@ tf_apply() {
   tf apply plan
 }
 
+xdb() {
+  if [ "$XDEBUG_MODE" = "coverage,debug,develop" ]; then
+      export XDEBUG_MODE="coverage"
+  else
+    export XDEBUG_MODE="coverage,debug,develop"
+  fi
+}
+
 zp() {
   nano "$DF_CONFIG_DIRECTORY/config.sh";
 }
