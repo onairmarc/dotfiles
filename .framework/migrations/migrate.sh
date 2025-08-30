@@ -171,8 +171,8 @@ run_all_migrations() {
     fi
     
     # Check dotfiles-private migrations if available
-    if [ -n "$DF_PRIVATE_ROOT_DIRECTORY" ] && [ -d "$DF_PRIVATE_ROOT_DIRECTORY" ]; then
-        local private_migrations_dir="$DF_PRIVATE_ROOT_DIRECTORY/.migrations"
+    if [ -n "$DF_PRIVATE_DIRECTORY" ] && [ -d "$DF_PRIVATE_DIRECTORY" ]; then
+        local private_migrations_dir="$DF_PRIVATE_DIRECTORY/.migrations"
         local private_log_file="$private_migrations_dir/.migration_history"
         
         if [ -d "$private_migrations_dir" ]; then
@@ -200,8 +200,8 @@ run_all_migrations() {
     run_migrations_for_directory "$MIGRATIONS_DIR" "$MIGRATIONS_LOG" "dotfiles"
     
     # Check if dotfiles-private plugin is available and run its migrations
-    if [ -n "$DF_PRIVATE_ROOT_DIRECTORY" ] && [ -d "$DF_PRIVATE_ROOT_DIRECTORY" ]; then
-        local private_migrations_dir="$DF_PRIVATE_ROOT_DIRECTORY/.migrations"
+    if [ -n "$DF_PRIVATE_DIRECTORY" ] && [ -d "$DF_PRIVATE_DIRECTORY" ]; then
+        local private_migrations_dir="$DF_PRIVATE_DIRECTORY/.migrations"
         local private_log_file="$private_migrations_dir/.migration_history"
         
         run_migrations_for_directory "$private_migrations_dir" "$private_log_file" "dotfiles-private"
@@ -347,8 +347,8 @@ show_status() {
     show_status_for_repo "$MIGRATIONS_DIR" "$MIGRATIONS_LOG" "dotfiles"
     
     # Show dotfiles-private status if available
-    if [ -n "$DF_PRIVATE_ROOT_DIRECTORY" ] && [ -d "$DF_PRIVATE_ROOT_DIRECTORY" ]; then
-        local private_migrations_dir="$DF_PRIVATE_ROOT_DIRECTORY/.migrations"
+    if [ -n "$DF_PRIVATE_DIRECTORY" ] && [ -d "$DF_PRIVATE_DIRECTORY" ]; then
+        local private_migrations_dir="$DF_PRIVATE_DIRECTORY/.migrations"
         local private_log_file="$private_migrations_dir/.migration_history"
         show_status_for_repo "$private_migrations_dir" "$private_log_file" "dotfiles-private"
     fi

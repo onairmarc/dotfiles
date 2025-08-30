@@ -242,8 +242,8 @@ set_migration_state() {
     local repo_context="${3:-dotfiles}"
     local state_file
     
-    if [ "$repo_context" = "dotfiles-private" ] && [ -n "$DF_PRIVATE_ROOT_DIRECTORY" ]; then
-        state_file="$DF_PRIVATE_ROOT_DIRECTORY/.migrations/.migration_state"
+    if [ "$repo_context" = "dotfiles-private" ] && [ -n "$DF_PRIVATE_DIRECTORY" ]; then
+        state_file="$DF_PRIVATE_DIRECTORY/.migrations/.migration_state"
     else
         state_file="$DF_ROOT_DIRECTORY/.migrations/.migration_state"
     fi
@@ -266,8 +266,8 @@ get_migration_state() {
     local repo_context="${2:-dotfiles}"
     local state_file
     
-    if [ "$repo_context" = "dotfiles-private" ] && [ -n "$DF_PRIVATE_ROOT_DIRECTORY" ]; then
-        state_file="$DF_PRIVATE_ROOT_DIRECTORY/.migrations/.migration_state"
+    if [ "$repo_context" = "dotfiles-private" ] && [ -n "$DF_PRIVATE_DIRECTORY" ]; then
+        state_file="$DF_PRIVATE_DIRECTORY/.migrations/.migration_state"
     else
         state_file="$DF_ROOT_DIRECTORY/.migrations/.migration_state"
     fi
