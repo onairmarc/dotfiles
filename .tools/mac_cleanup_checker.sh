@@ -2,7 +2,7 @@
 
 mac_cleanup_check () {
   # Path to the file containing the date
-  file="$HOME/.df_sys_cleanup_marker"
+  file="$HOME/.df_data/.sys_cleanup_marker"
   
   # Check if the file exists
   if [[ ! -f "$file" ]]; then
