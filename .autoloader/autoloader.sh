@@ -3,6 +3,13 @@
 # All Right Reserved.
 #
 
+ensure_autoloader() {
+  if [[ -z "$DF_AUTOLOADER_SOURCED" && -f "$DF_ROOT_DIRECTORY/.autoloader/autoloader.sh" ]]; then
+      source "$DF_ROOT_DIRECTORY/.autoloader/autoloader.sh"
+      export DF_AUTOLOADER_SOURCED=1
+  fi
+}
+
 # Root DotFiles Directory Env
 export DF_ROOT_DIRECTORY="$HOME/Documents/GitHub/dotfiles"
 
