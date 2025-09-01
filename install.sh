@@ -123,6 +123,7 @@ main() {
     install_tool "1password-cli" "brew install 1password-cli"
     install_tool "chroma" "brew install chroma"
     install_tool "chrome" "brew install --cask google-chrome" "/Applications/Google Chrome.app"
+    install_tool "cliclick" "brew install cliclick"
     install_tool "doctl" "brew install doctl"
     install_tool "font-jetbrains-mono" "brew install --cask font-jetbrains-mono"
     install_tool "git-extras" "brew install git-extras"
