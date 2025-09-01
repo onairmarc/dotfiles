@@ -126,6 +126,7 @@ main() {
     install_tool "cliclick" "brew install cliclick"
     install_tool "doctl" "brew install doctl"
     install_tool "font-jetbrains-mono" "brew install --cask font-jetbrains-mono"
+    install_tool "gh" "brew install gh"
     install_tool "git-extras" "brew install git-extras"
     install_tool "git-filter-repo" "brew install git-filter-repo"
     install_tool "herd" "brew install --cask herd" "/Applications/Herd.app"
