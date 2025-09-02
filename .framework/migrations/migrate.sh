@@ -57,12 +57,14 @@ run_migration() {
     
     if [ ! -x "$migration_file" ]; then
         error "Migration file '$migration_file' is not executable"
+        mark_migration_completed "$migration_name"
         return 1
     fi
     
     # Source the migration file
     if ! "$migration_file"; then
         error "Migration '$migration_name' failed"
+        mark_migration_completed "$migration_name"
         return 1
     fi
     
@@ -84,12 +86,14 @@ run_migration_for_repo() {
     
     if [ ! -x "$migration_file" ]; then
         error "Migration file '$migration_file' is not executable"
+        mark_migration_completed_for_repo "$migration_name" "$log_file" "$repo_name"
         return 1
     fi
     
     # Source the migration file
     if ! "$migration_file"; then
         error "Migration '$migration_name' failed for $repo_name"
+        mark_migration_completed_for_repo "$migration_name" "$log_file" "$repo_name"
         return 1
     fi
     
