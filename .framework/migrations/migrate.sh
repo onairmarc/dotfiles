@@ -35,14 +35,18 @@ is_migration_completed_for_repo() {
 
 mark_migration_completed() {
     local migration_name="$1"
-    echo "$migration_name" >> "$MIGRATIONS_LOG"
+    if ! is_migration_completed "$migration_name"; then
+        echo "$migration_name" >> "$MIGRATIONS_LOG"
+    fi
 }
 
 mark_migration_completed_for_repo() {
     local migration_name="$1"
     local log_file="$2"
     local repo_name="$3"
-    echo "$migration_name" >> "$log_file"
+    if ! is_migration_completed_for_repo "$migration_name" "$log_file"; then
+        echo "$migration_name" >> "$log_file"
+    fi
 }
 
 run_migration() {
@@ -62,7 +66,8 @@ run_migration() {
     fi
     
     # Source the migration file
-    if ! "$migration_file"; then
+    # Capture stderr but allow stdout (for framework log messages)
+    if ! "$migration_file" 2>/dev/null; then
         error "Migration '$migration_name' failed"
         mark_migration_completed "$migration_name"
         return 1
@@ -91,7 +96,8 @@ run_migration_for_repo() {
     fi
     
     # Source the migration file
-    if ! "$migration_file"; then
+    # Capture stderr but allow stdout (for framework log messages)
+    if ! "$migration_file" 2>/dev/null; then
         error "Migration '$migration_name' failed for $repo_name"
         mark_migration_completed_for_repo "$migration_name" "$log_file" "$repo_name"
         return 1
@@ -142,7 +148,7 @@ run_migrations_for_directory() {
     
     for migration_file in "${migration_files[@]}"; do
         if ! run_migration_for_repo "$migration_file" "$log_file" "$repo_name"; then
-            error "Migration $(basename "$migration_file" .sh) failed, but continuing with remaining migrations"
+            error "Migration $(basename "$migration_file" .sh) failed"
         fi
     done
     
