@@ -8,6 +8,14 @@ art() {
     fi
 }
 
+autoboot_disable() {
+  sudo nvram AutoBoot=%00
+}
+
+autoboot_enable() {
+  sudo nvram AutoBoot=%03
+}
+
 brew_uninstall() {
   while [[ `brew list | wc -l` -ne 0 ]]; do
       for EACH in `brew list`; do
