@@ -1,3 +1,9 @@
+export PATH="/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:$PATH"
+
+if [ -f "$HOME/Documents/GitHub/dotfiles/.autoloader/autoloader.sh" ]; then
+    source "$HOME/Documents/GitHub/dotfiles/.autoloader/autoloader.sh"
+fi
+
 osascript -e 'tell application "OpenVPN Connect" to launch'
 sleep 2
 osascript -e '
