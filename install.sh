@@ -133,7 +133,6 @@ main() {
     install_tool "htop" "brew install htop"
     install_tool "jetbrains-toolbox" "brew install --cask jetbrains-toolbox" "/Applications/JetBrains Toolbox.app"
     install_tool "jq" "brew install jq"
-    install_tool "mac-cleanup" "brew tap fwartner/tap && brew install fwartner/tap/mac-cleanup"
     install_tool "nano" "brew install nano"
     install_tool "pygments" "brew install pygments"
     install_tool "raycast" "brew install --cask raycast" "/Applications/Raycast.app"

@@ -104,7 +104,7 @@ loc() {
 }
 
 mac_cleanup () {
-  mac-cleanup
+  bash "$DF_ROOT_DIRECTORY/.tools/mac_cleanup.sh"
 }
 
 nah() {
