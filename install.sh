@@ -24,24 +24,29 @@ install_tool() {
 
 configure_iterm() {
   echo -e "${COL_CYAN}Configuring iTerm..."
-  
+
   FONT_CONFIG_NAME="JetBrainsMono-Regular"
   FONT_CONFIG_SIZE="18"
-  
+
   # Create iTerm2 preferences directory if it doesn't exist
   PREFS_DIR="$HOME/Library/Preferences"
   PLIST_FILE="$PREFS_DIR/com.googlecode.iterm2.plist"
   mkdir -p "$PREFS_DIR"
-  
+
   # Configure iTerm2 font settings using defaults command
   defaults write com.googlecode.iterm2 "Normal Font" -string "$FONT_CONFIG_NAME $FONT_CONFIG_SIZE"
   defaults write com.googlecode.iterm2 "Non Ascii Font" -string "$FONT_CONFIG_NAME $FONT_CONFIG_SIZE"
   defaults write com.googlecode.iterm2 UseNonASCIIFont -bool true
-  
+
   # Update iTerm2 preferences
   /usr/libexec/PlistBuddy -c "Set :New\ Bookmarks:0:Normal\ Font $FONT_CONFIG_NAME\ $FONT_CONFIG_SIZE" "$PLIST_FILE" 2>/dev/null || true
   /usr/libexec/PlistBuddy -c "Set :New\ Bookmarks:0:Non\ Ascii\ Font $FONT_CONFIG_NAME\ $FONT_CONFIG_SIZE" "$PLIST_FILE" 2>/dev/null || true
   /usr/libexec/PlistBuddy -c "Set :New\ Bookmarks:0:Use\ Non-ASCII\ Font true" "$PLIST_FILE" 2>/dev/null || true
+}
+
+remap_capslock_to_escape() {
+  # Call the dedicated keyboard remapping script
+  bash "$DOTFILES_DIRECTORY/.tools/remap_capslock.sh" --enable
 }
 
 main() {
@@ -145,6 +150,7 @@ main() {
     install_tool "zsh-autosuggestions" "brew install zsh-autosuggestions"
     install_tool "zsh-syntax-highlighting" "brew install zsh-syntax-highlighting"
     configure_iterm
+    remap_capslock_to_escape
 
     # Unset the environment variables
     unset BREW_LIST

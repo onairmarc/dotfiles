@@ -143,6 +143,10 @@ rebuild() {
   echo -e "${COL_GREEN}Done${COL_RESET}"
 }
 
+remap_caps() {
+  bash "$DF_ROOT_DIRECTORY/.tools/remap_capslock.sh" "$@"
+}
+
 rmd() {
     rm -rf node_modules && rm -rf vendor;
 }
