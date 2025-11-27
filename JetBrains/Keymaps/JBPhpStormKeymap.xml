@@ -1,4 +1,10 @@
 <keymap version="1" name="MB PhpStorm Keymap" parent="MB Base Keymap">
+    <action id="ActivateTerminalToolWindow">
+        <keyboard-shortcut first-keystroke="ctrl t"/>
+        <keyboard-shortcut first-keystroke="ctrl back_quote"/>
+        <keyboard-shortcut first-keystroke="meta t"/>
+    </action>
+    <action id="ChangeSignature"/>
     <action id="FileChooser.GoForward">
         <mouse-shortcut keystroke="button5"/>
     </action>
@@ -10,5 +16,20 @@
     </action>
     <action id="OpenInlineChatAction">
         <keyboard-shortcut first-keystroke="shift ctrl g"/>
+    </action>
+    <action id="Run"/>
+    <action id="SelectAllOccurrences">
+        <keyboard-shortcut first-keystroke="shift ctrl l"/>
+    </action>
+    <action id="SelectNextOccurrence">
+        <keyboard-shortcut first-keystroke="ctrl d"/>
+    </action>
+    <action id="ShowErrorDescription"/>
+    <action id="Terminal.NewTab">
+        <keyboard-shortcut first-keystroke="shift ctrl back_quote"/>
+        <keyboard-shortcut first-keystroke="shift meta t"/>
+    </action>
+    <action id="WindowLayoutManager.Restore.0">
+        <keyboard-shortcut first-keystroke="meta 1"/>
     </action>
 </keymap>
