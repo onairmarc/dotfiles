@@ -42,6 +42,78 @@ build() {
     fi
 }
 
+docker_config_auth() {
+  (
+    set -euo pipefail
+
+    # Prompt for credentials
+    printf "GHCR username: " >&2
+    read -r GHCR_USERNAME
+    if [ -z "$GHCR_USERNAME" ]; then
+      echo "Error: Username cannot be empty" >&2
+      exit 1
+    fi
+
+    printf "GHCR token (personal access token): " >&2
+    read -s GHCR_TOKEN
+    echo
+    if [ -z "$GHCR_TOKEN" ]; then
+      echo "Error: Token cannot be empty" >&2
+      exit 1
+    fi
+
+    # Generate base64 auth string
+    local AUTH
+    AUTH=$(printf "%s:%s" "$GHCR_USERNAME" "$GHCR_TOKEN" | base64 | tr -d '\n')
+    if [ -z "$AUTH" ]; then
+      echo "Error: Failed to generate auth string" >&2
+      exit 1
+    fi
+
+    # Set up config file paths
+    local CONFIG_DIR="${HOME}/.docker"
+    local CONFIG_FILE="${CONFIG_DIR}/config.json"
+
+    # Create directory with proper permissions
+    if ! mkdir -p "$CONFIG_DIR" 2>/dev/null; then
+      echo "Error: Failed to create directory $CONFIG_DIR" >&2
+      exit 1
+    fi
+    if ! chmod 700 "$CONFIG_DIR" 2>/dev/null; then
+      echo "Error: Failed to set permissions on $CONFIG_DIR" >&2
+      exit 1
+    fi
+
+    # Create or update config file
+    if ! cat > "$CONFIG_FILE" <<EOF
+{
+  "auths": {
+    "ghcr.io": {
+      "auth": "${AUTH}"
+    }
+  }
+}
+EOF
+    then
+      echo "Error: Failed to write config file $CONFIG_FILE" >&2
+      exit 1
+    fi
+
+    # Set proper permissions
+    if ! chmod 600 "$CONFIG_FILE" 2>/dev/null; then
+      echo "Error: Failed to set permissions on config file $CONFIG_FILE" >&2
+      exit 1
+    fi
+
+    echo "Successfully wrote ${CONFIG_FILE}"
+  )
+  local exit_status=$?
+  if [ $exit_status -ne 0 ]; then
+    echo "Function failed with status $exit_status" >&2
+    return $exit_status
+  fi
+}
+
 dotfiles_update() {
   local current_dir=$(pwd)
   dotfiles
