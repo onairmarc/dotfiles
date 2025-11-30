@@ -1,10 +1,8 @@
 <scheme name="MB Color Scheme" version="142" parent_scheme="Darcula">
   <option name="FONT_SCALE" value="1.0" />
   <metaInfo>
-    <property name="created">2024-02-01T10:27:12</property>
     <property name="ide">PhpStorm</property>
-    <property name="ideVersion">2023.3.3.0.0</property>
-    <property name="modified">2024-02-01T10:27:37</property>
+    <property name="ideVersion">2025.2.5.0.0</property>
     <property name="originalScheme">MB Color Scheme</property>
   </metaInfo>
   <option name="LINE_SPACING" value="1.2" />
@@ -14,64 +12,64 @@
   <option name="CONSOLE_FONT_NAME" value="JetBrains Mono" />
   <option name="CONSOLE_FONT_SIZE" value="16" />
   <colors>
-    <option name="ADDED_LINES_COLOR" value="98c379" />
-    <option name="ANNOTATIONS_COLOR" value="a0a7b4" />
-    <option name="Bookmark.Mnemonic.iconBackground" value="3d424b" />
-    <option name="Bookmark.Mnemonic.iconBorderColor" value="568af2" />
-    <option name="Bookmark.Mnemonic.iconForeground" value="a0a7b4" />
-    <option name="BookmarkMnemonicIcon.background" value="3d424b" />
-    <option name="BookmarkMnemonicIcon.borderColor" value="568af2" />
-    <option name="BookmarkMnemonicIcon.foreground" value="a0a7b4" />
-    <option name="CARET_COLOR" value="528bff" />
-    <option name="CARET_ROW_COLOR" value="2c313c" />
+    <option name="ADDED_LINES_COLOR" value="98C379" />
+    <option name="ANNOTATIONS_COLOR" value="A0A7B4" />
+    <option name="Bookmark.Mnemonic.iconBackground" value="3D424B" />
+    <option name="Bookmark.Mnemonic.iconBorderColor" value="568AF2" />
+    <option name="Bookmark.Mnemonic.iconForeground" value="A0A7B4" />
+    <option name="BookmarkMnemonicIcon.background" value="3D424B" />
+    <option name="BookmarkMnemonicIcon.borderColor" value="568AF2" />
+    <option name="BookmarkMnemonicIcon.foreground" value="A0A7B4" />
+    <option name="CARET_COLOR" value="528BFF" />
+    <option name="CARET_ROW_COLOR" value="2C313C" />
     <option name="CONSOLE_BACKGROUND_KEY" value="" />
-    <option name="DELETED_LINES_COLOR" value="e06c75" />
-    <option name="DIAGRAM_ANNOTATION_EDGE" value="e5c07b" />
-    <option name="DIAGRAM_DEFAULT_EDGE" value="a0a7b4" />
-    <option name="DIAGRAM_GENERALIZATION_EDGE" value="61afef" />
-    <option name="DIAGRAM_INNER_EDGE" value="e06c75" />
+    <option name="DELETED_LINES_COLOR" value="E06C75" />
+    <option name="DIAGRAM_ANNOTATION_EDGE" value="E5C07B" />
+    <option name="DIAGRAM_DEFAULT_EDGE" value="A0A7B4" />
+    <option name="DIAGRAM_GENERALIZATION_EDGE" value="61AFEF" />
+    <option name="DIAGRAM_INNER_EDGE" value="E06C75" />
     <option name="DIAGRAM_NODE_BACKGROUND" value="323844" />
     <option name="DIAGRAM_NODE_HEADER" value="414855" />
     <option name="DIAGRAM_NOTE_BACKGROUND" value="414855" />
-    <option name="DIAGRAM_NOTE_BORDER" value="5c6370" />
-    <option name="DIAGRAM_REALIZATION_EDGE" value="98c379" />
-    <option name="DIFF_SEPARATORS_BACKGROUND" value="21252b" />
-    <option name="DOCUMENTATION_COLOR" value="3d424b" />
+    <option name="DIAGRAM_NOTE_BORDER" value="5C6370" />
+    <option name="DIAGRAM_REALIZATION_EDGE" value="98C379" />
+    <option name="DIFF_SEPARATORS_BACKGROUND" value="21252B" />
+    <option name="DOCUMENTATION_COLOR" value="3D424B" />
     <option name="ERROR_HINT" value="781732" />
-    <option name="FILESTATUS_IDEA_FILESTATUS_IGNORED" value="4f575f" />
+    <option name="FILESTATUS_IDEA_FILESTATUS_IGNORED" value="4F575F" />
     <option name="FOLDED_TEXT_BORDER_COLOR" value="" />
-    <option name="GUTTER_BACKGROUND" value="282c34" />
-    <option name="HTML_TAG_TREE_LEVEL0" value="f44747" />
-    <option name="HTML_TAG_TREE_LEVEL1" value="e5c07b" />
-    <option name="HTML_TAG_TREE_LEVEL2" value="98c379" />
-    <option name="HTML_TAG_TREE_LEVEL3" value="56b6c2" />
-    <option name="HTML_TAG_TREE_LEVEL4" value="61afef" />
-    <option name="HTML_TAG_TREE_LEVEL5" value="c678dd" />
-    <option name="INDENT_GUIDE" value="3b4048" />
-    <option name="INFORMATION_HINT" value="3d424b" />
-    <option name="JUPYTER.CELL_UNDER_CARET_COMMAND_MODE_STRIPE_COLOR" value="568af2" />
-    <option name="JUPYTER.CODE_CELL_BACKGROUND" value="2d3139" />
-    <option name="JUPYTER.GUTTER_INPUT_EXECUTION_COUNT" value="568af2" />
+    <option name="GUTTER_BACKGROUND" value="282C34" />
+    <option name="HTML_TAG_TREE_LEVEL0" value="F44747" />
+    <option name="HTML_TAG_TREE_LEVEL1" value="E5C07B" />
+    <option name="HTML_TAG_TREE_LEVEL2" value="98C379" />
+    <option name="HTML_TAG_TREE_LEVEL3" value="56B6C2" />
+    <option name="HTML_TAG_TREE_LEVEL4" value="61AFEF" />
+    <option name="HTML_TAG_TREE_LEVEL5" value="C678DD" />
+    <option name="INDENT_GUIDE" value="3B4048" />
+    <option name="INFORMATION_HINT" value="3D424B" />
+    <option name="JUPYTER.CELL_UNDER_CARET_COMMAND_MODE_STRIPE_COLOR" value="568AF2" />
+    <option name="JUPYTER.CODE_CELL_BACKGROUND" value="2D3139" />
+    <option name="JUPYTER.GUTTER_INPUT_EXECUTION_COUNT" value="568AF2" />
     <option name="JUPYTER.SAUSAGE_BUTTON_BORDER_COLOR" value="333841" />
     <option name="LINE_NUMBERS_COLOR" value="495162" />
     <option name="LINE_NUMBER_ON_CARET_ROW_COLOR" value="737984" />
-    <option name="LOOKUP_COLOR" value="21252b" />
-    <option name="METHOD_SEPARATORS_COLOR" value="3b4048" />
-    <option name="MODIFIED_LINES_COLOR" value="d19a66" />
-    <option name="QUESTION_HINT" value="2e4280" />
-    <option name="RECENT_LOCATIONS_SELECTION" value="3d424b" />
+    <option name="LOOKUP_COLOR" value="21252B" />
+    <option name="METHOD_SEPARATORS_COLOR" value="3B4048" />
+    <option name="MODIFIED_LINES_COLOR" value="D19A66" />
+    <option name="QUESTION_HINT" value="2E4280" />
+    <option name="RECENT_LOCATIONS_SELECTION" value="3D424B" />
     <option name="RIGHT_MARGIN_COLOR" value="606368" />
     <option name="SELECTED_INDENT_GUIDE" value="606368" />
-    <option name="SELECTED_TEARLINE_COLOR" value="6b6e73" />
+    <option name="SELECTED_TEARLINE_COLOR" value="6B6E73" />
     <option name="SELECTION_BACKGROUND" value="404859" />
-    <option name="ScrollBar.background" value="282c34" />
-    <option name="TEARLINE_COLOR" value="4f575f" />
+    <option name="ScrollBar.background" value="282C34" />
+    <option name="TEARLINE_COLOR" value="4F575F" />
     <option name="VCS_ANNOTATIONS_COLOR_1" value="335027" />
-    <option name="VCS_ANNOTATIONS_COLOR_2" value="3e443c" />
-    <option name="VCS_ANNOTATIONS_COLOR_5" value="46333c" />
-    <option name="VISUAL_INDENT_GUIDE" value="3b4048" />
-    <option name="WHITESPACES" value="4b575f" />
-    <option name="WHITESPACES_MODIFIED_LINES_COLOR" value="5c6370" />
+    <option name="VCS_ANNOTATIONS_COLOR_2" value="3E443C" />
+    <option name="VCS_ANNOTATIONS_COLOR_5" value="46333C" />
+    <option name="VISUAL_INDENT_GUIDE" value="3B4048" />
+    <option name="WHITESPACES" value="4B575F" />
+    <option name="WHITESPACES_MODIFIED_LINES_COLOR" value="5C6370" />
   </colors>
   <attributes>
     <option name="ANNOTATION_ATTRIBUTE_NAME_ATTRIBUTES">
@@ -651,7 +649,7 @@
     </option>
     <option name="DEFAULT_IDENTIFIER">
       <value>
-        <option name="FOREGROUND" value="e06c75" />
+        <option name="FOREGROUND" value="e5c07b" />
       </value>
     </option>
     <option name="DEFAULT_INSTANCE_FIELD">
@@ -1181,9 +1179,6 @@
         <option name="FOREGROUND" value="61afef" />
       </value>
     </option>
-    <option name="JS.GLOBAL_VARIABLE" baseAttributes="DEFAULT_GLOBAL_VARIABLE" />
-    <option name="JS.INSTANCE_MEMBER_FUNCTION" baseAttributes="DEFAULT_INSTANCE_METHOD" />
-    <option name="JS.LOCAL_VARIABLE" baseAttributes="DEFAULT_LOCAL_VARIABLE" />
     <option name="JS.MODULE_NAME">
       <value>
         <option name="FOREGROUND" value="e5c07b" />
@@ -1606,6 +1601,7 @@
         <option name="FOREGROUND" value="98c379" />
       </value>
     </option>
+    <option name="PHP_CONSTANT" baseAttributes="DEFAULT_CONSTANT" />
     <option name="PHP_EXEC_COMMAND_ID">
       <value>
         <option name="FOREGROUND" value="98c379" />
@@ -1619,6 +1615,11 @@
     <option name="PHP_INSTANCE_METHOD">
       <value>
         <option name="FOREGROUND" value="61afef" />
+      </value>
+    </option>
+    <option name="PHP_NAMED_ARGUMENT">
+      <value>
+        <option name="FOREGROUND" value="e06c75" />
       </value>
     </option>
     <option name="PHP_PARAMETER">
@@ -2093,8 +2094,6 @@
         <option name="FOREGROUND" value="d19a66" />
       </value>
     </option>
-    <option name="SQL_OUTER_QUERY_COLUMN" baseAttributes="SQL_COLUMN" />
-    <option name="SQL_SYNTHETIC_ENTITY" baseAttributes="DEFAULT_PREDEFINED_SYMBOL" />
     <option name="STATIC_FINAL_FIELD_ATTRIBUTES">
       <value>
         <option name="FOREGROUND" value="d19a66" />
