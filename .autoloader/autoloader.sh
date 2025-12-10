@@ -27,3 +27,8 @@ fi
 if [ -f "$DF_ROOT_DIRECTORY/.framework/migrations/migration_helpers.sh" ]; then
     source "$DF_ROOT_DIRECTORY/.framework/migrations/migration_helpers.sh"
 fi
+
+# Load logging helpers
+if [ -f "$DF_ROOT_DIRECTORY/.framework/logging_functions.sh" ]; then
+    source "$DF_ROOT_DIRECTORY/.framework/logging_functions.sh"
+fi
