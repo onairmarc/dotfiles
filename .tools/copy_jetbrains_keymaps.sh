@@ -3,11 +3,14 @@
 # JetBrains Keymap Copy Script
 # Copies keymaps from the dotfiles repository to platform-specific JetBrains directories
 
-# Source logging functions if not already sourced
-if [[ -z "$COL_RESET" ]]; then
-    SCRIPT_DIR_TEMP="$(cd "$(dirname "$0")" && pwd)"
-    DOTFILES_ROOT_TEMP="$(cd "$SCRIPT_DIR_TEMP/.." && pwd)"
-    source "$DOTFILES_ROOT_TEMP/.framework/logging_functions.sh"
+# Ensure autoloader is available
+#SCRIPT_DIR_TEMP="$(cd "$(dirname "$0")" && pwd)"
+#DOTFILES_ROOT_TEMP="$(cd "$SCRIPT_DIR_TEMP/.." && pwd)"
+#export DF_ROOT_DIRECTORY="$DOTFILES_ROOT_TEMP"
+
+# Source autoloader if not already sourced
+if [[ -z "$DF_AUTOLOADER_SOURCED" ]]; then
+    source "$DF_ROOT_DIRECTORY/.autoloader/autoloader.sh"
 fi
 
 # Define supported IDEs
@@ -95,7 +98,7 @@ get_user_selection() {
         read -p "Please select an IDE version (1-${#versions[@]}): " selection
 
         if [[ "$selection" =~ ^[0-9]+$ ]] && [[ "$selection" -ge 1 ]] && [[ "$selection" -le ${#versions[@]} ]]; then
-            log_info "${versions[$((selection-1))]}"
+            echo "${versions[$((selection-1))]}"
             return 0
         else
             echo "Invalid selection. Please enter a number between 1 and ${#versions[@]}."
