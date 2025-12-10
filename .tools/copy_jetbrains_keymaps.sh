@@ -3,6 +3,13 @@
 # JetBrains Keymap Copy Script
 # Copies keymaps from the dotfiles repository to platform-specific JetBrains directories
 
+# Source logging functions if not already sourced
+if [[ -z "$COL_RESET" ]]; then
+    SCRIPT_DIR_TEMP="$(cd "$(dirname "$0")" && pwd)"
+    DOTFILES_ROOT_TEMP="$(cd "$SCRIPT_DIR_TEMP/.." && pwd)"
+    source "$DOTFILES_ROOT_TEMP/.framework/logging_functions.sh"
+fi
+
 # Define supported IDEs
 IDES=("GoLand" "PhpStorm" "WebStorm" "IntelliJIdea" "Rider" "PyCharm" "CLion" "RubyMine" "DataGrip" "AndroidStudio")
 
@@ -18,7 +25,7 @@ detect_platform() {
         if [[ -n "$APPDATA" ]]; then
             JETBRAINS_DIR="$APPDATA/JetBrains"
         else
-            echo "Error: APPDATA environment variable not found"
+            log_error "Error: APPDATA environment variable not found"
             exit 1
         fi
         PLATFORM="Windows"
@@ -27,7 +34,7 @@ detect_platform() {
         JETBRAINS_DIR="$HOME/Library/Application Support/JetBrains"
         PLATFORM="macOS"
     else
-        echo "Error: Unsupported platform. This script supports Windows and macOS only."
+        log_error "Error: Unsupported platform. This script supports Windows and macOS only."
         exit 1
     fi
 }
@@ -35,7 +42,7 @@ detect_platform() {
 # Function to discover available IDE versions
 discover_ide_versions() {
     if [[ ! -d "$JETBRAINS_DIR" ]]; then
-        echo "Error: JetBrains directory not found at: $JETBRAINS_DIR"
+        log_error "Error: JetBrains directory not found at: $JETBRAINS_DIR"
         exit 1
     fi
 
@@ -58,8 +65,8 @@ discover_ide_versions() {
     done
 
     if [[ ${#available_versions[@]} -eq 0 ]]; then
-        echo "No compatible JetBrains IDEs found in: $JETBRAINS_DIR"
-        echo "Looking for directories matching pattern: {IDE}{version} with existing keymaps folder"
+        log_error "No compatible JetBrains IDEs found in: $JETBRAINS_DIR"
+        log_info "Looking for directories matching pattern: {IDE}{version} with existing keymaps folder"
         echo "Supported IDEs: ${IDES[*]}"
         exit 1
     fi
@@ -88,7 +95,7 @@ get_user_selection() {
         read -p "Please select an IDE version (1-${#versions[@]}): " selection
 
         if [[ "$selection" =~ ^[0-9]+$ ]] && [[ "$selection" -ge 1 ]] && [[ "$selection" -le ${#versions[@]} ]]; then
-            echo "${versions[$((selection-1))]}"
+            log_info "${versions[$((selection-1))]}"
             return 0
         else
             echo "Invalid selection. Please enter a number between 1 and ${#versions[@]}."
@@ -102,17 +109,17 @@ copy_keymaps() {
     local target_dir="$JETBRAINS_DIR/$selected_ide/keymaps"
 
     if [[ ! -d "$KEYMAP_SOURCE" ]]; then
-        echo "Error: Source keymaps directory not found at: $KEYMAP_SOURCE"
+        log_error "Error: Source keymaps directory not found at: $KEYMAP_SOURCE"
         exit 1
     fi
 
     if [[ ! -d "$target_dir" ]]; then
-        echo "Error: Target directory not found: $target_dir"
+        log_error "Error: Target directory not found: $target_dir"
         exit 1
     fi
 
-    echo "Copying keymaps from: $KEYMAP_SOURCE"
-    echo "To: $target_dir"
+    log_info "Copying keymaps from: $KEYMAP_SOURCE"
+    log_info "To: $target_dir"
     echo
 
     # Create backup if keymaps already exist
@@ -122,12 +129,12 @@ copy_keymaps() {
             local filename=$(basename "$keymap")
             if [[ -f "$target_dir/$filename" ]] && [[ "$backup_created" == false ]]; then
                 local backup_dir="$target_dir/backup_$(date +%Y%m%d_%H%M%S)"
-                echo "Existing keymaps found. Creating backup at: $backup_dir"
+                log_info "Existing keymaps found. Creating backup at: $backup_dir"
                 mkdir -p "$backup_dir"
                 cp "$target_dir"/*.xml "$backup_dir" 2>/dev/null || true
 
                 # Clear the keymap directory after backup
-                echo "Clearing existing keymaps from target directory..."
+                log_info "Clearing existing keymaps from target directory..."
                 rm -f "$target_dir"/*.xml
                 backup_created=true
             fi
@@ -141,48 +148,49 @@ copy_keymaps() {
             local filename=$(basename "$keymap")
             cp "$keymap" "$target_dir/"
             if [[ $? -eq 0 ]]; then
-                echo "✓ Copied: $filename"
+                log_success "✓ Copied: $filename"
                 ((copied_count++))
             else
-                echo "✗ Failed to copy: $filename"
+                log_error "✗ Failed to copy: $filename"
             fi
         fi
     done
 
     echo
     if [[ $copied_count -gt 0 ]]; then
-        echo "Successfully copied $copied_count keymap(s) to $selected_ide"
+        log_success "Successfully copied $copied_count keymap(s) to $selected_ide"
         echo
-        echo "The keymaps should now be available in your IDE under:"
-        echo "Settings → Keymap → [Select your custom keymap]"
+        log_info "The keymaps should now be available in your IDE under:"
+        log_info "Settings → Keymap → [Select your custom keymap]"
+        log_info "You may need to restart your IDE for the changes to take effect."
     else
-        echo "No keymaps were copied."
+        log_error "No keymaps were copied."
     fi
 }
 
 # Main execution
 main() {
-    echo "JetBrains Keymap Copy Utility"
-    echo "============================="
+    log_info "JetBrains Keymap Copy Utility"
+    log_info "============================="
     echo
 
     # Detect platform and set JetBrains directory
     detect_platform
-    echo "Detected platform: $PLATFORM"
-    echo "JetBrains directory: $JETBRAINS_DIR"
-    echo "Keymap source: $KEYMAP_SOURCE"
+    log_info "Detected platform: $PLATFORM"
+    log_info "JetBrains directory: $JETBRAINS_DIR"
+    log_info "Keymap source: $KEYMAP_SOURCE"
     echo
 
     # Discover available IDE versions
     mapfile -t available_versions < <(discover_ide_versions)
 
     if [[ ${#available_versions[@]} -eq 1 ]]; then
-        echo "Found 1 compatible IDE version: ${available_versions[0]}"
+        log_info "Found 1 compatible IDE version: ${available_versions[0]}"
         read -p "Copy keymaps to ${available_versions[0]}? (y/N): " confirm
         if [[ "$confirm" =~ ^[Yy]$ ]]; then
             copy_keymaps "${available_versions[0]}"
         else
-            echo "Operation cancelled."
+            log_error "Operation cancelled."
         fi
     else
         # Show selection menu
@@ -191,7 +199,7 @@ main() {
         # Get user selection
         selected_ide=$(get_user_selection "${available_versions[@]}")
         echo
-        echo "Selected: $selected_ide"
+        log_info "Selected: $selected_ide"
 
         # Confirm and copy
         read -p "Copy keymaps to $selected_ide? (y/N): " confirm
@@ -199,7 +207,7 @@ main() {
             echo
             copy_keymaps "$selected_ide"
         else
-            echo "Operation cancelled."
+            log_error "Operation cancelled."
         fi
     fi
 }
