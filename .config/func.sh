@@ -382,3 +382,7 @@ zpm() {
 zpi() {
     rm "$HOME/.zshrc" && ln -s "$HOME/dotfiles/.zshrc" "$HOME/.zshrc" && zpm-refresh;
 }
+
+jb_configure() {
+    bash "$DF_ROOT_DIRECTORY/.tools/copy_jetbrains_keymaps.sh"
+}
