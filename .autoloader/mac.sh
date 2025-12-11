@@ -3,24 +3,35 @@
 # All Right Reserved.
 #
 
+# Start timing for debug mode
+if [[ -n "$DF_DEBUG_TIMING" ]]; then
+    _mac_autoloader_start_time=$(date +%s%3N)
+fi
+
 # OMZ must be loaded first
-source "$DF_CONFIG_DIRECTORY/omz.sh"
+__df_source_once "$DF_CONFIG_DIRECTORY/omz.sh" "omz"
 
 # Load Configurations (Ordering Matters)
-source "$DF_CONFIG_DIRECTORY/env.sh"
-source "$DF_CONFIG_DIRECTORY/color.sh"
-source "$DF_CONFIG_DIRECTORY/alias.sh"
-source "$DF_CONFIG_DIRECTORY/func.sh"
+__df_source_once "$DF_CONFIG_DIRECTORY/env.sh" "env"
+__df_source_once "$DF_CONFIG_DIRECTORY/color.sh" "color"
+__df_source_once "$DF_CONFIG_DIRECTORY/alias.sh" "alias"
+__df_source_once "$DF_CONFIG_DIRECTORY/func.sh" "func"
 
-# Load Tool Configurations (Sorted Alphabetically)
-source "$DF_TOOLS_DIRECTORY/aws.sh"
-source "$DF_TOOLS_DIRECTORY/docker.sh"
-source "$DF_CONFIG_DIRECTORY/mac.sh"
-source "$DF_TOOLS_DIRECTORY/mac_cleanup_checker.sh"
-source "$DF_TOOLS_DIRECTORY/nano.sh"
-source "$DF_TOOLS_DIRECTORY/stripe.sh"
-source "$DF_CONFIG_DIRECTORY/tmux.sh"
+# Load Tool Configurations (Sorted Alphabetically) - Using lazy loading for heavy tools
+__df_lazy_load "$DF_TOOLS_DIRECTORY/aws.sh" "aws" "get_aws_secret"
+__df_lazy_load "$DF_TOOLS_DIRECTORY/docker.sh" "docker" "docker_install" "docker_uninstall"
+__df_source_once "$DF_CONFIG_DIRECTORY/mac.sh" "mac"
+__df_source_once "$DF_TOOLS_DIRECTORY/mac_cleanup_checker.sh" "mac_cleanup_checker"
+__df_source_once "$DF_TOOLS_DIRECTORY/nano.sh" "nano"
+__df_source_once "$DF_TOOLS_DIRECTORY/stripe.sh" "stripe"
+__df_source_once "$DF_CONFIG_DIRECTORY/tmux.sh" "tmux"
 
 # Conditionally Load Entrypoint to Private DotFiles
 DF_PRIVATE_DIRECTORY="$HOME/Documents/GitHub/dotfiles-private"
 [ -f "$DF_PRIVATE_DIRECTORY/entrypoint.sh" ] && source "$DF_PRIVATE_DIRECTORY/entrypoint.sh"
+
+# End timing for debug mode
+if [[ -n "$DF_DEBUG_TIMING" ]]; then
+    _mac_autoloader_end_time=$(date +%s%3N)
+    echo "[TIMING] mac autoloader: $((_mac_autoloader_end_time - _mac_autoloader_start_time))ms" >&2
+fi

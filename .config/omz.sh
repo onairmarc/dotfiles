@@ -65,8 +65,13 @@ COMPLETION_WAITING_DOTS="true"
 
 # Would you like to use another custom folder than $ZSH/custom?
 ZSH_CUSTOM="$DF_ROOT_DIRECTORY/ohmyzsh/custom"
-source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+# Use cached brew prefix for performance
+BREW_PREFIX="$(__df_get_brew_prefix)"
+if [[ -n "$BREW_PREFIX" ]]; then
+    __df_source_once "$BREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh" "zsh_autosuggestions"
+    __df_source_once "$BREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" "zsh_syntax_highlighting"
+fi
 
 # Which plugins would you like to load?
 # Standard plugins can be found in $ZSH/plugins/

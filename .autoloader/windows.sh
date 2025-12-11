@@ -3,16 +3,27 @@
 # All Right Reserved.
 #
 
-# Load Configurations (Ordering Matters)
-source "$DF_CONFIG_DIRECTORY/env.sh"
-source "$DF_CONFIG_DIRECTORY/color.sh"
-source "$DF_CONFIG_DIRECTORY/alias.sh"
-source "$DF_CONFIG_DIRECTORY/func.sh"
+# Start timing for debug mode
+if [[ -n "$DF_DEBUG_TIMING" ]]; then
+    _windows_autoloader_start_time=$(date +%s%3N)
+fi
 
-# Load Tool Configurations (Sorted Alphabetically)
-source "$DF_TOOLS_DIRECTORY/aws.sh"
-source "$DF_TOOLS_DIRECTORY/docker.sh"
+# Load Configurations (Ordering Matters)
+__df_source_once "$DF_CONFIG_DIRECTORY/env.sh" "env"
+__df_source_once "$DF_CONFIG_DIRECTORY/color.sh" "color"
+__df_source_once "$DF_CONFIG_DIRECTORY/alias.sh" "alias"
+__df_source_once "$DF_CONFIG_DIRECTORY/func.sh" "func"
+
+# Load Tool Configurations (Sorted Alphabetically) - Using lazy loading for heavy tools
+__df_lazy_load "$DF_TOOLS_DIRECTORY/aws.sh" "aws" "get_aws_secret"
+__df_lazy_load "$DF_TOOLS_DIRECTORY/docker.sh" "docker" "docker_install" "docker_uninstall"
 
 # Conditionally Load Entrypoint to Private DotFiles
 DF_PRIVATE_DIRECTORY="$HOME/Documents/GitHub/dotfiles-private"
 [ -f "$DF_PRIVATE_DIRECTORY/entrypoint.sh" ] && source "$DF_PRIVATE_DIRECTORY/entrypoint.sh"
+
+# End timing for debug mode
+if [[ -n "$DF_DEBUG_TIMING" ]]; then
+    _windows_autoloader_end_time=$(date +%s%3N)
+    echo "[TIMING] windows autoloader: $((_windows_autoloader_end_time - _windows_autoloader_start_time))ms" >&2
+fi
