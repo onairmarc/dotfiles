@@ -1,10 +1,5 @@
 #!/usr/bin/env bash
 
-#
-# Copyright (c) 2025. Encore Digital Group.
-# All Right Reserved.
-#
-
 set -E
 trap cleanup SIGINT SIGTERM ERR EXIT
 

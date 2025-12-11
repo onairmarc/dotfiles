@@ -1,11 +1,6 @@
 #!/bin/bash
 
-#
-# Copyright (c) 2025. Encore Digital Group.
-# All Right Reserved.
-#
 # Migration Helper Functions
-#
 
 # Backup and move functions
 backup_file() {
