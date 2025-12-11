@@ -41,6 +41,10 @@ export DF_TOOLS_DIRECTORY="$DF_ROOT_DIRECTORY/.tools"
 # Load source guards first
 if [ -f "$DF_ROOT_DIRECTORY/.framework/source_guards.sh" ]; then
     source "$DF_ROOT_DIRECTORY/.framework/source_guards.sh"
+    if ! declare -f __df_source_once &>/dev/null; then
+      echo "Error: source_guards.sh did not load __df_source_once function" >&2
+      return 1
+    fi
 fi
 
 # Load framework components with source guards
