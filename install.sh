@@ -2,7 +2,7 @@
 
 set -e  # Exit immediately if a command exits with a non-zero status.
 set -u  # Treat unset variables as an error.
-source "./.autoloader/autoloader.sh"
+source "./.framework/__df_autoloader.sh"
 source "$DF_CONFIG_DIRECTORY/color.sh"
 
 # Function to check and install a tool

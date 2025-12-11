@@ -10,7 +10,7 @@
 
 # Source autoloader if not already sourced
 if [[ -z "$DF_AUTOLOADER_SOURCED" ]]; then
-    source "$DF_ROOT_DIRECTORY/.autoloader/autoloader.sh"
+    source "$DF_ROOT_DIRECTORY/.framework/__df_autoloader.sh"
 fi
 
 # Define supported IDEs

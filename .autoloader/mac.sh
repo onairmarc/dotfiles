@@ -17,9 +17,9 @@ __df_source_once "$DF_CONFIG_DIRECTORY/color.sh" "color"
 __df_source_once "$DF_CONFIG_DIRECTORY/alias.sh" "alias"
 __df_source_once "$DF_CONFIG_DIRECTORY/func.sh" "func"
 
-# Load Tool Configurations (Sorted Alphabetically) - Using lazy loading for heavy tools
-__df_lazy_load "$DF_TOOLS_DIRECTORY/aws.sh" "aws" "get_aws_secret"
-__df_lazy_load "$DF_TOOLS_DIRECTORY/docker.sh" "docker" "docker_install" "docker_uninstall"
+# Load Tool Configurations (Sorted Alphabetically)
+__df_source_once "$DF_TOOLS_DIRECTORY/aws.sh" "aws"
+__df_source_once "$DF_TOOLS_DIRECTORY/docker.sh" "docker"
 __df_source_once "$DF_CONFIG_DIRECTORY/mac.sh" "mac"
 __df_source_once "$DF_TOOLS_DIRECTORY/mac_cleanup_checker.sh" "mac_cleanup_checker"
 __df_source_once "$DF_TOOLS_DIRECTORY/nano.sh" "nano"

@@ -9,8 +9,8 @@ if [[ -n "$DF_DEBUG_TIMING" ]]; then
 fi
 
 ensure_autoloader() {
-  if [[ -z "$DF_AUTOLOADER_SOURCED" && -f "$DF_ROOT_DIRECTORY/.autoloader/autoloader.sh" ]]; then
-      source "$DF_ROOT_DIRECTORY/.autoloader/autoloader.sh"
+  if [[ -z "$DF_AUTOLOADER_SOURCED" && -f "$DF_ROOT_DIRECTORY/.framework/__df_autoloader.sh" ]]; then
+      source "$DF_ROOT_DIRECTORY/.framework/__df_autoloader.sh"
       export DF_AUTOLOADER_SOURCED=1
   fi
 }
@@ -37,7 +37,6 @@ fi
 
 # Load framework components with source guards
 __df_source_once "$DF_ROOT_DIRECTORY/.framework/brew_cache.sh" "brew_cache"
-__df_source_once "$DF_ROOT_DIRECTORY/.framework/lazy_loader.sh" "lazy_loader"
 __df_source_once "$DF_ROOT_DIRECTORY/.framework/migrations/migrate.sh" "migrate"
 __df_source_once "$DF_ROOT_DIRECTORY/.framework/migrations/migration_helpers.sh" "migration_helpers"
 __df_source_once "$DF_ROOT_DIRECTORY/.framework/migration_optimizer.sh" "migration_optimizer"

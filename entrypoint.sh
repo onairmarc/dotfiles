@@ -1,4 +1,4 @@
-source "$DF_ROOT_DIRECTORY/.autoloader/autoloader.sh"
+source "$DF_ROOT_DIRECTORY/.framework/__df_autoloader.sh"
 
 if [ "$OSTYPE" != "msys" ]; then
   __df_source_once "$DF_AUTOLOADER_DIRECTORY/mac.sh" "autoloader_mac"
