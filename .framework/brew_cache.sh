@@ -1,9 +1,6 @@
 #!/bin/bash
 
-#
-# Copyright (c) 2025. Encore Digital Group.
-# All Right Reserved.
-#
+
 
 # Brew prefix caching system to avoid expensive $(brew --prefix) calls
 

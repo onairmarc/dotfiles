@@ -1,7 +1,4 @@
-#
-# Copyright (c) 2025. Encore Digital Group.
-# All Right Reserved.
-#
+
 
 # Start timing for debug mode
 if [[ -n "$DF_DEBUG_TIMING" ]]; then

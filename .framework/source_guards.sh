@@ -1,9 +1,6 @@
 #!/bin/bash
 
-#
-# Copyright (c) 2025. Encore Digital Group.
-# All Right Reserved.
-#
+
 
 # Source guard utility functions to prevent duplicate sourcing
 # and improve shell startup performance

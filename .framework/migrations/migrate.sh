@@ -1,9 +1,5 @@
 #!/bin/bash
 
-#
-# Copyright (c) 2025. Encore Digital Group.
-# All Right Reserved.
-#
 
 MIGRATIONS_DIR="$DF_ROOT_DIRECTORY/.migrations"
 MIGRATIONS_LOG="$MIGRATIONS_DIR/.migration_history"

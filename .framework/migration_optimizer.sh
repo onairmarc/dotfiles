@@ -1,9 +1,6 @@
 #!/bin/bash
 
-#
-# Copyright (c) 2025. Encore Digital Group.
-# All Right Reserved.
-#
+
 
 # Migration system performance optimizations
 
