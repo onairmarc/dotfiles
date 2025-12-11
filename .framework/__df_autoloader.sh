@@ -1,21 +1,5 @@
 #!/usr/bin/env bash
 
-# Portable timing function for cross-platform compatibility
-__df_get_timestamp_ms() {
-    if date +%N >/dev/null 2>&1; then
-        # GNU date (Linux) - supports nanoseconds
-        date +%s%3N
-    else
-        # BSD date (macOS) - fallback to seconds * 1000
-        echo $(($(date +%s) * 1000))
-    fi
-}
-
-# Start timing for debug mode
-if [[ -n "$DF_DEBUG_TIMING" ]]; then
-    _autoloader_start_time=$(__df_get_timestamp_ms)
-fi
-
 ensure_autoloader() {
   if [[ -z "$DF_AUTOLOADER_SOURCED" && -f "$DF_ROOT_DIRECTORY/.framework/__df_autoloader.sh" ]]; then
       source "$DF_ROOT_DIRECTORY/.framework/__df_autoloader.sh"
@@ -45,6 +29,11 @@ if [ -f "$DF_ROOT_DIRECTORY/.framework/source_guards.sh" ]; then
       echo "Error: source_guards.sh did not load __df_source_once function" >&2
       return 1
     fi
+fi
+
+# Start timing for debug mode (after source_guards.sh is loaded)
+if [[ -n "$DF_DEBUG_TIMING" ]]; then
+    _autoloader_start_time=$(__df_get_timestamp_ms)
 fi
 
 # Load framework components with source guards
