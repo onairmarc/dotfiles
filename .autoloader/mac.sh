@@ -1,8 +1,8 @@
-
+#!/usr/bin/env bash
 
 # Start timing for debug mode
 if [[ -n "$DF_DEBUG_TIMING" ]]; then
-    _mac_autoloader_start_time=$(date +%s%3N)
+    _mac_autoloader_start_time=$(__df_get_timestamp_ms)
 fi
 
 # OMZ must be loaded first
@@ -29,6 +29,6 @@ DF_PRIVATE_DIRECTORY="$HOME/Documents/GitHub/dotfiles-private"
 
 # End timing for debug mode
 if [[ -n "$DF_DEBUG_TIMING" ]]; then
-    _mac_autoloader_end_time=$(date +%s%3N)
+    _mac_autoloader_end_time=$(__df_get_timestamp_ms)
     echo "[TIMING] mac autoloader: $((_mac_autoloader_end_time - _mac_autoloader_start_time))ms" >&2
 fi

@@ -1,8 +1,6 @@
 #!/bin/bash
 
-#
 # Migration Helper Functions
-#
 
 # Backup and move functions
 backup_file() {

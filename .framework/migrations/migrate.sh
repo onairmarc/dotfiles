@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 MIGRATIONS_DIR="$DF_ROOT_DIRECTORY/.migrations"
 MIGRATIONS_LOG="$MIGRATIONS_DIR/.migration_history"
 

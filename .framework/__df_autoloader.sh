@@ -1,8 +1,19 @@
+#!/usr/bin/env bash
 
+# Portable timing function for cross-platform compatibility
+__df_get_timestamp_ms() {
+    if date +%N >/dev/null 2>&1; then
+        # GNU date (Linux) - supports nanoseconds
+        date +%s%3N
+    else
+        # BSD date (macOS) - fallback to seconds * 1000
+        echo $(($(date +%s) * 1000))
+    fi
+}
 
 # Start timing for debug mode
 if [[ -n "$DF_DEBUG_TIMING" ]]; then
-    _autoloader_start_time=$(date +%s%3N)
+    _autoloader_start_time=$(__df_get_timestamp_ms)
 fi
 
 ensure_autoloader() {
@@ -41,6 +52,6 @@ __df_source_once "$DF_ROOT_DIRECTORY/.framework/logging_functions.sh" "logging_f
 
 # End timing for debug mode
 if [[ -n "$DF_DEBUG_TIMING" ]]; then
-    _autoloader_end_time=$(date +%s%3N)
+    _autoloader_end_time=$(__df_get_timestamp_ms)
     echo "[TIMING] autoloader.sh: $((_autoloader_end_time - _autoloader_start_time))ms" >&2
 fi

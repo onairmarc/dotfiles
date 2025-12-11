@@ -1,7 +1,5 @@
 #!/bin/bash
 
-
-
 # Brew prefix caching system to avoid expensive $(brew --prefix) calls
 
 # Cache file location using DF_DATA_DIR

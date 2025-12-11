@@ -1,7 +1,5 @@
 #!/bin/bash
 
-
-
 # Migration system performance optimizations
 
 # Cache file for migration metadata

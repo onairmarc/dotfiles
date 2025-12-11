@@ -1,7 +1,5 @@
 #!/bin/bash
 
-
-
 # Source guard utility functions to prevent duplicate sourcing
 # and improve shell startup performance
 
@@ -47,18 +45,29 @@ __df_source_once() {
     __df_mark_as_sourced "$file_identifier"
 }
 
+# Portable timing function for cross-platform compatibility
+__df_get_timestamp_ms() {
+    if date +%N >/dev/null 2>&1; then
+        # GNU date (Linux) - supports nanoseconds
+        date +%s%3N
+    else
+        # BSD date (macOS) - fallback to seconds * 1000
+        echo $(($(date +%s) * 1000))
+    fi
+}
+
 # Performance timing utilities for debugging
 if [[ -n "$DF_DEBUG_TIMING" ]]; then
     _df_start_time=""
 
     __df_start_timing() {
-        _df_start_time=$(date +%s%3N)
+        _df_start_time=$(__df_get_timestamp_ms)
     }
 
     __df_end_timing() {
         local label="$1"
         if [[ -n "$_df_start_time" ]]; then
-            local end_time=$(date +%s%3N)
+            local end_time=$(__df_get_timestamp_ms)
             local duration=$((end_time - _df_start_time))
             echo "[TIMING] $label: ${duration}ms" >&2
         fi
@@ -80,6 +89,7 @@ if [[ -n "$DF_DEBUG_TIMING" ]]; then
     }
 else
     # No-op functions when timing is disabled
+    __df_get_timestamp_ms() { :; }
     __df_start_timing() { :; }
     __df_end_timing() { :; }
     __df_source_once_timed() { __df_source_once "$@"; }
