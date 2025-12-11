@@ -42,6 +42,18 @@ build() {
     fi
 }
 
+copy_claude_plan () {
+  if [ -z "$1" ]; then
+    echo -e "${COL_RED}Error: Source plan name is required.${COL_RESET}"
+    return 1
+  fi
+
+  local sourcePlanName=$1
+  local destinationPlanName=${2:-$sourcePlanName}
+
+  cp ~/.claude/plans/"$sourcePlanName".md ./"$destinationPlanName".md
+}
+
 docker_config_auth() {
   (
     set -euo pipefail
