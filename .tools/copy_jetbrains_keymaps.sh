@@ -4,9 +4,10 @@
 # Copies keymaps from the dotfiles repository to platform-specific JetBrains directories
 
 # Ensure autoloader is available
-#SCRIPT_DIR_TEMP="$(cd "$(dirname "$0")" && pwd)"
-#DOTFILES_ROOT_TEMP="$(cd "$SCRIPT_DIR_TEMP/.." && pwd)"
-#export DF_ROOT_DIRECTORY="$DOTFILES_ROOT_TEMP"
+if [[ -z "$DF_ROOT_DIRECTORY" ]]; then
+    SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+    export DF_ROOT_DIRECTORY="$(cd "$SCRIPT_DIR/.." && pwd)"
+fi
 
 # Source autoloader if not already sourced
 if [[ -z "$DF_AUTOLOADER_SOURCED" ]]; then
@@ -17,9 +18,7 @@ fi
 IDES=("GoLand" "PhpStorm" "WebStorm" "IntelliJIdea" "Rider" "PyCharm" "CLion" "RubyMine" "DataGrip" "AndroidStudio")
 
 # Set the dotfiles repository keymap source (fixed path)
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-DOTFILES_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-KEYMAP_SOURCE="$DOTFILES_ROOT/JetBrains/keymaps"
+KEYMAP_SOURCE="$DF_ROOT_DIRECTORY/JetBrains/keymaps"
 
 # Function to detect platform and set JetBrains directory
 detect_platform() {
@@ -172,7 +171,7 @@ copy_keymaps() {
 }
 
 # Main execution
-main() {
+jb_configure_main() {
     log_info "JetBrains Keymap Copy Utility"
     log_info "============================="
     echo
@@ -216,4 +215,4 @@ main() {
 }
 
 # Run main function
-main "$@"
+jb_configure_main "$@"

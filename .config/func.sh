@@ -396,5 +396,5 @@ zpi() {
 }
 
 jb_configure() {
-    bash "$DF_ROOT_DIRECTORY/.tools/copy_jetbrains_keymaps.sh"
+    source "$DF_ROOT_DIRECTORY/.tools/copy_jetbrains_keymaps.sh"
 }
