@@ -8,6 +8,19 @@ art() {
     fi
 }
 
+analize() {
+    if [ -f "vendor/bin/phpstan" ]; then
+        XDEBUG_MODE=off vendor/bin/phpstan "$@"
+    elif [ -f "application/vendor/bin/phpstan" ]; then
+        current_dir=$(pwd)
+        cd application
+        XDEBUG_MODE=off vendor/bin/phpstan "$@"
+        cd "$current_dir"
+    else
+        log_error "Error: Unable to locate PHPStan"
+    fi
+}
+
 autoboot_disable() {
   sudo nvram AutoBoot=%00
 }
@@ -197,6 +210,19 @@ nah() {
 
 npmcc() {
     npm cache clean --force;
+}
+
+pest() {
+    if [ -f "vendor/bin/pest" ]; then
+        vendor/bin/pest "$@"
+    elif [ -f "application/vendor/bin/pest" ]; then
+        current_dir=$(pwd)
+        cd application
+        vendor/bin/pest "$@"
+        cd "$current_dir"
+    else
+        log_error "Error: Unable to locate Pest"
+    fi
 }
 
 rebuild() {

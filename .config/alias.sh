@@ -1,6 +1,5 @@
 #background=dark
 
-alias analize='XDEBUG_MODE=off vendor/bin/phpstan analyse'
 alias battery='pmset -g batt'
 alias ccc='npm cache clean --force && composer clear-cache'
 alias cf='composer format'
@@ -32,7 +31,6 @@ alias migrate='art migrate'
 alias mono='vendor/bin/monorepo-builder'
 alias mpc='art'
 alias peck='vendor/bin/peck'
-alias pest='vendor/bin/pest'
 alias phpacker="vendor/bin/phpacker"
 alias phpunit='vendor/bin/phpunit'
 alias rector='vendor/bin/rector'
