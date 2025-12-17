@@ -1,5 +1,6 @@
 #background=dark
 
+alias ..='cd ..'
 alias battery='pmset -g batt'
 alias ccc='npm cache clean --force && composer clear-cache'
 alias cf='composer format'
