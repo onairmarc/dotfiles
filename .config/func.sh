@@ -188,7 +188,7 @@ is_linux() {
 
 install() {
   if [ -f "package.json" ]; then
-    npm install
+    npm ci || npm install
   fi
   
   if [ -f "composer.json" ]; then
