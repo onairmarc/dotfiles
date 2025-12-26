@@ -269,6 +269,13 @@ rt () {
   rector && phpunit
 }
 
+openvpn_fix () {
+  sudo launchctl unload -w /Library/LaunchDaemons/org.openvpn.client.plist
+#  ps auxww | grep ovpnagent
+  sudo launchctl load -w /Library/LaunchDaemons/org.openvpn.client.plist
+#  ps auxww | grep ovpnagent
+}
+
 sys_env_clean() {
   rm -f .env.testing
   rm -f .env.production
