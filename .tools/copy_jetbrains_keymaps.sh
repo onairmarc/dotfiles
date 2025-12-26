@@ -28,7 +28,7 @@ detect_platform() {
             JETBRAINS_DIR="$APPDATA/JetBrains"
         else
             log_error "Error: APPDATA environment variable not found"
-            exit 1
+            return 1
         fi
         PLATFORM="Windows"
     elif [[ "$OSTYPE" == "darwin"* ]]; then
@@ -37,7 +37,7 @@ detect_platform() {
         PLATFORM="macOS"
     else
         log_error "Error: Unsupported platform. This script supports Windows and macOS only."
-        exit 1
+        return 1
     fi
 }
 
@@ -45,7 +45,7 @@ detect_platform() {
 discover_ide_versions() {
     if [[ ! -d "$JETBRAINS_DIR" ]]; then
         log_error "Error: JetBrains directory not found at: $JETBRAINS_DIR"
-        exit 1
+        return 1
     fi
 
     declare -a available_versions=()
@@ -70,10 +70,13 @@ discover_ide_versions() {
         log_error "No compatible JetBrains IDEs found in: $JETBRAINS_DIR"
         log_info "Looking for directories matching pattern: {IDE}{version} with existing keymaps folder"
         echo "Supported IDEs: ${IDES[*]}"
-        exit 1
+        return 1
     fi
 
-    printf '%s\n' "${available_versions[@]}"
+    # Print each version on a separate line (compatible with both bash and zsh)
+    for version in "${available_versions[@]}"; do
+        echo "$version"
+    done
 }
 
 # Function to display selection menu
@@ -82,8 +85,10 @@ show_selection_menu() {
     echo "Available JetBrains IDE versions on $PLATFORM:"
     echo
 
-    for i in "${!versions[@]}"; do
-        echo "$((i+1)). ${versions[i]}"
+    local count=1
+    for version in "${versions[@]}"; do
+        echo "$count. $version"
+        ((count++))
     done
     echo
 }
@@ -94,13 +99,21 @@ get_user_selection() {
     local selection
 
     while true; do
-        read -p "Please select an IDE version (1-${#versions[@]}): " selection
+        printf "Please select an IDE version (1-${#versions[@]}): " >&2
+        read selection
 
         if [[ "$selection" =~ ^[0-9]+$ ]] && [[ "$selection" -ge 1 ]] && [[ "$selection" -le ${#versions[@]} ]]; then
-            echo "${versions[$((selection-1))]}"
-            return 0
+            # Use a counter to get the selected version (compatible with both bash and zsh)
+            local count=1
+            for version in "${versions[@]}"; do
+                if [[ $count -eq $selection ]]; then
+                    echo "$version"
+                    return 0
+                fi
+                ((count++))
+            done
         else
-            echo "Invalid selection. Please enter a number between 1 and ${#versions[@]}."
+            echo "Invalid selection. Please enter a number between 1 and ${#versions[@]}." >&2
         fi
     done
 }
@@ -112,12 +125,12 @@ copy_keymaps() {
 
     if [[ ! -d "$KEYMAP_SOURCE" ]]; then
         log_error "Error: Source keymaps directory not found at: $KEYMAP_SOURCE"
-        exit 1
+        return 1
     fi
 
     if [[ ! -d "$target_dir" ]]; then
         log_error "Error: Target directory not found: $target_dir"
-        exit 1
+        return 1
     fi
 
     log_info "Copying keymaps from: $KEYMAP_SOURCE"
@@ -183,14 +196,29 @@ jb_configure_main() {
     log_info "Keymap source: $KEYMAP_SOURCE"
     echo
 
-    # Discover available IDE versions
-    mapfile -t available_versions < <(discover_ide_versions)
+    # Discover available IDE versions (compatible with both bash and zsh)
+    local available_versions=()
+    while IFS= read -r line; do
+        available_versions+=("$line")
+    done < <(discover_ide_versions)
+
+    # Check if discover_ide_versions failed
+    if [[ ${#available_versions[@]} -eq 0 ]]; then
+        return 1
+    fi
 
     if [[ ${#available_versions[@]} -eq 1 ]]; then
-        log_info "Found 1 compatible IDE version: ${available_versions[0]}"
-        read -p "Copy keymaps to ${available_versions[0]}? (y/N): " confirm
+        # Get the first (and only) element in a portable way
+        local first_version
+        for version in "${available_versions[@]}"; do
+            first_version="$version"
+            break
+        done
+        log_info "Found 1 compatible IDE version: $first_version"
+        printf "Copy keymaps to $first_version? (y/N): " >&2
+        read confirm
         if [[ "$confirm" =~ ^[Yy]$ ]]; then
-            copy_keymaps "${available_versions[0]}"
+            copy_keymaps "$first_version"
         else
             log_error "Operation cancelled."
         fi
@@ -204,7 +232,8 @@ jb_configure_main() {
         log_info "Selected: $selected_ide"
 
         # Confirm and copy
-        read -p "Copy keymaps to $selected_ide? (y/N): " confirm
+        printf "Copy keymaps to $selected_ide? (y/N): " >&2
+        read confirm
         if [[ "$confirm" =~ ^[Yy]$ ]]; then
             echo
             copy_keymaps "$selected_ide"
