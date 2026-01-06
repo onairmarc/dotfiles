@@ -152,6 +152,10 @@ main() {
     configure_iterm
     remap_capslock_to_escape
 
+    # Install OpenCode
+    echo -e "${COL_YELLOW}Installing OpenCode...${COL_RESET}"
+    curl -fsSL https://opencode.ai/install | bash
+
     # Unset the environment variables
     unset BREW_LIST
     unset BREW_CASK_LIST

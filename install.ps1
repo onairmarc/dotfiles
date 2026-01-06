@@ -115,6 +115,19 @@ function Main {
     Install-ChocoTool -ToolName "zsh-autosuggestions" -ChocoId "zsh-autosuggestions"
     Install-ChocoTool -ToolName "zsh-syntax-highlighting" -ChocoId "zsh-syntax-highlighting"
 
+    # Install OpenCode
+    if (Get-Command bash -ErrorAction SilentlyContinue) {
+        Write-Host "[*] Installing OpenCode..." -ForegroundColor Yellow
+        try {
+            bash -c "curl -fsSL https://opencode.ai/install | bash"
+            Write-Host "[+] OpenCode installation completed." -ForegroundColor Green
+        } catch {
+            Write-Host "[-] Failed to install OpenCode." -ForegroundColor Red
+        }
+    } else {
+        Write-Host "[-] Bash not found. Skipping OpenCode installation." -ForegroundColor Red
+    }
+
     Write-Host ""
     Write-Host "[+] Setup completed! You may need to restart your terminal for some changes to take effect." -ForegroundColor Green
     Write-Host ""
