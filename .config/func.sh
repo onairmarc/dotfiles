@@ -67,6 +67,10 @@ copy_claude_plan () {
   cp ~/.claude/plans/"$sourcePlanName".md ./"$destinationPlanName".md
 }
 
+claude_cleanup() {
+  find . -type f -name "tmpclaude*" -delete
+}
+
 docker_config_auth() {
   (
     set -euo pipefail
