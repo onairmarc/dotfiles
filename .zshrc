@@ -13,3 +13,6 @@ export HERD_PHP_84_INI_SCAN_DIR="/Users/marcbeinder/Library/Application Support/
 
 # Herd injected PHP 8.5 configuration.
 export HERD_PHP_85_INI_SCAN_DIR="/Users/marcbeinder/Library/Application Support/Herd/config/php/85/"
+
+# opencode
+export PATH=/Users/marcbeinder/.opencode/bin:$PATH
