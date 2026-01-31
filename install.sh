@@ -156,6 +156,10 @@ main() {
     echo -e "${COL_YELLOW}Installing OpenCode...${COL_RESET}"
     curl -fsSL https://opencode.ai/install | bash
 
+    # Install Bun
+    echo -e "${COL_YELLOW}Installing Bun...${COL_RESET}"
+    curl -fsSL https://bun.com/install | bash
+
     # Unset the environment variables
     unset BREW_LIST
     unset BREW_CASK_LIST
