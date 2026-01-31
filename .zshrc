@@ -16,3 +16,10 @@ export HERD_PHP_85_INI_SCAN_DIR="/Users/marcbeinder/Library/Application Support/
 
 # opencode
 export PATH=/Users/marcbeinder/.opencode/bin:$PATH
+
+# bun completions
+[ -s "/Users/marcbeinder/.oh-my-zsh/completions/_bun" ] && source "/Users/marcbeinder/.oh-my-zsh/completions/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
