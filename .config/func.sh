@@ -392,6 +392,14 @@ tf_apply() {
   tf apply plan
 }
 
+tfplan_prod () {
+  terraform plan -out plan -var-file=environments/production.tfvars  
+}
+
+tfplan_staging () {
+  terraform plan -out plan -var-file=environments/staging.tfvars  
+}
+
 xdb() {
   if [ "$XDEBUG_MODE" = "coverage,debug,develop" ]; then
       export XDEBUG_MODE="coverage"
