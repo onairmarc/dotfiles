@@ -50,8 +50,6 @@ if [[ "$ORIGINAL_DIR" != "$REPO_ROOT" ]]; then
     cd "$REPO_ROOT"
 fi
 
-SOURCE_DIR="$REPO_ROOT/.agents/skills"
-
 # Target symlinks and their relative paths to source
 declare -A TARGETS=(
     ["$REPO_ROOT/.claude/skills"]="../.agents/skills"
@@ -64,14 +62,6 @@ is_windows() {
     [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "win32" ]]
 }
 
-# Verify source directory exists
-if [[ ! -d "$SOURCE_DIR" ]]; then
-    log_error "Source directory not found: $SOURCE_DIR"
-    exit 1
-fi
-
-log_info "Source: .agents/skills/"
-
 if is_windows; then
     log_info "Detected Windows - using mklink /D for directory symlinks"
 fi
@@ -80,6 +70,15 @@ for TARGET in "${!TARGETS[@]}"; do
     RELATIVE_SOURCE="${TARGETS[$TARGET]}"
     PARENT_DIR="$(dirname "$TARGET")"
     LINK_NAME="$(basename "$TARGET")"
+
+    # Resolve full source path to verify it exists
+    FULL_SOURCE="$PARENT_DIR/$RELATIVE_SOURCE"
+
+    # Verify source exists before creating symlink
+    if [[ ! -e "$FULL_SOURCE" ]]; then
+        log_warn "Skipping $LINK_NAME: source does not exist ($RELATIVE_SOURCE)"
+        continue
+    fi
 
     log_info "Creating symlink: $TARGET -> $RELATIVE_SOURCE"
 
@@ -93,7 +92,6 @@ for TARGET in "${!TARGETS[@]}"; do
     mkdir -p "$PARENT_DIR"
 
     # Determine if source is a directory (for Windows mklink flag)
-    FULL_SOURCE="$PARENT_DIR/$RELATIVE_SOURCE"
     IS_DIR=false
     if [[ -d "$FULL_SOURCE" ]]; then
         IS_DIR=true
