@@ -9,19 +9,7 @@
 
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-
-SOURCE_DIR="$REPO_ROOT/.agents/skills"
-
-# Target symlinks and their relative paths to source
-declare -A TARGETS=(
-    ["$REPO_ROOT/.claude/skills"]="../.agents/skills"
-    ["$REPO_ROOT/.github/skills"]="../.agents/skills"
-    ["$REPO_ROOT/CLAUDE.md"]="AGENTS.md"
-)
-
-# Colors for output
+# Colors for output (defined early for use in validation)
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -38,6 +26,38 @@ log_warn() {
 log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
+
+# Save original directory to return to later
+ORIGINAL_DIR="$(pwd)"
+
+# Ensure we return to original directory on exit
+cleanup() {
+    cd "$ORIGINAL_DIR"
+}
+trap cleanup EXIT
+
+# Verify we are in a git repository
+if ! git rev-parse --git-dir > /dev/null 2>&1; then
+    log_error "Not in a git repository. Please run this script from within a git repo."
+    exit 1
+fi
+
+# Get the repo root and navigate to it
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+
+if [[ "$ORIGINAL_DIR" != "$REPO_ROOT" ]]; then
+    log_info "Navigating to repo root: $REPO_ROOT"
+    cd "$REPO_ROOT"
+fi
+
+SOURCE_DIR="$REPO_ROOT/.agents/skills"
+
+# Target symlinks and their relative paths to source
+declare -A TARGETS=(
+    ["$REPO_ROOT/.claude/skills"]="../.agents/skills"
+    ["$REPO_ROOT/.github/skills"]="../.agents/skills"
+    ["$REPO_ROOT/CLAUDE.md"]="AGENTS.md"
+)
 
 # Detect OS
 is_windows() {
