@@ -8,6 +8,10 @@ art() {
     fi
 }
 
+agent_symlink () {
+  bash "$DF_ROOT_DIRECTORY/.tools/agent_symlink.sh"  
+}
+
 analize() {
     if [ -f "vendor/bin/phpstan" ]; then
         XDEBUG_MODE=off vendor/bin/phpstan "$@"
