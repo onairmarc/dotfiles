@@ -59,6 +59,32 @@ build() {
     fi
 }
 
+ci() {
+    if [ -f "composer.json" ]; then
+        composer install --ignore-platform-reqs "$@"
+    elif [ -f "application/composer.json" ]; then
+        current_dir=$(pwd)
+        cd application
+        composer install --ignore-platform-reqs "$@"
+        cd "$current_dir"
+    else
+        log_error "Error: Unable to locate composer.json"
+    fi
+}
+
+cu() {
+    if [ -f "composer.json" ]; then
+        composer update --ignore-platform-reqs "$@"
+    elif [ -f "application/composer.json" ]; then
+        current_dir=$(pwd)
+        cd application
+        composer update --ignore-platform-reqs "$@"
+        cd "$current_dir"
+    else
+        log_error "Error: Unable to locate composer.json"
+    fi
+}
+
 copy_claude_plan () {
   if [ -z "$1" ]; then
     echo -e "${COL_RED}Error: Source plan name is required.${COL_RESET}"
