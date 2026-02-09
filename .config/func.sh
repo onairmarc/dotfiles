@@ -393,10 +393,14 @@ tf_apply() {
 }
 
 tfplan_prod () {
+  terraform workspace select production
+  terraform init --reconfigure
   terraform plan -out plan -var-file=environments/production.tfvars  
 }
 
 tfplan_staging () {
+  terraform workspace select staging
+  terraform init --reconfigure
   terraform plan -out plan -var-file=environments/staging.tfvars  
 }
 
