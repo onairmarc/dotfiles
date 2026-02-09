@@ -8,6 +8,10 @@ art() {
     fi
 }
 
+agent_symlink () {
+  bash "$DF_ROOT_DIRECTORY/.tools/agent_symlink.sh"  
+}
+
 analize() {
     if [ -f "vendor/bin/phpstan" ]; then
         XDEBUG_MODE=off vendor/bin/phpstan "$@"
@@ -52,6 +56,32 @@ build() {
         dotnet build "$@"
     else
         echo -e "${COL_RED}No build conditions have been met.${COL_RESET}"
+    fi
+}
+
+ci() {
+    if [ -f "composer.json" ]; then
+        composer install --ignore-platform-reqs "$@"
+    elif [ -f "application/composer.json" ]; then
+        current_dir=$(pwd)
+        cd application
+        composer install --ignore-platform-reqs "$@"
+        cd "$current_dir"
+    else
+        log_error "Error: Unable to locate composer.json"
+    fi
+}
+
+cu() {
+    if [ -f "composer.json" ]; then
+        composer update --ignore-platform-reqs "$@"
+    elif [ -f "application/composer.json" ]; then
+        current_dir=$(pwd)
+        cd application
+        composer update --ignore-platform-reqs "$@"
+        cd "$current_dir"
+    else
+        log_error "Error: Unable to locate composer.json"
     fi
 }
 
