@@ -3,7 +3,10 @@
 # Recreates skill symlinks from the source of truth (.agents/skills/)
 # to the target directories (.claude/skills and .github/skills)
 #
-# Usage: ./bin/symlink.sh
+# Usage: agent_symlink [--global]
+#
+# Options:
+#   --global    Create symlink from ~/.claude/skills to this repo's .agents/skills
 #
 # Note: On Windows, requires Developer Mode enabled or Administrator privileges
 
@@ -26,6 +29,22 @@ log_warn() {
 log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
+
+# Parse command line arguments
+GLOBAL_MODE=false
+for arg in "$@"; do
+    case $arg in
+        --global)
+            GLOBAL_MODE=true
+            shift
+            ;;
+        *)
+            log_error "Unknown option: $arg"
+            echo "Usage: $0 [--global]"
+            exit 1
+            ;;
+    esac
+done
 
 # Save original directory to return to later
 ORIGINAL_DIR="$(pwd)"
@@ -50,13 +69,6 @@ if [[ "$ORIGINAL_DIR" != "$REPO_ROOT" ]]; then
     cd "$REPO_ROOT"
 fi
 
-# Target symlinks and their relative paths to source
-declare -A TARGETS=(
-    ["$REPO_ROOT/.claude/skills"]="../.agents/skills"
-    ["$REPO_ROOT/.github/skills"]="../.agents/skills"
-    ["$REPO_ROOT/CLAUDE.md"]="AGENTS.md"
-)
-
 # Detect OS
 is_windows() {
     [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "win32" ]]
@@ -65,6 +77,48 @@ is_windows() {
 if is_windows; then
     log_info "Detected Windows - using mklink /D for directory symlinks"
 fi
+
+# Handle global mode: link ~/.claude/skills to this repo's .agents/skills
+if [[ "$GLOBAL_MODE" == true ]]; then
+    GLOBAL_TARGET="$HOME/.claude/skills"
+    SOURCE_DIR="$REPO_ROOT/.agents/skills"
+
+    # Verify source directory exists
+    if [[ ! -d "$SOURCE_DIR" ]]; then
+        log_error "Source directory does not exist: $SOURCE_DIR"
+        exit 1
+    fi
+
+    log_info "Global mode: Creating symlink from ~/.claude/skills to $SOURCE_DIR"
+
+    # Remove existing target if it exists
+    if [[ -e "$GLOBAL_TARGET" ]] || [[ -L "$GLOBAL_TARGET" ]]; then
+        log_info "  Removing existing: $GLOBAL_TARGET"
+        rm -rf "$GLOBAL_TARGET"
+    fi
+
+    # Ensure parent directory exists
+    mkdir -p "$(dirname "$GLOBAL_TARGET")"
+
+    # Create symlink
+    if is_windows; then
+        WIN_SOURCE="${SOURCE_DIR//\//\\}"
+        cmd //c "mklink /D \"$GLOBAL_TARGET\" \"$WIN_SOURCE\"" > /dev/null
+    else
+        ln -s "$SOURCE_DIR" "$GLOBAL_TARGET"
+    fi
+
+    log_info "  Created global symlink: $GLOBAL_TARGET -> $SOURCE_DIR"
+    log_info "Sync complete!"
+    exit 0
+fi
+
+# Target symlinks and their relative paths to source
+declare -A TARGETS=(
+    ["$REPO_ROOT/.claude/skills"]="../.agents/skills"
+    ["$REPO_ROOT/.github/skills"]="../.agents/skills"
+    ["$REPO_ROOT/CLAUDE.md"]="AGENTS.md"
+)
 
 for TARGET in "${!TARGETS[@]}"; do
     RELATIVE_SOURCE="${TARGETS[$TARGET]}"

@@ -9,7 +9,7 @@ art() {
 }
 
 agent_symlink () {
-  bash "$DF_ROOT_DIRECTORY/.tools/agent_symlink.sh"  
+  bash "$DF_ROOT_DIRECTORY/.tools/agent_symlink.sh" "$@"
 }
 
 analize() {
