@@ -113,22 +113,26 @@ if [[ "$GLOBAL_MODE" == true ]]; then
     exit 0
 fi
 
-# Target symlinks and their relative paths to source
-declare -A TARGETS=(
-    ["$REPO_ROOT/.claude/skills"]="../.agents/skills"
-    ["$REPO_ROOT/.github/skills"]="../.agents/skills"
-    ["$REPO_ROOT/CLAUDE.md"]="AGENTS.md"
+# Define target symlinks as: "target_path|relative_source"
+# This avoids complex path expansions in array keys
+SYMLINK_PAIRS=(
+    ".claude/skills|../.agents/skills"
+    ".github/skills|../.agents/skills"
+    "CLAUDE.md|AGENTS.md"
 )
 
-for TARGET in "${!TARGETS[@]}"; do
-    RELATIVE_SOURCE="${TARGETS[$TARGET]}"
+for PAIR in "${SYMLINK_PAIRS[@]}"; do
+    TARGET_PATH="${PAIR%%|*}"
+    RELATIVE_SOURCE="${PAIR##*|}"
+
+    TARGET="$REPO_ROOT/$TARGET_PATH"
     PARENT_DIR="$(dirname "$TARGET")"
     LINK_NAME="$(basename "$TARGET")"
 
     # Resolve full source path to verify it exists
     FULL_SOURCE="$PARENT_DIR/$RELATIVE_SOURCE"
 
-    # Verify source exists before creating symlink
+    # Verify source exists before operating on target at all
     if [[ ! -e "$FULL_SOURCE" ]]; then
         log_warn "Skipping $LINK_NAME: source does not exist ($RELATIVE_SOURCE)"
         continue
