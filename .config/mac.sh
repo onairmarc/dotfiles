@@ -7,7 +7,7 @@ export PATH="$PATH:/Users/marcbeinder/.composer/vendor/bin/"
 export PATH="$PATH:$HOME/.asdf/asdf.sh"
 export PATH="$PATH:$HOME/.asdf/completions/asdf.bash"
 export PATH="$PATH:/Users/$USER/.dotnet/tools"
-export NODE_ENV="dev"
+export NODE_ENV="development"
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 #[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
