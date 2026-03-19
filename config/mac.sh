@@ -1,5 +1,5 @@
-#export PATH="$PATH:$HOME/mbeinder/.config/herd/bin/php83:$PATH"
-#export PATH="$PATH:$HOME/mbeinder/.config/herd/bin/php83:$PATH"
+#export PATH="$PATH:$HOME/mbeinder/config/herd/bin/php83:$PATH"
+#export PATH="$PATH:$HOME/mbeinder/config/herd/bin/php83:$PATH"
 export PATH="$PATH:$HOME/.rvm/bin"
 export PATH="$PATH:/usr/local/opt/php@8.3/bin"
 export PATH="$PATH:/usr/local/opt/php@8.3/sbin"

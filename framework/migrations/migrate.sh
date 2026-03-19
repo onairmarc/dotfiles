@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MIGRATIONS_DIR="$DF_ROOT_DIRECTORY/.migrations"
+MIGRATIONS_DIR="$DF_ROOT_DIRECTORY/migrations"
 MIGRATIONS_LOG="$MIGRATIONS_DIR/.migration_history"
 
 log() {
@@ -177,7 +177,7 @@ run_all_migrations() {
     
     # Check dotfiles-private migrations if available
     if [ -n "$DF_PRIVATE_DIRECTORY" ] && [ -d "$DF_PRIVATE_DIRECTORY" ]; then
-        local private_migrations_dir="$DF_PRIVATE_DIRECTORY/.migrations"
+        local private_migrations_dir="$DF_PRIVATE_DIRECTORY/migrations"
         local private_log_file="$private_migrations_dir/.migration_history"
         
         if [ -d "$private_migrations_dir" ]; then
@@ -206,7 +206,7 @@ run_all_migrations() {
     
     # Check if dotfiles-private plugin is available and run its migrations
     if [ -n "$DF_PRIVATE_DIRECTORY" ] && [ -d "$DF_PRIVATE_DIRECTORY" ]; then
-        local private_migrations_dir="$DF_PRIVATE_DIRECTORY/.migrations"
+        local private_migrations_dir="$DF_PRIVATE_DIRECTORY/migrations"
         local private_log_file="$private_migrations_dir/.migration_history"
         
         run_migrations_for_directory "$private_migrations_dir" "$private_log_file" "dotfiles-private"
@@ -240,7 +240,7 @@ create_migration() {
         template_examples="# mv \"\$DF_CONFIG_DIRECTORY/old_config\" \"\$DF_CONFIG_DIRECTORY/new_config\"
 # mkdir -p \"\$DF_TOOLS_DIRECTORY/new_directory\""
     elif [ -n "$DF_PRIVATE_DIRECTORY" ] && [ "$current_dir" = "$DF_PRIVATE_DIRECTORY" ]; then
-        migrations_dir="$DF_PRIVATE_DIRECTORY/.migrations"
+        migrations_dir="$DF_PRIVATE_DIRECTORY/migrations"
         repo_name="dotfiles-private"
         template_comment="# Migration: DESCRIPTION_PLACEHOLDER
 # Created: TIMESTAMP_PLACEHOLDER
@@ -353,7 +353,7 @@ show_status() {
     
     # Show dotfiles-private status if available
     if [ -n "$DF_PRIVATE_DIRECTORY" ] && [ -d "$DF_PRIVATE_DIRECTORY" ]; then
-        local private_migrations_dir="$DF_PRIVATE_DIRECTORY/.migrations"
+        local private_migrations_dir="$DF_PRIVATE_DIRECTORY/migrations"
         local private_log_file="$private_migrations_dir/.migration_history"
         show_status_for_repo "$private_migrations_dir" "$private_log_file" "dotfiles-private"
     fi

@@ -45,7 +45,7 @@ enable_remapping() {
     killall SystemUIServer 2>/dev/null || true
 
     # Also try to notify the system about the keyboard change
-    /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u 2>/dev/null || true
+    /System/Library/PrivateFrameworks/SystemAdministrationframework/Resources/activateSettings -u 2>/dev/null || true
   fi
 
   # Create LaunchAgent to make the remapping persistent across reboots

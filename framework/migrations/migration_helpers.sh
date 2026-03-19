@@ -5,7 +5,7 @@
 # Backup and move functions
 backup_file() {
     local source="$1"
-    local backup_dir="$DF_ROOT_DIRECTORY/.migrations/backups"
+    local backup_dir="$DF_ROOT_DIRECTORY/migrations/backups"
     
     if [ ! -f "$source" ]; then
         return 0
@@ -238,9 +238,9 @@ set_migration_state() {
     local state_file
     
     if [ "$repo_context" = "dotfiles-private" ] && [ -n "$DF_PRIVATE_DIRECTORY" ]; then
-        state_file="$DF_PRIVATE_DIRECTORY/.migrations/.migration_state"
+        state_file="$DF_PRIVATE_DIRECTORY/migrations/.migration_state"
     else
-        state_file="$DF_ROOT_DIRECTORY/.migrations/.migration_state"
+        state_file="$DF_ROOT_DIRECTORY/migrations/.migration_state"
     fi
     
     mkdir -p "$(dirname "$state_file")"
@@ -262,9 +262,9 @@ get_migration_state() {
     local state_file
     
     if [ "$repo_context" = "dotfiles-private" ] && [ -n "$DF_PRIVATE_DIRECTORY" ]; then
-        state_file="$DF_PRIVATE_DIRECTORY/.migrations/.migration_state"
+        state_file="$DF_PRIVATE_DIRECTORY/migrations/.migration_state"
     else
-        state_file="$DF_ROOT_DIRECTORY/.migrations/.migration_state"
+        state_file="$DF_ROOT_DIRECTORY/migrations/.migration_state"
     fi
     
     if [ ! -f "$state_file" ]; then

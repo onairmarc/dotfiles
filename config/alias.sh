@@ -34,7 +34,7 @@ alias phpacker="vendor/bin/phpacker"
 alias phpunit='vendor/bin/phpunit'
 alias rector='vendor/bin/rector'
 alias sail='vendor/bin/sail'
-alias scribe='php artisan scribe:generate --scribe-dir=.config/scribe'
+alias scribe='php artisan scribe:generate --scribe-dir=config/scribe'
 alias serve='sl'
 alias shipmonk='vendor/bin/composer-dependency-analyser'
 alias silence='git update-index --skip-worktree'

@@ -9,7 +9,7 @@ art() {
 }
 
 agent_symlink () {
-  bash "$DF_ROOT_DIRECTORY/.tools/agent_symlink.sh" "$@"
+  bash "$DF_ROOT_DIRECTORY/tools/agent_symlink.sh" "$@"
 }
 
 analize() {
@@ -235,7 +235,7 @@ loc() {
 }
 
 mac_cleanup () {
-  bash "$DF_ROOT_DIRECTORY/.tools/mac_cleanup.sh"
+  bash "$DF_ROOT_DIRECTORY/tools/mac_cleanup.sh"
 }
 
 nah() {
@@ -288,7 +288,7 @@ rebuild() {
 }
 
 remap_caps() {
-  bash "$DF_ROOT_DIRECTORY/.tools/remap_capslock.sh" "$@"
+  bash "$DF_ROOT_DIRECTORY/tools/remap_capslock.sh" "$@"
 }
 
 rmd() {
@@ -475,5 +475,5 @@ zpi() {
 }
 
 jb_configure() {
-    source "$DF_ROOT_DIRECTORY/.tools/copy_jetbrains_keymaps.sh"
+    source "$DF_ROOT_DIRECTORY/tools/copy_jetbrains_keymaps.sh"
 }

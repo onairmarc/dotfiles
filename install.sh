@@ -2,7 +2,7 @@
 
 set -e  # Exit immediately if a command exits with a non-zero status.
 set -u  # Treat unset variables as an error.
-source "./.framework/__df_autoloader.sh"
+source "./framework/__df_autoloader.sh"
 source "$DF_CONFIG_DIRECTORY/color.sh"
 
 # Function to check and install a tool
@@ -46,7 +46,7 @@ configure_iterm() {
 
 remap_capslock_to_escape() {
   # Call the dedicated keyboard remapping script
-  bash "$DOTFILES_DIRECTORY/.tools/remap_capslock.sh" --enable
+  bash "$DOTFILES_DIRECTORY/tools/remap_capslock.sh" --enable
 }
 
 main() {

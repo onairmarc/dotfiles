@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 ensure_autoloader() {
-  if [[ -z "$DF_AUTOLOADER_SOURCED" && -f "$DF_ROOT_DIRECTORY/.framework/__df_autoloader.sh" ]]; then
-      source "$DF_ROOT_DIRECTORY/.framework/__df_autoloader.sh"
+  if [[ -z "$DF_AUTOLOADER_SOURCED" && -f "$DF_ROOT_DIRECTORY/framework/__df_autoloader.sh" ]]; then
+      source "$DF_ROOT_DIRECTORY/framework/__df_autoloader.sh"
       export DF_AUTOLOADER_SOURCED=1
   fi
 }
@@ -20,11 +20,11 @@ export DF_DEBUG_TIMING="${DF_DEBUG_TIMING:-}"
 # Module Specific Directory Envs
 export DF_AUTOLOADER_DIRECTORY="$DF_ROOT_DIRECTORY/.autoloader"
 export DF_CONFIG_DIRECTORY="$DF_ROOT_DIRECTORY/.config"
-export DF_TOOLS_DIRECTORY="$DF_ROOT_DIRECTORY/.tools"
+export DF_TOOLS_DIRECTORY="$DF_ROOT_DIRECTORY/tools"
 
 # Load source guards first
-if [ -f "$DF_ROOT_DIRECTORY/.framework/source_guards.sh" ]; then
-    source "$DF_ROOT_DIRECTORY/.framework/source_guards.sh"
+if [ -f "$DF_ROOT_DIRECTORY/framework/source_guards.sh" ]; then
+    source "$DF_ROOT_DIRECTORY/framework/source_guards.sh"
     if ! declare -f __df_source_once &>/dev/null; then
       echo "Error: source_guards.sh did not load __df_source_once function" >&2
       return 1
@@ -37,11 +37,11 @@ if [[ -n "$DF_DEBUG_TIMING" ]]; then
 fi
 
 # Load framework components with source guards
-__df_source_once "$DF_ROOT_DIRECTORY/.framework/brew_cache.sh" "brew_cache"
-__df_source_once "$DF_ROOT_DIRECTORY/.framework/migrations/migrate.sh" "migrate"
-__df_source_once "$DF_ROOT_DIRECTORY/.framework/migrations/migration_helpers.sh" "migration_helpers"
-__df_source_once "$DF_ROOT_DIRECTORY/.framework/migration_optimizer.sh" "migration_optimizer"
-__df_source_once "$DF_ROOT_DIRECTORY/.framework/logging_functions.sh" "logging_functions"
+__df_source_once "$DF_ROOT_DIRECTORY/framework/brew_cache.sh" "brew_cache"
+__df_source_once "$DF_ROOT_DIRECTORY/framework/migrations/migrate.sh" "migrate"
+__df_source_once "$DF_ROOT_DIRECTORY/framework/migrations/migration_helpers.sh" "migration_helpers"
+__df_source_once "$DF_ROOT_DIRECTORY/framework/migration_optimizer.sh" "migration_optimizer"
+__df_source_once "$DF_ROOT_DIRECTORY/framework/logging_functions.sh" "logging_functions"
 
 # End timing for debug mode
 if [[ -n "$DF_DEBUG_TIMING" ]]; then

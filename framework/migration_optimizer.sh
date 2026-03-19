@@ -15,9 +15,9 @@ __df_init_migration_cache() {
 # Check if there are any migrations that might need to run
 __df_has_pending_migrations() {
     # Quick check: if migrations directories don't exist, no migrations to run
-    if [[ ! -d "$DF_ROOT_DIRECTORY/.migrations" ]]; then
+    if [[ ! -d "$DF_ROOT_DIRECTORY/migrations" ]]; then
         local has_private_migrations=false
-        if [[ -n "$DF_PRIVATE_DIRECTORY" && -d "$DF_PRIVATE_DIRECTORY/.migrations" ]]; then
+        if [[ -n "$DF_PRIVATE_DIRECTORY" && -d "$DF_PRIVATE_DIRECTORY/migrations" ]]; then
             has_private_migrations=true
         fi
 
