@@ -75,7 +75,8 @@ is_windows() {
 }
 
 if is_windows; then
-    log_info "Detected Windows - using mklink /D for directory symlinks"
+    log_info "Detected Windows - using native symlinks"
+    export MSYS=winsymlinks:nativestrict
 fi
 
 # Handle global mode: link ~/.claude/skills to this repo's .agents/skills
@@ -101,12 +102,7 @@ if [[ "$GLOBAL_MODE" == true ]]; then
     mkdir -p "$(dirname "$GLOBAL_TARGET")"
 
     # Create symlink
-    if is_windows; then
-        WIN_SOURCE="${SOURCE_DIR//\//\\}"
-        cmd //c "mklink /D \"$GLOBAL_TARGET\" \"$WIN_SOURCE\"" > /dev/null
-    else
-        ln -s "$SOURCE_DIR" "$GLOBAL_TARGET"
-    fi
+    ln -s "$SOURCE_DIR" "$GLOBAL_TARGET"
 
     log_info "  Created global symlink: $GLOBAL_TARGET -> $SOURCE_DIR"
     log_info "Sync complete!"
@@ -149,26 +145,9 @@ for PAIR in "${SYMLINK_PAIRS[@]}"; do
     # Ensure parent directory exists
     mkdir -p "$PARENT_DIR"
 
-    # Determine if source is a directory (for Windows mklink flag)
-    IS_DIR=false
-    if [[ -d "$FULL_SOURCE" ]]; then
-        IS_DIR=true
-    fi
-
     # Create symlink from parent directory
     pushd "$PARENT_DIR" > /dev/null
-
-    if is_windows; then
-        WIN_RELATIVE_SOURCE="${RELATIVE_SOURCE//\//\\}"
-        if [[ "$IS_DIR" == true ]]; then
-            cmd //c "mklink /D $LINK_NAME $WIN_RELATIVE_SOURCE" > /dev/null
-        else
-            cmd //c "mklink $LINK_NAME $WIN_RELATIVE_SOURCE" > /dev/null
-        fi
-    else
-        ln -s "$RELATIVE_SOURCE" "$LINK_NAME"
-    fi
-
+    ln -s "$RELATIVE_SOURCE" "$LINK_NAME"
     popd > /dev/null
 
     log_info "  Created symlink"

@@ -18,8 +18,8 @@ export DF_DATA_DIR="${DF_DATA_DIR:-$HOME/.df_data}"
 export DF_DEBUG_TIMING="${DF_DEBUG_TIMING:-}"
 
 # Module Specific Directory Envs
-export DF_AUTOLOADER_DIRECTORY="$DF_ROOT_DIRECTORY/.autoloader"
-export DF_CONFIG_DIRECTORY="$DF_ROOT_DIRECTORY/.config"
+export DF_AUTOLOADER_DIRECTORY="$DF_ROOT_DIRECTORY/autoloader"
+export DF_CONFIG_DIRECTORY="$DF_ROOT_DIRECTORY/config"
 export DF_TOOLS_DIRECTORY="$DF_ROOT_DIRECTORY/tools"
 
 # Load source guards first
