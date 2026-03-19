@@ -32,19 +32,30 @@ log_error() {
 
 # Parse command line arguments
 GLOBAL_MODE=false
+RECURSIVE_MODE=false
 for arg in "$@"; do
     case $arg in
         --global)
             GLOBAL_MODE=true
             shift
             ;;
+        -r|--recursive)
+            RECURSIVE_MODE=true
+            shift
+            ;;
         *)
             log_error "Unknown option: $arg"
-            echo "Usage: $0 [--global]"
+            echo "Usage: $0 [--global] [-r]"
             exit 1
             ;;
     esac
 done
+
+if [[ "$GLOBAL_MODE" == true && "$RECURSIVE_MODE" == true ]]; then
+    log_error "--global and -r cannot be used together"
+    echo "Usage: $0 [--global] [-r]"
+    exit 1
+fi
 
 # Save original directory to return to later
 ORIGINAL_DIR="$(pwd)"
@@ -106,6 +117,30 @@ if [[ "$GLOBAL_MODE" == true ]]; then
 
     log_info "  Created global symlink: $GLOBAL_TARGET -> $SOURCE_DIR"
     log_info "Sync complete!"
+    exit 0
+fi
+
+# Handle recursive mode: link CLAUDE.md -> AGENTS.md in every dir that has AGENTS.md
+if [[ "$RECURSIVE_MODE" == true ]]; then
+    log_info "Recursive mode: scanning for AGENTS.md files under $(pwd)"
+    found=0
+    skipped=0
+    while IFS= read -r -d '' agents_file; do
+        dir="$(dirname "$agents_file")"
+        claude_file="$dir/CLAUDE.md"
+
+        if [[ -e "$claude_file" ]] || [[ -L "$claude_file" ]]; then
+            log_warn "  Skipping $claude_file: already exists"
+            ((skipped++)) || true
+            continue
+        fi
+
+        ln -s "AGENTS.md" "$claude_file"
+        log_info "  Created symlink: $claude_file -> AGENTS.md"
+        ((found++)) || true
+    done < <(find "$(pwd)" -name "AGENTS.md" -print0)
+
+    log_info "Sync complete! Created $found symlink(s), skipped $skipped."
     exit 0
 fi
 
