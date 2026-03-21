@@ -124,6 +124,7 @@ main() {
     BREW_CASK_LIST=$(brew list --cask)
 
     # Install software
+    install_tool "bash" "brew install bash"
     install_tool "1password" "brew install --cask 1password" "/Applications/1Password.app"
     install_tool "1password-cli" "brew install 1password-cli"
     install_tool "chroma" "brew install chroma"
