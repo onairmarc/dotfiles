@@ -44,6 +44,27 @@ configure_iterm() {
   /usr/libexec/PlistBuddy -c "Set :New\ Bookmarks:0:Use\ Non-ASCII\ Font true" "$PLIST_FILE" 2>/dev/null || true
 }
 
+configure_ghostty() {
+  echo -e "${COL_CYAN}Configuring Ghostty...${COL_RESET}"
+
+  GHOSTTY_CONFIG_DIR="$HOME/.config/ghostty"
+  GHOSTTY_CONFIG_SOURCE="$DOTFILES_DIRECTORY/ghostty/config"
+
+  mkdir -p "$GHOSTTY_CONFIG_DIR"
+
+  if [ -f "$GHOSTTY_CONFIG_DIR/config" ] && [ ! -L "$GHOSTTY_CONFIG_DIR/config" ]; then
+    echo -e "${COL_YELLOW}Backing up existing Ghostty config...${COL_RESET}"
+    mv "$GHOSTTY_CONFIG_DIR/config" "$GHOSTTY_CONFIG_DIR/config.bak"
+  fi
+
+  if [ ! -L "$GHOSTTY_CONFIG_DIR/config" ]; then
+    ln -s "$GHOSTTY_CONFIG_SOURCE" "$GHOSTTY_CONFIG_DIR/config"
+    echo -e "${COL_GREEN}Ghostty config symlinked.${COL_RESET}"
+  else
+    echo -e "${COL_GREEN}Ghostty config symlink already exists.${COL_RESET}"
+  fi
+}
+
 remap_capslock_to_escape() {
   # Call the dedicated keyboard remapping script
   bash "$DOTFILES_DIRECTORY/tools/remap_capslock.sh" --enable
@@ -150,7 +171,9 @@ main() {
     install_tool "tmux" "brew install tmux"
     install_tool "zsh-autosuggestions" "brew install zsh-autosuggestions"
     install_tool "zsh-syntax-highlighting" "brew install zsh-syntax-highlighting"
+    install_tool "ghostty" "brew install --cask ghostty" "/Applications/Ghostty.app"
     configure_iterm
+    configure_ghostty
     remap_capslock_to_escape
 
     # Install OpenCode
