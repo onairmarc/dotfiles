@@ -5,21 +5,21 @@ bold-is-bright = true
 
 # Colors
 background = 000000
-foreground = bbbbbb
-cursor-color = bbbbbb
+foreground = ffffff
+cursor-color = ffffff
 cursor-invert-fg-bg = false
 selection-background = b4d5ff
 selection-foreground = 000000
 
 # ANSI palette (0-15)
-palette = 0=#000000
-palette = 1=#bb0000
-palette = 2=#00bb00
-palette = 3=#bbbb00
-palette = 4=#0000bb
-palette = 5=#bb00bb
-palette = 6=#00bbbb
-palette = 7=#bbbbbb
+palette = 0=#555555
+palette = 1=#ff5555
+palette = 2=#55ff55
+palette = 3=#ffff55
+palette = 4=#5555ff
+palette = 5=#ff55ff
+palette = 6=#55ffff
+palette = 7=#ffffff
 palette = 8=#555555
 palette = 9=#ff5555
 palette = 10=#55ff55
