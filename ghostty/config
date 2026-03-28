@@ -28,3 +28,6 @@ palette = 12=#5555ff
 palette = 13=#ff55ff
 palette = 14=#55ffff
 palette = 15=#ffffff
+
+# Quit when last window closes
+quit-after-last-window-closed = true
