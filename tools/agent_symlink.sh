@@ -148,7 +148,6 @@ fi
 # This avoids complex path expansions in array keys
 SYMLINK_PAIRS=(
     ".claude/skills|../.agents/skills"
-    ".github/skills|../.agents/skills"
     "CLAUDE.md|AGENTS.md"
 )
 
