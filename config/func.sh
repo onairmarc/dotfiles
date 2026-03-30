@@ -59,6 +59,10 @@ build() {
     fi
 }
 
+clear_dns_cache() {
+  sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder
+}
+
 ci() {
     if [ -f "composer.json" ]; then
         composer install --ignore-platform-reqs "$@"
