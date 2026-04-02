@@ -34,9 +34,9 @@ autoboot_enable() {
 }
 
 brew_uninstall() {
-  while [[ `brew list | wc -l` -ne 0 ]]; do
-      for EACH in `brew list`; do
-          brew uninstall --force --ignore-dependencies $EACH
+  while [[ $(brew list | wc -l) -ne 0 ]]; do
+      for EACH in $(brew list); do
+          brew uninstall --force --ignore-dependencies "$EACH"
       done
   done
 
@@ -45,6 +45,8 @@ brew_uninstall() {
   bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)"
 }
 
+# shellcheck disable=SC2120
+# shellcheck disable=SC2035
 build() {
     if [ -f "build.sh" ]; then
         bash build.sh "$@"
@@ -118,7 +120,7 @@ docker_config_auth() {
     fi
 
     printf "GHCR token (personal access token): " >&2
-    read -s GHCR_TOKEN
+    read -r -s GHCR_TOKEN
     echo
     if [ -z "$GHCR_TOKEN" ]; then
       echo "Error: Token cannot be empty" >&2
@@ -200,7 +202,7 @@ git_assume_unchanged() {
     return 1
   fi
 
-  git update-index --assume-unchanged $1
+  git update-index --assume-unchanged "$1"
 }
 
 git_assume_changed() {
@@ -209,7 +211,7 @@ git_assume_changed() {
     return 1
   fi
 
-  git update-index --no-assume-unchanged $1
+  git update-index --no-assume-unchanged "$1"
 }
 
 is_windows() {
@@ -327,9 +329,9 @@ sys_env_decrypt() {
 
   local environment=$1
 
-  rm -f ./.env.$environment
+  rm -f ./.env."$environment"
 
-  php artisan env:decrypt --env=$environment --key=$ENCORE_DIGITAL_ENV_ENCRYPTION_KEY
+  php artisan env:decrypt --env="$environment" --key="$ENCORE_DIGITAL_ENV_ENCRYPTION_KEY"
 
   #special local environment handling
   if [ "$environment" = "local" ]; then
@@ -363,8 +365,8 @@ sys_env_encrypt() {
   fi
 
   # Run the encryption command
-  rm -f ./.env.$environment.encrypted
-  php artisan env:encrypt --env=$environment --key=$ENCORE_DIGITAL_ENV_ENCRYPTION_KEY
+  rm -f ./.env."$environment".encrypted
+  php artisan env:encrypt --env="$environment" --key="$ENCORE_DIGITAL_ENV_ENCRYPTION_KEY"
 
   # Rename .env.local back to .env for local environment
   if [ "$environment" = "local" ]; then
@@ -380,11 +382,11 @@ tf_import_repo () {
   # Decide what to do based on the returned value
   if [ "$tf_mode" = "phpgenesis" ]; then
     # Action A: Do something if mode is phpgenesis
-    tf import module.$repo_name.module.repo.github_repository.repo $repo_id
+    tf import module."$repo_name".module.repo.github_repository.repo "$repo_id"
     # Add your code for Action A here
   elif [ "$tf_mode" = "encore" ]; then
     # Action B: Do something if mode is encore
-    tf import module.githubRepos.module.$repo_name.github_repository.repo $repo_id
+    tf import module.githubRepos.module."$repo_name".github_repository.repo "$repo_id"
     # Add your code for Action B here
   else
     echo -e "${COL_RED}Unknown Terraform Mode: $tf_mode${COL_RESET}"
@@ -393,7 +395,7 @@ tf_import_repo () {
 
 tf_set_mode() {
   local tf_mode=$1
-  echo $tf_mode > ~/.tfmode
+  echo "$tf_mode" > ~/.tfmode
 }
 
 tf_get_mode() {
@@ -409,7 +411,7 @@ tf_get_mode() {
 
 tf_mode() {
   if [ "$1" = "set" ]; then
-    tf_set_mode $2
+    tf_set_mode "$2"
   elif [ "$1" = "unset" ]; then
     rm ~/.tfmode
   elif [ -z "$1" ]; then
