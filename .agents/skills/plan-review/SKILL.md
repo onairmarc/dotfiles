@@ -71,6 +71,8 @@ Flag anything an agent would need that is absent:
 - Test strategy: what should be tested and at what level (unit, feature, integration)?
 - Environment-specific behavior that is not spelled out
 - Ordering constraints between steps that are not stated
+- Implementation steps that describe *how* code should be written using only prose — these must be backed by a code
+  example
 
 ### Lens D — Scope and completeness
 
@@ -127,6 +129,8 @@ After receiving the user's answers:
 1. **Write the enriched answers into the plan file immediately** using `Edit` (or `Write` if a full rewrite is cleaner).
    Incorporate each answer into the relevant section of the plan — do not append a raw Q&A block at the end. Rewrite
    sentences to be declarative and unambiguous.
+    - When the answer describes *how* code should be implemented, express it as a code example, not prose. See the
+      **Code examples** guideline below.
 2. Re-read the updated plan.
 3. Run the analysis lenses again on the updated file.
 4. If new gaps remain, compile a new set of questions and repeat from the top of Step 3 with the next round number.
@@ -165,6 +169,16 @@ Then ask:
   document.
 - **Prefer precision to brevity.** A longer, unambiguous step is better than a short, vague one.
 - **Do not over-question.** If something is clear from context or standard engineering practice, do not ask about it.
+- **Code examples over prose for implementation.** Prose describes *what* a step does and *why* a decision was made.
+  Whenever a step describes *how* code should be implemented, replace or augment that prose with a code example:
+    - The example must be representative but not a full feature implementation — include enough structure, method
+      signatures, types, and key logic that the coding agent can accurately infer what is needed from the plan and the
+      example together.
+    - **Migrations and model changes:** show only the changed or added portions (new columns, method bodies, relations),
+      not the entire file. Exception: if the step creates a brand-new migration or model, provide the complete file.
+    - If the plan currently describes an implementation step in prose only and you are not sure what the code should
+      look
+      like, ask the user rather than guessing.
 
 ---
 
