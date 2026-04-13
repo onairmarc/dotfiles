@@ -9,7 +9,7 @@ allowed-tools:
   - AskUserQuestion
   - Glob
   - Grep
-model: opus
+model: sonnet
 ---
 
 # Plan Review

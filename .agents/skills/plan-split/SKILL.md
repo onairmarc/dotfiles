@@ -10,7 +10,7 @@ allowed-tools:
   - Bash(ls *)
   - Bash(dirname *)
   - Bash(test -f *)
-model: opus
+model: sonnet
 ---
 
 # Plan Split
