@@ -23,6 +23,8 @@ __df_source_once "$DF_TOOLS_DIRECTORY/nano.sh" "nano"
 __df_source_once "$DF_TOOLS_DIRECTORY/stripe.sh" "stripe"
 __df_source_once "$DF_CONFIG_DIRECTORY/tmux.sh" "tmux"
 
+export NODE_EXTRA_CA_CERTS="/Users/marcbeinder/Library/Application Support/Herd/config/valet/CA/LaravelValetCASelfSigned.pem"
+
 # Conditionally Load Entrypoint to Private DotFiles
 DF_PRIVATE_DIRECTORY="$HOME/Documents/GitHub/dotfiles-private"
 [ -f "$DF_PRIVATE_DIRECTORY/entrypoint.sh" ] && source "$DF_PRIVATE_DIRECTORY/entrypoint.sh"
