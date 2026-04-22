@@ -97,7 +97,6 @@ Record each finding as:
 | `->count() > 0` instead of `->exists()` | Grep `->count\(\)\s*(>!=)\s*0`                                                       |
 | N+1: query inside loop                  | `foreach`/`for`/`each` blocks containing `->find(`, `->where(`, `->first(`, `->get(` |
 | `->load()` after `->get()`              | `->load\(` where the initial query did not use `->with(`                             |
-| Missing `->select()`                    | `->get()` or `->first()` with no `->select(` when not all columns are needed         |
 
 ### Async / observer patterns
 
@@ -241,7 +240,8 @@ description passed to feature-planning (feed it programmatically — do not ask 
 > 7. `->count() > 0` → `->exists()`. Always. No exceptions.
 > 8. Never cache inside a `DB::transaction()` closure. Cache after commit.
 > 9. Observers that perform I/O must have `public bool $afterCommit = true`.
-> 10. Self-managing singletons (`protected static $instance` + `isset` guard in `::make()` defined in the class itself)
+> 10. Never recommend partial model selects (`->select(...)` to limit columns) or partial eager loads (`->with('relation:id,col,...')`). These are not approved optimization patterns. Full models must always be loaded.
+> 11. Self-managing singletons (`protected static $instance` + `isset` guard in `::make()` defined in the class itself)
       → register in an existing or new Service Provider's `register()` method using the binding type confirmed via
       `AskUserQuestion` (`app()->singleton()` or `app()->scoped()`), then replace callsites with constructor/method
       injection. The plan step must identify the target Service Provider by name. Configuration-class findings (lower
