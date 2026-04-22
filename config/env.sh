@@ -5,8 +5,6 @@ export HERD_PHP_83_INI_SCAN_DIR="/Users/marcbeinder/Library/Application Support/
 export PATH="$PATH:/Users/marcbeinder/Library/Application Support/Herd/bin"
 export PATH="$PATH:/usr/local/bin/node"
 
-export NODE_EXTRA_CA_CERTS="/Users/marcbeinder/Library/Application Support/Herd/config/valet/CA/LaravelValetCASelfSigned.pem"
-
 #Java
 export PATH="$PATH:/usr/local/opt/openjdk@11/bin"
 export PATH="$PATH:/Library/Java/JavaVirtualMachines/microsoft-11.jdk/Contents/Home"
