@@ -132,13 +132,16 @@ Record each finding as:
 | Dead Blade views                              | Blade files for routes now served by Inertia/ThemeKit still containing query-heavy `@php` blocks                                                                                                                                             |
 | Static self-managing singleton via `::make()` | Grep `protected static .*\$instance` — confirm `::make()` body contains an `isset(static::\$instance)` guard. Skip if class uses `HasMake` trait (`use HasMake`) or implements `IDisposable`. Flag remainder; see disambiguation note below. |
 
-#### Disambiguation — `::make()` singleton vs factory
+#### Disambiguation — `::make()` singleton vs factory vs DTO
 
 | Signal                                                                                                        | Meaning                                                                                         | Action                             |
 |---------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|------------------------------------|
 | Class body contains `use HasMake`                                                                             | `HasMake` creates a fresh instance per call via reflection — not a singleton                    | **Skip. Do not flag.**             |
 | Class implements `IDisposable`                                                                                | Lifecycle already managed externally                                                            | **Skip. Do not flag.**             |
 | Class extends an `Illuminate\` or `Laravel\` base class, OR does not define `::make()` itself                 | `::make()` is a Laravel Framework method (e.g. Eloquent model factory) — not a custom singleton | **Skip. Do not flag.**             |
+| Class extends `Spatie\LaravelData\Data`                                                                       | Spatie Laravel Data DTO — `::from()` / `::make()` creates a fresh value object, no shared state | **Skip. Do not flag.**             |
+| Class extends `Spatie\DataTransferObject\DataTransferObject`                                                  | Spatie DTO — immutable value object, no static shared state                                     | **Skip. Do not flag.**             |
+| Class declared `readonly class` (PHP 8.2+)                                                                    | Immutable value object — all properties are readonly, cannot hold mutable static state          | **Skip. Do not flag.**             |
 | `protected static .*\$instance` + `isset(static::\$instance)` guard in `::make()` defined in the class itself | True self-managing singleton, bypasses Laravel container                                        | **Flag as optimization candidate** |
 
 For every flagged class, evaluate **configuration class signals** (≥2 → lower confidence):
@@ -148,7 +151,15 @@ For every flagged class, evaluate **configuration class signals** (≥2 → lowe
 3. Has `public static reset()` guarded by `App::environment('testing')`
 4. Constructor takes no arguments and wires dependencies via `new` internally
 
-Record confidence level (`standard` or `lower — possible configuration class`) alongside each finding.
+Also evaluate **DTO / Data Object signals** (≥2 → lower confidence):
+
+1. Class name ends in `Data`, `DTO`, `Dto`, `Payload`, or `ValueObject`
+2. All non-static public properties are `readonly` (PHP 8.1+)
+3. Public methods limited to `from()`, `fromArray()`, `toArray()`, `all()`, `except()`, `only()` — no I/O or side effects
+4. Class body contains a `#[MapInputName]`, `#[Computed]`, `#[Hidden]`, or other Spatie Data attribute
+5. Constructor only assigns properties — no service calls, no dependency wiring via `new`
+
+Record confidence level (`standard`, `lower — possible configuration class`, or `lower — possible DTO / data object`) alongside each finding. A class may trigger both lower-confidence signals; record both labels.
 
 For **all** flagged singleton findings (regardless of confidence), use `AskUserQuestion` **before** passing findings to
 feature-planning to ask the developer whether the preferred fix is `app()->singleton()` or `app()->scoped()` binding in
@@ -247,7 +258,10 @@ description passed to feature-planning (feed it programmatically — do not ask 
       injection. The plan step must identify the target Service Provider by name. Configuration-class findings (lower
       confidence) must include a note that the change may be intentional and require developer review before proceeding.
       **Never flag** classes using `HasMake` trait, implementing `IDisposable`, extending an `Illuminate\`/`Laravel\`
-      base class, or where `::make()` is not defined in the class itself.
+      base class, extending `Spatie\LaravelData\Data` or `Spatie\DataTransferObject\DataTransferObject`, declared
+      `readonly class`, or where `::make()` is not defined in the class itself. DTO/Data Object findings (lower
+      confidence) must include a note that the static property may be a local cache (e.g. memoised computation), not
+      shared service state, and require developer review before proceeding.
 >
 > **Out of scope:** Redis, SSR, Vite, new infrastructure dependencies, files outside `{MODULE_PATH}`.
 >
