@@ -34,4 +34,5 @@ Model::where('id', $this->id)->lockForUpdate()->first(); // ❌ prefer Cache::lo
 - `"article.{$id}.submit-for-approval"` — prevent concurrent approval submissions
 - `"approval-workflow.{$id}.review"` — prevent concurrent approve/reject
 
-Use `->block($seconds, $callback)` to wait for the lock. If the lock cannot be acquired within the timeout, Laravel throws a `LockTimeoutException`.
+Use `->block($seconds, $callback)` to wait for the lock. If the lock cannot be acquired within the timeout, Laravel
+throws a `LockTimeoutException`.

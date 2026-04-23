@@ -1,6 +1,6 @@
 ---
 name: laravel-dependency-tree-upgrade
-description: Pre-configured wrapper around package-dependency-tree-upgrade for Laravel projects. Audits first-party and organisation packages in composer.lock to find those that support the current Laravel version but not the next, creates missing Jira tickets in an epic (existing or newly created), and wires up blocker links in the correct upgrade order.
+description: Pre-configured wrapper around package-dependency-tree-upgrade for Laravel projects. Audits first-party and organization packages in composer.lock to find those that support the current Laravel version but not the next, creates missing Jira tickets in an epic (existing or newly created), and wires up blocker links in the correct upgrade order.
 argument-hint: <next-laravel-version> [jira-epic-key]
 ---
 
@@ -12,10 +12,10 @@ target version and Jira epic.
 
 ## Inputs
 
-| Argument               | Required | Description                                                                                      | Example    |
-|------------------------|----------|--------------------------------------------------------------------------------------------------|------------|
-| `next-laravel-version` | Yes      | The Laravel major version you are upgrading to                                                   | `13`       |
-| `jira-epic-key`        | No       | The Jira epic to link all tickets to. If omitted, you will be prompted to select or create one.  | `PROJ-100` |
+| Argument               | Required | Description                                                                                     | Example    |
+|------------------------|----------|-------------------------------------------------------------------------------------------------|------------|
+| `next-laravel-version` | Yes      | The Laravel major version you are upgrading to                                                  | `13`       |
+| `jira-epic-key`        | No       | The Jira epic to link all tickets to. If omitted, you will be prompted to select or create one. | `PROJ-100` |
 
 ---
 
@@ -34,7 +34,7 @@ find . -name "composer.lock" -not -path "*/vendor/*" -maxdepth 3
 
 ### 2. Identify package prefixes to audit
 
-Read `composer.json` and note the vendor namespaces used for first-party and organisation packages (e.g. `acme/`,
+Read `composer.json` and note the vendor namespaces used for first-party and organization packages (e.g. `acme/`,
 `myorg/`). These are the packages your team owns and must upgrade — third-party packages from Packagist are maintained
 externally.
 
@@ -77,7 +77,7 @@ Some packages constrain `laravel/framework` directly; others only constrain indi
 Once you have gathered the above context, run the full `package-dependency-tree-upgrade` process with:
 
 - **lockfile:** the path found above
-- **prefixes:** the first-party/organisation vendor prefixes
+- **prefixes:** the first-party/organization vendor prefixes
 - **framework-package:** `laravel/framework` (also check `illuminate/*` sub-packages as described)
 - **current-version:** determined from `composer.json`
 - **next-version:** `$ARGUMENTS[0]`
@@ -104,4 +104,5 @@ present the dependency graph before creating blocker links.
 ```
 /laravel-dependency-tree-upgrade 13
 ```
+
 *(omit the epic key to be prompted to select an existing epic or create a new one)*

@@ -8,15 +8,20 @@ model: haiku
 
 ## How Tenant Context Works
 
-Tenant context is resolved once and persisted automatically via Laravel's Context system. It propagates throughout the entire request or job lifecycle without needing to be re-applied.
+Tenant context is resolved once and persisted automatically via Laravel's Context system. It propagates throughout the
+entire request or job lifecycle without needing to be re-applied.
 
 - **Web requests**: tenant context is applied in middleware and stays set for the lifetime of the request.
-- **Queued jobs**: jobs dispatched from a web request or command inherit the tenant context automatically — do **not** re-apply it in `handle()`.
-- **Command loops over multi-tenant data**: this is the only case where you need to call `TenantContext::applyById($tenantId, true)` — once per record to switch the context as you iterate across different tenants.
+- **Queued jobs**: jobs dispatched from a web request or command inherit the tenant context automatically — do **not**
+  re-apply it in `handle()`.
+- **Command loops over multi-tenant data**: this is the only case where you need to call
+  `TenantContext::applyById($tenantId, true)` — once per record to switch the context as you iterate across different
+  tenants.
 
 ## The Only Rule
 
-Never call `Context::forget(TenantContext::ID)`. When switching between tenants in a loop, calling `TenantContext::applyById($tenantId, true)` with `true` resets the context to the new tenant. No cleanup is needed.
+Never call `Context::forget(TenantContext::ID)`. When switching between tenants in a loop, calling
+`TenantContext::applyById($tenantId, true)` with `true` resets the context to the new tenant. No cleanup is needed.
 
 **Correct — command loop over multi-tenant records:**
 

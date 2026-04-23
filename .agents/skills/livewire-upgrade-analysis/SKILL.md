@@ -19,7 +19,7 @@ model: opus
 
 You are a senior Laravel engineer specializing in Livewire and Filament. Your job is to audit the repository's custom
 Livewire components **and** custom Filament components (pages, resources, widgets, actions, form components) against
-the Livewire 4 breaking-change catalogue, classify every affected file, and produce an **agent-ready upgrade plan**
+the Livewire 4 breaking-change catalog, classify every affected file, and produce an **agent-ready upgrade plan**
 using the same structure and quality bar as `feature-planning`.
 
 **Always present findings to the user for confirmation before writing the plan.**
@@ -37,7 +37,7 @@ Parse from `$ARGUMENTS`:
 
 ---
 
-## Breaking-change catalogue (Livewire 3 → 4)
+## Breaking-change catalog (Livewire 3 → 4)
 
 Use these categories throughout the audit. Each file may hit multiple categories.
 
@@ -55,7 +55,7 @@ Use these categories throughout the audit. Each file may hit multiple categories
 
 | ID | Category                              | What to look for                                                                              |
 |----|---------------------------------------|-----------------------------------------------------------------------------------------------|
-| M1 | **wire:model modifier behaviour**     | `wire:model.blur` / `wire:model.change` without `.live` prefix                                |
+| M1 | **wire:model modifier behavior**      | `wire:model.blur` / `wire:model.change` without `.live` prefix                                |
 | M2 | **wire:transition modifiers removed** | `.opacity`, `.scale`, `.duration.*`, `.origin.*` on `wire:transition`                         |
 | M3 | **stream() signature**                | `$this->stream(to:..., content:..., replace:...)` → positional + `el:` param                  |
 | M4 | **Asset URL / firewall rules**        | Hardcoded `/livewire/` paths in CSP headers, nginx rules, `setUpdateRoute`, or JS fetch calls |
@@ -71,9 +71,9 @@ Use these categories throughout the audit. Each file may hit multiple categories
 
 ---
 
-## Catalogue refresh — Fetch the latest upgrade guide
+## Catalog refresh — Fetch the latest upgrade guide
 
-Before auditing any code, fetch the official Livewire upgrade guide to ensure the breaking-change catalogue below
+Before auditing any code, fetch the official Livewire upgrade guide to ensure the breaking-change catalog below
 reflects the current published version:
 
 ```
@@ -85,15 +85,15 @@ Use `WebFetch` with a prompt such as:
 > "Extract all breaking changes, renamed methods/properties, removed features, new requirements, and migration steps
 > for upgrading from Livewire 3 to Livewire 4. Be comprehensive."
 
-Compare the fetched content against the **Breaking-change catalogue** section of this skill. For each item in the
+Compare the fetched content against the **Breaking-change catalog** section of this skill. For each item in the
 fetched guide that is **not** already covered:
 
 1. Add it to the appropriate severity tier (HIGH / MEDIUM / LOW-JS) with a new category ID (e.g. H6, M5, L5).
 2. Update the "What to look for" column with the concrete pattern to grep for.
 3. Carry the new category IDs forward into Steps 1–3 and the findings table.
 
-If the fetch fails (network unavailable, page unreachable), continue with the embedded catalogue and note in the
-final plan header: `"Upgrade guide could not be fetched — catalogue may be outdated. Verify against
+If the fetch fails (network unavailable, page unreachable), continue with the embedded catalog and note in the
+final plan header: `"Upgrade guide could not be fetched — catalog may be outdated. Verify against
 https://livewire.laravel.com/docs/4.x/upgrading before proceeding."`.
 
 ---
@@ -110,23 +110,23 @@ Before auditing, orient yourself:
     - Any path listed under `component_locations` in `config/livewire.php`
     - Subdirectory `app/` variants if this is a monorepo (e.g. `application/app/Livewire/`)
 
-2a. **Detect Filament component roots** — search both `app/` and `app_modules/` using Grep:
+3. **Detect Filament component roots** — search both `app/` and `app_modules/` using Grep:
 
-    Grep for PHP files extending or using core Filament classes:
+   Grep for PHP files extending or using core Filament classes:
     ```
     pattern: "extends\s+(Page|Resource|Widget|Action|Cluster|RelationManager|EditRecord|CreateRecord|ListRecords|ViewRecord|ManageRelatedRecords|BaseWidget|ChartWidget|StatsOverviewWidget|TableWidget)"
     paths: app/, app_modules/
     glob: **/*.php
     ```
 
-    Also grep for Filament trait usage:
+   Also grep for Filament trait usage:
     ```
     pattern: "use\s+Filament\\\\|HasForms|HasTable|HasActions|HasInfolists|InteractsWithTable|InteractsWithForms"
     paths: app/, app_modules/
     glob: **/*.php
     ```
 
-    Record all discovered paths, grouped by type:
+   Record all discovered paths, grouped by type:
     - **Pages** — files in `*/Filament/Pages/` or extending `Page`
     - **Resources** — files in `*/Filament/Resources/` or extending `Resource`
     - **Widgets** — files in `*/Filament/Widgets/` or extending `*Widget`
@@ -134,25 +134,25 @@ Before auditing, orient yourself:
     - **Custom form/table components** — extending Filament component base classes
     - **Other** — any remaining matches
 
-3. **Locate views** — find Blade view files that contain `wire:` directives:
+4. **Locate views** — find Blade view files that contain `wire:` directives:
    ```bash
    grep -rl "wire:" resources/views --include="*.blade.php"
    ```
    Also find views co-located with class components.
 
-4. **Detect routes** — find route files referencing Livewire components:
+5. **Detect routes** — find route files referencing Livewire components:
    ```bash
    grep -rl "Livewire\|livewire" routes/ --include="*.php"
    ```
 
-5. **Detect JS customizations** — find JS files using Livewire hooks or `$wire`:
+6. **Detect JS customizations** — find JS files using Livewire hooks or `$wire`:
    ```bash
    grep -rl "\$wire\|Livewire\.hook\|commit\b\|request\b" resources/js --include="*.js" --include="*.ts"
    ```
 
-6. **Detect Volt** — check for `livewire/volt` in `composer.json` or `composer.lock`.
+7. **Detect Volt** — check for `livewire/volt` in `composer.json` or `composer.lock`.
 
-7. **Detect plan output dir** — check for these in order; use first that exists:
+8. **Detect plan output dir** — check for these in order; use first that exists:
     - `docs/_planning/`
     - `docs/planning/`
     - `planning/`
@@ -160,7 +160,7 @@ Before auditing, orient yourself:
 
    Default: `docs/_planning/`. Record as `$PLAN_DIR`.
 
-8. **Read project conventions** — if any of the following exist, read them:
+9. **Read project conventions** — if any of the following exist, read them:
     - `AGENTS.md`
     - `CLAUDE.md`
     - `docs/policies.md`
@@ -216,7 +216,7 @@ For every Filament PHP class file discovered in `app/` and `app_modules/`:
 3. Check for **Filament-specific Livewire patterns**:
     - Custom `mount()` method using Livewire lifecycle hooks that changed in v4
     - `#[Reactive]` or `#[Locked]` attributes — confirm they are from `Livewire\Attributes\` not a stale import
-    - `$this->js(...)` calls — syntax unchanged but verify against catalogue refresh
+    - `$this->js(...)` calls — syntax unchanged but verify against catalog refresh
 4. Record findings per file: category ID (use existing IDs where applicable, or prefix `F-` for
    Filament-specific findings), affected line(s), current code snippet.
 
@@ -259,7 +259,7 @@ Then group by severity:
 
 - **HIGH** — must fix before upgrade will function
 - **MEDIUM** — will silently misbehave or look broken without fix
-- **LOW / JS** — degraded developer experience or hook behaviour
+- **LOW / JS** — degraded developer experience or hook behavior
 
 **Stop here. Present findings to user and ask for confirmation before writing the plan.**
 
@@ -310,7 +310,7 @@ All tasks should be linked to epic **{jira-epic-key}**.
 In Livewire 4, `wire:model` only listens for events on the element itself, not bubbled events from children. Any
 `wire:model` on a wrapper `<div>` or `<label>` with a child `<input>` must add the `.deep` modifier.
 
-### wire:model modifier behaviour (M1)
+### wire:model modifier behavior (M1)
 
 `.blur` and `.change` modifiers now control client-side state sync timing, not just network timing. Existing usages of
 `wire:model.blur` or `wire:model.change` that expect live server updates must become `wire:model.live.blur` /
@@ -414,7 +414,7 @@ Volt (check compatibility with Livewire 4 first).
     - Search nginx/Apache config stubs in the repo for the same
     - If `Livewire::setUpdateRoute()` is called, verify the custom path is still served correctly
 
-### LOW / JS — fix to restore hook behaviour
+### LOW / JS — fix to restore hook behavior
 
 10. **Migrate $wire.$js() calls (L1 / L2)**
     Old: `$wire.$js('name', fn)` / `$js('name', fn)`
@@ -497,7 +497,7 @@ Re-read the written plan against all lenses:
 ### Lens C — Scope
 
 - No new Livewire 4 features are introduced (Islands, Deferred, wire:sort, etc.).
-- No refactors beyond what the breaking-change catalogue requires.
+- No refactors beyond what the breaking-change catalog requires.
 
 ### Lens D — Missing information
 

@@ -27,7 +27,7 @@ If the user has not explicitly stated the issue type, infer it from context:
 
 | User intent                                        | Issue type       |
 |----------------------------------------------------|------------------|
-| Something is broken / unexpected behaviour         | `Bug`            |
+| Something is broken / unexpected behavior          | `Bug`            |
 | Net-new capability, user-facing feature            | `Feature`        |
 | Improvement to an existing feature                 | `Improvement`    |
 | Code cleanup, dead code removal, flag decommission | `Technical Debt` |
@@ -90,7 +90,7 @@ Common patterns by issue type (verify field keys against the metadata response â
 
 | User intent                                        | Issue type       |
 |----------------------------------------------------|------------------|
-| Something is broken / unexpected behaviour         | `Bug`            |
+| Something is broken / unexpected behavior          | `Bug`            |
 | Net-new capability, user-facing feature            | `Feature`        |
 | Improvement to an existing feature                 | `Improvement`    |
 | Code cleanup, dead code removal, flag decommission | `Technical Debt` |
@@ -213,11 +213,11 @@ For **Bug** tickets, replace "Affected Files" with:
 1. Step 1
 2. Step 2
 
-## Expected Behaviour
+## Expected Behavior
 
 <What should happen>
 
-## Actual Behaviour
+## Actual Behavior
 
 <What actually happens>
 ```

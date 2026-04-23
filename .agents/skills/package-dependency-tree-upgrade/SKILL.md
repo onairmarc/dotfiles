@@ -18,7 +18,7 @@ Parse these from `$ARGUMENTS`:
 
 | Argument            | Description                                                     | Required | Example             |
 |---------------------|-----------------------------------------------------------------|----------|---------------------|
-| `lockfile`          | Path to the lockfile to analyse                                 | Yes      | `composer.lock`     |
+| `lockfile`          | Path to the lockfile to analyze                                 | Yes      | `composer.lock`     |
 | `prefixes`          | Comma-separated package name prefixes to filter on              | Yes      | `acme/,myorg/`      |
 | `framework-package` | The framework/platform package whose version constraint matters | Yes      | `laravel/framework` |
 | `current-version`   | The major version the project is currently on                   | Yes      | `12`                |

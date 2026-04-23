@@ -155,11 +155,13 @@ Also evaluate **DTO / Data Object signals** (≥2 → lower confidence):
 
 1. Class name ends in `Data`, `DTO`, `Dto`, `Payload`, or `ValueObject`
 2. All non-static public properties are `readonly` (PHP 8.1+)
-3. Public methods limited to `from()`, `fromArray()`, `toArray()`, `all()`, `except()`, `only()` — no I/O or side effects
+3. Public methods limited to `from()`, `fromArray()`, `toArray()`, `all()`, `except()`, `only()` — no I/O or side
+   effects
 4. Class body contains a `#[MapInputName]`, `#[Computed]`, `#[Hidden]`, or other Spatie Data attribute
 5. Constructor only assigns properties — no service calls, no dependency wiring via `new`
 
-Record confidence level (`standard`, `lower — possible configuration class`, or `lower — possible DTO / data object`) alongside each finding. A class may trigger both lower-confidence signals; record both labels.
+Record confidence level (`standard`, `lower — possible configuration class`, or `lower — possible DTO / data object`)
+alongside each finding. A class may trigger both lower-confidence signals; record both labels.
 
 For **all** flagged singleton findings (regardless of confidence), use `AskUserQuestion` **before** passing findings to
 feature-planning to ask the developer whether the preferred fix is `app()->singleton()` or `app()->scoped()` binding in
@@ -228,9 +230,9 @@ description passed to feature-planning (feed it programmatically — do not ask 
 > **Phase 0 — Baseline test coverage (mandatory, non-negotiable)**
 > - Run existing test suite filtered to this module. Record all passing tests.
 > - If any pre-existing failures exist, stop — they must be fixed before optimization work begins.
-> - For every issue in "Issues addressed" with no existing test pinning current behaviour, write a PestPHP baseline test
+> - For every issue in "Issues addressed" with no existing test pinning current behavior, write a PestPHP baseline test
     using `describe()` and `test()` (not `it()`).
-> - Baseline tests must assert current (pre-optimization) behaviour, not desired behaviour.
+> - Baseline tests must assert current (pre-optimization) behavior, not desired behavior.
 > - Commit baseline tests separately before Phase 1: `test({module}): baseline tests before optimization`
 > - Re-run suite. All tests including new baselines must pass before proceeding.
 >
@@ -251,7 +253,8 @@ description passed to feature-planning (feed it programmatically — do not ask 
 > 7. `->count() > 0` → `->exists()`. Always. No exceptions.
 > 8. Never cache inside a `DB::transaction()` closure. Cache after commit.
 > 9. Observers that perform I/O must have `public bool $afterCommit = true`.
-> 10. Never recommend partial model selects (`->select(...)` to limit columns) or partial eager loads (`->with('relation:id,col,...')`). These are not approved optimization patterns. Full models must always be loaded.
+> 10. Never recommend partial model selects (`->select(...)` to limit columns) or partial eager loads (
+      `->with('relation:id,col,...')`). These are not approved optimization patterns. Full models must always be loaded.
 > 11. Self-managing singletons (`protected static $instance` + `isset` guard in `::make()` defined in the class itself)
       → register in an existing or new Service Provider's `register()` method using the binding type confirmed via
       `AskUserQuestion` (`app()->singleton()` or `app()->scoped()`), then replace callsites with constructor/method

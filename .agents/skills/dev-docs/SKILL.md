@@ -51,7 +51,7 @@ Before writing, consider:
 - Use "you" and active voice
 - Show, don't just tell — lead with code examples where applicable
 - Document what parameters are required vs. optional, and their defaults
-- Call out breaking changes, deprecations, and version-specific behaviour
+- Call out breaking changes, deprecations, and version-specific behavior
 - Include warnings for irreversible operations or operations with side effects
 - Explain the "why" behind non-obvious design decisions
 
@@ -63,7 +63,7 @@ Verification checklist:
 
 1. **Signatures & Interfaces** — Read function/method signatures, type definitions, and interfaces
 2. **Configuration** — Find config schemas, env var usage, and default values
-3. **Behavior** — Trace code paths to verify documented behaviour is accurate
+3. **Behavior** — Trace code paths to verify documented behavior is accurate
 4. **Error States** — Find thrown exceptions, error codes, and validation logic
 5. **Naming** — Match exact class, method, parameter, and config key names from the code
 
