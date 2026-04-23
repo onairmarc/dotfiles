@@ -90,32 +90,50 @@ if is_windows; then
     export MSYS=winsymlinks:nativestrict
 fi
 
-# Handle global mode: link ~/.claude/skills to this repo's .agents/skills
+# Handle global mode: link ~/.claude/skills and ~/.claude/CLAUDE.md to this repo's .agents/
 if [[ "$GLOBAL_MODE" == true ]]; then
-    GLOBAL_TARGET="$HOME/.claude/skills"
-    SOURCE_DIR="$REPO_ROOT/.agents/skills"
+    CLAUDE_DIR="$HOME/.claude"
 
-    # Verify source directory exists
-    if [[ ! -d "$SOURCE_DIR" ]]; then
-        log_error "Source directory does not exist: $SOURCE_DIR"
+    # Ensure parent directory exists
+    mkdir -p "$CLAUDE_DIR"
+
+    # 1. Link ~/.claude/skills -> .agents/skills
+    SKILLS_TARGET="$CLAUDE_DIR/skills"
+    SKILLS_SOURCE="$REPO_ROOT/.agents/skills"
+
+    if [[ ! -d "$SKILLS_SOURCE" ]]; then
+        log_error "Source directory does not exist: $SKILLS_SOURCE"
         exit 1
     fi
 
-    log_info "Global mode: Creating symlink from ~/.claude/skills to $SOURCE_DIR"
+    log_info "Global mode: Creating symlink from ~/.claude/skills to $SKILLS_SOURCE"
 
-    # Remove existing target if it exists
-    if [[ -e "$GLOBAL_TARGET" ]] || [[ -L "$GLOBAL_TARGET" ]]; then
-        log_info "  Removing existing: $GLOBAL_TARGET"
-        rm -rf "$GLOBAL_TARGET"
+    if [[ -e "$SKILLS_TARGET" ]] || [[ -L "$SKILLS_TARGET" ]]; then
+        log_info "  Removing existing: $SKILLS_TARGET"
+        rm -rf "$SKILLS_TARGET"
     fi
 
-    # Ensure parent directory exists
-    mkdir -p "$(dirname "$GLOBAL_TARGET")"
+    ln -s "$SKILLS_SOURCE" "$SKILLS_TARGET"
+    log_info "  Created global symlink: $SKILLS_TARGET -> $SKILLS_SOURCE"
 
-    # Create symlink
-    ln -s "$SOURCE_DIR" "$GLOBAL_TARGET"
+    # 2. Link ~/.claude/CLAUDE.md -> .agents/AGENTS.md
+    CLAUDE_MD_TARGET="$CLAUDE_DIR/CLAUDE.md"
+    AGENTS_MD_SOURCE="$REPO_ROOT/.agents/AGENTS.md"
 
-    log_info "  Created global symlink: $GLOBAL_TARGET -> $SOURCE_DIR"
+    if [[ ! -f "$AGENTS_MD_SOURCE" ]]; then
+        log_warn "Source file does not exist, skipping: $AGENTS_MD_SOURCE"
+    else
+        log_info "Global mode: Creating symlink from ~/.claude/CLAUDE.md to $AGENTS_MD_SOURCE"
+
+        if [[ -e "$CLAUDE_MD_TARGET" ]] || [[ -L "$CLAUDE_MD_TARGET" ]]; then
+            log_info "  Removing existing: $CLAUDE_MD_TARGET"
+            rm -f "$CLAUDE_MD_TARGET"
+        fi
+
+        ln -s "$AGENTS_MD_SOURCE" "$CLAUDE_MD_TARGET"
+        log_info "  Created global symlink: $CLAUDE_MD_TARGET -> $AGENTS_MD_SOURCE"
+    fi
+
     log_info "Sync complete!"
     exit 0
 fi
