@@ -10,6 +10,7 @@ allowed-tools:
   - Bash(find * -name "*.php" -type f)
   - Bash(cat *)
   - Skill(feature-planning)
+  - Skill(no-db-constraints)
   - AskUserQuestion
 model: opus
 ---
@@ -115,6 +116,20 @@ Record each finding as:
 | Cache inside transaction      | `Cache::remember` or `Cache::add` inside `DB::transaction(`                                         |
 | No cache invalidation         | `Cache::remember` with a key — check for corresponding `Cache::forget` or `Cache::delete` on writes |
 
+### Database constraints
+
+Scan all migrations under `database/migrations/` (not scoped to `MODULE_PATH` — constraints are schema-wide):
+
+| Violation                          | Pattern to grep     |
+|------------------------------------|---------------------|
+| FK via `->foreign()`               | `->foreign\(`       |
+| FK via `->constrained()`           | `->constrained\(`   |
+| Unique constraint via `->unique()` | `->unique\(`        |
+| Table-level unique                 | `\$table->unique\(` |
+
+Record each hit as: migration file path, table name, constraint type (FK / unique), column(s). These are
+handled by `Skill(no-db-constraints)` in Step 3.5 — do **not** include them in the feature-planning handoff.
+
 ### Routing
 
 | Problem                               | How to detect                                                  |
@@ -187,6 +202,7 @@ Issues found: N total
   Caching:            N
   Routing:            N
   Architecture:       N
+  DB constraints:     N
 
 ### Issues
 
@@ -265,6 +281,11 @@ description passed to feature-planning (feed it programmatically — do not ask 
       `readonly class`, or where `::make()` is not defined in the class itself. DTO/Data Object findings (lower
       confidence) must include a note that the static property may be a local cache (e.g. memoised computation), not
       shared service state, and require developer review before proceeding.
+>
+> 12. For every DB constraint violation (FK or unique) found in migrations: include a dedicated plan step that
+      > instructs the implementing agent to run `/no-db-constraints <migration-file-path>`. Do not describe how
+      > to drop constraints manually — the skill handles the full remediation (drop migration, model boot() check,
+      > plain index where needed). List the exact migration file paths as the argument.
 >
 > **Out of scope:** Redis, SSR, Vite, new infrastructure dependencies, files outside `{MODULE_PATH}`.
 >
