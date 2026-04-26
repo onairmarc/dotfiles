@@ -57,10 +57,7 @@ discover_ide_versions() {
                 dirname=$(basename "$dir")
                 # Check if directory name has version number (contains digits after IDE name)
                 if [[ "$dirname" =~ ^${ide}[0-9] ]]; then
-                    # Check if keymaps directory exists in this IDE version
-                    if [[ -d "$dir/keymaps" ]]; then
-                        available_versions+=("$dirname")
-                    fi
+                    available_versions+=("$dirname")
                 fi
             fi
         done
@@ -129,8 +126,8 @@ copy_keymaps() {
     fi
 
     if [[ ! -d "$target_dir" ]]; then
-        log_error "Error: Target directory not found: $target_dir"
-        return 1
+        log_info "Creating keymaps directory: $target_dir"
+        mkdir -p "$target_dir"
     fi
 
     log_info "Copying keymaps from: $KEYMAP_SOURCE"
