@@ -9,7 +9,7 @@ export PATH="$PATH:/usr/local/bin/node"
 export PATH="$PATH:/usr/local/opt/openjdk@11/bin"
 export PATH="$PATH:/Library/Java/JavaVirtualMachines/microsoft-11.jdk/Contents/Home"
 #export JAVA_HOME=$(/usr/libexec/java_home -v 11)
-export JAVA_HOME='/Users/marcbeinder/Applications/Android Studio.app/Contents/jbr/Contents/Home'
+export JAVA_HOME='/Users/marcbeinder/Library/Java/JavaVirtualMachines/graalvm-jdk-21.0.4/Contents/Home'
 
 export HOMEBREW_NO_AUTO_UPDATE=1
 
