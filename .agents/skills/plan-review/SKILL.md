@@ -193,19 +193,19 @@ After Step 4, detect the project type and run the matching optimization pass **b
 
 ### 5a — Detect project type
 
-Evaluate **all** checks below — multiple can match. For each match, record the optimization file to load.
+Evaluate the checks below in order. Multiple can match — record every optimization file that applies.
 
 | Check                                                                                                                                                             | Match label   | Optimization file           |
 |-------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|-----------------------------|
 | `composer.json` exists at repo root AND contains `"laravel/framework"` in `require`/`require-dev`, OR `"type": "library"` AND any `laravel/` package in `require` | **Laravel**   | `optimizations/laravel.md`  |
 | Any `.csproj` found (via `Bash(find * -name "*.csproj" -type f)`) AND any of those files contains `Avalonia` in a `PackageReference` or `<UseAvalonia>true`       | **Avalonia**  | `optimizations/avalonia.md` |
-| Any `.csproj` found (regardless of whether Avalonia matched above)                                                                                                | **C# (.NET)** | `optimizations/cs.md`       |
+| Any `.csproj` found AND the Avalonia check above did **not** match                                                                                                | **C# (.NET)** | `optimizations/cs.md`       |
 
 If no checks match, skip Step 5 and proceed to the final summary.
 
-Note: an Avalonia project will match **both** Avalonia and C# — run both passes. The Avalonia pass covers
-UI-specific patterns; the C# pass covers general .NET patterns (async, LINQ, DI, etc.) that the Avalonia pass
-does not audit.
+**Important:** the Avalonia pass internally calls `cs-optimization --audit-only` and merges both sets of
+findings into a single feature-planning handoff. Do **not** load `optimizations/cs.md` when the Avalonia
+check matched — that would re-run the C# audit a second time.
 
 ### 5b — Load and follow each matched optimization file
 

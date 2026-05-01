@@ -11,6 +11,7 @@ allowed-tools:
   - Bash(find * -name "*.axaml" -type f)
   - Bash(cat *)
   - Skill(feature-planning)
+  - Skill(cs-optimization)
   - AskUserQuestion
 model: opus
 ---
@@ -190,6 +191,29 @@ Issues found: N total
 ```
 
 Omit any category with zero findings.
+
+---
+
+## Step 3.5 — General C# audit
+
+After compiling Avalonia-specific findings, run the general C# audit on the same path. Call:
+
+```
+Skill(cs-optimization): {PROJECT_PATH} --audit-only [EXTRA_CONTEXT]
+```
+
+The `--audit-only` flag causes cs-optimization to stop after its Step 3 — it emits a findings summary and does
+**not** invoke feature-planning. Capture that summary.
+
+Merge the cs-optimization findings into the Avalonia audit summary from Step 3:
+
+- Append a new section `**General C# (.NET)**` to the findings summary containing the cs-optimization categories
+  (Async/Threading, Memory allocation, LINQ/Collections, I/O & Resources, Caching, Concurrency, Exception
+  handling, DI & Lifetimes).
+- Add the cs-optimization issue counts to the "Issues found" totals.
+- If cs-optimization found zero issues across all categories, note: `General C# audit: no issues found.`
+
+The combined summary (Avalonia findings + C# findings) is what gets passed to feature-planning in Step 4.
 
 ---
 

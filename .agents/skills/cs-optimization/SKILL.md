@@ -36,6 +36,10 @@ Parse `$ARGUMENTS`. Extract:
   known issues, architectural decisions, or constraints the automated audit may not discover (e.g. "the ConfigService is
   a singleton loaded on every request", "the report export is known to be slow for large datasets"). Preserve it
   verbatim.
+- `AUDIT_ONLY` — set to `true` if `EXTRA_CONTEXT` contains the flag `--audit-only`. When set, **stop after Step 3**
+  and emit the findings summary. Do **not** invoke feature-planning. This mode is used when cs-optimization is called
+  as a sub-audit from another optimization skill (e.g. avalonia-optimization) that will handle the feature-planning
+  handoff itself.
 
 Derive `PROJECT_NAME` from the last meaningful path segment (if last segment is `src`, use its parent).
 
@@ -235,7 +239,11 @@ Omit any category with zero findings.
 
 ---
 
-## Step 4 — Invoke feature-planning
+## Step 4 — Invoke feature-planning (skipped in audit-only mode)
+
+If `AUDIT_ONLY` is `true`, stop here. Emit the Step 3 findings summary and return — do not proceed further.
+
+---
 
 Hand off to the **feature-planning skill** with the full audit summary as context. Use the following as the feature
 description passed to feature-planning (feed it programmatically — do not ask the user to retype it):
