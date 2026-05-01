@@ -191,6 +191,10 @@ dotfiles_update() {
   echo -e "${COL_YELLOW}Restart your terminal to apply the updates${COL_RESET}"
 }
 
+dotnet_clear_nuget_cache() {
+  dotnet nuget locals all --clear
+}
+
 git_assume_unchanged() {
   if [ -z "$1" ]; then
     echo -e "${COL_RED}Error: Filepath is required.${COL_RESET}"
