@@ -180,8 +180,7 @@ Then ask:
     - **Migrations and model changes:** show only the changed or added portions (new columns, method bodies, relations),
       not the entire file. Exception: if the step creates a brand-new migration or model, provide the complete file.
     - If the plan currently describes an implementation step in prose only and you are not sure what the code should
-      look
-      like, ask the user rather than guessing.
+      look like, ask the user rather than guessing.
 
 ---
 
