@@ -9,12 +9,10 @@ allowed-tools:
   - AskUserQuestion
   - Glob
   - Grep
+  - Agent
   - Bash(test -f *)
   - Bash(cat *)
   - Bash(find * -name "*.csproj" -type f)
-  - Skill(laravel-optimization)
-  - Skill(cs-optimization)
-  - Skill(avalonia-optimization)
 model: sonnet
 ---
 

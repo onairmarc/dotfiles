@@ -20,17 +20,21 @@ the purpose.
 
 ## 5c — Invoke cs-optimization
 
-Call `Skill(cs-optimization)` once per unique top-level project path extracted in 5b. Pass:
+Spawn an `Agent` sub-agent with **`model: opus`** for each unique top-level project path extracted in 5b. Use
+this prompt (fill in the bracketed values):
 
 ```
-<project-path> [extra context: this audit follows a plan-review pass on <plan-file-path>]
+Run the cs-optimization skill on `<project-path>`.
+Context: this audit follows a plan-review pass on `<plan-file-path>`.
+Do NOT invoke feature-planning or write to any plan file.
+Return your full structured audit findings so the caller can incorporate them into the reviewed plan.
 ```
 
 Example: if the plan touches `src/MyApp.Core/Services/ReportService.cs`, pass `src/MyApp.Core` as the project
 path (the project directory, not the individual file).
 
-If the plan spans multiple unrelated project directories, invoke the skill once per directory. Do not combine
-unrelated paths into a single invocation.
+If the plan spans multiple unrelated project directories, spawn one Agent per directory. Do not combine
+unrelated paths into a single invocation. Collect all sub-agent results before proceeding to 5d.
 
 ## 5d — Incorporate findings into the reviewed plan
 

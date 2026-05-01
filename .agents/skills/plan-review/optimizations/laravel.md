@@ -30,17 +30,21 @@ scanning the entire codebase defeats the purpose.
 
 ## 5c — Invoke laravel-optimization
 
-Call `Skill(laravel-optimization)` once per unique top-level module path extracted in 5b. Pass:
+Spawn an `Agent` sub-agent with **`model: opus`** for each unique top-level module path extracted in 5b. Use
+this prompt (fill in the bracketed values):
 
 ```
-<module-path> [extra context: this audit follows a plan-review pass on <plan-file-path>]
+Run the laravel-optimization skill on `<module-path>`.
+Context: this audit follows a plan-review pass on `<plan-file-path>`.
+Do NOT invoke feature-planning or write to any plan file.
+Return your full structured audit findings so the caller can incorporate them into the reviewed plan.
 ```
 
 Example: if the plan touches `app/Services/Billing` and `app/Http/Controllers/BillingController.php`, pass
 `app/Services/Billing` as the module path (the directory, not the individual file).
 
-If the plan spans multiple unrelated module directories, invoke the skill once per directory. Do not combine
-unrelated paths into a single invocation.
+If the plan spans multiple unrelated module directories, spawn one Agent per directory. Do not combine
+unrelated paths into a single invocation. Collect all sub-agent results before proceeding to 5d.
 
 ## 5d — Incorporate findings into the reviewed plan
 
