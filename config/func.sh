@@ -240,7 +240,7 @@ loc() {
 }
 
 mac_cleanup () {
-  bash "$DF_ROOT_DIRECTORY/tools/mac_cleanup.sh"
+  bash "$DF_ROOT_DIRECTORY/tools/mac_cleanup.sh" "$@"
 }
 
 nah() {

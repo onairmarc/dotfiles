@@ -19,10 +19,14 @@ https://github.com/mac-cleanup/mac-cleanup-sh
 
 Available options:
 
--h, --help       Print this help and exit
--d, --dry-run    Print approx space to be cleaned
--v, --verbose    Print script debug info
--u, --update     Run brew update
+-h, --help              Print this help and exit
+-d, --dry-run           Print approx space to be cleaned
+-v, --verbose           Print script debug info
+-u, --update            Run brew update
+-s, --thin-snapshots    Aggressively thin APFS local snapshots
+-r, --rebuild-index     Rebuild Spotlight index and storage UI caches (CPU heavy, hours)
+-R, --regen-report      Run thin-snapshots + rebuild-index together
+--regen-only            Skip cleanup; only run report-regen tasks selected by -s/-r/-R
 EOF
 	exit
 }
@@ -52,6 +56,9 @@ die() {
 parse_params() {
 	# default values of variables set from params
 	update=false
+	thin_snapshots=false
+	rebuild_index=false
+	regen_only=false
 
 	while :; do
 		case "${1-}" in
@@ -60,6 +67,10 @@ parse_params() {
 		-d | --dry-run) dry_run=true ;;
 		--no-color) NO_COLOR=1 ;;
 		-u | --update) update=true ;; # update flag
+		-s | --thin-snapshots) thin_snapshots=true ;;
+		-r | --rebuild-index) rebuild_index=true ;;
+		-R | --regen-report) thin_snapshots=true; rebuild_index=true ;;
+		--regen-only) regen_only=true ;;
 		-n) true ;;                   # This is a legacy option, now default behaviour
 		-?*) die "Unknown option: $1" ;;
 		*) break ;;
@@ -70,8 +81,51 @@ parse_params() {
 	return 0
 }
 
+thin_local_snapshots() {
+	if ! type "tmutil" &>/dev/null; then
+		msg "${YELLOW}tmutil not available, skipping snapshot thin${NOFORMAT}"
+		return 0
+	fi
+	msg 'Aggressively thinning APFS local snapshots...'
+	sudo tmutil thinlocalsnapshots / 999999999999 4 &>/dev/null
+	for snap in $(tmutil listlocalsnapshotdates / 2>/dev/null | grep -E '^[0-9]'); do
+		sudo tmutil deletelocalsnapshots "$snap" &>/dev/null
+	done
+}
+
+rebuild_storage_index() {
+	msg "${YELLOW}Rebuilding Spotlight index — this will hammer CPU/disk for 1-6 hours.${NOFORMAT}"
+	msg 'Disabling Spotlight indexing on /...'
+	sudo mdutil -i off / &>/dev/null
+	msg 'Erasing Spotlight database...'
+	sudo mdutil -E / &>/dev/null
+	sudo rm -rf /.Spotlight-V100 &>/dev/null
+	msg 'Clearing systemstats cache (drives Storage UI categorization)...'
+	sudo rm -rf /private/var/db/systemstats/* &>/dev/null
+	sudo rm -rf /System/Volumes/Data/.Spotlight-V100/*
+	rm -rf ~/Library/Caches/com.apple.preferencepanes.usercache &>/dev/null
+	msg 'Re-enabling Spotlight indexing...'
+	sudo mdutil -i on / &>/dev/null
+	msg 'Restarting cfprefsd and Finder...'
+	killall cfprefsd &>/dev/null
+	killall Finder &>/dev/null
+	msg "${GREEN}Reindex started in background. Storage panel will update incrementally.${NOFORMAT}"
+}
+
 parse_params "$@"
 setup_colors
+
+# --regen-only short circuit: skip cleanup, run only selected report-regen tasks
+if [ "$regen_only" = true ]; then
+	if [ "$thin_snapshots" = false ] && [ "$rebuild_index" = false ]; then
+		die "--regen-only requires at least one of -s/--thin-snapshots, -r/--rebuild-index, or -R/--regen-report"
+	fi
+	sudo -v
+	[ "$thin_snapshots" = true ] && thin_local_snapshots
+	[ "$rebuild_index" = true ] && rebuild_storage_index
+	msg "${GREEN}Done.${NOFORMAT}"
+	exit 0
+fi
 
 deleteCaches() {
 	local cacheName=$1
@@ -352,11 +406,35 @@ if type "docker" &>/dev/null; then  # TODO add count_dry
       open --background -a Docker
     fi
     msg 'Cleaning up Docker'
-    docker system prune -af &>/dev/null
+    docker system prune -af --volumes &>/dev/null
+    docker builder prune -af &>/dev/null
     if [ "$close_docker" = true ]; then
       killall Docker
     fi
   fi
+fi
+
+# Shrink Docker.raw VM disk by deleting and letting Docker Desktop recreate.
+# WARNING: removes all Docker images, containers, volumes, and build cache.
+if [ -f ~/Library/Containers/com.docker.docker/Data/vms/0/data/Docker.raw ]; then
+  if [ -z "$dry_run" ]; then
+    msg 'Shrinking Docker.raw (full reset of Docker Desktop VM disk)...'
+    osascript -e 'tell application "Docker" to quit' &>/dev/null
+    killall Docker &>/dev/null
+    killall com.docker.backend &>/dev/null
+    killall com.docker.virtualization &>/dev/null
+    sleep 3
+    rm -f ~/Library/Containers/com.docker.docker/Data/vms/0/data/Docker.raw
+  else
+    collect_paths ~/Library/Containers/com.docker.docker/Data/vms/0/data/Docker.raw
+  fi
+fi
+
+# Xamarin Android SDK (re-downloaded by Visual Studio / Rider on demand)
+if [ -d ~/Library/Developer/Xamarin/android-sdk-macosx ]; then
+  collect_paths ~/Library/Developer/Xamarin/android-sdk-macosx
+  msg 'Removing Xamarin Android SDK...'
+  remove_paths
 fi
 
 if [ "$PYENV_VIRTUALENV_CACHE_PATH" ]; then
@@ -445,6 +523,170 @@ collect_paths ~/*.hprof
 msg 'Deleting Java heap dumps...'
 remove_paths
 
+# Chromium / Chrome cache sweep across all profiles
+if [ -d ~/Library/Application\ Support/Google/Chrome/ ]; then
+  collect_paths ~/Library/Application\ Support/Google/Chrome/*/Cache/*
+  collect_paths ~/Library/Application\ Support/Google/Chrome/*/Code\ Cache/*
+  collect_paths ~/Library/Application\ Support/Google/Chrome/*/GPUCache/*
+  collect_paths ~/Library/Application\ Support/Google/Chrome/*/Service\ Worker/CacheStorage/*
+  collect_paths ~/Library/Application\ Support/Google/Chrome/*/Service\ Worker/ScriptCache/*
+  collect_paths ~/Library/Application\ Support/Google/Chrome/*/DawnCache/*
+  collect_paths ~/Library/Application\ Support/Google/Chrome/*/DawnGraphiteCache/*
+  collect_paths ~/Library/Application\ Support/Google/Chrome/*/DawnWebGPUCache/*
+  collect_paths ~/Library/Application\ Support/Google/Chrome/GrShaderCache/*
+  collect_paths ~/Library/Application\ Support/Google/Chrome/ShaderCache/*
+  msg 'Clearing Chrome cache files (all profiles)...'
+  remove_paths
+fi
+
+# VS Code caches
+if [ -d ~/Library/Application\ Support/Code/ ]; then
+  collect_paths ~/Library/Application\ Support/Code/Cache/*
+  collect_paths ~/Library/Application\ Support/Code/Code\ Cache/*
+  collect_paths ~/Library/Application\ Support/Code/CachedData/*
+  collect_paths ~/Library/Application\ Support/Code/CachedExtensionVSIXs/*
+  collect_paths ~/Library/Application\ Support/Code/GPUCache/*
+  collect_paths ~/Library/Application\ Support/Code/logs/*
+  msg 'Clearing VS Code caches and logs...'
+  remove_paths
+fi
+
+# JetBrains IDE caches
+if [ -d ~/Library/Caches/JetBrains/ ]; then
+  collect_paths ~/Library/Caches/JetBrains/*/caches/*
+  collect_paths ~/Library/Caches/JetBrains/*/index/*
+  collect_paths ~/Library/Caches/JetBrains/*/log/*
+  msg 'Clearing JetBrains IDE caches...'
+  remove_paths
+fi
+
+# Slack (sandboxed)
+if [ -d ~/Library/Containers/com.tinyspeck.slackmacgap/ ]; then
+  collect_paths ~/Library/Containers/com.tinyspeck.slackmacgap/Data/Library/Application\ Support/Slack/Cache/*
+  collect_paths ~/Library/Containers/com.tinyspeck.slackmacgap/Data/Library/Application\ Support/Slack/Code\ Cache/*
+  collect_paths ~/Library/Containers/com.tinyspeck.slackmacgap/Data/Library/Application\ Support/Slack/GPUCache/*
+  collect_paths ~/Library/Containers/com.tinyspeck.slackmacgap/Data/Library/Application\ Support/Slack/Service\ Worker/CacheStorage/*
+  collect_paths ~/Library/Containers/com.tinyspeck.slackmacgap/Data/Library/Application\ Support/Slack/Service\ Worker/ScriptCache/*
+  collect_paths ~/Library/Containers/com.tinyspeck.slackmacgap/Data/Library/Application\ Support/Slack/DawnCache/*
+  collect_paths ~/Library/Containers/com.tinyspeck.slackmacgap/Data/Library/Application\ Support/Slack/DawnGraphiteCache/*
+  collect_paths ~/Library/Containers/com.tinyspeck.slackmacgap/Data/Library/Application\ Support/Slack/DawnWebGPUCache/*
+  collect_paths ~/Library/Containers/com.tinyspeck.slackmacgap/Data/Library/Application\ Support/Slack/logs/*
+  msg 'Clearing Slack caches and logs...'
+  remove_paths
+fi
+
+# Microsoft Teams (new client)
+if [ -d ~/Library/Containers/com.microsoft.teams2/ ]; then
+  collect_paths ~/Library/Containers/com.microsoft.teams2/Data/Library/Application\ Support/Microsoft/MSTeams/Cache/*
+  collect_paths ~/Library/Containers/com.microsoft.teams2/Data/Library/Application\ Support/Microsoft/MSTeams/Code\ Cache/*
+  collect_paths ~/Library/Containers/com.microsoft.teams2/Data/Library/Application\ Support/Microsoft/MSTeams/GPUCache/*
+  collect_paths ~/Library/Containers/com.microsoft.teams2/Data/Library/Application\ Support/Microsoft/MSTeams/Service\ Worker/CacheStorage/*
+  collect_paths ~/Library/Containers/com.microsoft.teams2/Data/Library/Application\ Support/Microsoft/MSTeams/Service\ Worker/ScriptCache/*
+  collect_paths ~/Library/Containers/com.microsoft.teams2/Data/Library/Application\ Support/Microsoft/MSTeams/logs/*
+  collect_paths ~/Library/Containers/com.microsoft.teams2/Data/Library/Application\ Support/Microsoft/MSTeams/tmp/*
+  msg 'Clearing new Microsoft Teams caches and logs...'
+  remove_paths
+fi
+
+# Discord
+if [ -d ~/Library/Application\ Support/discord/ ]; then
+  collect_paths ~/Library/Application\ Support/discord/Cache/*
+  collect_paths ~/Library/Application\ Support/discord/Code\ Cache/*
+  collect_paths ~/Library/Application\ Support/discord/GPUCache/*
+  collect_paths ~/Library/Application\ Support/discord/Service\ Worker/CacheStorage/*
+  collect_paths ~/Library/Application\ Support/discord/Service\ Worker/ScriptCache/*
+  msg 'Clearing Discord caches...'
+  remove_paths
+fi
+
+# Firefox
+if [ -d ~/Library/Application\ Support/Firefox/Profiles/ ]; then
+  collect_paths ~/Library/Application\ Support/Firefox/Profiles/*/cache2/*
+  collect_paths ~/Library/Application\ Support/Firefox/Profiles/*/startupCache/*
+  collect_paths ~/Library/Application\ Support/Firefox/Profiles/*/thumbnails/*
+  collect_paths ~/Library/Application\ Support/Firefox/Profiles/*/shader-cache/*
+  collect_paths ~/Library/Application\ Support/Firefox/Profiles/*/storage/default/*/cache/*
+  collect_paths ~/Library/Caches/Firefox/*
+  msg 'Clearing Firefox caches...'
+  remove_paths
+fi
+
+# Postman
+if [ -d ~/Library/Application\ Support/Postman/ ]; then
+  collect_paths ~/Library/Application\ Support/Postman/Cache/*
+  collect_paths ~/Library/Application\ Support/Postman/Code\ Cache/*
+  collect_paths ~/Library/Application\ Support/Postman/GPUCache/*
+  collect_paths ~/Library/Application\ Support/Postman/IndexedDB/*
+  collect_paths ~/Library/Application\ Support/Postman/logs/*
+  msg 'Clearing Postman caches and logs...'
+  remove_paths
+fi
+
+# Spotify
+if [ -d ~/Library/Application\ Support/Spotify/PersistentCache/ ]; then
+  collect_paths ~/Library/Application\ Support/Spotify/PersistentCache/*
+  msg 'Clearing Spotify persistent cache...'
+  remove_paths
+fi
+
+# Blanket sandboxed app caches
+if [ -d ~/Library/Containers/ ]; then
+  collect_paths ~/Library/Containers/*/Data/Library/Caches/*
+  msg 'Clearing sandboxed app caches...'
+  remove_paths
+fi
+
+# HTTPStorages and WebKit website data
+collect_paths ~/Library/HTTPStorages/*/*Cache*
+collect_paths ~/Library/WebKit/*/WebsiteData/*
+msg 'Clearing HTTPStorages and WebKit website data...'
+remove_paths
+
+# Saved application state (window positions)
+collect_paths ~/Library/Saved\ Application\ State/*
+msg 'Clearing saved application state...'
+remove_paths
+
+# QuickLook thumbnail cache
+if [ -z "$dry_run" ]; then
+  msg 'Resetting QuickLook thumbnail cache...'
+  qlmanage -r cache &>/dev/null
+fi
+
+# Time Machine local snapshots (frequent System Data culprit)
+if [ -z "$dry_run" ] && type "tmutil" &>/dev/null; then
+  msg 'Deleting Time Machine local snapshots...'
+  for snap in $(tmutil listlocalsnapshotdates / 2>/dev/null | grep -E '^[0-9]'); do
+    sudo tmutil deletelocalsnapshots "$snap" &>/dev/null
+  done
+fi
+
+# Unified system logs (/private/var/db/diagnostics)
+if [ -z "$dry_run" ]; then
+  msg 'Erasing unified system logs...'
+  sudo log erase --all &>/dev/null
+fi
+
+# Periodic maintenance scripts
+if [ -z "$dry_run" ]; then
+  msg 'Running periodic maintenance (daily, weekly, monthly)...'
+  sudo periodic daily weekly monthly &>/dev/null
+fi
+
+# Mail downloads (attachments cached on open)
+if [ -d ~/Library/Containers/com.apple.mail/Data/Library/Mail\ Downloads/ ]; then
+  collect_paths ~/Library/Containers/com.apple.mail/Data/Library/Mail\ Downloads/*
+  msg 'Clearing Mail attachment downloads...'
+  remove_paths
+fi
+
+# Old iOS device support files (re-downloaded on demand)
+if [ -d ~/Library/Developer/Xcode/iOS\ DeviceSupport/ ]; then
+  collect_paths ~/Library/Developer/Xcode/iOS\ DeviceSupport/*
+  msg 'Removing old iOS device support files...'
+  remove_paths
+fi
+
 if [ -z "$dry_run" ]; then
   msg 'Cleaning up DNS cache...'
   sudo dscacheutil -flushcache &>/dev/null
@@ -458,6 +700,18 @@ fi
 
 # Disables extended regex
 shopt -u extglob
+
+# Optional report-regen tasks
+if [ -z "$dry_run" ]; then
+  [ "$thin_snapshots" = true ] && thin_local_snapshots
+  [ "$rebuild_index" = true ] && rebuild_storage_index
+fi
+
+# Build flag list for re-exec after dry-run confirmation
+rerun_flags=()
+[ "$update" = true ] && rerun_flags+=(--update)
+[ "$thin_snapshots" = true ] && rerun_flags+=(--thin-snapshots)
+[ "$rebuild_index" = true ] && rerun_flags+=(--rebuild-index)
 
 if [ -z "$dry_run" ]; then
   msg "${GREEN}Success!${NOFORMAT}"
@@ -473,11 +727,7 @@ else
   msg "Continue? [enter]"
   read -r -s -n 1 clean_dry_run
   if [[ $clean_dry_run = "" ]]; then
-    if [ "$update" = true ]; then
-      exec "$0" --update
-    else
-      exec "$0"
-    fi
+    exec "$0" "${rerun_flags[@]}"
   fi
   cleanup
 fi
