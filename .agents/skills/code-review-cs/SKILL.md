@@ -130,8 +130,6 @@ Detect the project type from config files (check for `*.csproj` referencing `Mic
 - N+1 query risks — missing `.Include()` / eager loading on navigation properties
 - Missing `.AsNoTracking()` on read-only queries (performance)
 - Missing database indexes for foreign keys or frequently filtered columns
-- Using foreign key constraints in migrations — the database should not enforce relational
-  integrity; the application code should. Flag any `AddForeignKey` calls.
 - Calling `.Result` or `.Wait()` on async EF queries (deadlock risk)
 - Querying inside a loop instead of batching
 
