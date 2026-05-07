@@ -44,9 +44,10 @@ Otherwise, use `AskUserQuestion` to ask the user:
 
 Once you have a path:
 
-1. Use `Glob` to find all `plan.md` files recursively under the directory (pattern: `**/plan.md`).
-2. If no `plan.md` files are found, tell the user and stop.
-3. Read every discovered plan file with the `Read` tool.
+1. Use `Glob` to find all Markdown files recursively under the directory (pattern: `**/*.md`).
+2. If no Markdown files are found, tell the user and stop.
+3. Read every discovered file with the `Read` tool to gain full context — this includes plan files,
+   sub-plans, architecture notes, design decisions, and any other documentation in the directory.
 
 Also resolve from `$ARGUMENTS` or ask:
 
