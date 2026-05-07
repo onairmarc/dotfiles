@@ -1,7 +1,7 @@
 ---
 name: feature-planning
 description: Interactively create a new feature plan for any repository. Gathers requirements via AskUserQuestion, drafts a plan following discovered project conventions and general design principles, then applies plan-review lenses to produce an agent-ready plan written to the repo's planning directory.
-argument-hint: [ feature name or description (optional) ]
+argument-hint: [ feature name or description (optional) ] [ --output=<dir> ]
 allowed-tools:
   - Read
   - Edit
@@ -63,7 +63,13 @@ specific failure mode justifies it.
 
 Before gathering requirements, orient yourself to the repository:
 
-1. **Detect output directory** — check for the following in order and use the first that exists:
+1. **Parse flags from `$ARGUMENTS`** — scan `$ARGUMENTS` for `--output=<dir>`. If found:
+    - Strip the flag from `$ARGUMENTS` so the remainder is treated as the feature description.
+    - Resolve `<dir>` relative to the current working directory and record it as `$PLAN_DIR`. Skip the auto-detect step
+      below entirely.
+
+2. **Detect output directory** (skip if `--output` was provided) — check for the following in order and use the first
+   that exists:
     - `docs/_planning/`
     - `docs/planning/`
     - `planning/`
