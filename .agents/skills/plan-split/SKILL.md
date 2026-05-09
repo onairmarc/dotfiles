@@ -20,13 +20,7 @@ that can each be handed to an agent as a self-contained unit of work.
 
 ## File Operation Rules
 
-Use the dedicated file tools for all file operations:
-- **Read** to read files
-- **Edit** to modify existing files
-- **Write** to create new files
-- **Grep** / **Glob** for discovery only
-
-Never manipulate files via Bash (`echo >`, `cat <<EOF`, `sed -i`, `awk -i`, `tee`, redirection, etc.). Edit and Write are the only approved methods of file editing.
+Read and follow `.agents/skills/file-operations/SKILL.md`.
 
 ---
 
