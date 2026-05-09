@@ -3,13 +3,13 @@ name: plan-execute
 description: Agent orchestrator that executes all sub-plans produced by plan-split. Reads the dependency graph from sub-plan files, then spawns parallel sub-agents for every plan whose blockers are satisfied, waits for completion, and continues wave by wave until all sub-plans are done. Invoke when asked to execute, run, or implement a set of split plans.
 argument-hint: [ path to directory containing sub-plan files ]
 allowed-tools:
-  - Read
-  - Write
-  - Bash(ls *)
-  - Bash(find *)
-  - Bash(grep *)
-  - Agent
-  - AskUserQuestion
+    - Read
+    - Write
+    - Bash(ls *)
+    - Bash(find *)
+    - Bash(grep *)
+    - Agent
+    - AskUserQuestion
 model: sonnet
 ---
 
@@ -22,6 +22,7 @@ yourself.
 ## File Operation Rules
 
 Use the dedicated file tools for all file operations:
+
 - **Read** to read files
 - **Edit** to modify existing files
 - **Write** to create new files
@@ -53,26 +54,65 @@ For each remaining file:
 
 1. Read it in full.
 2. Extract the following fields from the `## Dependencies` section:
-   - **Blocked by:** — comma-separated list of filenames (or `none`)
-   - **Blocks:** — comma-separated list of filenames (or `none`)
+    - **Blocked by:** — comma-separated list of filenames (or `none`)
+    - **Blocks:** — comma-separated list of filenames (or `none`)
 3. Record:
-   - `file` — the filename (e.g. `02-create-user-model.md`)
-   - `sequence` — the numeric prefix (e.g. `2`)
-   - `title` — the H1 heading from the file
-   - `blocked_by` — set of filenames that must complete before this plan can start (empty if `none`)
-   - `blocks` — set of filenames this plan unblocks when complete (empty if `none`)
-   - `content` — the full file content, to pass verbatim to the sub-agent
+    - `file` — the filename (e.g. `02-create-user-model.md`)
+    - `sequence` — the numeric prefix (e.g. `2`)
+    - `title` — the H1 heading from the file
+    - `blocked_by` — set of filenames that must complete before this plan can start (empty if `none`)
+    - `blocks` — set of filenames this plan unblocks when complete (empty if `none`)
+    - `content` — the full file content, to pass verbatim to the sub-agent
 
 Build an in-memory dependency map: `plan → set of plans it is waiting on`.
 
 ---
 
+## Step 1b — Check what is already implemented
+
+Before building the execution waves, inspect the codebase to determine which sub-plans are already fully or partially
+implemented. This avoids re-executing completed work and gives partially-done plans the context they need.
+
+For each sub-plan, read its **Deliverables** or **Acceptance criteria** section (or equivalent) and check the
+codebase for the key artifacts it describes — files, classes, interfaces, methods, migrations, etc.
+
+Classify each sub-plan as one of:
+
+| Status     | Meaning                                                                                            |
+|------------|----------------------------------------------------------------------------------------------------|
+| `pending`  | No evidence of implementation found — execute normally                                             |
+| `partial`  | Some artifacts exist but the plan is not fully satisfied — execute with partial-completion context |
+| `complete` | All key deliverables are present and consistent with the plan — skip execution                     |
+
+**For `complete` plans:** mark as done in the dependency graph (treat as if successfully executed) and exclude from
+all waves. Do not re-execute.
+
+**For `partial` plans:** include in the normal wave order but pass a partial-completion prefix in the agent prompt
+(see the partial prompt template in Step 3a).
+
+**For `pending` plans:** include in the normal wave order with no modification.
+
+Report the pre-execution status before printing the wave plan:
+
+```
+## Pre-execution status
+
+| # | File | Title | Status |
+|---|------|-------|--------|
+| 01 | 01-slug.md | … | complete (skipped) |
+| 02 | 02-slug.md | … | partial |
+| 03 | 03-slug.md | … | pending |
+```
+
+---
+
 ## Step 2 — Build the execution waves
 
-Resolve the dependency graph into ordered execution waves using topological sort:
+Resolve the dependency graph into ordered execution waves using topological sort. Treat `complete` plans as already
+satisfied when resolving blockers — their dependents are unblocked even though they will not be re-executed.
 
-- **Wave 1**: all plans with an empty `blocked_by` set (no dependencies)
-- **Wave N+1**: all plans whose every dependency appears in a prior completed wave
+- **Wave 1**: all non-complete plans with an empty (or fully-satisfied) `blocked_by` set
+- **Wave N+1**: all non-complete plans whose every dependency appears in a prior completed wave or is itself `complete`
 
 If a cycle is detected in the dependency graph, stop with an error listing the cycle.
 
@@ -81,10 +121,9 @@ Print the wave plan before executing:
 ```
 ## Execution plan
 
-Wave 1 (parallel): 01-setup-schema.md, 02-seed-data.md
-Wave 2 (parallel): 03-create-user-model.md, 04-create-role-model.md
-Wave 3 (parallel): 05-wire-auth.md
-Wave 4 (parallel): 06-write-tests.md
+Wave 1 (parallel): 02-slug.md (partial), 03-slug.md
+Wave 2 (parallel): 04-slug.md
+[01-slug.md skipped — already complete]
 ```
 
 ---
@@ -98,7 +137,9 @@ For each wave, in order:
 Spawn one `general-purpose` sub-agent per sub-plan in the current wave. Pass all agents in a single `Agent` tool call
 so they run concurrently.
 
-Each agent prompt must be self-contained. Use this template:
+Each agent prompt must be self-contained. Use the appropriate template based on the sub-plan's status from Step 1b.
+
+**Template A — pending (no prior implementation):**
 
 ---
 
@@ -110,7 +151,31 @@ Each agent prompt must be self-contained. Use this template:
 >
 > ---
 >
-> <full sub-plan file content verbatim>
+> {{full sub-plan file content verbatim}}
+
+---
+
+**Template B — partial (some artifacts already exist):**
+
+---
+
+> You are a coding agent. The following sub-plan has been partially implemented. Your job is to complete it —
+> implement only what is missing, do not re-create or overwrite work that already satisfies the plan's goals.
+>
+> **Sub-plan file:** `<$PLAN_DIR/<filename>>`
+>
+> **What is already implemented:**
+> <bullet list of artifacts confirmed present during pre-execution check>
+>
+> **What still needs to be done:**
+> <bullet list of deliverables not yet satisfied, derived from the plan's acceptance criteria>
+>
+> Do not ask clarifying questions. If you find that something listed as missing is actually already present and
+> correct, skip it and continue. The plan's stated goals are the source of truth.
+>
+> ---
+>
+> {{full sub-plan file content verbatim}}
 
 ---
 
@@ -119,13 +184,74 @@ Each agent prompt must be self-contained. Use this template:
 All agents in a wave must finish before the next wave begins. Do not start wave N+1 until every agent in wave N has
 returned a result.
 
-### 3c — Record results
+### 3c — Detect failure and surface immediately
 
-After each wave, record which sub-plans completed successfully and which reported errors or blockers.
+As soon as any agent in the wave returns, inspect its result **before** waiting for the remaining agents.
 
-- If **all agents in a wave succeeded**: proceed to the next wave.
-- If **any agent failed or reported an unresolvable blocker**: stop orchestration, report the failure clearly (quoting
-  the agent's output), and ask the user how to proceed before continuing.
+Treat any of the following as an immediate failure — do not wait for remaining agents to finish:
+
+- Result contains `[Tool result missing due to internal error]`
+- Result is empty or contains no meaningful output
+- Result explicitly reports an error, exception, or states it could not proceed
+- Agent appears to have taken no action (no files created, no changes described)
+
+**On failure, immediately:**
+
+1. Stop spawning or waiting for further agents in this wave.
+2. Report the failure to the user, quoting the raw agent output:
+
+    ```
+    ## Wave <N> failure — sub-plan: <filename>
+
+    The sub-agent returned an error and no code was written.
+
+    **Raw agent output:**
+    <quoted output or "[Tool result missing due to internal error]">
+
+    **Options:**
+    1. Retry this sub-plan (re-spawn the same agent)
+    2. Skip this sub-plan and continue with remaining waves (may cause downstream failures)
+    3. Abort — stop all orchestration here
+
+    What would you like to do?
+    ```
+
+3. Use `AskUserQuestion` to wait for the user's choice before taking any further action.
+4. Act on the user's response:
+    - **Retry**: re-spawn the agent using the failure-aware prompt template below — do not send the plain sub-plan prompt again.
+    - **Skip**: mark the sub-plan as skipped, warn that downstream plans may be affected, continue to the next wave.
+    - **Abort**: stop all orchestration and report final status.
+
+#### Retry prompt template
+
+When retrying a failed sub-plan, wrap the original plan content with failure context so the agent can adapt:
+
+---
+
+> You are a coding agent. A previous attempt to implement the following sub-plan failed. Your goal is still to
+> implement the plan as specified — but adapt your approach based on the failure information below to find a
+> solution that works and still meets the plan's stated goals. Do not ask clarifying questions.
+>
+> **Sub-plan file:** `<$PLAN_DIR/<filename>>`
+>
+> **Previous attempt failed with:**
+> ```
+> <raw agent output from the failed attempt, or "[Tool result missing due to internal error]" if no output>
+> ```
+>
+> **Adaptation guidance:**
+> - If the error indicates a missing dependency, check whether it needs to be created first.
+> - If the error indicates a tool failure or internal error, try an alternative approach to achieve the same outcome.
+> - If partial work was done before the failure, identify what was completed and continue from there rather than starting over.
+> - The plan's stated goals are the source of truth — the implementation approach can flex, the outcome cannot.
+>
+> ---
+>
+> {{full sub-plan file content verbatim}}
+
+---
+
+**On success:** record the sub-plan as complete and proceed to the next wave once all wave agents have returned successfully.
 
 ---
 
@@ -166,7 +292,11 @@ If any sub-plans failed, list them separately:
 - **Sequential = different waves.** Respect `blocked_by` strictly. Do not start a plan before all its blockers are
   marked complete.
 - **Pass full content.** Each sub-agent receives the complete sub-plan file content. Never summarize or truncate it.
-- **Fail loudly.** If a sub-agent reports an error, do not silently continue. Surface it immediately.
+- **Fail loudly and immediately.** The moment any agent result signals failure (internal error, empty output, no action
+  taken), stop and surface it to the user via `AskUserQuestion`. Do not continue waiting, do not start the next wave,
+  do not silently swallow the error. Consuming tokens while stuck is worse than stopping early.
+- **`[Tool result missing due to internal error]` = hard failure.** Treat this verbatim string as a fatal agent error.
+  Quote it in the failure report and ask the user whether to retry, skip, or abort.
 - **One Agent call per wave.** Bundle all agents for a wave into a single `Agent` tool invocation so they run in
   parallel.
 
