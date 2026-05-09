@@ -16,6 +16,16 @@ model: sonnet
 
 Convert British English spelling to American English across a file or directory.
 
+## File Operation Rules
+
+Use the dedicated file tools for all file operations:
+- **Read** to read files
+- **Edit** to modify existing files
+- **Write** to create new files
+- **Grep** / **Glob** for discovery only
+
+Never manipulate files via Bash (`echo >`, `cat <<EOF`, `sed -i`, `awk -i`, `tee`, redirection, etc.). Edit and Write are the only approved methods of file editing.
+
 ## Your Task
 
 Scan the target path for British English spelling variants and replace them with American English equivalents.

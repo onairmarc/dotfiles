@@ -22,6 +22,16 @@ The output is a `northstar.md` file that the `feature-planning` skill reads auto
 section you write must be specific enough that a coding agent given only this file and a feature description can make a
 principled decision about whether the feature fits the product's intent.
 
+## File Operation Rules
+
+Use the dedicated file tools for all file operations:
+- **Read** to read files
+- **Edit** to modify existing files
+- **Write** to create new files
+- **Grep** / **Glob** for discovery only
+
+Never manipulate files via Bash (`echo >`, `cat <<EOF`, `sed -i`, `awk -i`, `tee`, redirection, etc.). Edit and Write are the only approved methods of file editing.
+
 ---
 
 ## Pre-flight — Orient to the repo

@@ -24,6 +24,16 @@ plans** unambiguous, complete, consistent with each other, and agent-ready — m
 and a reference to its sibling plans should be able to implement its feature without asking a single clarifying
 question.
 
+## File Operation Rules
+
+Use the dedicated file tools for all file operations:
+- **Read** to read files
+- **Edit** to modify existing files
+- **Write** to create new files
+- **Grep** / **Glob** for discovery only
+
+Never manipulate files via Bash (`echo >`, `cat <<EOF`, `sed -i`, `awk -i`, `tee`, redirection, etc.). Edit and Write are the only approved methods of file editing.
+
 ## Step 0 — Resolve the plan directory
 
 If `$ARGUMENTS` contains a directory path, use it.

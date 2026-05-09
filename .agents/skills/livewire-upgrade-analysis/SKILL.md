@@ -24,6 +24,16 @@ using the same structure and quality bar as `feature-planning`.
 
 **Always present findings to the user for confirmation before writing the plan.**
 
+## File Operation Rules
+
+Use the dedicated file tools for all file operations:
+- **Read** to read files
+- **Edit** to modify existing files
+- **Write** to create new files
+- **Grep** / **Glob** for discovery only
+
+Never manipulate files via Bash (`echo >`, `cat <<EOF`, `sed -i`, `awk -i`, `tee`, redirection, etc.). Edit and Write are the only approved methods of file editing.
+
 ---
 
 ## Inputs

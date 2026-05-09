@@ -21,6 +21,16 @@ This skill extends the base `plan-split` skill with group-mode output: instead o
 writes `##-slug/plan.md` sub-epic directories. The resulting `plan.md` files are full, self-contained implementation
 plans — compatible with `plan-review-group`, which scans for `**/plan.md`.
 
+## File Operation Rules
+
+Use the dedicated file tools for all file operations:
+- **Read** to read files
+- **Edit** to modify existing files
+- **Write** to create new files
+- **Grep** / **Glob** for discovery only
+
+Never manipulate files via Bash (`echo >`, `cat <<EOF`, `sed -i`, `awk -i`, `tee`, redirection, etc.). Edit and Write are the only approved methods of file editing.
+
 **Before doing anything else**, read the base skill:
 
 ```

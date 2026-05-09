@@ -17,3 +17,14 @@ Examples of correct spellings:
 - catalog (not catalogue)
 - program (not programme)
 - labeled (not labelled)
+
+## File Operation Rules
+
+Use the dedicated file tools for all file operations:
+
+- **Read** to read files
+- **Edit** to modify existing files
+- **Write** to create new files
+- **Grep** / **Glob** for discovery only
+
+Never manipulate files via Bash (`echo >`, `cat <<EOF`, `sed -i`, `awk -i`, `tee`, redirection, etc.). Edit and Write are the only approved methods of file editing.
