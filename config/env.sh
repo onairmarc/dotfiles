@@ -27,6 +27,7 @@ _append_path "/Users/marcbeinder/Library/Application Support/Herd/bin"
 _append_path "/usr/local/bin/node"
 _append_path "/usr/local/opt/openjdk@11/bin"
 _append_path "/Library/Java/JavaVirtualMachines/microsoft-11.jdk/Contents/Home"
+_append_path "/usr/local/opt/mysql-client/bin"
 
 # Prepended (higher priority — last call wins highest)
 _prepend_path "$ANDROID_HOME/build-tools"
