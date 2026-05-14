@@ -10,7 +10,7 @@ allowed-tools:
     - Bash(grep *)
     - Agent
     - AskUserQuestion
-model: sonnet
+model: haiku
 ---
 
 # Plan Execute
@@ -61,15 +61,13 @@ Build an in-memory dependency map: `plan → set of plans it is waiting on`.
 
 ---
 
-## Step 1b — Check what is already implemented
+## Step 1b — Check what is already implemented (opt-in)
 
-Before building the execution waves, inspect the codebase to determine which sub-plans are already fully or partially
-implemented. This avoids re-executing completed work and gives partially-done plans the context they need.
+**Skip this step on a first run.** Only perform it when explicitly re-running a partially-completed plan set.
 
-For each sub-plan, read its **Deliverables** or **Acceptance criteria** section (or equivalent) and check the
-codebase for the key artifacts it describes — files, classes, interfaces, methods, migrations, etc.
-
-Classify each sub-plan as one of:
+When enabled, spawn a single `Explore` sub-agent to sweep all sub-plans in one pass. Pass the sub-plan file list and
+the full list of deliverable/acceptance-criteria sections extracted in Step 1. The sub-agent should check the codebase
+for key artifacts (files, classes, methods, migrations) for each sub-plan and return a classification:
 
 | Status     | Meaning                                                                                            |
 |------------|----------------------------------------------------------------------------------------------------|
@@ -77,24 +75,18 @@ Classify each sub-plan as one of:
 | `partial`  | Some artifacts exist but the plan is not fully satisfied — execute with partial-completion context |
 | `complete` | All key deliverables are present and consistent with the plan — skip execution                     |
 
-**For `complete` plans:** mark as done in the dependency graph (treat as if successfully executed) and exclude from
-all waves. Do not re-execute.
+**For `complete` plans:** mark as done in the dependency graph and exclude from all waves.
 
-**For `partial` plans:** include in the normal wave order but pass a partial-completion prefix in the agent prompt
-(see the partial prompt template in Step 3a).
+**For `partial` plans:** include in normal wave order using Template B.
 
-**For `pending` plans:** include in the normal wave order with no modification.
+**For `pending` plans:** include in normal wave order using Template A.
 
-Report the pre-execution status before printing the wave plan:
+When skipped (first run), treat all sub-plans as `pending`.
+
+Report pre-execution status as a one-liner before printing the wave plan:
 
 ```
-## Pre-execution status
-
-| # | File | Title | Status |
-|---|------|-------|--------|
-| 01 | 01-slug.md | … | complete (skipped) |
-| 02 | 02-slug.md | … | partial |
-| 03 | 03-slug.md | … | pending |
+Pre-execution: N complete (skipped), M partial, P pending
 ```
 
 ---
@@ -128,9 +120,14 @@ For each wave, in order:
 ### 3a — Spawn sub-agents in parallel
 
 Spawn one `general-purpose` sub-agent per sub-plan in the current wave. Pass all agents in a single `Agent` tool call
-so they run concurrently.
+so they run concurrently. Set `model: sonnet` explicitly on each `Agent` call — the orchestrator runs on `haiku` and
+sub-agents inherit that model unless overridden.
 
 Each agent prompt must be self-contained. Use the appropriate template based on the sub-plan's status from Step 1b.
+
+Before spawning agents, write a shared context file at `$PLAN_DIR/.agent-instructions.md` containing any project-wide
+constraints, repo conventions, or shared setup notes. Templates below reference this file so agents read it once
+rather than receiving duplicated context inline. Omit the file creation step if no shared context applies.
 
 **Template A — pending (no prior implementation):**
 
@@ -142,9 +139,8 @@ Each agent prompt must be self-contained. Use the appropriate template based on 
 >
 > **Sub-plan file:** `<$PLAN_DIR/<filename>>`
 >
-> ---
->
-> {{full sub-plan file content verbatim}}
+> Read `$PLAN_DIR/.agent-instructions.md` (if it exists) and the sub-plan file using the Read tool before
+> implementing. The sub-plan file contains all required context.
 
 ---
 
@@ -163,12 +159,9 @@ Each agent prompt must be self-contained. Use the appropriate template based on 
 > **What still needs to be done:**
 > <bullet list of deliverables not yet satisfied, derived from the plan's acceptance criteria>
 >
-> Do not ask clarifying questions. If you find that something listed as missing is actually already present and
-> correct, skip it and continue. The plan's stated goals are the source of truth.
->
-> ---
->
-> {{full sub-plan file content verbatim}}
+> Read `$PLAN_DIR/.agent-instructions.md` (if it exists) and the sub-plan file using the Read tool before
+> implementing. Do not ask clarifying questions. If you find that something listed as missing is actually already
+> present and correct, skip it and continue. The plan's stated goals are the source of truth.
 
 ---
 
@@ -229,7 +222,7 @@ When retrying a failed sub-plan, wrap the original plan content with failure con
 >
 > **Previous attempt failed with:**
 > ```
-> <raw agent output from the failed attempt, or "[Tool result missing due to internal error]" if no output>
+> <first 400 characters of raw agent output from the failed attempt, or "[Tool result missing due to internal error]" if no output> [truncated if longer]
 > ```
 >
 > **Adaptation guidance:**
@@ -238,9 +231,8 @@ When retrying a failed sub-plan, wrap the original plan content with failure con
 > - If partial work was done before the failure, identify what was completed and continue from there rather than starting over.
 > - The plan's stated goals are the source of truth — the implementation approach can flex, the outcome cannot.
 >
-> ---
->
-> {{full sub-plan file content verbatim}}
+> Read `$PLAN_DIR/.agent-instructions.md` (if it exists) and the sub-plan file using the Read tool before
+> implementing.
 
 ---
 
@@ -250,29 +242,20 @@ When retrying a failed sub-plan, wrap the original plan content with failure con
 
 ## Step 4 — Final report
 
-After all waves complete, output:
+After all waves complete, output a one-line-per-item status list:
 
 ```
-## Execution complete
+Execution complete — <$PLAN_DIR> — N sub-plans
 
-**Directory:** <$PLAN_DIR>
-**Sub-plans executed:** N
-
-| # | File | Title | Status |
-|---|------|-------|--------|
-| 01 | 01-slug.md | … | Done |
-| 02 | 02-slug.md | … | Done |
-…
+01-slug.md  done
+02-slug.md  done
+03-slug.md  skipped (complete)
 ```
 
-If any sub-plans failed, list them separately:
+For any failures, follow with a verbose block per failed sub-plan:
 
 ```
-## Failed sub-plans
-
-| # | File | Title | Error summary |
-|---|------|-------|---------------|
-| 03 | 03-slug.md | … | <one-line summary> |
+FAILED: 04-slug.md — <one-line error summary>
 ```
 
 ---
@@ -284,7 +267,7 @@ If any sub-plans failed, list them separately:
 - **Parallel = same wave.** Two plans in the same wave have no shared mutable state — spawn them simultaneously.
 - **Sequential = different waves.** Respect `blocked_by` strictly. Do not start a plan before all its blockers are
   marked complete.
-- **Pass full content.** Each sub-agent receives the complete sub-plan file content. Never summarize or truncate it.
+- **Pass file paths, not content.** Each sub-agent receives the sub-plan file path and reads it via `Read`. Never embed file content verbatim in agent prompts.
 - **Fail loudly and immediately.** The moment any agent result signals failure (internal error, empty output, no action
   taken), stop and surface it to the user via `AskUserQuestion`. Do not continue waiting, do not start the next wave,
   do not silently swallow the error. Consuming tokens while stuck is worse than stopping early.
