@@ -3,13 +3,13 @@ name: plan-execute
 description: Agent orchestrator that executes all sub-plans produced by plan-split. Reads the dependency graph from sub-plan files, then spawns parallel sub-agents for every plan whose blockers are satisfied, waits for completion, and continues wave by wave until all sub-plans are done. Invoke when asked to execute, run, or implement a set of split plans.
 argument-hint: [ path to directory containing sub-plan files ]
 allowed-tools:
-    - Read
-    - Write
-    - Bash(ls *)
-    - Bash(find *)
-    - Bash(grep *)
-    - Agent
-    - AskUserQuestion
+  - Read
+  - Write
+  - Bash(ls *)
+  - Bash(find *)
+  - Bash(grep *)
+  - Agent
+  - AskUserQuestion
 model: haiku
 ---
 
@@ -204,7 +204,8 @@ Treat any of the following as an immediate failure — do not wait for remaining
 
 3. Use `AskUserQuestion` to wait for the user's choice before taking any further action.
 4. Act on the user's response:
-    - **Retry**: re-spawn the agent using the failure-aware prompt template below — do not send the plain sub-plan prompt again.
+    - **Retry**: re-spawn the agent using the failure-aware prompt template below — do not send the plain sub-plan
+      prompt again.
     - **Skip**: mark the sub-plan as skipped, warn that downstream plans may be affected, continue to the next wave.
     - **Abort**: stop all orchestration and report final status.
 
@@ -228,7 +229,8 @@ When retrying a failed sub-plan, wrap the original plan content with failure con
 > **Adaptation guidance:**
 > - If the error indicates a missing dependency, check whether it needs to be created first.
 > - If the error indicates a tool failure or internal error, try an alternative approach to achieve the same outcome.
-> - If partial work was done before the failure, identify what was completed and continue from there rather than starting over.
+> - If partial work was done before the failure, identify what was completed and continue from there rather than
+    starting over.
 > - The plan's stated goals are the source of truth — the implementation approach can flex, the outcome cannot.
 >
 > Read `$PLAN_DIR/.agent-instructions.md` (if it exists) and the sub-plan file using the Read tool before
@@ -236,7 +238,8 @@ When retrying a failed sub-plan, wrap the original plan content with failure con
 
 ---
 
-**On success:** record the sub-plan as complete and proceed to the next wave once all wave agents have returned successfully.
+**On success:** record the sub-plan as complete and proceed to the next wave once all wave agents have returned
+successfully.
 
 ---
 
@@ -267,7 +270,8 @@ FAILED: 04-slug.md — <one-line error summary>
 - **Parallel = same wave.** Two plans in the same wave have no shared mutable state — spawn them simultaneously.
 - **Sequential = different waves.** Respect `blocked_by` strictly. Do not start a plan before all its blockers are
   marked complete.
-- **Pass file paths, not content.** Each sub-agent receives the sub-plan file path and reads it via `Read`. Never embed file content verbatim in agent prompts.
+- **Pass file paths, not content.** Each sub-agent receives the sub-plan file path and reads it via `Read`. Never embed
+  file content verbatim in agent prompts.
 - **Fail loudly and immediately.** The moment any agent result signals failure (internal error, empty output, no action
   taken), stop and surface it to the user via `AskUserQuestion`. Do not continue waiting, do not start the next wave,
   do not silently swallow the error. Consuming tokens while stuck is worse than stopping early.
