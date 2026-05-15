@@ -13,7 +13,7 @@ allowed-tools:
   - Bash(test -f *)
   - Bash(cat *)
   - Bash(find * -name "*.csproj" -type f)
-model: sonnet
+model: opus
 ---
 
 # Plan Review
