@@ -1,6 +1,7 @@
 ---
 name: plan-review-group
 description: Analyze a directory of implementation plan files as a unified group for ambiguity, contradictions, missing information, and cross-plan inconsistencies, then interactively fill gaps and write enriched content back to each respective plan file. Invoke when asked to review, improve, or stress-test a set of related feature plans (e.g. an epic split across multiple plan files) before handing them to agents.
+disable-model-invocation: true
 argument-hint: [ path to the plan directory ]
 allowed-tools:
   - Read

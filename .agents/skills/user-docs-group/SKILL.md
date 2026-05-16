@@ -1,6 +1,7 @@
 ---
 name: user-docs-group
 description: Generate or update end-user documentation for a set of implemented features by comparing a directory of plan files against the code that was actually written. Extends the user-docs skill — uses plans to locate and scope what to document, uses the code as the source of truth for UI labels, workflows, and behavior. Invoke when a feature epic has been implemented and you want accurate user-facing docs that reflect reality, not intent.
+disable-model-invocation: true
 argument-hint: [ path to the plan directory ]
 allowed-tools:
   - Read

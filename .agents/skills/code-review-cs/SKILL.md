@@ -2,7 +2,7 @@
 name: cs-code-review
 description: C#/.NET code review extending the base code-review skill. Checks for breaking changes, code quality, test coverage, and ASP.NET Core / Entity Framework patterns. Outputs AI agent prompts by default; use `--full` for a complete actionable report with per-file grouping, two severity tiers, and inline diffs.
 argument-hint: "[--full]"
-disable-model-invocation: false
+disable-model-invocation: true
 allowed-tools:
   - Read
   - Grep

@@ -1,6 +1,7 @@
 ---
 name: plan-split-group
 description: Split a single fleshed-out implementation plan into sequentially ordered sub-epic directories, each containing a self-contained plan.md file. Output is compatible with plan-review-group (which scans for **/plan.md). Extends plan-split — use when splitting an epic-level master plan into sub-epics that each warrant their own full implementation plan, rather than lightweight task files.
+disable-model-invocation: true
 argument-hint: [ path to the master plan file ]
 allowed-tools:
   - Read

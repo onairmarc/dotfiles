@@ -1,6 +1,7 @@
 ---
 name: plan-split
 description: Split a single fleshed-out implementation plan into sequentially ordered sub-plan files written alongside it in the same directory, with dependency (blockers/blocks) headers on each sub-plan. Invoke when asked to break a plan into phases, stages, or parallel workstreams.
+disable-model-invocation: true
 argument-hint: [ path to the source plan file ]
 allowed-tools:
   - Read

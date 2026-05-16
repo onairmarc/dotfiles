@@ -1,6 +1,7 @@
 ---
 name: project-skill-config
 description: Detects user-level skills that do not apply to the current repository and disables them in the repo's .claude/settings.json via skillOverrides. Discovers skills dynamically at invocation, analyzes the repo's tech stack, reasons about relevance, and asks for confirmation before writing.
+disable-model-invocation: true
 allowed-tools:
   - Read
   - Edit

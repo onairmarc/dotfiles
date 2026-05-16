@@ -1,6 +1,7 @@
 ---
 name: plan-resync
 description: Analyze an implementation plan file against the current state of the codebase, detect drift between what the plan describes and what the code actually contains, then interactively reconcile the plan so it accurately reflects reality and the remaining work. Invoke when asked to resync, refresh, reconcile, or update a plan after code has changed.
+disable-model-invocation: true
 argument-hint: [ path to the plan file ]
 allowed-tools:
   - Read
@@ -68,16 +69,16 @@ Before analyzing drift, ground yourself in the current state of the relevant cod
 
 1. **Identify every concrete reference in the plan** — file paths, class names, function names, route names, migration
    names, config keys, env vars, package names, table/column names, command names, job names, etc.
-2. **Verify each reference against the codebase** using `Read`, `Glob`, and `Grep`:
-    - Does the file exist at the named path?
-    - Does the named symbol exist? At the location the plan implies?
-    - Does its signature / shape match what the plan describes?
-3. **Check git history for context** when useful:
+2. **Delegate verification to a single `Explore` sub-agent.** Pass the resolved plan path and the full reference list.
+   Instruct it to return a compact table: `reference | status (exists | missing | renamed | signature-changed) |
+   current location | note`. Also ask it to surface newly added neighbors of plan-targeted files, refactors that
+   moved logic elsewhere, and deletions of things the plan assumed would still be there. The sub-agent must use
+   `Grep -C 3` for context where surrounding lines are enough to confirm a match, and escalate to `Read` only when
+   grep context is insufficient.
+3. **Check git history for context** when useful (run in orchestrator, not sub-agent):
     - `git log --oneline -- <path>` to see recent activity on a referenced file
     - `git log --since=...` if the plan has a date stamp
     - `git diff` only when narrowing a specific suspected change
-4. **Identify code that exists but the plan does not mention** — newly added neighbors of plan-targeted files,
-   refactors that moved logic elsewhere, deletions of things the plan assumed would still be there.
 
 Record findings in a working list — you do not write to the plan yet.
 
@@ -155,23 +156,13 @@ Present grouped questions using `AskUserQuestion`. Format your message like this
 
 ---
 
-**Plan resync: round N**
+**Plan resync: round N** — N drift points to reconcile.
 
-I found the following drift between the plan and the current codebase. Please confirm how to reconcile each one.
+For each finding, one line:
 
----
+`**[Lens]** "quoted plan text" — current: path:LINE — Q: <closed-ended question>`
 
-**[Section / Lens label]**
-
-> *Quoted plan text*
-
-Current code state: `path/to/file.ext:LINE` — short factual description of what the code actually does now.
-
-❓ Your question here (closed-ended where possible).
-
----
-
-*(repeat for each question group)*
+Use a multi-line block only when the finding requires a code snippet or multi-field context.
 
 ---
 

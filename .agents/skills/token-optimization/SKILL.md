@@ -1,6 +1,7 @@
 ---
 name: token-optimization
 description: Audits a single skill file for token consumption and performance anti-patterns, presents prioritized recommendations, then asks the user whether to apply them. Never changes the skill's stated goal.
+disable-model-invocation: true
 argument-hint: "<path/to/SKILL.md>"
 allowed-tools:
   - Read
@@ -9,7 +10,7 @@ allowed-tools:
   - Agent
   - AskUserQuestion
   - Bash(test -f *)
-model: sonnet
+model: opus
 ---
 
 # Token Optimization Skill

@@ -1,6 +1,7 @@
 ---
 name: plan-execute
 description: Agent orchestrator that executes all sub-plans produced by plan-split. Reads the dependency graph from sub-plan files, then spawns parallel sub-agents for every plan whose blockers are satisfied, waits for completion, and continues wave by wave until all sub-plans are done. Invoke when asked to execute, run, or implement a set of split plans.
+disable-model-invocation: true
 argument-hint: [ path to directory containing sub-plan files ]
 allowed-tools:
   - Read

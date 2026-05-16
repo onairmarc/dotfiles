@@ -1,6 +1,7 @@
 ---
 name: cs-optimization
 description: Audits a C# application or project path for performance issues (sync I/O on calling thread, LINQ inefficiency, excessive allocations, missing cancellation, improper async/await, memory leaks, inefficient collections, blocking thread pool), then delegates to the feature-planning skill to produce a self-contained, phased, agent-ready optimization plan. Does NOT execute optimizations. A single failing test in the plan's Phase 0 baseline gate is a hard stop.
+disable-model-invocation: true
 argument-hint: "<project-path> [additional context]"
 allowed-tools:
   - Read

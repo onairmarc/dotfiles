@@ -1,6 +1,7 @@
 ---
 name: laravel-dependency-tree-upgrade
 description: Pre-configured wrapper around package-dependency-tree-upgrade for Laravel projects. Audits first-party and organization packages in composer.lock to find those that support the current Laravel version but not the next, creates missing Jira tickets in an epic (existing or newly created), and wires up blocker links in the correct upgrade order.
+disable-model-invocation: true
 argument-hint: <next-laravel-version> [jira-epic-key]
 ---
 

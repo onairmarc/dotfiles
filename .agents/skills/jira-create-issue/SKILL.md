@@ -1,5 +1,6 @@
 ---
 description: Create a Jira issue — invoke when asked to log a bug, task, feature request, improvement, or technical debt ticket in Jira. Handles all required fields, components, and issue-type-specific custom fields automatically.
+disable-model-invocation: true
 argument-hint: [ what the ticket is for, issue type if known, project key if known ]
 ---
 

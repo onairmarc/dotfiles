@@ -1,6 +1,7 @@
 ---
 name: livewire-upgrade-analysis
 description: Audits a Laravel repository for custom Livewire components and produces an agent-ready upgrade plan for migrating from Livewire 3 to Livewire 4. Discovers components, classifies required changes by breaking-change category, and writes a structured plan using the feature-planning foundation.
+disable-model-invocation: true
 argument-hint: [ target-livewire-version ] [ jira-epic-key ]
 allowed-tools:
   - Read

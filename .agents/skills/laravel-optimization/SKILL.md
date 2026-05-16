@@ -1,6 +1,7 @@
 ---
 name: laravel-optimization
 description: Audits a Laravel application or composer package module path for performance issues (N+1 queries, unbounded gets, missing cache, sync observers, route closures, fat controllers), then delegates to the feature-planning skill to produce a self-contained, phased, agent-ready optimization plan. Does NOT execute optimizations. A single failing test in the plan's Phase 0 baseline gate is a hard stop.
+disable-model-invocation: true
 argument-hint: "<module-path> [additional context]"
 allowed-tools:
   - Read

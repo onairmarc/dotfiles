@@ -1,6 +1,7 @@
 ---
 name: no-db-constraints
 description: Apply this skill when removing database-level foreign key constraints and unique constraints from a Laravel project, replacing them with application-level enforcement. Handles both plan files (direct edits) and application code (new drop migrations + model boot logic).
+disable-model-invocation: true
 argument-hint: "<path-or-scope> [additional context]"
 allowed-tools:
   - Read
