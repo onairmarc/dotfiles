@@ -18,6 +18,13 @@ Examples of correct spellings:
 - program (not programme)
 - labeled (not labelled)
 
+# Tests and Static Analysis
+
+Fix all failing tests and static analysis errors encountered during a task — regardless of whether they were pre-existing or introduced by your changes. CI blocks on
+these failures either way. Never comment that a failure is "pre-existing" or blame prior work; take ownership and fix it.
+
+Never disable static analysis rules, suppress warnings, skip tests, or mark tests as pending to make CI pass. Always fix the underlying root cause.
+
 # File Operation Rules
 
 Use the dedicated file tools for all file operations:
