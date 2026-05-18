@@ -13,7 +13,7 @@ allowed-tools:
   - Bash(test -f *)
   - Bash(test -d *)
   - Bash(mkdir -p *)
-model: sonnet
+model: opus
 ---
 
 # Plan Split — Group Mode (extends plan-split)
