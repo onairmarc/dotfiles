@@ -1,6 +1,6 @@
 ---
 name: plan-execute
-description: Agent orchestrator that executes all sub-plans produced by plan-split. Reads the dependency graph from sub-plan files, then spawns parallel sub-agents for every plan whose blockers are satisfied, waits for completion, and continues wave by wave until all sub-plans are done. Invoke when asked to execute, run, or implement a set of split plans.
+description: Agent orchestrator that executes all sub-plans produced by plan-split. Reads the dependency graph from sub-plan files, asks the user whether to run sequentially (default) or in parallel, then spawns coding sub-agents for every plan whose blockers are satisfied, waits for completion, and continues wave by wave until all sub-plans are done. Invoke when asked to execute, run, or implement a set of split plans.
 disable-model-invocation: true
 argument-hint: [ path to directory containing sub-plan files ]
 allowed-tools:
@@ -36,6 +36,25 @@ Otherwise, use `AskUserQuestion` to ask:
 > Please provide the path to the directory produced by `/plan-split` (e.g. `docs/_planning/my-feature/`).
 
 Verify the directory exists. If it does not, stop with an error.
+
+---
+
+## Step 0b — Choose execution mode
+
+Always ask the user how to execute the sub-plans. Use `AskUserQuestion`:
+
+> **How should the sub-plans be executed?**
+>
+> - **Sequentially (Recommended)** — run one sub-plan at a time, even when dependencies would allow parallelism. More
+>   reliable; avoids conflicts between agents touching shared state.
+> - **In parallel** — run every sub-plan whose blockers are satisfied at the same time, wave by wave. Faster, but
+>   riskier when plans overlap.
+
+Make **Sequentially** the first option and the default — experience has shown sequential execution produces more
+reliable results. Record the choice as `$EXEC_MODE` (`sequential` or `parallel`).
+
+Dependency order is always respected in both modes — `$EXEC_MODE` only controls whether independent plans run
+simultaneously or one after another.
 
 ---
 
@@ -102,27 +121,48 @@ satisfied when resolving blockers — their dependents are unblocked even though
 
 If a cycle is detected in the dependency graph, stop with an error listing the cycle.
 
-Print the wave plan before executing:
+Print the wave plan before executing, stating the chosen `$EXEC_MODE`:
+
+**Parallel mode** — plans within a wave run together:
 
 ```
-## Execution plan
+## Execution plan (parallel)
 
 Wave 1 (parallel): 02-slug.md (partial), 03-slug.md
 Wave 2 (parallel): 04-slug.md
 [01-slug.md skipped — already complete]
 ```
 
+**Sequential mode** — every plan runs on its own, one at a time, in dependency-respecting order:
+
+```
+## Execution plan (sequential)
+
+1. 02-slug.md (partial)
+2. 03-slug.md
+3. 04-slug.md
+[01-slug.md skipped — already complete]
+```
+
 ---
 
-## Step 3 — Execute wave by wave
+## Step 3 — Execute the sub-plans
 
-For each wave, in order:
+Execute according to `$EXEC_MODE` from Step 0b. Both modes respect the dependency graph — a plan never starts before
+all its blockers are complete.
 
-### 3a — Spawn sub-agents in parallel
+### 3a — Spawn sub-agents
 
-Spawn one `general-purpose` sub-agent per sub-plan in the current wave. Pass all agents in a single `Agent` tool call
-so they run concurrently. Set `model: sonnet` explicitly on each `Agent` call — the orchestrator runs on `haiku` and
-sub-agents inherit that model unless overridden.
+Spawn `general-purpose` sub-agents. Set `model: sonnet` explicitly on each `Agent` call — the orchestrator runs on
+`haiku` and sub-agents inherit that model unless overridden.
+
+**Sequential mode (`$EXEC_MODE = sequential`, default):** spawn exactly one sub-agent at a time. Make a single
+`Agent` tool call for one sub-plan, wait for it to return, evaluate its result (Step 3c), and only then spawn the next
+sub-plan. Process sub-plans in wave order, and within each wave in `sequence` (numeric prefix) order. Never run two
+sub-agents at once in this mode.
+
+**Parallel mode (`$EXEC_MODE = parallel`):** for each wave in order, spawn one sub-agent per sub-plan in the wave.
+Pass all agents for the wave in a single `Agent` tool call so they run concurrently.
 
 Each agent prompt must be self-contained. Use the appropriate template based on the sub-plan's status from Step 1b.
 
@@ -166,10 +206,12 @@ rather than receiving duplicated context inline. Omit the file creation step if 
 
 ---
 
-### 3b — Wait for all agents in the wave to complete
+### 3b — Wait for completion before continuing
 
-All agents in a wave must finish before the next wave begins. Do not start wave N+1 until every agent in wave N has
-returned a result.
+**Sequential mode:** wait for the current sub-agent to return before spawning the next sub-plan.
+
+**Parallel mode:** all agents in a wave must finish before the next wave begins. Do not start wave N+1 until every
+agent in wave N has returned a result.
 
 ### 3c — Detect failure and surface immediately
 
@@ -268,9 +310,13 @@ FAILED: 04-slug.md — <one-line error summary>
 
 - **Never implement code yourself.** Your role is routing and coordination only.
 - **Never read `plan.md`.** It is the source document for plan-split, not a sub-plan.
-- **Parallel = same wave.** Two plans in the same wave have no shared mutable state — spawn them simultaneously.
-- **Sequential = different waves.** Respect `blocked_by` strictly. Do not start a plan before all its blockers are
-  marked complete.
+- **Always ask for the execution mode.** Sequential is the default and recommended choice — never assume parallel.
+- **Dependencies are non-negotiable.** Respect `blocked_by` strictly in both modes. Do not start a plan before all its
+  blockers are marked complete.
+- **Sequential mode = one agent at a time.** Spawn a single sub-agent, wait for it, then spawn the next. Never run two
+  sub-agents concurrently when `$EXEC_MODE = sequential`.
+- **Parallel mode = one Agent call per wave.** Bundle all agents for a wave into a single `Agent` tool invocation so
+  they run concurrently. Plans in the same wave have no shared blocker, so simultaneous execution is safe.
 - **Pass file paths, not content.** Each sub-agent receives the sub-plan file path and reads it via `Read`. Never embed
   file content verbatim in agent prompts.
 - **Fail loudly and immediately.** The moment any agent result signals failure (internal error, empty output, no action
@@ -278,8 +324,6 @@ FAILED: 04-slug.md — <one-line error summary>
   do not silently swallow the error. Consuming tokens while stuck is worse than stopping early.
 - **`[Tool result missing due to internal error]` = hard failure.** Treat this verbatim string as a fatal agent error.
   Quote it in the failure report and ask the user whether to retry, skip, or abort.
-- **One Agent call per wave.** Bundle all agents for a wave into a single `Agent` tool invocation so they run in
-  parallel.
 
 ---
 
