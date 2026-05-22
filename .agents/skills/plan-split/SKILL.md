@@ -1,6 +1,6 @@
 ---
 name: plan-split
-description: Split a single fleshed-out implementation plan into sequentially ordered sub-plan files written alongside it in the same directory, with dependency (blockers/blocks) headers on each sub-plan. Invoke when asked to break a plan into phases, stages, or parallel workstreams.
+description: Split a single fleshed-out implementation plan into sequentially ordered sub-plan files written alongside it in the same directory, with dependency (blockers/blocks) headers on each sub-plan. Sub-plans are always executed one at a time by plan-execute, so splits should optimize for clean sequential handoff, not concurrency. Invoke when asked to break a plan into phases or stages.
 disable-model-invocation: true
 argument-hint: [ path to the source plan file ]
 allowed-tools:
@@ -53,16 +53,30 @@ Read the plan in full. Identify the natural units of work that can be split into
 A good sub-plan boundary is where:
 
 - A distinct deliverable is produced (a file, a service, a migration, a tested feature)
-- There is a natural handoff — another phase can only begin once this one is complete, OR
-- The work is genuinely parallelism — it touches different files/services and has no shared mutable state with
-  concurrent sub-plans
+- There is a natural handoff — the next phase can only begin once this one is complete
+- The deliverable leaves the codebase in a state where the relevant test suite can run and pass, providing a
+  verification checkpoint before the next sub-plan begins
+- Each sub-plan can be implemented end-to-end by a single coding agent in one sitting without needing context from a
+  sibling sub-plan that has not yet run
+
+Sub-plans are executed strictly one at a time by `plan-execute` — never concurrently. Always favor **accuracy of
+implementation over speed of implementation**. When in doubt, split finer rather than coarser: more, smaller phases
+let the test suite run between them and catch regressions before later phases compound them.
+
+A natural test gate between phases is one of the strongest signals that a split boundary is correct. If a candidate
+sub-plan ends in a state where tests cannot meaningfully run (e.g. it leaves the codebase mid-refactor or
+half-migrated), either move the boundary or merge it with the next sub-plan so the seam falls on a testable state.
+
+**"Parallel" never refers to agents.** The only parallelism allowed is inside the test runner itself
+(e.g. `vendor/bin/pest --parallel`, `phpunit --parallel`, Jest workers). Coding sub-agents always run one at a time.
 
 ### What NOT to split
 
-- Steps that share the same file and would cause merge conflicts if run concurrently
 - Steps so small they add more overhead than value (e.g. a single line config change does not deserve its own plan)
-- Steps that are inseparable because they form a single atomic transaction (e.g. a migration + it's seeder that must
+- Steps that are inseparable because they form a single atomic transaction (e.g. a migration + its seeder that must
   run together)
+- Work that only makes sense when implemented together (splitting just to have more sub-plans adds noise without
+  benefit when execution is sequential)
 
 ### Producing the split
 
@@ -191,8 +205,14 @@ Then ask:
 - **Preserve detail.** The master plan has been carefully written — do not lose implementation specifics when
   extracting into sub-plans.
 - **Prefer more context over less.** If in doubt whether a piece of context belongs in a sub-plan, include it.
-- **Sequence reflects dependency, not just time.** Two parallelism plans can share the same effective "phase" but
-  still get distinct sequence numbers (e.g. 02 and 03 can both be blocked by 01 and run concurrently).
+- **Favor accuracy over speed.** When choosing between fewer larger sub-plans or more smaller ones, pick the
+  decomposition that maximizes correctness — typically more, smaller phases with test gates between them.
+- **Require a testable seam between phases.** Each sub-plan should leave the codebase in a state where the test suite
+  can run. Acceptance criteria should describe what `vendor/bin/pest --parallel` (or the project's equivalent) is
+  expected to show when the sub-plan is complete.
+- **Sequence reflects dependency and execution order.** Sub-plans run one at a time in dependency-respecting order;
+  pick sequence numbers that reflect the order an agent should implement them in. Two sub-plans that both depend only
+  on 01 still get distinct sequence numbers (e.g. 02 and 03) and run back-to-back, never simultaneously.
 - **Slug naming:** use imperative verb phrases — `create-user-model`, `add-queue-worker`, `write-feature-tests`.
 - **Never omit acceptance criteria** from a sub-plan. If the master plan has none, derive them from the steps.
 

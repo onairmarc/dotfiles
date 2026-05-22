@@ -22,6 +22,12 @@ This skill extends the base `plan-split` skill with group-mode output: instead o
 writes `##-slug/plan.md` sub-epic directories. The resulting `plan.md` files are full, self-contained implementation
 plans — compatible with `plan-review-group`, which scans for `**/plan.md`.
 
+Sub-epics inherit the base skill's execution model: they are implemented one at a time, never concurrently. Always
+favor **accuracy of implementation over speed of implementation** when choosing where to split. Prefer more, smaller
+sub-epics with a testable seam between each one — the test suite (run with native tooling parallelism such as
+`vendor/bin/pest --parallel`) should be able to execute against the codebase after every sub-epic completes. The
+only "parallel" allowed is inside the test runner; coding sub-agents always run sequentially.
+
 ## File Operation Rules
 
 Read and follow `.agents/skills/file-operations/SKILL.md`.
@@ -119,7 +125,10 @@ data-backfill requirements. Omit this section if this sub-epic requires no schem
 
 ## Tests
 
-<Test plan table listing every test class or test scenario this sub-epic must deliver.>
+<Test plan table listing every test class or test scenario this sub-epic must deliver. Include an explicit
+expectation that the full test suite (using native runner parallelism such as `vendor/bin/pest --parallel`,
+`phpunit --parallel`, or Jest workers) passes once this sub-epic is complete — this seam is what makes the
+sequential next sub-epic safe to start.>
 
 | Test | Type | Scenarios |
 |------|------|-----------|
