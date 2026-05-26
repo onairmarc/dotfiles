@@ -97,7 +97,7 @@ if [[ "$GLOBAL_MODE" == true ]]; then
     # Ensure parent directory exists
     mkdir -p "$CLAUDE_DIR"
 
-    # 1. Link ~/.claude/skills -> .agents/skills
+    # 1. Link ~/.claude/skills -> .agents/skills (interleave with dotfiles-private if present)
     SKILLS_TARGET="$CLAUDE_DIR/skills"
     SKILLS_SOURCE="$REPO_ROOT/.agents/skills"
 
@@ -106,15 +106,53 @@ if [[ "$GLOBAL_MODE" == true ]]; then
         exit 1
     fi
 
-    log_info "Global mode: Creating symlink from ~/.claude/skills to $SKILLS_SOURCE"
+    # Resolve private dotfiles location (env var preferred, default fallback)
+    PRIVATE_DIR="${DF_PRIVATE_DIRECTORY:-$HOME/Documents/GitHub/dotfiles-private}"
+    PRIVATE_SKILLS_SOURCE="$PRIVATE_DIR/.agents/skills"
 
-    if [[ -e "$SKILLS_TARGET" ]] || [[ -L "$SKILLS_TARGET" ]]; then
-        log_info "  Removing existing: $SKILLS_TARGET"
-        rm -rf "$SKILLS_TARGET"
+    if [[ -d "$PRIVATE_SKILLS_SOURCE" ]]; then
+        log_info "Global mode: interleaving public + private skills into $SKILLS_TARGET"
+        log_info "  Public:  $SKILLS_SOURCE"
+        log_info "  Private: $PRIVATE_SKILLS_SOURCE"
+
+        if [[ -e "$SKILLS_TARGET" ]] || [[ -L "$SKILLS_TARGET" ]]; then
+            log_info "  Removing existing: $SKILLS_TARGET"
+            rm -rf "$SKILLS_TARGET"
+        fi
+
+        mkdir -p "$SKILLS_TARGET"
+
+        # Link public skills first
+        for skill_path in "$SKILLS_SOURCE"/*/; do
+            [[ -d "$skill_path" ]] || continue
+            skill_name="$(basename "$skill_path")"
+            ln -s "$skill_path" "$SKILLS_TARGET/$skill_name"
+            log_info "  Linked public skill: $skill_name"
+        done
+
+        # Link private skills; private wins on collision with warning
+        for skill_path in "$PRIVATE_SKILLS_SOURCE"/*/; do
+            [[ -d "$skill_path" ]] || continue
+            skill_name="$(basename "$skill_path")"
+            if [[ -L "$SKILLS_TARGET/$skill_name" ]] || [[ -e "$SKILLS_TARGET/$skill_name" ]]; then
+                log_warn "  Skill collision on '$skill_name': private wins, overriding public"
+                rm -rf "$SKILLS_TARGET/$skill_name"
+            fi
+            ln -s "$skill_path" "$SKILLS_TARGET/$skill_name"
+            log_info "  Linked private skill: $skill_name"
+        done
+    else
+        log_info "Global mode: Creating symlink from ~/.claude/skills to $SKILLS_SOURCE"
+        log_info "  (no private dotfiles found at $PRIVATE_DIR)"
+
+        if [[ -e "$SKILLS_TARGET" ]] || [[ -L "$SKILLS_TARGET" ]]; then
+            log_info "  Removing existing: $SKILLS_TARGET"
+            rm -rf "$SKILLS_TARGET"
+        fi
+
+        ln -s "$SKILLS_SOURCE" "$SKILLS_TARGET"
+        log_info "  Created global symlink: $SKILLS_TARGET -> $SKILLS_SOURCE"
     fi
-
-    ln -s "$SKILLS_SOURCE" "$SKILLS_TARGET"
-    log_info "  Created global symlink: $SKILLS_TARGET -> $SKILLS_SOURCE"
 
     # 2. Link ~/.claude/CLAUDE.md -> .agents/AGENTS.md
     CLAUDE_MD_TARGET="$CLAUDE_DIR/CLAUDE.md"
