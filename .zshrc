@@ -13,7 +13,7 @@ zstyle ':omz:update' mode auto
 
 # antidote bootstrap (installed by provisioner as `brew install antidote`)
 source "$(brew --prefix)/opt/antidote/share/antidote/antidote.zsh"
-antidote load "$DF_ROOT_DIRECTORY/zsh_plugins.txt"
+antidote load "$DF_ROOT_DIRECTORY/zsh_plugins.cfg"
 
 # OMZ postlude — runs *after* antidote has loaded OMZ + autosuggestions + syntax-highlighting,
 # so the keybinding can attach to the autosuggest widget.
