@@ -1,9 +1,10 @@
+is_mac || return 0
 #export PATH="$PATH:$HOME/mbeinder/config/herd/bin/php83:$PATH"
 #export PATH="$PATH:$HOME/mbeinder/config/herd/bin/php83:$PATH"
 export PATH="$PATH:$HOME/.rvm/bin"
 export PATH="$PATH:/usr/local/opt/php@8.3/bin"
 export PATH="$PATH:/usr/local/opt/php@8.3/sbin"
-export PATH="$PATH:/Users/marcbeinder/.composer/vendor/bin/"
+export PATH="$PATH:$HOME/.composer/vendor/bin/"
 export PATH="$PATH:$HOME/.asdf/asdf.sh"
 export PATH="$PATH:$HOME/.asdf/completions/asdf.bash"
 export PATH="$PATH:/Users/$USER/.dotnet/tools"
