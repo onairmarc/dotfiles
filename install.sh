@@ -169,6 +169,7 @@ main() {
     install_tool "stripe-cli" "brew install stripe-cli"
     install_tool "terraform" "brew tap hashicorp/tap && brew install hashicorp/tap/terraform"
     install_tool "tmux" "brew install tmux"
+    install_tool "trivy" "brew install trivy"
     install_tool "zsh-autosuggestions" "brew install zsh-autosuggestions"
     install_tool "zsh-syntax-highlighting" "brew install zsh-syntax-highlighting"
     install_tool "ghostty" "brew install --cask ghostty" "/Applications/Ghostty.app"
@@ -184,6 +185,10 @@ main() {
     echo -e "${COL_YELLOW}Installing Bun...${COL_RESET}"
     curl -fsSL https://bun.com/install | bash
 
+    # Install Syft Security Tooling
+    echo -e "${COL_YELLOW}Installing Syft Security Tooling...${COL_RESET}"
+    curl -sSfL https://get.anchore.io/syft | sudo sh -s -- -b /usr/local/bin
+
     # Unset the environment variables
     unset BREW_LIST
     unset BREW_CASK_LIST
@@ -192,12 +197,12 @@ main() {
     stripe completion &>/dev/null
     echo -e "${COL_RESET}"
     if [ ! -f "$HOME/.stripe" ]; then
-      rm -rf "$HOME/.stripe"  
+      rm -rf "$HOME/.stripe"
       mkdir "$HOME/.stripe"
     fi
     cp ./stripe-completion.zsh "$ZSH/completions/stripe-completion.sh"
     mv ./stripe-completion.zsh "$HOME/.stripe"
-    
+
 
     echo
     echo -e "${COL_GREEN}Setup completed! You may need to restart your terminal for some changes to take effect.${COL_RESET}"
