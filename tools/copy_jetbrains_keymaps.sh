@@ -3,16 +3,13 @@
 # JetBrains Keymap Copy Script
 # Copies keymaps from the dotfiles repository to platform-specific JetBrains directories
 
-# Ensure autoloader is available
-if [[ -z "$DF_ROOT_DIRECTORY" ]]; then
+# Resolve repo root if not already set.
+if [[ -z "${DF_ROOT_DIRECTORY:-}" ]]; then
     SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
     export DF_ROOT_DIRECTORY="$(cd "$SCRIPT_DIR/.." && pwd)"
 fi
 
-# Source autoloader if not already sourced
-if [[ -z "$DF_AUTOLOADER_SOURCED" ]]; then
-    source "$DF_ROOT_DIRECTORY/framework/__df_autoloader.sh"
-fi
+source "$DF_ROOT_DIRECTORY/framework/logging_functions.sh"
 
 # Define supported IDEs
 IDES=("GoLand" "PhpStorm" "WebStorm" "IntelliJIdea" "Rider" "PyCharm" "CLion" "RubyMine" "DataGrip" "AndroidStudio")

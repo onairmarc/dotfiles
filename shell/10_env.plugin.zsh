@@ -8,7 +8,7 @@ case "$(uname -s)" in
 esac
 
 # Herd (PHP 8.3)
-export HERD_PHP_83_INI_SCAN_DIR="/Users/marcbeinder/Library/Application Support/Herd/config/php/83/"
+export HERD_PHP_83_INI_SCAN_DIR="$HOME/Library/Application Support/Herd/config/php/83/"
 
 # Java / Android
 if [ "$_PLATFORM" = "windows" ]; then
@@ -52,7 +52,7 @@ _prepend_path_windows() {
 }
 
 # Appended (lower priority than system PATH)
-_append_path_mac "/Users/marcbeinder/Library/Application Support/Herd/bin"
+_append_path_mac "$HOME/Library/Application Support/Herd/bin"
 _append_path_mac "/usr/local/bin/node"
 _append_path_mac "/usr/local/opt/openjdk@11/bin"
 _append_path_mac "/Library/Java/JavaVirtualMachines/microsoft-11.jdk/Contents/Home"
