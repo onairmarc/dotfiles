@@ -1,0 +1,4 @@
+ohmyzsh/ohmyzsh                                  # OMZ first
+zsh-users/zsh-autosuggestions                    # antidote clones into its cache
+zsh-users/zsh-syntax-highlighting                # antidote clones into its cache
+$DF_ROOT_DIRECTORY path:shell                    # local plugin (entry script: shell/shell.plugin.zsh)
