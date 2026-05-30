@@ -15,198 +15,230 @@
 
 return {
 
-  ---------------------------------------------------------------------------
-  -- Tools
-  -- Master list derived from install.sh:148-175 (mac) and install.ps1:102-116
-  -- (win). install.sh is the superset; mac-only entries omit the "win" key.
-  ---------------------------------------------------------------------------
-  tools = {
+    ---------------------------------------------------------------------------
+    -- Tools
+    -- Master list derived from install.sh:148-175 (mac) and install.ps1:102-116
+    -- (win). install.sh is the superset; mac-only entries omit the "win" key.
+    ---------------------------------------------------------------------------
+    tools = {
 
-    -- 1Password password manager (cask / choco)
-    { name = "1password",
-      mac  = { backend = "cask",  id = "1password",     app = "/Applications/1Password.app" },
-      win  = { backend = "choco", id = "1password" } },
+        -- 1Password password manager (cask / choco)
+        { name = "1password",
+            mac = { backend = "cask",  id = "1password",     app = "/Applications/1Password.app" },
+            win = { backend = "choco", id = "1password" }
+        },
 
-    -- 1Password CLI (distributed as a cask on macOS)
-    { name = "1password-cli",
-      mac  = { backend = "cask",  id = "1password-cli" },
-      win  = { backend = "choco", id = "1password-cli" } },
+        -- 1Password CLI (distributed as a cask on macOS)
+        { name = "1password-cli",
+            mac = { backend = "cask",  id = "1password-cli" },
+            win = { backend = "choco", id = "1password-cli" }
+        },
 
-    -- Bash (mac-only — system bash is ancient; win uses Git Bash)
-    { name = "bash",
-      mac  = { backend = "brew",  id = "bash" } },
+        -- Bash (mac-only — system bash is ancient; win uses Git Bash)
+        { name = "bash",
+            mac = { backend = "brew",  id = "bash" }
+        },
 
-    -- Chroma syntax highlighter (mac-only — used in CLI tools)
-    { name = "chroma",
-      mac  = { backend = "brew",  id = "chroma" } },
+        -- Chroma syntax highlighter (mac-only — used in CLI tools)
+        { name = "chroma",
+            mac = { backend = "brew",  id = "chroma" }
+        },
 
-    -- Google Chrome browser (different ids per platform)
-    { name = "chrome",
-      mac  = { backend = "cask",  id = "google-chrome", app = "/Applications/Google Chrome.app" },
-      win  = { backend = "choco", id = "googlechrome" } },
+        -- Google Chrome browser (different ids per platform)
+        { name = "chrome",
+            mac = { backend = "cask",  id = "google-chrome", app = "/Applications/Google Chrome.app" },
+            win = { backend = "choco", id = "googlechrome" }
+        },
 
-    -- cliclick — keyboard/mouse automation (mac-only)
-    { name = "cliclick",
-      mac  = { backend = "brew",  id = "cliclick" } },
+        -- cliclick — keyboard/mouse automation (mac-only)
+        { name = "cliclick",
+            mac = { backend = "brew",  id = "cliclick" }
+        },
 
-    -- doctl — DigitalOcean CLI
-    { name = "doctl",
-      mac  = { backend = "brew",  id = "doctl" },
-      win  = { backend = "choco", id = "doctl" } },
+        -- doctl — DigitalOcean CLI
+        { name = "doctl",
+            mac = { backend = "brew",  id = "doctl" },
+            win = { backend = "choco", id = "doctl" }
+        },
 
-    -- JetBrains Mono font (mac-only cask)
-    { name = "font-jetbrains-mono",
-      mac  = { backend = "cask",  id = "font-jetbrains-mono" } },
+        -- JetBrains Mono font (mac-only cask)
+        { name = "font-jetbrains-mono",
+            mac = { backend = "cask",  id = "font-jetbrains-mono" }
+        },
 
-    -- GitHub CLI (mac-only — win users use choco gh if needed separately)
-    { name = "gh",
-      mac  = { backend = "brew",  id = "gh" } },
+        -- GitHub CLI (mac-only — win users use choco gh if needed separately)
+        { name = "gh",
+            mac = { backend = "brew",  id = "gh" }
+        },
 
-    -- git-extras — extra git commands
-    { name = "git-extras",
-      mac  = { backend = "brew",  id = "git-extras" },
-      win  = { backend = "choco", id = "git-extras" } },
+        -- git-extras — extra git commands
+        { name = "git-extras",
+            mac = { backend = "brew",  id = "git-extras" },
+            win = { backend = "choco", id = "git-extras" }
+        },
 
-    -- git-filter-repo — history rewriting tool (mac-only)
-    { name = "git-filter-repo",
-      mac  = { backend = "brew",  id = "git-filter-repo" } },
+        -- git-filter-repo — history rewriting tool (mac-only)
+        { name = "git-filter-repo",
+            mac = { backend = "brew",  id = "git-filter-repo" }
+        },
 
-    -- Laravel Herd (mac-only cask)
-    { name = "herd",
-      mac  = { backend = "cask",  id = "herd",          app = "/Applications/Herd.app" } },
+        -- Laravel Herd (mac-only cask)
+        { name = "herd",
+            mac = { backend = "cask",  id = "herd",  app = "/Applications/Herd.app" }
+        },
 
-    -- htop — interactive process viewer
-    { name = "htop",
-      mac  = { backend = "brew",  id = "htop" },
-      win  = { backend = "choco", id = "htop" } },
+        -- htop — interactive process viewer
+        { name = "htop",
+            mac = { backend = "brew",  id = "htop" },
+            win = { backend = "choco", id = "htop" }
+        },
 
-    -- JetBrains Toolbox (cask / choco)
-    { name = "jetbrains-toolbox",
-      mac  = { backend = "cask",  id = "jetbrains-toolbox", app = "/Applications/JetBrains Toolbox.app" },
-      win  = { backend = "choco", id = "jetbrainstoolbox" } },
+        -- JetBrains Toolbox (cask / choco)
+        { name = "jetbrains-toolbox",
+            mac = { backend = "cask",  id = "jetbrains-toolbox", app = "/Applications/JetBrains Toolbox.app" },
+            win = { backend = "choco", id = "jetbrainstoolbox" }
+        },
 
-    -- jq — JSON processor
-    { name = "jq",
-      mac  = { backend = "brew",  id = "jq" },
-      win  = { backend = "choco", id = "jq" } },
+        -- jq — JSON processor
+        { name = "jq",
+            mac = { backend = "brew",  id = "jq" },
+            win = { backend = "choco", id = "jq" }
+        },
 
-    -- nano — text editor
-    { name = "nano",
-      mac  = { backend = "brew",  id = "nano" },
-      win  = { backend = "choco", id = "nano" } },
+        -- nano — text editor
+        { name = "nano",
+            mac = { backend = "brew",  id = "nano" },
+            win = { backend = "choco", id = "nano" }
+        },
 
-    -- Pygments — syntax highlighter (Python, mac-only)
-    { name = "pygments",
-      mac  = { backend = "brew",  id = "pygments" } },
+        -- Pygments — syntax highlighter (Python, mac-only)
+        { name = "pygments",
+            mac = { backend = "brew",  id = "pygments" }
+        },
 
-    -- Raycast — launcher (mac-only cask)
-    { name = "raycast",
-      mac  = { backend = "cask",  id = "raycast",       app = "/Applications/Raycast.app" } },
+        -- Raycast — launcher (mac-only cask)
+        { name = "raycast",
+            mac = { backend = "cask",  id = "raycast",  app = "/Applications/Raycast.app" }
+        },
 
-    -- rsync — file synchronization
-    { name = "rsync",
-      mac  = { backend = "brew",  id = "rsync" },
-      win  = { backend = "choco", id = "rsync" } },
+        -- rsync — file synchronization
+        { name = "rsync",
+            mac = { backend = "brew",  id = "rsync" },
+            win = { backend = "choco", id = "rsync" }
+        },
 
-    -- saml2aws — AWS SAML login
-    { name = "saml2aws",
-      mac  = { backend = "brew",  id = "saml2aws" },
-      win  = { backend = "choco", id = "saml2aws" } },
+        -- saml2aws — AWS SAML login
+        { name = "saml2aws",
+            mac = { backend = "brew",  id = "saml2aws" },
+            win = { backend = "choco", id = "saml2aws" }
+        },
 
-    -- Shottr — screenshot tool (mac-only cask)
-    { name = "shottr",
-      mac  = { backend = "cask",  id = "shottr",        app = "/Applications/Shottr.app" } },
+        -- Shottr — screenshot tool (mac-only cask)
+        { name = "shottr",
+            mac = { backend = "cask",  id = "shottr",  app = "/Applications/Shottr.app" }
+        },
 
-    -- Stripe CLI (mac-only — win users get it via other means)
-    { name = "stripe-cli",
-      mac  = { backend = "brew",  id = "stripe-cli" } },
+        -- Stripe CLI (mac-only — win users get it via other means)
+        { name = "stripe-cli",
+            mac = { backend = "brew",  id = "stripe-cli" }
+        },
 
-    -- Terraform via HashiCorp tap (mac brew tap; win choco)
-    { name = "terraform",
-      mac  = { backend = "brew",  id = "hashicorp/tap/terraform", tap = "hashicorp/tap" },
-      win  = { backend = "choco", id = "terraform" } },
+        -- Terraform via HashiCorp tap (mac brew tap; win choco)
+        { name = "terraform",
+            mac = { backend = "brew",  id = "hashicorp/tap/terraform", tap = "hashicorp/tap" },
+            win = { backend = "choco", id = "terraform" }
+        },
 
-    -- tmux — terminal multiplexer
-    { name = "tmux",
-      mac  = { backend = "brew",  id = "tmux" },
-      win  = { backend = "choco", id = "tmux" } },
+        -- tmux — terminal multiplexer
+        { name = "tmux",
+            mac = { backend = "brew",  id = "tmux" },
+            win = { backend = "choco", id = "tmux" }
+        },
 
-    -- Trivy — vulnerability scanner (mac-only)
-    { name = "trivy",
-      mac  = { backend = "brew",  id = "trivy" } },
+        -- Trivy — vulnerability scanner (mac-only)
+        { name = "trivy",
+            mac = { backend = "brew",  id = "trivy" }
+        },
 
-    -- Ghostty terminal emulator (mac-only cask)
-    { name = "ghostty",
-      mac  = { backend = "cask",  id = "ghostty",       app = "/Applications/Ghostty.app" } },
+        -- Ghostty terminal emulator (mac-only cask)
+        { name = "ghostty",
+            mac = { backend = "cask",  id = "ghostty",  app = "/Applications/Ghostty.app" }
+        },
 
-    -- Zsh shell (both platforms — eliminates the stub-level branch in install.sh:115-121)
-    { name = "zsh",
-      mac  = { backend = "brew",  id = "zsh" },
-      win  = { backend = "choco", id = "zsh" } },
+        -- Zsh shell (both platforms — eliminates the stub-level branch in install.sh:115-121)
+        { name = "zsh",
+            mac = { backend = "brew",  id = "zsh" },
+            win = { backend = "choco", id = "zsh" }
+        },
 
-    -- antidote — zsh plugin manager (mac-only; win uses bash_loader.sh)
-    { name = "antidote",
-      mac  = { backend = "brew",  id = "antidote" } },
+        -- antidote — zsh plugin manager (mac-only; win uses bash_loader.sh)
+        { name = "antidote",
+            mac = { backend = "brew",  id = "antidote" }
+        },
 
-    -- NOTE: zsh-autosuggestions and zsh-syntax-highlighting are intentionally
-    -- omitted. antidote clones them from zsh_plugins.txt (sub-plan 05); keeping
-    -- brew copies would leave unsourced duplicates.
-  },
+        -- NOTE: zsh-autosuggestions and zsh-syntax-highlighting are intentionally
+        -- omitted. antidote clones them from zsh_plugins.txt (sub-plan 05); keeping
+        -- brew copies would leave unsourced duplicates.
+    },
 
-  ---------------------------------------------------------------------------
-  -- Scripts
-  -- curl-pipe-bash installers. Scripts are NOT idempotency-tracked; they
-  -- always re-run on each provision and rely on the upstream installer's own
-  -- short-circuit logic.
-  ---------------------------------------------------------------------------
-  scripts = {
+    ---------------------------------------------------------------------------
+    -- Scripts
+    -- curl-pipe-bash installers. Scripts are NOT idempotency-tracked; they
+    -- always re-run on each provision and rely on the upstream installer's own
+    -- short-circuit logic.
+    ---------------------------------------------------------------------------
+    scripts = {
 
-    -- Oh My Zsh — non-interactive install (RUNZSH/CHSH/KEEP_ZSHRC flags
-    -- prevent shell change, default-shell modification, and .zshrc overwrite).
-    -- The OMZ installer itself short-circuits if $HOME/.oh-my-zsh already exists.
-    { name = "ohmyzsh",
-      mac  = { kind = "curl",
-               url  = "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh",
-               pipe_to = "RUNZSH=no CHSH=no KEEP_ZSHRC=yes sh" },
-      win  = { kind = "curl",
-               url  = "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh",
-               pipe_to = "RUNZSH=no CHSH=no KEEP_ZSHRC=yes sh" } },
+        -- Oh My Zsh — non-interactive install (RUNZSH/CHSH/KEEP_ZSHRC flags
+        -- prevent shell change, default-shell modification, and .zshrc overwrite).
+        -- The OMZ installer itself short-circuits if $HOME/.oh-my-zsh already exists.
+        { name = "ohmyzsh",
+            mac = { kind = "curl",
+                url = "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh",
+                pipe_to = "RUNZSH=no CHSH=no KEEP_ZSHRC=yes sh" },
+            win = { kind = "curl",
+                url = "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh",
+                pipe_to = "RUNZSH=no CHSH=no KEEP_ZSHRC=yes sh" }
+        },
 
-    -- OpenCode AI coding assistant (mac + win)
-    { name = "opencode",
-      mac  = { kind = "curl", url = "https://opencode.ai/install", pipe_to = "bash" },
-      win  = { kind = "curl", url = "https://opencode.ai/install", pipe_to = "bash" } },
+        -- OpenCode AI coding assistant (mac + win)
+        { name = "opencode",
+            mac = { kind = "curl", url = "https://opencode.ai/install", pipe_to = "bash" },
+            win = { kind = "curl", url = "https://opencode.ai/install", pipe_to = "bash" }
+        },
 
-    -- Bun JavaScript runtime (mac-only)
-    { name = "bun",
-      mac  = { kind = "curl", url = "https://bun.com/install", pipe_to = "bash" } },
+        -- Bun JavaScript runtime (mac-only)
+        { name = "bun",
+            mac = { kind = "curl", url = "https://bun.com/install", pipe_to = "bash" }
+        },
 
-    -- Syft SBOM / vulnerability scanner (mac-only)
-    { name = "syft",
-      mac  = { kind = "curl",
-               url     = "https://get.anchore.io/syft",
-               pipe_to = "sudo sh -s -- -b /usr/local/bin" } },
-  },
+        -- Syft SBOM / vulnerability scanner (mac-only)
+        { name = "syft",
+            mac = { kind = "curl",
+                url = "https://get.anchore.io/syft",
+                pipe_to = "sudo sh -s -- -b /usr/local/bin" }
+        },
+    },
 
-  ---------------------------------------------------------------------------
-  -- Configurators
-  -- One-shot, state-tracked via state.configurators_run.
-  -- Re-apply by removing the key from ~/.df_data/state.json.
-  ---------------------------------------------------------------------------
-  configurators = {
-    { name = "iterm",             module = "configurators.iterm",             platforms = { "mac" } },
-    { name = "ghostty",           module = "configurators.ghostty",           platforms = { "mac" } },
-    { name = "capslock",          module = "configurators.capslock",          platforms = { "mac" } },
-    { name = "stripe_completion", module = "configurators.stripe_completion", platforms = { "mac", "win" } },
-  },
+    ---------------------------------------------------------------------------
+    -- Configurators
+    -- One-shot, state-tracked via state.configurators_run.
+    -- Re-apply by removing the key from ~/.df_data/state.json.
+    ---------------------------------------------------------------------------
+    configurators = {
+        { name = "iterm",             module = "configurators.iterm",             platforms = { "mac" }},
+        { name = "ghostty",           module = "configurators.ghostty",           platforms = { "mac" }},
+        { name = "capslock",          module = "configurators.capslock",          platforms = { "mac" }},
+        { name = "stripe_completion", module = "configurators.stripe_completion", platforms = { "mac", "win" }},
+    },
 
-  ---------------------------------------------------------------------------
-  -- Migrations
-  -- Ordered; each must be run exactly once. Tracked in state.migrations_run.
-  ---------------------------------------------------------------------------
-  migrations = {
-    "migrations.20250830_124338_setup_df_data_directory",
-    "migrations.20250830_124630_move_sys_cleanup_marker",
-    "migrations.20251201_000000_import_legacy_migration_history",
-  },
+    ---------------------------------------------------------------------------
+    -- Migrations
+    -- Ordered; each must be run exactly once. Tracked in state.migrations_run.
+    ---------------------------------------------------------------------------
+    migrations = {
+        "migrations.20250830_124338_setup_df_data_directory",
+        "migrations.20250830_124630_move_sys_cleanup_marker",
+        "migrations.20251201_000000_import_legacy_migration_history",
+    },
 }
