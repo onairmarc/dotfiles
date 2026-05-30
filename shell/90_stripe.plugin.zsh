@@ -1,3 +1,4 @@
+is_mac || return 0
 #source "$HOME/.stripe"
 #fpath=("$HOME/.stripe" $fpath)
 #autoload -Uz compinit && compinit -i

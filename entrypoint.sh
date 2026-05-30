@@ -1,11 +1,6 @@
-source "$DF_ROOT_DIRECTORY/framework/__df_autoloader.sh"
-
-if [ "$OSTYPE" != "msys" ]; then
-  __df_source_once "$DF_AUTOLOADER_DIRECTORY/mac.sh" "autoloader_mac"
-else
-  __df_source_once "$DF_AUTOLOADER_DIRECTORY/windows.sh" "autoloader_windows"
+if [ -n "$ZSH_VERSION" ]; then
+  return 0   # .zshrc handles everything via antidote
 fi
-
-if [ -f "$DF_ROOT_DIRECTORY/framework/migrations/migrate.sh" ]; then
-  __df_run_migrations_optimized
-fi
+: "${DF_ROOT_DIRECTORY:=$HOME/Documents/GitHub/dotfiles}"
+export DF_ROOT_DIRECTORY
+source "$DF_ROOT_DIRECTORY/framework/bash_loader.sh"

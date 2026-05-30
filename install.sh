@@ -1,212 +1,56 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -eu
 
-set -e  # Exit immediately if a command exits with a non-zero status.
-set -u  # Treat unset variables as an error.
-source "./framework/__df_autoloader.sh"
-source "$DF_CONFIG_DIRECTORY/color.sh"
+DOTFILES_REPO="https://github.com/onairmarc/dotfiles.git"
+: "${DF_ROOT_DIRECTORY:=$HOME/Documents/GitHub/dotfiles}"
+export DF_ROOT_DIRECTORY
 
-# Function to check and install a tool
-install_tool() {
-    local tool_name=$1
-    local brew_command=$2
-    local app_path="${3:-}"
-    local already_installed="${COL_GREEN}$tool_name is already installed.${COL_RESET}"
+# Ensure Homebrew is installed
+if ! command -v brew >/dev/null 2>&1; then
+    echo "[*] Homebrew not found. Installing Homebrew..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+else
+    echo "[+] Homebrew is already installed."
+fi
 
-    if [ -d "$app_path" ]; then
-        echo -e "$already_installed"
-    elif [[ "$BREW_LIST" == *"$tool_name"* ]] || [[ "$BREW_CASK_LIST" == *"$tool_name"* ]]; then
-        echo -e "$already_installed"
+brew update
+
+# Ensure Lua and Git are installed
+for pkg in lua git; do
+    if command -v "$pkg" >/dev/null 2>&1; then
+        echo "[+] $pkg is already installed."
     else
-        echo -e "${COL_YELLOW}Installing $tool_name...${COL_RESET}"
-        eval "$brew_command"
+        echo "[*] Installing $pkg..."
+        brew install "$pkg"
     fi
-}
+done
 
-configure_iterm() {
-  echo -e "${COL_CYAN}Configuring iTerm..."
+# Clone dotfiles repo if not present
+if [ ! -d "$DF_ROOT_DIRECTORY" ]; then
+    echo "[*] Cloning dotfiles repository..."
+    git clone "$DOTFILES_REPO" "$DF_ROOT_DIRECTORY"
+else
+    echo "[+] Dotfiles directory already exists at $DF_ROOT_DIRECTORY."
+fi
 
-  FONT_CONFIG_NAME="JetBrainsMono-Regular"
-  FONT_CONFIG_SIZE="18"
-
-  # Create iTerm2 preferences directory if it doesn't exist
-  PREFS_DIR="$HOME/Library/Preferences"
-  PLIST_FILE="$PREFS_DIR/com.googlecode.iterm2.plist"
-  mkdir -p "$PREFS_DIR"
-
-  # Configure iTerm2 font settings using defaults command
-  defaults write com.googlecode.iterm2 "Normal Font" -string "$FONT_CONFIG_NAME $FONT_CONFIG_SIZE"
-  defaults write com.googlecode.iterm2 "Non Ascii Font" -string "$FONT_CONFIG_NAME $FONT_CONFIG_SIZE"
-  defaults write com.googlecode.iterm2 UseNonASCIIFont -bool true
-
-  # Update iTerm2 preferences
-  /usr/libexec/PlistBuddy -c "Set :New\ Bookmarks:0:Normal\ Font $FONT_CONFIG_NAME\ $FONT_CONFIG_SIZE" "$PLIST_FILE" 2>/dev/null || true
-  /usr/libexec/PlistBuddy -c "Set :New\ Bookmarks:0:Non\ Ascii\ Font $FONT_CONFIG_NAME\ $FONT_CONFIG_SIZE" "$PLIST_FILE" 2>/dev/null || true
-  /usr/libexec/PlistBuddy -c "Set :New\ Bookmarks:0:Use\ Non-ASCII\ Font true" "$PLIST_FILE" 2>/dev/null || true
-}
-
-configure_ghostty() {
-  echo -e "${COL_CYAN}Configuring Ghostty...${COL_RESET}"
-
-  GHOSTTY_CONFIG_DIR="$HOME/.config/ghostty"
-  GHOSTTY_CONFIG_SOURCE="$DOTFILES_DIRECTORY/ghostty/config"
-
-  mkdir -p "$GHOSTTY_CONFIG_DIR"
-
-  if [ -f "$GHOSTTY_CONFIG_DIR/config" ] && [ ! -L "$GHOSTTY_CONFIG_DIR/config" ]; then
-    echo -e "${COL_YELLOW}Backing up existing Ghostty config...${COL_RESET}"
-    mv "$GHOSTTY_CONFIG_DIR/config" "$GHOSTTY_CONFIG_DIR/config.bak"
-  fi
-
-  if [ ! -L "$GHOSTTY_CONFIG_DIR/config" ]; then
-    ln -s "$GHOSTTY_CONFIG_SOURCE" "$GHOSTTY_CONFIG_DIR/config"
-    echo -e "${COL_GREEN}Ghostty config symlinked.${COL_RESET}"
-  else
-    echo -e "${COL_GREEN}Ghostty config symlink already exists.${COL_RESET}"
-  fi
-}
-
-remap_capslock_to_escape() {
-  # Call the dedicated keyboard remapping script
-  bash "$DOTFILES_DIRECTORY/tools/remap_capslock.sh" --enable
-}
-
-main() {
-    if [ $OSTYPE == "msys" ]; then
-        echo -e "${COL_RED} Operating System is Windows. Cannot Run Installer.${COL_RESET}";
-        return
+# Symlink ~/.zshrc and ~/.bashrc to repo .zshrc
+for rc in "$HOME/.zshrc" "$HOME/.bashrc"; do
+    target="$DF_ROOT_DIRECTORY/.zshrc"
+    if [ -L "$rc" ]; then
+        current="$(readlink "$rc")"
+        if [ "$current" = "$target" ]; then
+            echo "[+] $rc already symlinked to repo .zshrc."
+            continue
+        fi
+        rm "$rc"
+    elif [ -e "$rc" ]; then
+        backup="$rc.bak.$(date +%Y%m%d%H%M%S)"
+        echo "[*] Backing up existing $rc to $backup"
+        mv "$rc" "$backup"
     fi
+    ln -s "$target" "$rc"
+    echo "[+] Symlinked $rc -> $target"
+done
 
-    echo "Starting Mac setup..."
-
-    # Variables
-    DOTFILES_REPO="https://github.com/onairmarc/dotfiles.git"
-    DOTFILES_DIRECTORY="$HOME/Documents/GitHub/dotfiles"
-    ENTRYPOINT_SCRIPT="$DOTFILES_DIRECTORY/entrypoint.sh"
-
-    # Ensure Homebrew is installed
-    if ! command -v brew &>/dev/null; then
-        echo -e "${COL_YELLOW}Homebrew not found. Installing Homebrew...${COL_RESET}"
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    else
-        echo -e "${COL_GREEN}Homebrew is already installed.${COL_RESET}"
-    fi
-
-    echo -e "${COL_CYAN}Updating Homebrew...${COL_RESET}"
-    brew update
-
-    # Ensure Git is installed
-    if ! command -v git &>/dev/null; then
-        echo -e "${COL_YELLOW}Git not found. Installing Git...${COL_RESET}"
-        brew install git
-    else
-        echo -e "${COL_GREEN}Git is already installed.${COL_RESET}"
-    fi
-
-    # Clone dotfiles repo
-    echo -e "${COL_CYAN}Cloning dotfiles repository...${COL_RESET}"
-    if [ ! -d "$DOTFILES_DIRECTORY" ]; then
-        git clone "$DOTFILES_REPO" "$DOTFILES_DIRECTORY" || {
-            echo -e "${COL_RED}Failed to clone $DOTFILES_REPO. Directory may not be empty. Skipping this step.${COL_RESET}"
-        }
-    else
-        echo -e "${COL_GREEN}Dotfiles directory already exists.${COL_RESET}"
-    fi
-
-    # Ensure Zsh is installed
-    if ! command -v zsh &>/dev/null; then
-        echo -e "${COL_YELLOW}Zsh not found. Installing Zsh...${COL_RESET}"
-        brew install zsh
-    else
-        echo -e "${COL_GREEN}Zsh is already installed.${COL_RESET}"
-    fi
-
-    # Install Oh My Zsh
-    if [ ! -d "$HOME/.oh-my-zsh" ]; then
-        echo -e "${COL_YELLOW}Oh My Zsh not found. Installing Oh My Zsh...${COL_RESET}"
-        sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" || {
-            echo -e "${COL_RED}Failed to install Oh My Zsh.${COL_RESET}"
-        }
-    else
-        echo -e "${COL_GREEN}Oh My Zsh is already installed.${COL_RESET}"
-    fi
-
-    # Source the entrypoint script with Zsh
-    if [ -f "$ENTRYPOINT_SCRIPT" ]; then
-        echo -e "${COL_CYAN}Sourcing entrypoint script using Zsh...${COL_RESET}"
-        zsh -c "source $ENTRYPOINT_SCRIPT" || {
-            echo -e "${COL_RED}Failed to source $ENTRYPOINT_SCRIPT. Please check its contents.${COL_RESET}"
-        }
-    else
-        echo -e "${COL_RED}Entrypoint script not found. Please check the path: $ENTRYPOINT_SCRIPT${COL_RESET}"
-    fi
-
-    # Store the output of brew list and brew list --cask in an environment variable
-    BREW_LIST=$(brew list)
-    BREW_CASK_LIST=$(brew list --cask)
-
-    # Install software
-    install_tool "bash" "brew install bash"
-    install_tool "1password" "brew install --cask 1password" "/Applications/1Password.app"
-    install_tool "1password-cli" "brew install 1password-cli"
-    install_tool "chroma" "brew install chroma"
-    install_tool "chrome" "brew install --cask google-chrome" "/Applications/Google Chrome.app"
-    install_tool "cliclick" "brew install cliclick"
-    install_tool "doctl" "brew install doctl"
-    install_tool "font-jetbrains-mono" "brew install --cask font-jetbrains-mono"
-    install_tool "gh" "brew install gh"
-    install_tool "git-extras" "brew install git-extras"
-    install_tool "git-filter-repo" "brew install git-filter-repo"
-    install_tool "herd" "brew install --cask herd" "/Applications/Herd.app"
-    install_tool "htop" "brew install htop"
-    install_tool "jetbrains-toolbox" "brew install --cask jetbrains-toolbox" "/Applications/JetBrains Toolbox.app"
-    install_tool "jq" "brew install jq"
-    install_tool "nano" "brew install nano"
-    install_tool "pygments" "brew install pygments"
-    install_tool "raycast" "brew install --cask raycast" "/Applications/Raycast.app"
-    install_tool "rsync" "brew install rsync"
-    install_tool "saml2aws" "brew install saml2aws"
-    install_tool "shottr" "brew install --cask shottr" "/Applications/Shottr.app"
-    install_tool "stripe-cli" "brew install stripe-cli"
-    install_tool "terraform" "brew tap hashicorp/tap && brew install hashicorp/tap/terraform"
-    install_tool "tmux" "brew install tmux"
-    install_tool "trivy" "brew install trivy"
-    install_tool "zsh-autosuggestions" "brew install zsh-autosuggestions"
-    install_tool "zsh-syntax-highlighting" "brew install zsh-syntax-highlighting"
-    install_tool "ghostty" "brew install --cask ghostty" "/Applications/Ghostty.app"
-    configure_iterm
-    configure_ghostty
-    remap_capslock_to_escape
-
-    # Install OpenCode
-    echo -e "${COL_YELLOW}Installing OpenCode...${COL_RESET}"
-    curl -fsSL https://opencode.ai/install | bash
-
-    # Install Bun
-    echo -e "${COL_YELLOW}Installing Bun...${COL_RESET}"
-    curl -fsSL https://bun.com/install | bash
-
-    # Install Syft Security Tooling
-    echo -e "${COL_YELLOW}Installing Syft Security Tooling...${COL_RESET}"
-    curl -sSfL https://get.anchore.io/syft | sudo sh -s -- -b /usr/local/bin
-
-    # Unset the environment variables
-    unset BREW_LIST
-    unset BREW_CASK_LIST
-
-    echo -e "${COL_CYAN}"
-    stripe completion &>/dev/null
-    echo -e "${COL_RESET}"
-    if [ ! -f "$HOME/.stripe" ]; then
-      rm -rf "$HOME/.stripe"
-      mkdir "$HOME/.stripe"
-    fi
-    cp ./stripe-completion.zsh "$ZSH/completions/stripe-completion.sh"
-    mv ./stripe-completion.zsh "$HOME/.stripe"
-
-
-    echo
-    echo -e "${COL_GREEN}Setup completed! You may need to restart your terminal for some changes to take effect.${COL_RESET}"
-    echo
-}
-
-main
+cd "$DF_ROOT_DIRECTORY"
+exec lua provision/main.lua mac "$@"

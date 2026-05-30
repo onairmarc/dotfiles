@@ -1,4 +1,5 @@
 #!/bin/bash
+is_mac || return 0
 
 mac_cleanup_check () {
   # Path to the file containing the date

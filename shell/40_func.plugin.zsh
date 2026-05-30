@@ -1,3 +1,5 @@
+source "$DF_ROOT_DIRECTORY/framework/logging_functions.sh"
+
 art() {
     if [ -f "artisan" ]; then
         php artisan "$@"

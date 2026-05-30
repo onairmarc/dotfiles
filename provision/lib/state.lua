@@ -87,12 +87,47 @@ function M.load()
   return decoded
 end
 
---- Persist state to disk (pretty-printed JSON).
+--- Encode a string→value map as a JSON object, even when empty.
+-- rxi/json.lua encodes an empty Lua table as "[]" (array). This helper
+-- forces object notation by hand-rolling the map serialization so that
+-- state.json always stores proper JSON objects for the three map fields.
+-- @param t table  A string-keyed table.
+-- @return string  A JSON object string (e.g. "{}" or "{\"a\":true}").
+local function encode_map(t)
+  local parts = {}
+  for k, v in pairs(t) do
+    local venc
+    if type(v) == "boolean" then
+      venc = tostring(v)
+    elseif type(v) == "string" then
+      venc = json.encode(v)
+    elseif type(v) == "number" then
+      venc = json.encode(v)
+    else
+      venc = json.encode(v)
+    end
+    table.insert(parts, json.encode(k) .. ":" .. venc)
+  end
+  return "{" .. table.concat(parts, ",") .. "}"
+end
+
+--- Serialize state to a JSON string with correct object notation for all maps.
+local function encode_state(s)
+  return string.format(
+    '{"schema_version":%d,"tools_installed":%s,"configurators_run":%s,"migrations_run":%s}',
+    s.schema_version or SCHEMA_VERSION,
+    encode_map(s.tools_installed   or {}),
+    encode_map(s.configurators_run or {}),
+    encode_map(s.migrations_run    or {})
+  )
+end
+
+--- Persist state to disk.
 -- @param s table  The state table returned by load().
 function M.save(s)
   ensure_data_dir()
   local path = state_path()
-  local encoded = json.encode(s)
+  local encoded = encode_state(s)
 
   local f, err = io.open(path, "w")
   if not f then

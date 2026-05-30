@@ -116,38 +116,44 @@ local counts = {
 if RUN_TOOLS then
   log.step("Installing tools")
 
+  -- Map canonical platform name to the manifest sub-table key.
+  local plat_key = (platform.current() == "windows") and "win" or "mac"
+
   local tools = manifest.tools or {}
   for _, entry in ipairs(tools) do
-    if platform.matches(entry) then
-      local id = entry.id
-      local b  = backend.get(entry.backend)
+    -- Per-platform sub-table (e.g. entry.mac or entry.win).
+    local pentry = entry[plat_key]
+    if pentry then
+      local name = entry.name or pentry.id or "unknown"
+      local id   = pentry.id
+      local b    = backend.get(pentry.backend)
       local opts = {
-        tap = entry.tap,
-        app = entry.app,
+        tap = pentry.tap,
+        app = pentry.app,
       }
 
       local installed_ok, check_err = pcall(b.is_installed, id, opts)
       if not installed_ok then
-        record_failure(id, "is_installed check error: " .. tostring(check_err))
+        record_failure(name, "is_installed check error: " .. tostring(check_err))
         counts.tools_failed = counts.tools_failed + 1
       elseif check_err then
         -- is_installed returned true (check_err holds the return value here
         -- because pcall returns ok, val)
         -- NOTE: pcall(f, ...) returns true, <return values>; so "check_err"
         -- is actually the boolean returned by is_installed.
-        log.ok(id, "already installed — skipping")
+        log.ok(name, "already installed — skipping")
         counts.tools_skipped = counts.tools_skipped + 1
-        state_mod.mark_done(state, "tools_installed", id)
+        state_mod.mark_done(state, "tools_installed", name)
       else
-        log.info(id, "installing…")
+        log.info(name, "installing…")
         local install_ok, install_err = pcall(b.install, id, opts)
         if not install_ok then
-          record_failure(id, "install failed: " .. tostring(install_err))
+          record_failure(name, "install failed: " .. tostring(install_err))
           counts.tools_failed = counts.tools_failed + 1
         else
-          log.ok(id, "installed")
+          log.ok(name, "installed")
           counts.tools_installed = counts.tools_installed + 1
-          state_mod.mark_done(state, "tools_installed", id)
+          state_mod.mark_done(state, "tools_installed", name)
         end
       end
     end
@@ -163,12 +169,16 @@ end
 if RUN_SCRIPTS then
   log.step("Running scripts")
 
+  local plat_key_s = (platform.current() == "windows") and "win" or "mac"
+
   local script_list = manifest.scripts or {}
   for _, entry in ipairs(script_list) do
-    if platform.matches(entry) then
-      local label = entry.url or entry.kind or "unknown"
+    -- Per-platform sub-table (e.g. entry.mac or entry.win).
+    local pentry = entry[plat_key_s]
+    if pentry then
+      local label = entry.name or pentry.url or pentry.kind or "unknown"
       log.info(label, "running…")
-      local ok, err = pcall(scripts.run, entry)
+      local ok, err = pcall(scripts.run, pentry)
       if not ok then
         record_failure(label, tostring(err))
         counts.scripts_failed = counts.scripts_failed + 1
