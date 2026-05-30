@@ -41,6 +41,28 @@ foreach ($pkg in @("lua", "git")) {
     }
 }
 
+# Refresh PATH so freshly installed choco shims resolve in this session
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" +
+            [System.Environment]::GetEnvironmentVariable("Path", "User")
+
+$LuaCmd = Get-Command lua -ErrorAction SilentlyContinue
+if (-not $LuaCmd) {
+    $chocoLua = Join-Path $env:ChocolateyInstall "bin\lua.exe"
+    if ($env:ChocolateyInstall -and (Test-Path $chocoLua)) {
+        $LuaPath = $chocoLua
+    } else {
+        $fallback = "C:\ProgramData\chocolatey\bin\lua.exe"
+        if (Test-Path $fallback) {
+            $LuaPath = $fallback
+        } else {
+            Write-Host "[-] lua not found on PATH after install. Open a new shell and retry." -ForegroundColor Red
+            exit 1
+        }
+    }
+} else {
+    $LuaPath = $LuaCmd.Source
+}
+
 # Clone dotfiles repo if not present
 if (-not (Test-Path $DotfilesDirectory)) {
     Write-Host "[*] Cloning dotfiles repository..." -ForegroundColor Yellow
@@ -77,4 +99,4 @@ foreach ($name in @(".zshrc", ".bashrc")) {
 }
 
 Set-Location $DotfilesDirectory
-lua "$DotfilesDirectory\provision\main.lua" windows @args
+& $LuaPath "$DotfilesDirectory\provision\main.lua" windows @args
