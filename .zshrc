@@ -3,23 +3,27 @@
 export DF_ROOT_DIRECTORY
 export DF_DATA_DIR="${DF_DATA_DIR:-$HOME/.df_data}"
 
-# OMZ prelude — must run *before* antidote loads ohmyzsh/ohmyzsh because OMZ reads these
-# variables when oh-my-zsh.sh is sourced.
-export ZSH="$HOME/.oh-my-zsh"
-export ZSH_THEME="robbyrussell"
-export ZSH_CUSTOM="$DF_ROOT_DIRECTORY/ohmyzsh/custom"
-COMPLETION_WAITING_DOTS="true"
-zstyle ':omz:update' mode auto
+if [ -n "$ZSH_VERSION" ]; then
+  # OMZ prelude — must run *before* antidote loads ohmyzsh/ohmyzsh because OMZ reads these
+  # variables when oh-my-zsh.sh is sourced.
+  export ZSH="$HOME/.oh-my-zsh"
+  export ZSH_THEME="robbyrussell"
+  export ZSH_CUSTOM="$DF_ROOT_DIRECTORY/ohmyzsh/custom"
+  COMPLETION_WAITING_DOTS="true"
+  zstyle ':omz:update' mode auto
 
-# antidote bootstrap (installed by provisioner as `brew install antidote`)
-source "$(brew --prefix)/opt/antidote/share/antidote/antidote.zsh"
-antidote load "$DF_ROOT_DIRECTORY/zsh_plugins.cfg"
+  # antidote bootstrap (installed by provisioner as `brew install antidote`)
+  source "$(brew --prefix)/opt/antidote/share/antidote/antidote.zsh"
+  antidote load "$DF_ROOT_DIRECTORY/zsh_plugins.cfg"
 
-# OMZ postlude — runs *after* antidote has loaded OMZ + autosuggestions + syntax-highlighting,
-# so the keybinding can attach to the autosuggest widget.
-bindkey '^I' autosuggest-accept
-ZSH_COLORIZE_TOOL=chroma
-ZSH_COLORIZE_STYLE="colorful"
+  # OMZ postlude — runs *after* antidote has loaded OMZ + autosuggestions + syntax-highlighting,
+  # so the keybinding can attach to the autosuggest widget.
+  bindkey '^I' autosuggest-accept
+  ZSH_COLORIZE_TOOL=chroma
+  ZSH_COLORIZE_STYLE="colorful"
+else
+  source "$DF_ROOT_DIRECTORY/framework/bash_loader.sh"
+fi
 
 # Conditionally load private dotfiles
 [ -f "$HOME/Documents/GitHub/dotfiles-private/entrypoint.sh" ] && \

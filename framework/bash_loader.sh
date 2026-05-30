@@ -15,6 +15,3 @@ __df_source_once() {
 for f in "$DF_ROOT_DIRECTORY"/shell/[0-9]*_*.plugin.zsh; do
   __df_source_once "$f"
 done
-
-[ -f "$HOME/Documents/GitHub/dotfiles-private/entrypoint.sh" ] && \
-  source "$HOME/Documents/GitHub/dotfiles-private/entrypoint.sh"
