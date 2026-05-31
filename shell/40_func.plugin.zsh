@@ -14,6 +14,10 @@ agent_symlink () {
   bash "$DF_ROOT_DIRECTORY/tools/agent_symlink.sh" "$@"
 }
 
+battery () {
+  bash "$DF_ROOT_DIRECTORY/tools/battery.sh" "$@"
+}
+
 analize() {
     if [ -f "vendor/bin/phpstan" ]; then
         XDEBUG_MODE=off vendor/bin/phpstan "$@"

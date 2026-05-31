@@ -166,6 +166,32 @@ avoiding accidental command execution.
 
 ---
 
+## Battery CLI
+
+`tools/battery.sh` is a friendly macOS battery wrapper around `pmset`,
+`ioreg -rn AppleSmartBattery`, and `system_profiler SPPowerDataType`. It is
+exposed in the shell as the `battery` function (see `shell/40_func.plugin.zsh`).
+
+| Subcommand           | Description                                                      |
+|----------------------|------------------------------------------------------------------|
+| `battery` / `status` | Short human summary: percent, state, time, adapter, health, temp |
+| `battery percent`    | Charge percent as a bare integer (scriptable)                    |
+| `battery charging`   | Prints `yes`/`no`; exits 0 if charging, 1 if not                 |
+| `battery health`     | MaxCapacity / DesignCapacity %, cycle count, condition           |
+| `battery adapter`    | Adapter wattage, model, serial, connected/delivering state       |
+| `battery time`       | Time-to-full or time-to-empty (`calculating` when unknown)       |
+| `battery temp`       | Battery temperature in °C (1 decimal)                            |
+| `battery why`        | Decoded `NotChargingReason` + Optimized Battery Charging state   |
+| `battery raw`        | Full `ioreg -rn AppleSmartBattery` dump                          |
+| `battery json`       | All values as a single JSON object                               |
+| `battery watch [N]`  | Repaint summary every N seconds (default 5), Ctrl-C to exit      |
+| `battery help`       | Usage                                                            |
+
+Color is auto-disabled when stdout is not a TTY, when `NO_COLOR` is set, or when
+`--no-color` is passed. macOS only — exits with an error elsewhere.
+
+---
+
 ## JetBrains
 
 Keymaps and code inspection profiles are stored in `JetBrains/`. The `copy_jetbrains_keymaps.sh` tool
