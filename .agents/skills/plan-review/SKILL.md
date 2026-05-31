@@ -113,6 +113,11 @@ If the plan is already complete and unambiguous, tell the user so and stop.
 
 Present your grouped questions to the user using `AskUserQuestion`. Format your message like this:
 
+**AskUserQuestion limit:** the tool accepts at most **4 questions per call**. If you have more than 4 gaps, rank
+by blast radius (contradictions > missing info > ambiguity > scope) and ask the top 4 first; defer the rest to
+the next round after writing answers back to disk. Consolidate tightly-related gaps into a single question.
+
+
 ---
 
 **Plan review: round N**

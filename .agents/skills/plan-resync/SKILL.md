@@ -154,6 +154,11 @@ If the plan is already fully in sync with the codebase, tell the user so and sto
 
 Present grouped questions using `AskUserQuestion`. Format your message like this:
 
+**AskUserQuestion limit:** the tool accepts at most **4 questions per call**. If more than 4 drift points need
+user input, rank by blast radius and ask the top 4 first; defer the rest to the next round (after writing
+mechanical updates to disk). Consolidate tightly-related drift points into a single question.
+
+
 ---
 
 **Plan resync: round N** — N drift points to reconcile.

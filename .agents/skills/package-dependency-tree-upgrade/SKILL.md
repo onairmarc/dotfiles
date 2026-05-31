@@ -79,8 +79,9 @@ asking the user:
 | Assignee / reporter             | Leave unset unless inferable from git config (`git config user.email`) matched via `mcp__atlassian__lookupJiraAccountId`                       |
 | Any other required field        | Leave unset for now — collect a list                                                                                                           |
 
-If any required fields remain unresolved after inference, use a **single** `AskUserQuestion` call to ask about all of
-them at once rather than asking one at a time.
+If any required fields remain unresolved after inference, batch them into `AskUserQuestion` calls of **at most 4
+questions each** (tool cap). Prefer one call when ≤4 fields remain; otherwise split into sequential calls,
+asking the most blocking fields first.
 
 Once all required fields are known, create the epic using `mcp__atlassian__createJiraIssue` with:
 

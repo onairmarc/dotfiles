@@ -133,6 +133,11 @@ If all plans are already complete, unambiguous, and consistent with each other, 
 
 Present grouped questions using `AskUserQuestion`. Format:
 
+**AskUserQuestion limit:** the tool accepts at most **4 questions per call**. If more than 4 gaps exist across
+the plan group, rank by blast radius (contradictions > missing info > ambiguity > scope) and ask the top 4
+first; defer the rest to the next round (after writing answers to disk). Consolidate tightly-related gaps.
+
+
 ---
 
 **Plan group review: round N**

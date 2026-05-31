@@ -316,7 +316,12 @@ After drafting, re-read the file against these lenses. Note every issue.
 - Is the tracking tool recorded clearly, including project name/key/URL where relevant?
 - Is the Sanctioned Feature Set non-empty? (An empty table with no explanation is a gap.)
 
-If any lens surfaces an issue, present all issues in a **single `AskUserQuestion` call** using this format:
+If any lens surfaces an issue, present them via `AskUserQuestion` using this format:
+
+**AskUserQuestion limit:** the tool accepts at most **4 questions per call**. If more than 4 issues surface,
+rank by severity (BLOCK-equivalents > contradictions > ambiguity > completeness) and ask the top 4 first; defer
+the rest to the next round (after writing answers to disk). Consolidate tightly-related issues into one question.
+
 
 ---
 

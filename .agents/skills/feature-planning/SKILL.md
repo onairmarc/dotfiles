@@ -107,8 +107,8 @@ ask:
 > **What feature are you planning?**
 > Describe it in a sentence or two. Include what problem it solves and which part of the system is involved.
 
-Once you have a description, ask follow-up questions **in a single `AskUserQuestion` call** to fill the most critical
-gaps. Keep questions focused and short-answer. Cover:
+Once you have a description, ask follow-up questions to fill the most critical gaps. Keep questions focused and
+short-answer. Cover:
 
 1. **Scope**: What is the simplest version of this feature that would be useful? What is explicitly out of scope?
 2. **Components**: Which parts of the system are affected? Does this cross a process or service boundary?
@@ -117,6 +117,10 @@ gaps. Keep questions focused and short-answer. Cover:
 5. **Existing code**: Is there existing code this replaces, extends, or must remain compatible with?
 
 Do **not** ask about things that are already clear from the description or from the discovered project conventions.
+
+**AskUserQuestion limit:** the tool accepts at most **4 questions per call**. Drop any of the five areas already
+answered by the description or discovered conventions; if more than 4 remain, prioritize the highest-impact 4 in
+the first call and ask the remainder in a second sequential call before drafting.
 
 ---
 
@@ -249,7 +253,12 @@ Group your findings into labeled question blocks. For each:
 2. State what is missing or conflicting.
 3. Ask a focused, short-answer question.
 
-Present them all in **one `AskUserQuestion` call** per round, formatted as:
+Present them via `AskUserQuestion`, formatted as:
+
+**AskUserQuestion limit:** at most **4 questions per call**. If a round surfaces more than 4 gaps, rank by blast
+radius (blockers > ambiguity > scope) and ask the top 4 first; carry the remainder into the next round (after
+writing answers back to disk). Consolidate related gaps into a single question where possible.
+
 
 ---
 
