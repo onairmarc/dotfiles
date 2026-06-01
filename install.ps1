@@ -2,6 +2,11 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
+# Force UTF-8 for console I/O so Lua's UTF-8 output renders correctly
+# (otherwise ✓/✗/… appear as mojibake like Γ£ô / Γ£ù / ΓÇª).
+[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
+$OutputEncoding = [System.Text.UTF8Encoding]::new()
+
 $DotfilesRepo = "https://github.com/onairmarc/dotfiles.git"
 if (-not $env:DF_ROOT_DIRECTORY) {
     $env:DF_ROOT_DIRECTORY = Join-Path $env:USERPROFILE "Documents\GitHub\dotfiles"
