@@ -36,6 +36,25 @@ The `AskUserQuestion` tool must provide enough information for the user to make 
   risks, or follow-on work it implies. Never leave the user guessing.
 - **Previews**: when options produce visibly different artifacts (UI layouts, code shapes, file structures), include a `preview` so the user can compare side-by-side.
 
+## Recommended option
+
+Every `AskUserQuestion` call **must** include exactly one recommended option. The recommended option:
+
+- Is the **first** option in the `options` array.
+- Has `" (Recommended)"` appended to its `label`.
+- Is chosen by the agent — never by asking the user "which do you recommend".
+
+Pick the recommendation by evaluating the candidates against these criteria, in order of priority:
+
+1. **Co-locality of behavior** — keeps related logic in one place rather than spreading it across files, layers, or services.
+2. **Code simplicity** — fewest moving parts, least indirection, smallest diff.
+3. **Maintainability** — easiest for a future engineer to read, modify, and delete.
+4. **Existing codebase conventions** — matches patterns already present in the repository (discovered via `AGENTS.md`, neighboring code, or recent commits).
+5. **Language/framework affordances** — leans on what the language, standard library, or framework provides natively, instead of introducing bespoke tooling,
+   abstractions, or configuration.
+
+If two options tie on these criteria, recommend the one that is easier to reverse. Never recommend an option you would not implement yourself.
+
 This rule overrides any active terseness/compression mode (including caveman). AskUserQuestion content is treated like code, commits, and security warnings — always
 written in full prose regardless of conversational style.
 
