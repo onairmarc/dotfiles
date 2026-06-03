@@ -41,9 +41,7 @@ end
 
 --- Ensure the data directory exists.
 local function ensure_data_dir()
-  local dir = platform.data_dir()
-  -- mkdir -p is portable enough for our supported platforms.
-  os.execute('mkdir -p "' .. dir .. '"')
+  platform.mkdir_p(platform.data_dir())
 end
 
 --- Load state from disk.

@@ -72,6 +72,23 @@ function M.data_dir()
   return M.home() .. "/.df_data"
 end
 
+--- Create a directory (and any missing parents) idempotently.
+-- On mac uses `mkdir -p`. On Windows shells `mkdir -p` would create a literal
+-- directory named "-p", so we use PowerShell's `New-Item -Force` which is the
+-- native equivalent.
+-- @param path string  Filesystem path to create.
+-- @return boolean     true on success.
+function M.mkdir_p(path)
+  if M.is_windows() then
+    local cmd = string.format(
+      'powershell -NoProfile -Command "New-Item -ItemType Directory -Force -Path \'%s\' | Out-Null"',
+      path:gsub("'", "''")
+    )
+    return os.execute(cmd)
+  end
+  return os.execute(string.format('mkdir -p %q', path))
+end
+
 --- Return true if an entry's platform list includes the current platform.
 -- If entry.platforms is nil or empty, the entry applies to all platforms.
 -- @param entry table  A manifest entry (tool/script/configurator).

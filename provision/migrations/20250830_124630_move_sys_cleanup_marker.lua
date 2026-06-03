@@ -14,23 +14,24 @@ return {
   description = "Move .df_sys_cleanup_marker from $HOME into $HOME/.df_data/",
 
   up = function()
-    local home   = os.getenv("HOME") or os.getenv("USERPROFILE") or ""
-    local old    = home .. "/.df_sys_cleanup_marker"
-    local new    = home .. "/.df_data/.sys_cleanup_marker"
+    local platform = require("provision.lib.platform")
+    local home = platform.home()
+    local old  = home .. "/.df_sys_cleanup_marker"
+    local new  = home .. "/.df_data/.sys_cleanup_marker"
 
-    -- Only act if the old marker exists.
-    local f = io.open(old, "r")
-    if f then
-      f:close()
+    local src = io.open(old, "rb")
+    if not src then return end
+    local content = src:read("*a") or ""
+    src:close()
 
-      -- Ensure the destination directory exists.
-      os.execute(string.format('mkdir -p %q', home .. "/.df_data"))
+    platform.mkdir_p(home .. "/.df_data")
 
-      -- Copy the marker to its new home (safe_copy semantics: cp -r).
-      os.execute(string.format('cp -r %q %q', old, new))
-
-      -- Remove the old location.
-      os.execute(string.format('rm -f %q', old))
+    local dst = io.open(new, "wb")
+    if dst then
+      dst:write(content)
+      dst:close()
     end
+
+    os.remove(old)
   end,
 }

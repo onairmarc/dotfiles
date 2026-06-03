@@ -11,14 +11,16 @@ return {
   description = "Create the ~/.df_data directory structure",
 
   up = function()
-    local home = os.getenv("HOME") or os.getenv("USERPROFILE") or ""
-    local data_dir = home .. "/.df_data"
+    local platform = require("provision.lib.platform")
+    local data_dir = platform.data_dir()
 
-    -- Create the base data directory and tokens subdir.
-    os.execute(string.format('mkdir -p %q', data_dir))
-    os.execute(string.format('mkdir -p %q', data_dir .. "/tokens"))
+    platform.mkdir_p(data_dir)
+    platform.mkdir_p(data_dir .. "/tokens")
 
-    -- Create the cleanup marker file if absent.
-    os.execute(string.format('touch %q', data_dir .. "/.sys_cleanup_marker"))
+    -- Create the cleanup marker file if absent. Lua-native to avoid shell
+    -- portability concerns (no `touch` on cmd.exe).
+    local marker = data_dir .. "/.sys_cleanup_marker"
+    local f = io.open(marker, "a")
+    if f then f:close() end
   end,
 }

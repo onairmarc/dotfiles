@@ -58,6 +58,32 @@ foreach ($pkg in @("lua", "git"))
     }
 }
 
+# The Chocolatey `lua` package bundles a stale 7z.exe in its install directory
+# and adds that directory to PATH. Composer auto-detects any 7z.exe on PATH and
+# prefers it over PHP's ZipArchive, but this bundled copy fails to extract
+# archives containing case-only filename collisions. Remove it so Composer (and
+# any other tool) falls back to its built-in extractor. Lua itself does not use
+# this binary at runtime.
+foreach ($luaDir in @(
+    "C:\Program Files (x86)\Lua\5.1",
+    "C:\Program Files\Lua\5.1"
+))
+{
+    $stray7z = Join-Path $luaDir "7z.exe"
+    if (Test-Path -LiteralPath $stray7z)
+    {
+        try
+        {
+            Remove-Item -LiteralPath $stray7z -Force
+            Write-Host "[+] Removed bundled 7z.exe from $luaDir (conflicts with Composer)." -ForegroundColor Green
+        }
+        catch
+        {
+            Write-Host "[-] Failed to remove $stray7z. Re-run this script in an Administrator shell." -ForegroundColor Red
+        }
+    }
+}
+
 # Refresh PATH so freshly installed choco shims resolve in this session
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" +
     [System.Environment]::GetEnvironmentVariable("Path", "User")

@@ -55,10 +55,9 @@ return {
             mac = { backend = "brew",  id = "cliclick" }
         },
 
-        -- doctl — DigitalOcean CLI
+        -- doctl — DigitalOcean CLI (mac-only — no Chocolatey package available)
         { name = "doctl",
-            mac = { backend = "brew",  id = "doctl" },
-            win = { backend = "choco", id = "doctl" }
+            mac = { backend = "brew",  id = "doctl" }
         },
 
         -- JetBrains Mono font (mac-only cask)
@@ -71,10 +70,9 @@ return {
             mac = { backend = "brew",  id = "gh" }
         },
 
-        -- git-extras — extra git commands
+        -- git-extras — extra git commands (mac-only — no Chocolatey package available)
         { name = "git-extras",
-            mac = { backend = "brew",  id = "git-extras" },
-            win = { backend = "choco", id = "git-extras" }
+            mac = { backend = "brew",  id = "git-extras" }
         },
 
         -- git-filter-repo — history rewriting tool (mac-only)
@@ -87,10 +85,9 @@ return {
             mac = { backend = "cask",  id = "herd",  app = "/Applications/Herd.app" }
         },
 
-        -- htop — interactive process viewer
+        -- htop — interactive process viewer (mac-only — no Chocolatey package available)
         { name = "htop",
-            mac = { backend = "brew",  id = "htop" },
-            win = { backend = "choco", id = "htop" }
+            mac = { backend = "brew",  id = "htop" }
         },
 
         -- JetBrains Toolbox (cask / choco)
@@ -149,10 +146,9 @@ return {
             win = { backend = "choco", id = "terraform" }
         },
 
-        -- tmux — terminal multiplexer
+        -- tmux — terminal multiplexer (mac-only — no Chocolatey package available)
         { name = "tmux",
-            mac = { backend = "brew",  id = "tmux" },
-            win = { backend = "choco", id = "tmux" }
+            mac = { backend = "brew",  id = "tmux" }
         },
 
         -- Trivy — vulnerability scanner (mac-only)
@@ -165,10 +161,9 @@ return {
             mac = { backend = "cask",  id = "ghostty",  app = "/Applications/Ghostty.app" }
         },
 
-        -- Zsh shell (both platforms — eliminates the stub-level branch in install.sh:115-121)
+        -- Zsh shell (mac-only — no Chocolatey package available; Windows uses bash)
         { name = "zsh",
-            mac = { backend = "brew",  id = "zsh" },
-            win = { backend = "choco", id = "zsh" }
+            mac = { backend = "brew",  id = "zsh" }
         },
 
         -- antidote — zsh plugin manager (mac-only; win uses bash_loader.sh)
@@ -194,9 +189,6 @@ return {
         -- The OMZ installer itself short-circuits if $HOME/.oh-my-zsh already exists.
         { name = "ohmyzsh",
             mac = { kind = "curl",
-                url = "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh",
-                pipe_to = "RUNZSH=no CHSH=no KEEP_ZSHRC=yes sh" },
-            win = { kind = "curl",
                 url = "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh",
                 pipe_to = "RUNZSH=no CHSH=no KEEP_ZSHRC=yes sh" }
         },
