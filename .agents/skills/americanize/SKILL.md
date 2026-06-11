@@ -4,11 +4,11 @@ description: Converts British English spelling to American English in a file or 
 argument-hint: "<file-or-directory-path>"
 disable-model-invocation: true
 allowed-tools:
-  - Read
-  - Edit
-  - Glob
-  - Grep
-  - Bash(find *)
+    - Read
+    - Edit
+    - Glob
+    - Grep
+    - Bash(find *)
 model: sonnet
 ---
 
