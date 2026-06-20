@@ -1,22 +1,22 @@
 ---
 name: laravel-dependency-tree-upgrade
-description: Pre-configured wrapper around package-dependency-tree-upgrade for Laravel projects. Audits first-party and organization packages in composer.lock to find those that support the current Laravel version but not the next, creates missing Jira tickets in an epic (existing or newly created), and wires up blocker links in the correct upgrade order.
+description: Pre-configured wrapper around package-dependency-tree-upgrade for Laravel projects. Audits first-party and organization packages in composer.lock to find those that support the current Laravel version but not the next, creates missing SP Projects features under an upgrade initiative (existing or newly created), and records blocker relationships in the correct upgrade order.
 disable-model-invocation: true
-argument-hint: <next-laravel-version> [jira-epic-key]
+argument-hint: <next-laravel-version> [parent-feature]
 ---
 
 This skill is a Laravel-specific wrapper around the `package-dependency-tree-upgrade` skill. It handles the
 Laravel/Illuminate constraint conventions and pre-fills the framework package details so you only need to supply the
-target version and Jira epic.
+target version and (optionally) the SP Projects upgrade initiative.
 
 ---
 
 ## Inputs
 
-| Argument               | Required | Description                                                                                     | Example    |
-|------------------------|----------|-------------------------------------------------------------------------------------------------|------------|
-| `next-laravel-version` | Yes      | The Laravel major version you are upgrading to                                                  | `13`       |
-| `jira-epic-key`        | No       | The Jira epic to link all tickets to. If omitted, you will be prompted to select or create one. | `PROJ-100` |
+| Argument               | Required | Description                                                                                                                     | Example                 |
+|------------------------|----------|---------------------------------------------------------------------------------------------------------------------------------|-------------------------|
+| `next-laravel-version` | Yes      | The Laravel major version you are upgrading to                                                                                  | `13`                    |
+| `parent-feature`       | No       | The SP Projects umbrella feature to group all upgrade features under. If omitted, you will be prompted to select or create one. | `Upgrade to Laravel 13` |
 
 ---
 
@@ -44,12 +44,11 @@ externally.
 Read `composer.json` and extract the constraint on `laravel/framework`. The current major version is the highest version
 currently supported (e.g. `^11|^12` → current is `12`).
 
-### 4. Gather Jira credentials
+### 4. Resolve the SP Projects project
 
-You need:
-
-- **Cloud ID** — use `mcp__atlassian__getAccessibleAtlassianResources` to list your sites and their IDs
-- **Project key** — the short key shown in Jira next to issue numbers (e.g. `MPC`, `APP`)
+Call `mcp__sp_projects__getProjects` to list your projects and match the one for this repo (infer the name from the
+repo or `APP_NAME` in `.env` if unsure). Store the project name or ID to pass as `sp-project`. If the SP Projects MCP is
+unavailable, `package-dependency-tree-upgrade` falls back to a manual report.
 
 ---
 
@@ -65,7 +64,7 @@ Some packages constrain `laravel/framework` directly; others only constrain indi
 - A package that constrains any `illuminate/*` sub-package to `^{next-version}` is already compatible for that
   sub-package — verify all constrained sub-packages before marking it compatible
 
-### Packages that often need no ticket
+### Packages that often need no feature
 
 - Packages with no `laravel/framework` or `illuminate/*` constraints at all — they are framework-agnostic and do not
   block the upgrade
@@ -82,28 +81,27 @@ Once you have gathered the above context, run the full `package-dependency-tree-
 - **framework-package:** `laravel/framework` (also check `illuminate/*` sub-packages as described)
 - **current-version:** determined from `composer.json`
 - **next-version:** `$ARGUMENTS[0]`
-- **jira-cloud-id:** discovered via `mcp__atlassian__getAccessibleAtlassianResources`
-- **jira-project-key:** the project key for your Jira project
-- **jira-epic-key:** `$ARGUMENTS[1]` if provided — otherwise omit and let `package-dependency-tree-upgrade` Step 0
-  handle epic discovery or creation
+- **sp-project:** the SP Projects project name or ID resolved via `mcp__sp_projects__getProjects`
+- **parent-feature:** `$ARGUMENTS[1]` if provided — otherwise omit and let `package-dependency-tree-upgrade` Step 0
+  handle initiative discovery or creation
 
-Follow all confirmation steps from `package-dependency-tree-upgrade` — present findings before creating tickets, and
-present the dependency graph before creating blocker links.
+Follow all confirmation steps from `package-dependency-tree-upgrade` — present findings before creating features, and
+present the dependency graph before recording blocker relationships.
 
 ---
 
 ## Usage examples
 
 ```
-/laravel-dependency-tree-upgrade 13 PROJ-100
+/laravel-dependency-tree-upgrade 13 "Upgrade to Laravel 13"
 ```
 
 ```
-/laravel-dependency-tree-upgrade 14 PROJ-250
+/laravel-dependency-tree-upgrade 14 "Laravel 14 readiness"
 ```
 
 ```
 /laravel-dependency-tree-upgrade 13
 ```
 
-*(omit the epic key to be prompted to select an existing epic or create a new one)*
+*(omit the parent feature to be prompted to select an existing initiative or create a new one)*

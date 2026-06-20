@@ -1,6 +1,6 @@
 ---
 name: northstar
-description: Interactively create or update the northstar.md product vision document for a repository. Gathers vision, users, scope, deployment model, guiding principles (with BLOCK/WARN checks), and sanctioned feature tracking via AskUserQuestion. Pulls existing features from Jira (via Atlassian MCP) or SP Projects (via SP Projects MCP) when available, then writes northstar.md to the repo's planning directory.
+description: Interactively create or update the northstar.md product vision document for a repository. Gathers vision, users, scope, deployment model, guiding principles (with BLOCK/WARN checks), and sanctioned feature tracking via AskUserQuestion. Pulls existing features from SP Projects (via SP Projects MCP) when available, then writes northstar.md to the repo's planning directory.
 disable-model-invocation: true
 argument-hint: [ optional: path to existing northstar.md to update ]
 allowed-tools:
@@ -134,7 +134,6 @@ Ask in a **single `AskUserQuestion` call**:
 
 1. Which tool(s) does the team use to track approved and planned features?
     - `_ideas.md` (a markdown file alongside this northstar)
-    - Jira (specify the project key or URL)
     - SP Projects (specify the project name)
     - A combination (specify which)
     - Other (specify)
@@ -145,31 +144,6 @@ Record the answer as `$TRACKING_TOOLS`. Proceed to 4b before asking for the feat
 
 Attempt to fetch existing features from each tool the user named. Do this silently — do not report each attempt to the
 user unless it produces a useful result or a failure worth noting.
-
-#### Jira (if selected)
-
-1. Call `mcp__atlassian__getAccessibleAtlassianResources`. If the call fails or the tool is unavailable, record
-   `$JIRA = unavailable`, inform the user in one line ("Jira MCP is not available — I'll collect features manually
-   instead."), and skip the remaining Jira sub-steps.
-
-2. If multiple Atlassian sites are returned, ask the user which site to use. If only one is returned, use it. Store
-   `$JIRA_CLOUD_ID` and `$JIRA_SITE_URL`.
-
-3. Call `mcp__atlassian__getVisibleJiraProjects` to list available projects. If the user already provided a project key,
-   confirm it against the list. Otherwise, ask the user to choose. Store `$JIRA_PROJECT_KEY`.
-
-4. Search for approved and planned features using `mcp__atlassian__searchJiraIssuesUsingJql`. Run the following queries
-   and merge results, deduplicating by issue key:
-
-   ```jql
-   project = <PROJECT_KEY> AND issuetype in (Feature, Epic, Story) AND statusCategory != Done ORDER BY created DESC
-   project = <PROJECT_KEY> AND issuetype in (Feature, Epic, Story) AND status = "Approved" ORDER BY created DESC
-   ```
-
-   Collect up to 30 results. For each, record: key, summary, status.
-
-5. Record `$JIRA_FEATURES` = the collected list. Record `$JIRA_PROJECT_URL` =
-   `<$JIRA_SITE_URL>/jira/projects/<PROJECT_KEY>`.
 
 #### SP Projects (if selected)
 
@@ -191,7 +165,7 @@ Read `$IDEAS_FILE` now and parse its contents into a feature list. Record as `$I
 
 ### 4c — Ask the user to confirm and extend the feature list
 
-Compose a starting list by merging all collected features (`$JIRA_FEATURES`, `$SP_FEATURES`, `$IDEAS_FEATURES`). Remove
+Compose a starting list by merging all collected features (`$SP_FEATURES`, `$IDEAS_FEATURES`). Remove
 exact duplicates by name.
 
 Ask in a **single `AskUserQuestion` call**:
@@ -265,7 +239,7 @@ Using all gathered answers, write `$PLAN_DIR/northstar.md`. Create the directory
 ## Sanctioned Feature Set
 
 Features are tracked in: <tool name(s) and location — e.g., `_ideas.md` alongside this
-file / [Jira project KEY](<$JIRA_PROJECT_URL>) / SP Projects "Project Name" / combination>
+file / SP Projects "Project Name" / combination>
 
 | Feature         | Status  | Summary        |
 |-----------------|---------|----------------|

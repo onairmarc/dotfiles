@@ -2,7 +2,7 @@
 name: livewire-upgrade-analysis
 description: Audits a Laravel repository for custom Livewire components and produces an agent-ready upgrade plan for migrating from Livewire 3 to Livewire 4. Discovers components, classifies required changes by breaking-change category, and writes a structured plan using the feature-planning foundation.
 disable-model-invocation: true
-argument-hint: [ target-livewire-version ] [ jira-epic-key ]
+argument-hint: [ target-livewire-version ]
 allowed-tools:
   - Read
   - Edit
@@ -28,6 +28,7 @@ using the same structure and quality bar as `feature-planning`.
 ## File Operation Rules
 
 Use the dedicated file tools for all file operations:
+
 - **Read** to read files
 - **Edit** to modify existing files
 - **Write** to create new files
@@ -41,10 +42,9 @@ Never manipulate files via Bash (`echo >`, `cat <<EOF`, `sed -i`, `awk -i`, `tee
 
 Parse from `$ARGUMENTS`:
 
-| Argument                  | Required | Default | Description                                                 |
-|---------------------------|----------|---------|-------------------------------------------------------------|
-| `target-livewire-version` | No       | `4`     | The Livewire major version being upgraded to                |
-| `jira-epic-key`           | No       | —       | If provided, surface it in the plan header for traceability |
+| Argument                  | Required | Default | Description                                  |
+|---------------------------|----------|---------|----------------------------------------------|
+| `target-livewire-version` | No       | `4`     | The Livewire major version being upgraded to |
 
 ---
 
@@ -295,11 +295,6 @@ Use this structure (aligned with `feature-planning` conventions):
 Upgrade all custom Livewire components, views, routes, config, and JS integrations from Livewire 3 to Livewire 4,
 ensuring the application functions correctly after
 `composer require livewire/livewire:^4.0 && php artisan optimize:clear`.
-
-## Jira Epic
-
-<!-- Include only if jira-epic-key was supplied -->
-All tasks should be linked to epic **{jira-epic-key}**.
 
 ## Out of scope
 

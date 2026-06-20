@@ -86,9 +86,9 @@ verification checklist (Feature Existence, UI Labels, Workflows, Terminology).
 
 **Maintain a delta log** as you verify:
 
-| Feature / UI Surface | Plan described                | Code has                      | Delta                                                 |
-|----------------------|-------------------------------|-------------------------------|-------------------------------------------------------|
-| ...                  | ...                           | ...                           | Added / Removed / Renamed / Changed / Not implemented |
+| Feature / UI Surface | Plan described | Code has | Delta                                                 |
+|----------------------|----------------|----------|-------------------------------------------------------|
+| ...                  | ...            | ...      | Added / Removed / Renamed / Changed / Not implemented |
 
 Record every deviation. These deltas are the difference between documenting what was planned and documenting
 what users will actually experience.
