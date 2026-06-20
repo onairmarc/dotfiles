@@ -190,7 +190,7 @@ dotfiles_update() {
   dotfiles
   echo -e "${COL_GREEN}Updating dotfiles...${COL_RESET}"
   gpo
-  cd ~/Documents/GitHub/dotfiles-private
+  cd "${DF_PRIVATE_DIRECTORY:-$HOME/Documents/GitHub/dotfiles-private}"
   echo -e "${COL_GREEN}Updating dotfiles-private${COL_RESET}"
   gpo
   cd "$current_dir"

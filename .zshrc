@@ -2,6 +2,8 @@
 : "${DF_ROOT_DIRECTORY:=$HOME/Documents/GitHub/dotfiles}"
 export DF_ROOT_DIRECTORY
 export DF_DATA_DIR="${DF_DATA_DIR:-$HOME/.df_data}"
+# DF_PRIVATE_DIRECTORY: env-var-with-fallback (matches agent_symlink.sh)
+export DF_PRIVATE_DIRECTORY="${DF_PRIVATE_DIRECTORY:-$HOME/Documents/GitHub/dotfiles-private}"
 
 if [ -n "$ZSH_VERSION" ]; then
   # OMZ prelude — must run *before* antidote loads ohmyzsh/ohmyzsh because OMZ reads these
@@ -26,8 +28,8 @@ else
 fi
 
 # Conditionally load private dotfiles
-[ -f "$HOME/Documents/GitHub/dotfiles-private/entrypoint.sh" ] && \
-  source "$HOME/Documents/GitHub/dotfiles-private/entrypoint.sh"
+[ -f "$DF_PRIVATE_DIRECTORY/entrypoint.sh" ] && \
+  source "$DF_PRIVATE_DIRECTORY/entrypoint.sh"
 
 # Added by CodeRabbit CLI installer
 export PATH="/Users/marcbeinder/.local/bin:$PATH"
