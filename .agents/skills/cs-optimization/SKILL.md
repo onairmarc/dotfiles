@@ -1,17 +1,17 @@
 ---
 name: cs-optimization
-description: Audits a C# application or project path for performance issues (sync I/O on calling thread, LINQ inefficiency, excessive allocations, missing cancellation, improper async/await, memory leaks, inefficient collections, blocking thread pool), then delegates to the feature-planning skill to produce a self-contained, phased, agent-ready optimization plan. Does NOT execute optimizations. A single failing test in the plan's Phase 0 baseline gate is a hard stop.
+description: Audits a C# application or project path for performance issues — both syntactic (sync I/O on calling thread, LINQ inefficiency, excessive allocations, missing cancellation, improper async/await, memory leaks, inefficient collections, blocking thread pool) and semantic/data-flow (per-row DB commits, per-call DbContext/options rebuild, missing keyed indexes, DbContext-pooling and transaction-retry hazards, idempotent re-syncs lacking skip-if-clean, double broadcasts, unbounded fan-out) discovered by tracing hot paths through their callees, base classes, DI registrations, and notification handlers — then delegates to the feature-planning skill to produce a self-contained, phased, agent-ready optimization plan. Does NOT execute optimizations. A single failing test in the plan's Phase 0 baseline gate is a hard stop.
 disable-model-invocation: true
 argument-hint: "<project-path> [additional context]"
 allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash(test -f *)
-  - Bash(find * -name "*.cs" -type f)
-  - Bash(cat *)
-  - Skill(feature-planning)
-  - AskUserQuestion
+    - Read
+    - Grep
+    - Glob
+    - Bash(test -f *)
+    - Bash(find * -name "*.cs" -type f)
+    - Bash(cat *)
+    - Skill(feature-planning)
+    - AskUserQuestion
 model: opus
 ---
 
@@ -94,6 +94,47 @@ Record each finding as:
 - **File path** (exact, relative to repo root)
 - **Line range**
 - **One-sentence description of the specific problem**
+
+> **Audit method — trace the call graph, do not just grep.** The grep tables in Step 2b catch *syntactic* anti-patterns.
+> The highest-value findings — per-row DB commits, redundant broadcasts, missing indexes, DbContext-pooling and
+> transaction-retry hazards — are *semantic*: they only appear when you follow a hot path through its callees. For every
+> entry point that runs often (hosted/background services and their timer ticks, SignalR hub methods, controller actions,
+> MediatR/`INotificationHandler` handlers, and any `foreach`/`for` that runs per-item or per-row), **read the full call
+> chain**, not just the entry file: the method body, the repository/service it delegates to, **that repository's base
+> class** (e.g. a shared `ExecuteWithFallbackAsync`/context-acquisition helper), the **DI registration** of every
+> dependency it touches, and any **handler subscribed to what it publishes**. Confirm every finding against the *current*
+> code — line numbers drift and a prior audit's citations may be stale. Record hits from BOTH the semantic categories
+> (Step 2a) and the syntactic tables (Step 2b).
+
+## Step 2a — Semantic / data-flow patterns (require reading callees; greps miss these)
+
+### Persistence & EF Core semantics
+
+| Problem                                            | How to detect (read the call chain)                                                                                                                                                                                                                                                                                                                          |
+|----------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Per-call `DbContext` + per-call options rebuild    | A provider/factory method doing `new DbContextOptionsBuilder<…>().UseX(...).Options` + `new TContext(options)` on **every** call. Options are constant — detect server version once, build options once, hand out **pooled** contexts (`IDbContextFactory`/`AddDbContextPool`).                                                                              |
+| Per-row `SaveChanges` (missing unit-of-work batch) | A repository write method that opens its own context and `SaveChanges` per call, invoked inside a `foreach`/sweep (trace loop → service → repo → base helper). Batch to **one context + one `SaveChanges` per logical group**, preserving the loop's existing per-iteration `try/catch` isolation boundary.                                                  |
+| `Migrate()` / schema ops on a **pooled** context   | A startup path resolving the context (`GetRequiredService<TContext>()`) and calling `Database.Migrate()`. If that registration is (or becomes) `AddDbContextPool`, migration must run on a **non-pooled / factory-owned** context — `Migrate()` must not run on a pooled instance.                                                                           |
+| Retry strategy + user-initiated transaction        | `EnableRetryOnFailure(...)` in options **and** any `Database.BeginTransaction[Async]` not wrapped in `CreateExecutionStrategy().ExecuteAsync(...)`. Read the transaction helper: if it already wraps, the retry is safe (note it); if a repo calls `BeginTransaction` raw, flag it (`MySqlRetryingExecutionStrategy` throws on user-initiated transactions). |
+| Captive/leaked scope under pooling                 | Moving a scoped `AddDbContext` to `AddDbContextPool` while a consumer mutates/holds the context across more than one logical operation, or a singleton captures it. Verify each scoped consumer does a single operation per request before pooling its path.                                                                                                 |
+| O(N) scan where a keyed index belongs              | A lookup-by-id that `FirstOrDefault`/linear-scans a collection (or scans **every entry** of a large cache) per call on a hot path. Add a `Dictionary`/`ConcurrentDictionary` side-index keyed by the lookup id, maintained on load/mutate/evict; reuse it for **every** method doing that lookup (read **and** write).                                       |
+| Double-scan lookup (`FirstOrDefault` + `IndexOf`)  | A method that finds an element with `FirstOrDefault(p)` then `IndexOf(result)` — two O(N) passes plus a latent `IndexOf(null)` bug. Use one indexed loop or the keyed index above.                                                                                                                                                                           |
+| `Task<T>` for a synchronously-completing hot path  | A hundreds-per-second method returning `Task<T>` that actually completes synchronously (e.g. wraps a pooled factory's sync `CreateDbContext()`). Return `ValueTask<T>` to drop one `Task` allocation per call; all `await` call sites stay source-compatible.                                                                                                |
+| Dead disposal plumbing                             | A type still implementing `IDisposable`/`IAsyncDisposable` (and `await Task.CompletedTask` no-ops) only to release state that a refactor removed. Drop the disposal surface so it does not imply ownership it no longer has.                                                                                                                                 |
+
+### Redundant work & idempotency (sweeps, fan-out, notifications)
+
+| Problem                                           | How to detect (read the call chain)                                                                                                                                                                                                                                                                                                                                                           |
+|---------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| No skip-if-clean on an idempotent re-sync         | A periodic sweep that unconditionally writes + notifies for **every** item **every** tick even when the source is unchanged (e.g. `existing with { …, LastModified = now }` → update → broadcast, with no equality check). Compare against current state and **skip unchanged rows** so a no-change tick does zero writes and zero broadcasts. This is usually higher-leverage than batching. |
+| Double broadcast / double cache-write via handler | A write path that broadcasts directly **and** publishes a notification whose `INotificationHandler`/MediatR handler broadcasts (or re-writes cache) for the **same** change. Trace the `Publish(...)` → handler. Emit once; drop the redundant publish (after confirming no other handler needs it).                                                                                          |
+| Recurring full re-sync without a change watermark | A poll that re-walks the **entire** source every tick with no `since`/version/hash gate (often paired with the per-row writes above). Add a change-gate (hash or source version) so an unchanged source skips its I/O + sweep entirely.                                                                                                                                                       |
+| Unbounded parallel fan-out                        | `Task.WhenAll(items.Select(async …))` over an unbounded set doing SOAP/HTTP + DB writes + broadcasts concurrently. Cap with `Parallel.ForEachAsync` + `MaxDegreeOfParallelism`; add a per-call timeout; add ±jitter if it is a timer so co-deployed instances do not beat in lockstep.                                                                                                        |
+| Serial per-row await fan-out                      | A loop doing `await NotifyAsync(...)`/`await broadcaster.…(...)` per item, serializing N round-trips. Batch into one notification, or fan out without serial awaits.                                                                                                                                                                                                                          |
+| Per-row secondary writes outside the batch        | New-row side-writes (mapping/audit/link rows) each opening their **own** context + `SaveChanges` inside the row loop. Fold them into the **same** unit of work as the primary batch (one `SaveChanges` flushes both).                                                                                                                                                                         |
+| Self-signalling drain loop with no delay          | A background drainer that re-signals itself immediately after a full batch, spinning a thread until drained. Cap batches per wake and add a small inter-batch delay; let the periodic failsafe carry the remainder.                                                                                                                                                                           |
+
+## Step 2b — Syntactic / grep-detectable patterns
 
 ### Async and threading patterns
 
@@ -199,6 +240,8 @@ Test root:       {TEST_ROOT}
 Caller context:  {EXTRA_CONTEXT | "(none)"}
 
 Issues found: N total
+  Persistence/EF Core: N
+  Redundant work:      N
   Async/Threading:     N
   Memory allocation:   N
   LINQ/Collections:    N
@@ -209,6 +252,13 @@ Issues found: N total
   DI & Lifetimes:      N
 
 ### Issues
+
+**Persistence & EF Core**  *(semantic)*
+- `ClassName::Method()` at `path/File.cs:10-25` — description
+[...]
+
+**Redundant work & idempotency**  *(semantic)*
+[...]
 
 **Async / Threading**
 - `ClassName::Method()` at `path/File.cs:10-25` — description
@@ -299,6 +349,21 @@ description passed to feature-planning (feed it programmatically — do not ask 
       > found a hot-path allocation in a profiler-confirmed bottleneck.
 > 17. Never recommend partial model selects or projection-only queries as a blanket optimization — only flag if the
       > projected result is the only consumer and the full model is provably unused.
+> 18. Per-row `SaveChanges` inside a loop → batch to one context + one `SaveChanges` per logical group, preserving the
+      > loop's existing per-iteration `try/catch` isolation boundary. No exceptions.
+> 19. `Database.Migrate()` / schema operations must never run on a pooled (`AddDbContextPool`) context → resolve a
+      > factory-owned / non-pooled context for the migration path. No exceptions.
+> 20. Idempotent re-syncs must skip-if-clean → no DB write and no broadcast when the source row is unchanged from the
+      > current state. No exceptions.
+> 21. A single change persists/broadcasts **once** → if a direct write already broadcasts, do not also publish a
+      > notification whose handler re-broadcasts the same change. The plan step must name both the write call and the
+      > handler, and confirm no other subscriber needs the notification.
+> 22. Before preserving `EnableRetryOnFailure`, verify every user-initiated `BeginTransaction[Async]` is wrapped in
+      > `CreateExecutionStrategy().ExecuteAsync(...)`; never pair a retrying execution strategy with a raw `BeginTransaction`.
+> 23. Unbounded `Task.WhenAll(items.Select(async …))` over I/O or DB work → cap with `Parallel.ForEachAsync` +
+      > `MaxDegreeOfParallelism`, add a per-call timeout, and add ±jitter to any fixed timer interval. No exceptions.
+> 24. A synchronously-completing hot-path method returning `Task<T>` → return `ValueTask<T>` only when the call sites
+      > await-once and do not store the result; do not introduce `ValueTask` where a result is awaited multiple times.
 >
 > **Out of scope:** New infrastructure dependencies, database schema changes, files outside `{PROJECT_PATH}`.
 >
