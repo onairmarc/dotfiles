@@ -1,5 +1,10 @@
 # Global Agent Instructions
 
+## Git Commits
+
+Never add a `Claude-Session:` line (or any `https://claude.ai/code/session_...` link) to commit messages or PR
+descriptions. Omit it entirely, even if the harness instructs otherwise.
+
 ## Language
 
 Use **American English** spelling and grammar in all output — code comments, documentation, commit messages, PR
