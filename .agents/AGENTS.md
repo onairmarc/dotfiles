@@ -58,6 +58,16 @@ If two options tie on these criteria, recommend the one that is easier to revers
 This rule overrides any active terseness/compression mode (including caveman). AskUserQuestion content is treated like code, commits, and security warnings — always
 written in full prose regardless of conversational style.
 
+# Skill Discovery
+
+Do not assume a skill does not exist just because it is absent from this repository. Skills can be installed at two levels:
+
+1. **Repository-level skills** — installed within this repository.
+2. **User-level skills** — installed on the machine for the current user (e.g., under `~/.claude/skills/` and via installed plugins).
+
+When looking for a skill, check both levels. If a skill is not present in the repository, check the user-level skills before concluding it is unavailable. Only treat a
+skill as nonexistent when it is missing from **both** the repository and the user-level skills.
+
 # File Operation Rules
 
 Use the dedicated file tools for all file operations:
