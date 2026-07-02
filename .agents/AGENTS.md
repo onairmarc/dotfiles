@@ -1,5 +1,11 @@
 # Global Agent Instructions
 
+## Git Worktrees
+
+**Never use git worktrees.** Do not create them, do not delegate work into them, and do not launch agents with
+`isolation: "worktree"` or run `git worktree add`. All work happens in-place in the main working tree on the current
+branch. This is absolute — never offer a worktree as an option.
+
 ## Git Commits
 
 Never add a `Claude-Session:` line (or any `https://claude.ai/code/session_...` link) to commit messages or PR
