@@ -29,6 +29,10 @@ Examples of correct spellings:
 - program (not programme)
 - labeled (not labelled)
 
+# Never Guess About Functionality
+
+Before making any edit, fully trace the callstack around the code you are changing — every caller, callee, event listener, observer, and consumer that the change touches — so you have a complete understanding of the impact before you write the edit. Do not rely on assumptions about how a method, property, or class behaves; read the actual code paths and confirm.
+
 # Tests and Static Analysis
 
 Fix all failing tests and static analysis errors encountered during a task — regardless of whether they were pre-existing or introduced by your changes. CI blocks on
