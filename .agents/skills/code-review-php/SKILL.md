@@ -1,40 +1,39 @@
 ---
-name: php-code-review
-description: PHP/Laravel code review extending the base code-review skill. Checks for breaking changes, code quality, test coverage, and Laravel patterns. Outputs AI agent prompts by default; use `--full` for a complete actionable report with per-file grouping, two severity tiers, and inline diffs.
-argument-hint: "[--full]"
-disable-model-invocation: true
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash(git branch --show-current)
-  - Bash(git rev-parse --git-dir)
-  - Bash(git diff --name-only *)
-  - Bash(git diff origin/main...HEAD *)
-  - Bash(git diff *)
-  - Bash(git log *)
-  - Bash(test -f *)
-  - Bash(vendor/bin/phpstan *)
-  - Bash(application/vendor/bin/phpstan *)
-  - Bash(vendor/bin/pest *)
-  - Bash(application/vendor/bin/pest *)
-  - Bash(vendor/bin/phpunit *)
-  - Bash(application/vendor/bin/phpunit *)
-model: sonnet
----
+             name: php-code-review
+             description: PHP/Laravel code review extending the base code-review skill. Checks for breaking changes, code quality, test coverage, and Laravel patterns. Outputs AI agent prompts by default; use `--full` for a complete actionable report with per-file grouping, two severity tiers, and inline diffs.
+             argument-hint: "[--full]"
+             disable-model-invocation: true
+             allowed-tools:
+                 - Read
+                 - Grep
+                 - Glob
+                 - Bash(git branch --show-current)
+                 - Bash(git rev-parse --git-dir)
+                 - Bash(git diff --name-only *)
+                 - Bash(git diff origin/main...HEAD *)
+                 - Bash(git diff *)
+                 - Bash(git log *)
+                 - Bash(test -f *)
+                 - Bash(vendor/bin/phpstan *)
+                 - Bash(application/vendor/bin/phpstan *)
+                 - Bash(vendor/bin/pest *)
+                 - Bash(application/vendor/bin/pest *)
+                 - Bash(vendor/bin/phpunit *)
+                 - Bash(application/vendor/bin/phpunit *)
+             model: opus
 
-# PHP Code Review (extends code-review)
+             # PHP Code Review (extends code-review)
 
-This skill extends the base `code-review` skill with PHP/Laravel-specific rules.
+                 This skill extends the base `code-review` skill with PHP/Laravel-specific rules.
 
-**Before doing anything else**, read the base skill:
+    **Before doing anything else**, read the base skill:
 
-```
-~/.claude/skills/code-review/SKILL.md
-```
+                 ```
+                 ~/.claude/skills/code-review/SKILL.md
+                 ```
 
-Follow every step defined there, applying the overrides below in the matching steps. Where a section is
-marked **Extension point** in the base skill, replace it entirely with the PHP-specific version below.
+                 Follow every step defined there, applying the overrides below in the matching steps. Where a section is
+                 marked **Extension point** in the base skill, replace it entirely with the PHP-specific version below.
 
 ---
 
