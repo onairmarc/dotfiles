@@ -199,9 +199,11 @@ If user approved test execution, run only the test files for the changed PHP fil
 
 **IMPORTANT**: If both Pest and PHPUnit are available, use Pest.
 
+**Always run Pest in parallel** by passing the `--parallel` flag.
+
 ```bash
-# Preferred (Pest)
-vendor/bin/pest tests/Unit/Services/UserServiceTest.php tests/Feature/ProductControllerTest.php
+# Preferred (Pest — always parallel)
+vendor/bin/pest --parallel tests/Unit/Services/UserServiceTest.php tests/Feature/ProductControllerTest.php
 
 # Fallback (PHPUnit only if Pest unavailable)
 vendor/bin/phpunit tests/Unit/Services/UserServiceTest.php tests/Feature/ProductControllerTest.php
