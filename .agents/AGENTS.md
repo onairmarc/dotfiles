@@ -29,27 +29,40 @@ Examples of correct spellings:
 - program (not programme)
 - labeled (not labelled)
 
+# Markdown Formatting
+
+Wrap all Markdown file lines to roughly 165 characters. Break lines at natural boundaries — after a complete word or
+clause — so no line ends on a dangling opening bracket, backtick, or other stray punctuation such as `(` or `` ` ``.
+Keep inline code spans, links, and other paired constructs intact on a single line rather than splitting them across a
+line break.
+
 # Never Guess About Functionality
 
-Before making any edit, fully trace the callstack around the code you are changing — every caller, callee, event listener, observer, and consumer that the change touches — so you have a complete understanding of the impact before you write the edit. Do not rely on assumptions about how a method, property, or class behaves; read the actual code paths and confirm.
+Before making any edit, fully trace the callstack around the code you are changing — every caller, callee, event listener, observer,
+and consumer that the change touches — so you have a complete understanding of the impact before you write the edit. Do not rely on
+assumptions about how a method, property, or class behaves; read the actual code paths and confirm.
 
 # Tests and Static Analysis
 
-Fix all failing tests and static analysis errors encountered during a task — regardless of whether they were pre-existing or introduced by your changes. CI blocks on
-these failures either way. Never comment that a failure is "pre-existing" or blame prior work; take ownership and fix it.
+Fix all failing tests and static analysis errors encountered during a task — regardless of whether they were pre-existing or introduced
+by your changes. CI blocks on these failures either way. Never comment that a failure is "pre-existing" or blame prior work; take
+ownership and fix it.
 
-Never disable static analysis rules, suppress warnings, skip tests, or mark tests as pending to make CI pass. Always fix the underlying root cause.
+Never disable static analysis rules, suppress warnings, skip tests, or mark tests as pending to make CI pass. Always fix the underlying
+root cause.
 
 # AskUserQuestion Verbosity
 
-The `AskUserQuestion` tool must provide enough information for the user to make a fully informed decision without needing to ask follow-up questions.
+The `AskUserQuestion` tool must provide enough information for the user to make a fully informed decision without needing to ask
+follow-up questions.
 
-- **Question text**: state the full context — what is being decided, why it matters, and any constraint or tradeoff that affects the choice. A single clause is rarely
-  enough.
+- **Question text**: state the full context — what is being decided, why it matters, and any constraint or tradeoff that affects the
+  choice. A single clause is rarely enough.
 - **Option `label`**: short and distinct (the UI constraint).
-- **Option `description`**: complete prose. Explain what the option means, what will actually happen if chosen, the tradeoffs vs. the other options, and any side effects,
-  risks, or follow-on work it implies. Never leave the user guessing.
-- **Previews**: when options produce visibly different artifacts (UI layouts, code shapes, file structures), include a `preview` so the user can compare side-by-side.
+- **Option `description`**: complete prose. Explain what the option means, what will actually happen if chosen, the tradeoffs vs. the
+  other options, and any side effects, risks, or follow-on work it implies. Never leave the user guessing.
+- **Previews**: when options produce visibly different artifacts (UI layouts, code shapes, file structures), include a `preview` so the
+  user can compare side-by-side.
 
 ## Recommended option
 
@@ -64,14 +77,15 @@ Pick the recommendation by evaluating the candidates against these criteria, in 
 1. **Co-locality of behavior** — keeps related logic in one place rather than spreading it across files, layers, or services.
 2. **Code simplicity** — fewest moving parts, least indirection, smallest diff.
 3. **Maintainability** — easiest for a future engineer to read, modify, and delete.
-4. **Existing codebase conventions** — matches patterns already present in the repository (discovered via `AGENTS.md`, neighboring code, or recent commits).
-5. **Language/framework affordances** — leans on what the language, standard library, or framework provides natively, instead of introducing bespoke tooling,
-   abstractions, or configuration.
+4. **Existing codebase conventions** — matches patterns already present in the repository (discovered via `AGENTS.md`, neighboring code,
+   or recent commits).
+5. **Language/framework affordances** — leans on what the language, standard library, or framework provides natively, instead of
+   introducing bespoke tooling, abstractions, or configuration.
 
 If two options tie on these criteria, recommend the one that is easier to reverse. Never recommend an option you would not implement yourself.
 
-This rule overrides any active terseness/compression mode (including caveman). AskUserQuestion content is treated like code, commits, and security warnings — always
-written in full prose regardless of conversational style.
+This rule overrides any active terseness/compression mode (including caveman). AskUserQuestion content is treated like code, commits,
+and security warnings — always written in full prose regardless of conversational style.
 
 # Skill Discovery
 
@@ -80,8 +94,8 @@ Do not assume a skill does not exist just because it is absent from this reposit
 1. **Repository-level skills** — installed within this repository.
 2. **User-level skills** — installed on the machine for the current user (e.g., under `~/.claude/skills/` and via installed plugins).
 
-When looking for a skill, check both levels. If a skill is not present in the repository, check the user-level skills before concluding it is unavailable. Only treat a
-skill as nonexistent when it is missing from **both** the repository and the user-level skills.
+When looking for a skill, check both levels. If a skill is not present in the repository, check the user-level skills before concluding
+it is unavailable. Only treat a skill as nonexistent when it is missing from **both** the repository and the user-level skills.
 
 # File Operation Rules
 
@@ -93,5 +107,5 @@ Use the dedicated file tools for all file operations:
 - **Grep** / **Glob** for discovery only
 - **Bash `rm`** to delete files — always confirm with the user before deleting
 
-Never manipulate files via Bash (`echo >`, `cat <<EOF`, `sed -i`, `awk -i`, `tee`, redirection, etc.). Edit and Write are the only approved methods of file editing. `rm`
-is the only approved method of file deletion.
+Never manipulate files via Bash (`echo >`, `cat <<EOF`, `sed -i`, `awk -i`, `tee`, redirection, etc.). Edit and Write are the only
+approved methods of file editing. `rm` is the only approved method of file deletion.
