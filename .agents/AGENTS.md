@@ -42,6 +42,12 @@ Before making any edit, fully trace the callstack around the code you are changi
 and consumer that the change touches — so you have a complete understanding of the impact before you write the edit. Do not rely on
 assumptions about how a method, property, or class behaves; read the actual code paths and confirm.
 
+This rule applies equally to **research**, not only to edits. When asked to research, explore, or assess feasibility — even with an
+explicit "no edits" constraint — you must still fully trace every caller and callee of the code in question and read the actual
+implementations of every method, property, and type the analysis depends on. Do not offer conclusions or recommendations built on
+assumptions about what a named symbol does. Reading a single file plus a grep is not sufficient research; trace the call graph first,
+then report.
+
 # Tests and Static Analysis
 
 Fix all failing tests and static analysis errors encountered during a task — regardless of whether they were pre-existing or introduced
