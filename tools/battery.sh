@@ -13,6 +13,7 @@
 #   battery adapter    Wattage, model, serial, connected/delivering state
 #   battery time       Time-to-full when charging, time-to-empty when discharging
 #   battery temp       Battery temperature in °C
+#   battery power      Current flow, adapter vs. system-draw budget, CPU load
 #   battery why        Why is it not charging while plugged in?
 #   battery raw        Full ioreg -rn AppleSmartBattery dump
 #   battery json       All values as one JSON object
@@ -200,6 +201,50 @@ _temp_c() {
     printf "%.1f\n", r / 100.0
   }'
 }
+
+# Battery current in mA, sign-corrected. ioreg reports Amperage/InstantAmperage
+# as unsigned 64-bit; a discharging battery shows up as a huge number that is
+# really a two's-complement negative (e.g. 18446744073709551328 == -288). bash
+# arithmetic is 64-bit signed, so $(( raw )) wraps it back to true signed mA.
+# Positive = charging into the battery, negative = discharging. Prefer the
+# time-averaged Amperage; fall back to the noisier InstantAmperage.
+# NOTE: relies on bash's 64-bit signed $(( )); zsh truncates and would break it.
+_amperage_ma() {
+  local raw
+  raw="$(_ioreg_field Amperage)"
+  [[ "$raw" =~ ^-?[0-9]+$ ]] || raw="$(_ioreg_field InstantAmperage)"
+  [[ "$raw" =~ ^-?[0-9]+$ ]] || { echo ""; return; }
+  printf '%s\n' "$(( raw ))"
+}
+
+# Signed battery power in W: positive = charging, negative = discharging.
+_battery_watts() {
+  local ma mv
+  ma="$(_amperage_ma)"; mv="$(_ioreg_field Voltage)"
+  [[ -n "$ma" && "$mv" =~ ^[0-9]+$ ]] || { echo ""; return; }
+  awk -v a="$ma" -v v="$mv" 'BEGIN { printf "%.1f\n", (a/1000.0)*(v/1000.0) }'
+}
+
+# True if the battery is actually gaining charge (net positive current), regardless
+# of what IsCharging/pmset claim. Returns 2 when current is unreadable.
+_net_charging() {
+  local ma; ma="$(_amperage_ma)"
+  [[ -n "$ma" ]] || return 2
+  (( ma > 0 ))
+}
+
+# Rough system power draw in W. When plugged: whatever the adapter outputs minus
+# what flows into the battery (or plus what flows out of it). bw>0 charging ->
+# system = adapter - bw; bw<0 discharging -> the -bw adds back, same formula.
+_system_watts() {
+  local aw bw
+  aw="$(_adapter_watts)"; bw="$(_battery_watts)"
+  [[ "$aw" =~ ^[0-9]+$ && "$aw" != 0 && -n "$bw" ]] || { echo ""; return; }
+  awk -v a="$aw" -v b="$bw" 'BEGIN { printf "%.1f\n", a - b }'
+}
+
+_loadavg() { sysctl -n vm.loadavg 2>/dev/null | awk '{ print $2 }'; }  # 1-min avg
+_ncpu()    { sysctl -n hw.ncpu 2>/dev/null; }
 
 _cycles()      { _ioreg_field CycleCount; }
 _max_cap()     { _ioreg_field MaxCapacity; }
@@ -402,23 +447,78 @@ cmd_temp() {
   printf '%s°C\n' "$t"
 }
 
+# power — current flow, adapter vs. system-draw budget, and CPU load. Catches the
+# "plugged in but percentage stuck" case that NotChargingReason can't explain:
+# system draw simply exceeds what the adapter delivers, so the battery drains.
+cmd_power() {
+  local ma bw aw sw load ncpu conn
+  ma="$(_amperage_ma)"
+  bw="$(_battery_watts)"
+  aw="$(_adapter_watts)"
+  sw="$(_system_watts)"
+  load="$(_loadavg)"
+  ncpu="$(_ncpu)"
+  conn="no"; _external_connected && conn="yes"
+
+  local flow="unknown"
+  if [[ -n "$ma" ]]; then
+    if   (( ma > 0 )); then flow="${C_GREEN}charging (+${ma} mA)${C_RESET}"
+    elif (( ma < 0 )); then flow="${C_YELLOW}discharging (${ma} mA)${C_RESET}"
+    else                    flow="idle (0 mA)"
+    fi
+  fi
+
+  printf 'plugged in:     %s\n' "$conn"
+  printf 'current flow:   %s\n' "$flow"
+  printf 'battery power:  %s\n' "${bw:+${bw}W}"
+  printf 'adapter rating: %s\n' "${aw:+${aw}W}"
+  printf 'system draw:    %s%s\n' "${sw:+${sw}W}" "${sw:+ (est.)}"
+  printf 'load average:   %s / %s cores\n' "${load:-?}" "${ncpu:-?}"
+
+  # Verdict for the exact "plugged but not gaining" case.
+  if [[ "$conn" == "yes" && -n "$ma" ]] && (( ma <= 0 )) && ! _fully_charged; then
+    printf '\n%sVerdict:%s plugged in but %snot gaining charge%s.\n' \
+      "$C_BOLD" "$C_RESET" "$C_RED" "$C_RESET"
+    if [[ -n "$sw" && "$aw" =~ ^[0-9]+$ && "$aw" != 0 ]] \
+       && awk -v s="$sw" -v a="$aw" 'BEGIN { exit !(s > a) }'; then
+      printf '  System draw (~%sW) exceeds adapter rating (%sW) — battery covers the gap.\n' "$sw" "$aw"
+    fi
+    if [[ -n "$load" && "$ncpu" =~ ^[0-9]+$ ]] \
+       && awk -v l="$load" -v n="$ncpu" 'BEGIN { exit !(l > n * 0.75) }'; then
+      printf '  High CPU load (%s on %s cores). Quit heavy apps or use a higher-wattage adapter.\n' "$load" "$ncpu"
+    fi
+  fi
+}
+
 cmd_why() {
-  local connected charging full code reason optimized
+  local connected charging full code reason optimized ma
   connected="no"; _external_connected && connected="yes"
   charging="no";  _is_charging && charging="yes"
   full="no";      _fully_charged && full="yes"
   code="$(_not_charging_reason)"
   reason="$(_not_charging_reason_human "${code:-0}")"
   optimized="$(_optimized_state)"
+  ma="$(_amperage_ma)"
 
   printf 'plugged in:           %s\n' "$connected"
   printf 'charging:             %s\n' "$charging"
   printf 'fully charged:        %s\n' "$full"
+  printf 'net current:          %s\n' "${ma:+${ma} mA}"
   printf 'NotChargingReason:    %s (%s)\n' "${code:-0}" "$reason"
   printf 'Optimized Charging:   %s\n' "$optimized"
 
   if [[ "$connected" == "yes" && "$charging" == "no" && "$full" == "no" ]]; then
-    printf '\n%sWhy not charging:%s %s\n' "$C_BOLD" "$C_RESET" "$reason"
+    # Hardware isn't blocking charge (reason "none") yet the battery isn't gaining:
+    # almost always a power-budget shortfall, not a fault. Point at `power`.
+    if [[ "$reason" == "none" && -n "$ma" ]] && (( ma <= 0 )); then
+      local verb; (( ma < 0 )) && verb="draining" || verb="flat"
+      printf '\n%sWhy not charging:%s nothing is blocking charge, but the battery is net %s%s%s.\n' \
+        "$C_BOLD" "$C_RESET" "$C_RED" "$verb" "$C_RESET"
+      printf '  System load likely exceeds adapter output. Run %s'\''%s power'\''%s for the breakdown.\n' \
+        "$C_DIM" "$PROG" "$C_RESET"
+    else
+      printf '\n%sWhy not charging:%s %s\n' "$C_BOLD" "$C_RESET" "$reason"
+    fi
     case "$(_arch)" in
       arm64) printf '%sTip:%s On Apple Silicon, an SMC reset is done by shutting down and holding power 10s.\n' "$C_DIM" "$C_RESET" ;;
       x86_64) printf '%sTip:%s On Intel Macs, reset SMC via Shift+Ctrl+Option+Power for 10s (T2) or per-model steps.\n' "$C_DIM" "$C_RESET" ;;
@@ -447,6 +547,13 @@ cmd_json() {
 
   local pct cyc h m d temp w cap_ext is_ch ext_conn full code reason opt
   local a_name a_model a_serial a_mfg t state arch
+  local amp bw sw net load ncpu
+  amp="$(_amperage_ma)";   amp="${amp:-null}"
+  bw="$(_battery_watts)";  bw="${bw:-null}"
+  sw="$(_system_watts)";   sw="${sw:-null}"
+  net="false"; _net_charging && net="true"
+  load="$(_loadavg)";      load="${load:-null}"
+  ncpu="$(_ncpu)";         ncpu="${ncpu:-null}"
   pct="$(_percent)"
   cyc="$(_cycles)"; cyc="${cyc:-null}"
   h="$(_health_pct)"
@@ -476,6 +583,12 @@ cmd_json() {
   printf '"external_connected":%s,' "$ext_conn"
   printf '"fully_charged":%s,' "$full"
   printf '"time_remaining":%s,' "$(_json_str "$t")"
+  printf '"amperage_ma":%s,' "$amp"
+  printf '"battery_watts":%s,' "$bw"
+  printf '"system_watts":%s,' "$sw"
+  printf '"net_charging":%s,' "$net"
+  printf '"load_average":%s,' "$load"
+  printf '"cpu_count":%s,' "$ncpu"
   printf '"temperature_c":%s,' "${temp:-null}"
   printf '"cycles":%s,' "$cyc"
   printf '"health_percent":%s,' "${h:-null}"
@@ -526,6 +639,7 @@ Subcommands:
   adapter        Adapter wattage, model, serial, connected/delivering state
   time           Time-to-full or time-to-empty (calculating when unknown)
   temp           Battery temperature in °C
+  power          Current flow, adapter vs. system-draw budget, CPU load
   why            Why isn't it charging while plugged in?
   raw            Full ioreg -rn AppleSmartBattery dump
   json           Emit all values as a single JSON object
@@ -559,6 +673,7 @@ main() {
     adapter)          cmd_adapter ;;
     time)             cmd_time ;;
     temp)             cmd_temp ;;
+    power)            cmd_power ;;
     why)              cmd_why ;;
     raw)              cmd_raw ;;
     json)             cmd_json ;;
