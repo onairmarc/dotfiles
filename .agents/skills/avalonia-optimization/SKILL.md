@@ -1,19 +1,18 @@
 ---
 name: avalonia-optimization
 description: Audits an Avalonia C# application or project path for performance issues (UI thread blocking, excessive bindings, missing virtualization, memory leaks via event handlers, sync I/O on UI thread, inefficient rendering), then delegates to the feature-planning skill to produce a self-contained, phased, agent-ready optimization plan. Does NOT execute optimizations. A single failing test in the plan's Phase 0 baseline gate is a hard stop.
-disable-model-invocation: true
 argument-hint: "<project-path> [additional context]"
 allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash(test -f *)
-  - Bash(find * -name "*.cs" -type f)
-  - Bash(find * -name "*.axaml" -type f)
-  - Bash(cat *)
-  - Skill(feature-planning)
-  - Skill(cs-optimization)
-  - AskUserQuestion
+    - Read
+    - Grep
+    - Glob
+    - Bash(test -f *)
+    - Bash(find * -name "*.cs" -type f)
+    - Bash(find * -name "*.axaml" -type f)
+    - Bash(cat *)
+    - Skill(feature-planning)
+    - Skill(cs-optimization)
+    - AskUserQuestion
 model: opus
 ---
 
