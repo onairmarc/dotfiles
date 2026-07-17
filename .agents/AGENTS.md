@@ -105,13 +105,6 @@ it is unavailable. Only treat a skill as nonexistent when it is missing from **b
 
 # File Operation Rules
 
-Use the dedicated file tools for all file operations:
-
-- **Read** to read files
-- **Edit** to modify existing files
-- **Write** to create new files
-- **Grep** / **Glob** for discovery only
-- **Bash `rm`** to delete files — always confirm with the user before deleting
-
-Never manipulate files via Bash (`echo >`, `cat <<EOF`, `sed -i`, `awk -i`, `tee`, redirection, etc.). Edit and Write are the only
-approved methods of file editing. `rm` is the only approved method of file deletion.
+File operation rules — including which tools to use, the ban on manipulating files via Bash, and when to delete a file — live in the
+`file-operations` skill: [`.agents/skills/file-operations/SKILL.md`](skills/file-operations/SKILL.md). Read that file before performing
+any file operation.
