@@ -1,19 +1,18 @@
 ---
 name: plan-review
 description: Analyze an implementation plan file for ambiguity, contradictions, or missing information, then interactively fill gaps and write the enriched plan back to disk. Invoke when asked to review, improve, or stress-test an implementation plan before handing it to an agent.
-disable-model-invocation: true
 argument-hint: [ path to the plan file ]
 allowed-tools:
-  - Read
-  - Edit
-  - Write
-  - AskUserQuestion
-  - Glob
-  - Grep
-  - Agent
-  - Bash(test -f *)
-  - Bash(cat *)
-  - Bash(find * -name "*.csproj" -type f)
+    - Read
+    - Edit
+    - Write
+    - AskUserQuestion
+    - Glob
+    - Grep
+    - Agent
+    - Bash(test -f *)
+    - Bash(cat *)
+    - Bash(find * -name "*.csproj" -type f)
 model: opus
 ---
 

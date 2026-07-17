@@ -1,16 +1,15 @@
 ---
 name: plan-execute
 description: Agent orchestrator that executes all sub-plans produced by plan-split. Reads the dependency graph from sub-plan files, then spawns one coding sub-agent at a time in dependency-respecting order until all sub-plans are done. Sequential execution only — never runs sub-agents concurrently. Invoke when asked to execute, run, or implement a set of split plans.
-disable-model-invocation: true
 argument-hint: [ path to directory containing sub-plan files ]
 allowed-tools:
-  - Read
-  - Write
-  - Bash(ls *)
-  - Bash(find *)
-  - Bash(grep *)
-  - Agent
-  - AskUserQuestion
+    - Read
+    - Write
+    - Bash(ls *)
+    - Bash(find *)
+    - Bash(grep *)
+    - Agent
+    - AskUserQuestion
 model: haiku
 ---
 
