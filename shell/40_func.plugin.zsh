@@ -56,6 +56,8 @@ brew_uninstall() {
 build() {
     if [ -f "build.sh" ]; then
         bash build.sh "$@"
+    elif [ -f "composer.json" ] && jq -e '.scripts.build' composer.json > /dev/null 2>&1; then
+        composer run-script build "$@"
     elif [ -f "package.json" ]; then
         npm run build
     elif [ -f "main.go" ]; then
