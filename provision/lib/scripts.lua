@@ -10,8 +10,26 @@
 -- Additional optional fields:
 --   args     string   Extra arguments appended to pipe_to (e.g. "-- --no-modify-path")
 --   env      table    Environment variable overrides passed as KEY=VALUE prefixes.
+--   post     string   Shell command run after the primary install succeeds (e.g. cleanup).
 
 local M = {}
+
+local function shell_failed(ok)
+  if type(ok) == "boolean" then
+    return not ok
+  end
+  return ok ~= 0
+end
+
+local function run_post(entry)
+  if not entry.post or entry.post == "" then
+    return
+  end
+  local ok = os.execute(entry.post)
+  if shell_failed(ok) then
+    error("script post-step failed: " .. entry.post)
+  end
+end
 
 --- Run a script entry.
 -- Raises an error if the command exits non-zero.
@@ -46,13 +64,11 @@ function M.run(entry)
     )
 
     local ok = os.execute(cmd)
-    if type(ok) == "boolean" then
-      if not ok then
-        error("script failed (curl|" .. entry.pipe_to .. "): " .. entry.url)
-      end
-    elseif ok ~= 0 then
+    if shell_failed(ok) then
       error("script failed (curl|" .. entry.pipe_to .. "): " .. entry.url)
     end
+
+    run_post(entry)
 
   else
     error("scripts.run: unsupported kind: " .. tostring(entry.kind))

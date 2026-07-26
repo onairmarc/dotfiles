@@ -210,6 +210,23 @@ return {
                 url = "https://get.anchore.io/syft",
                 pipe_to = "sudo sh -s -- -b /usr/local/bin" }
         },
+
+        -- Grok CLI (xAI). SHELL is cleared so the installer does not rewrite
+        -- ~/.zshrc / ~/.bashrc; PATH and completions live in shell/92_grok.plugin.zsh.
+        -- post: remove any .zshrc.bak.<epoch> / .bashrc.bak.<epoch> the installer
+        -- leaves next to $HOME or the repo (install.sh symlinks rc files into DF_ROOT).
+        { name = "grok",
+            mac = { kind = "curl",
+                url = "https://x.ai/cli/install.sh",
+                pipe_to = "bash",
+                env = { SHELL = "" },
+                post = [[sh -c 'df="${DF_ROOT_DIRECTORY:-$HOME/Documents/GitHub/dotfiles}"; rm -f "$HOME"/.zshrc.bak.* "$HOME"/.bashrc.bak.* "$df"/.zshrc.bak.* "$df"/.bashrc.bak.*']] },
+            win = { kind = "curl",
+                url = "https://x.ai/cli/install.sh",
+                pipe_to = "bash",
+                env = { SHELL = "" },
+                post = [[sh -c 'df="${DF_ROOT_DIRECTORY:-$HOME/Documents/GitHub/dotfiles}"; rm -f "$HOME"/.zshrc.bak.* "$HOME"/.bashrc.bak.* "$df"/.zshrc.bak.* "$df"/.bashrc.bak.*']] }
+        },
     },
 
     ---------------------------------------------------------------------------
