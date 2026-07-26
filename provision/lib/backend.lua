@@ -31,11 +31,67 @@ local function shell_assert(cmd, errmsg)
   end
 end
 
+--- Extract a tap name from a tap-qualified package id.
+-- "hashicorp/tap/terraform" → "hashicorp/tap"; "gh" → nil.
+-- @param id string
+-- @return string|nil
+local function tap_from_id(id)
+  if not id or id == "" then
+    return nil
+  end
+  local user, repo = id:match("^([^/]+)/([^/]+)/")
+  if user and repo then
+    return user .. "/" .. repo
+  end
+  return nil
+end
+
+--- Trust a Homebrew tap (Homebrew 6+ tap-trust).
+-- Official taps are always trusted (brew prints a no-op message). Soft-fails
+-- on older Homebrew without `brew trust` so provision still works.
+-- @param tap string  e.g. "hashicorp/tap"
+local function trust_tap(tap)
+  if not tap or tap == "" then
+    return
+  end
+  shell_ok(string.format("brew trust --tap %q >/dev/null 2>&1", tap))
+end
+
+--- Ensure a tap is present and trusted before install.
+-- @param tap string
+local function ensure_tap(tap)
+  if not tap or tap == "" then
+    return
+  end
+  shell_assert(
+    string.format("brew tap %q", tap),
+    "brew tap failed: " .. tap
+  )
+  trust_tap(tap)
+end
+
 -------------------------------------------------------------------------------
 -- brew (Homebrew formula)
 -------------------------------------------------------------------------------
 
 local brew = {}
+
+--- Trust every installed third-party tap (Homebrew 6+).
+-- Official homebrew/* taps are skipped. Soft-fails if `brew trust` is missing.
+-- Call once at the start of the tools phase so already-tapped repos stop
+-- emitting "Skipping … because it is not trusted" during brew operations.
+function brew.trust_installed_taps()
+  -- Iterate taps via a single shell loop; avoid pulling each name into Lua.
+  shell_ok([[
+    brew tap 2>/dev/null | while IFS= read -r tap; do
+      [ -n "$tap" ] || continue
+      case "$tap" in
+        homebrew/*) continue ;;
+        *) brew trust --tap "$tap" >/dev/null 2>&1 || true ;;
+      esac
+    done
+  ]])
+end
 
 --- Check whether a Homebrew formula is installed.
 -- Queries `brew list --formula` and matches the exact package name.
@@ -60,16 +116,14 @@ function brew.is_installed(id, opts)
 end
 
 --- Install a Homebrew formula.
--- Taps `opts.tap` first when provided.
+-- Taps and trusts `opts.tap` (or the tap embedded in a qualified id) first.
 -- @param id   string
 -- @param opts table  { tap?: string }
 function brew.install(id, opts)
   opts = opts or {}
-  if opts.tap then
-    shell_assert(
-      string.format("brew tap %q", opts.tap),
-      "brew tap failed: " .. opts.tap
-    )
+  local tap = opts.tap or tap_from_id(id)
+  if tap then
+    ensure_tap(tap)
   end
   shell_assert(
     string.format("brew install %q", id),
@@ -106,16 +160,14 @@ function cask.is_installed(id, opts)
 end
 
 --- Install a Homebrew cask.
--- Taps `opts.tap` first when provided.
+-- Taps and trusts `opts.tap` (or the tap embedded in a qualified id) first.
 -- @param id   string
 -- @param opts table  { tap?: string, app?: string }
 function cask.install(id, opts)
   opts = opts or {}
-  if opts.tap then
-    shell_assert(
-      string.format("brew tap %q", opts.tap),
-      "brew tap failed: " .. opts.tap
-    )
+  local tap = opts.tap or tap_from_id(id)
+  if tap then
+    ensure_tap(tap)
   end
   shell_assert(
     string.format("brew install --cask %q", id),

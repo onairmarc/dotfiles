@@ -119,6 +119,15 @@ if RUN_TOOLS then
   -- Map canonical platform name to the manifest sub-table key.
   local plat_key = (platform.current() == "windows") and "win" or "mac"
 
+  -- Homebrew 6+ requires third-party taps to be explicitly trusted; otherwise
+  -- brew skips them with "Skipping … because it is not trusted". Trust every
+  -- already-installed third-party tap before any brew list/install work.
+  if plat_key == "mac" then
+    log.info("brew", "trusting third-party taps…")
+    backend.brew.trust_installed_taps()
+    log.ok("brew", "third-party taps trusted")
+  end
+
   local tools = manifest.tools or {}
   for _, entry in ipairs(tools) do
     -- Per-platform sub-table (e.g. entry.mac or entry.win).
