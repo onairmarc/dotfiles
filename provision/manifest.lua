@@ -13,6 +13,37 @@
 --
 -- Migration entries are plain module-path strings.
 
+-- Shared post-step for the Grok CLI installer: drop rc bak files and strip the
+-- `# >>> grok installer >>>` block from shell rc files. PATH/completions are
+-- owned by shell/92_grok.plugin.zsh, not the upstream installer.
+local grok_install_post = [[sh -c '
+df="${DF_ROOT_DIRECTORY:-$HOME/Documents/GitHub/dotfiles}"
+rm -f "$HOME"/.zshrc.bak.* "$HOME"/.bashrc.bak.* "$df"/.zshrc.bak.* "$df"/.bashrc.bak.*
+strip_grok_block() {
+  f="$1"
+  [ -e "$f" ] || [ -L "$f" ] || return 0
+  target="$f"
+  if [ -L "$f" ]; then
+    link=$(readlink "$f") || return 0
+    case "$link" in
+      /*) target="$link" ;;
+      *) target="$(cd "$(dirname "$f")" && pwd)/$link" ;;
+    esac
+  fi
+  [ -f "$target" ] || return 0
+  grep -qs "grok installer" "$target" || return 0
+  tmp="$target.tmp.$$"
+  awk "
+    /# >>> grok installer >>>/ { skip=1; next }
+    /# <<< grok installer <<</ { skip=0; next }
+    !skip { print }
+  " "$target" > "$tmp" && mv "$tmp" "$target"
+}
+strip_grok_block "$HOME/.zshrc"
+strip_grok_block "$HOME/.bashrc"
+strip_grok_block "$df/.zshrc"
+']]
+
 return {
 
     ---------------------------------------------------------------------------
@@ -211,21 +242,20 @@ return {
                 pipe_to = "sudo sh -s -- -b /usr/local/bin" }
         },
 
-        -- Grok CLI (xAI). SHELL is cleared so the installer does not rewrite
-        -- ~/.zshrc / ~/.bashrc; PATH and completions live in shell/92_grok.plugin.zsh.
-        -- post: remove any .zshrc.bak.<epoch> / .bashrc.bak.<epoch> the installer
-        -- leaves next to $HOME or the repo (install.sh symlinks rc files into DF_ROOT).
+        -- Grok CLI (xAI). SHELL is cleared on the installer process so it does not
+        -- rewrite ~/.zshrc / ~/.bashrc (PATH/completions live in shell/92_grok.plugin.zsh).
+        -- post: strip any installer block that still got written, and remove bak files.
         { name = "grok",
             mac = { kind = "curl",
                 url = "https://x.ai/cli/install.sh",
                 pipe_to = "bash",
                 env = { SHELL = "" },
-                post = [[sh -c 'df="${DF_ROOT_DIRECTORY:-$HOME/Documents/GitHub/dotfiles}"; rm -f "$HOME"/.zshrc.bak.* "$HOME"/.bashrc.bak.* "$df"/.zshrc.bak.* "$df"/.bashrc.bak.*']] },
+                post = grok_install_post },
             win = { kind = "curl",
                 url = "https://x.ai/cli/install.sh",
                 pipe_to = "bash",
                 env = { SHELL = "" },
-                post = [[sh -c 'df="${DF_ROOT_DIRECTORY:-$HOME/Documents/GitHub/dotfiles}"; rm -f "$HOME"/.zshrc.bak.* "$HOME"/.bashrc.bak.* "$df"/.zshrc.bak.* "$df"/.bashrc.bak.*']] }
+                post = grok_install_post }
         },
     },
 

@@ -9,7 +9,9 @@
 --
 -- Additional optional fields:
 --   args     string   Extra arguments appended to pipe_to (e.g. "-- --no-modify-path")
---   env      table    Environment variable overrides passed as KEY=VALUE prefixes.
+--   env      table    Environment variable overrides applied to pipe_to (the installer),
+--                     not to curl. Written as KEY=VALUE prefixes on the right side of
+--                     the pipe so the installer process actually receives them.
 --   post     string   Shell command run after the primary install succeeds (e.g. cleanup).
 
 local M = {}
@@ -41,7 +43,8 @@ function M.run(entry)
     assert(entry.url,     "scripts.run: curl entry must have a url field")
     assert(entry.pipe_to, "scripts.run: curl entry must have a pipe_to field")
 
-    -- Build optional env prefix (e.g. "FOO=bar BAZ=qux ")
+    -- Env must apply to pipe_to (the installer). Prefixing curl alone is a no-op for
+    -- the script: `VAR=x curl | bash` only sets VAR on curl, not bash.
     local env_prefix = ""
     if entry.env and type(entry.env) == "table" then
       for k, v in pairs(entry.env) do
@@ -56,9 +59,9 @@ function M.run(entry)
     end
 
     local cmd = string.format(
-      "%scurl -fsSL %q | %s%s",
-      env_prefix,
+      "curl -fsSL %q | %s%s%s",
       entry.url,
+      env_prefix,
       entry.pipe_to,
       trailing
     )
