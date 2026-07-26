@@ -100,6 +100,7 @@ local counts = {
   tools_skipped   = 0,
   tools_failed    = 0,
   scripts_run     = 0,
+  scripts_skipped = 0,
   scripts_failed  = 0,
   configs_run     = 0,
   configs_skipped = 0,
@@ -186,14 +187,20 @@ if RUN_SCRIPTS then
     local pentry = entry[plat_key_s]
     if pentry then
       local label = entry.name or pentry.url or pentry.kind or "unknown"
-      log.info(label, "running…")
-      local ok, err = pcall(scripts.run, pentry)
-      if not ok then
-        record_failure(label, tostring(err))
-        counts.scripts_failed = counts.scripts_failed + 1
+      local skip, skip_reason = scripts.should_skip(pentry)
+      if skip then
+        log.ok(label, "skipped — " .. (skip_reason or "condition met"))
+        counts.scripts_skipped = counts.scripts_skipped + 1
       else
-        log.ok(label, "done")
-        counts.scripts_run = counts.scripts_run + 1
+        log.info(label, "running…")
+        local ok, err = pcall(scripts.run, pentry)
+        if not ok then
+          record_failure(label, tostring(err))
+          counts.scripts_failed = counts.scripts_failed + 1
+        else
+          log.ok(label, "done")
+          counts.scripts_run = counts.scripts_run + 1
+        end
       end
     end
   end
@@ -274,8 +281,8 @@ io.write(string.format(
   counts.tools_installed, counts.tools_skipped, counts.tools_failed
 ))
 io.write(string.format(
-  "  Scripts    : %d run, %d failed\n",
-  counts.scripts_run, counts.scripts_failed
+  "  Scripts    : %d run, %d skipped, %d failed\n",
+  counts.scripts_run, counts.scripts_skipped, counts.scripts_failed
 ))
 io.write(string.format(
   "  Configurators: %d run, %d skipped, %d failed\n",

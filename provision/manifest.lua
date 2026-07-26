@@ -217,11 +217,14 @@ return {
 
         -- Oh My Zsh — non-interactive install (RUNZSH/CHSH/KEEP_ZSHRC flags
         -- prevent shell change, default-shell modification, and .zshrc overwrite).
-        -- The OMZ installer itself short-circuits if $HOME/.oh-my-zsh already exists.
+        -- When $ZSH is set (normal after first install / when sourcing .zshrc), the
+        -- upstream installer errors if that directory already exists — skip instead.
+        -- Without $ZSH, the installer short-circuits cleanly if ~/.oh-my-zsh exists.
         { name = "ohmyzsh",
             mac = { kind = "curl",
                 url = "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh",
-                pipe_to = "RUNZSH=no CHSH=no KEEP_ZSHRC=yes sh" }
+                pipe_to = "RUNZSH=no CHSH=no KEEP_ZSHRC=yes sh",
+                skip_if_env_set = "ZSH" }
         },
 
         -- OpenCode AI coding assistant (mac + win)

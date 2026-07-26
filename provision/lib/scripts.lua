@@ -8,11 +8,14 @@
 --   { kind = "curl", url = "https://...", pipe_to = "bash" }
 --
 -- Additional optional fields:
---   args     string   Extra arguments appended to pipe_to (e.g. "-- --no-modify-path")
---   env      table    Environment variable overrides applied to pipe_to (the installer),
---                     not to curl. Written as KEY=VALUE prefixes on the right side of
---                     the pipe so the installer process actually receives them.
---   post     string   Shell command run after the primary install succeeds (e.g. cleanup).
+--   args              string   Extra arguments appended to pipe_to (e.g. "-- --no-modify-path")
+--   env               table    Environment variable overrides applied to pipe_to (the installer),
+--                              not to curl. Written as KEY=VALUE prefixes on the right side of
+--                              the pipe so the installer process actually receives them.
+--   post              string   Shell command run after the primary install succeeds (e.g. cleanup).
+--   skip_if_env_set   string   Skip this script when the named env var is set and non-empty
+--                              (e.g. "ZSH" — OMZ installer errors if $ZSH points at an
+--                              existing install directory).
 
 local M = {}
 
@@ -33,11 +36,34 @@ local function run_post(entry)
   end
 end
 
+--- Return whether a script entry should be skipped, plus a short reason.
+-- @param entry table  A platform-specific script sub-table (e.g. entry.mac).
+-- @return boolean, string|nil
+function M.should_skip(entry)
+  if not entry or type(entry) ~= "table" then
+    return false
+  end
+  local name = entry.skip_if_env_set
+  if name and name ~= "" then
+    local v = os.getenv(name)
+    if v and v ~= "" then
+      return true, string.format("$%s is set (%s)", name, v)
+    end
+  end
+  return false
+end
+
 --- Run a script entry.
 -- Raises an error if the command exits non-zero.
+-- Callers should check should_skip() first if they want a clean skip path.
 -- @param entry table  A manifest script entry.
 function M.run(entry)
   assert(entry and type(entry) == "table", "scripts.run: entry must be a table")
+
+  local skip, reason = M.should_skip(entry)
+  if skip then
+    return "skipped", reason
+  end
 
   if entry.kind == "curl" then
     assert(entry.url,     "scripts.run: curl entry must have a url field")
