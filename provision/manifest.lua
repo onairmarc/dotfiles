@@ -209,9 +209,9 @@ return {
 
     ---------------------------------------------------------------------------
     -- Scripts
-    -- curl-pipe-bash installers. Scripts are NOT idempotency-tracked; they
-    -- always re-run on each provision and rely on the upstream installer's own
-    -- short-circuit logic.
+    -- Remote installers (curl|bash on mac, irm|iex PowerShell on win where needed).
+    -- Scripts are NOT idempotency-tracked; they always re-run on each provision
+    -- and rely on the upstream installer's own short-circuit logic.
     ---------------------------------------------------------------------------
     scripts = {
 
@@ -245,20 +245,19 @@ return {
                 pipe_to = "sudo sh -s -- -b /usr/local/bin" }
         },
 
-        -- Grok CLI (xAI). SHELL is cleared on the installer process so it does not
+        -- Grok CLI (xAI).
+        -- mac: curl install.sh | bash. SHELL is cleared so the installer does not
         -- rewrite ~/.zshrc / ~/.bashrc (PATH/completions live in shell/92_grok.plugin.zsh).
         -- post: strip any installer block that still got written, and remove bak files.
+        -- win: irm install.ps1 | iex (native PowerShell installer; manages User PATH itself).
         { name = "grok",
             mac = { kind = "curl",
                 url = "https://x.ai/cli/install.sh",
                 pipe_to = "bash",
                 env = { SHELL = "" },
                 post = grok_install_post },
-            win = { kind = "curl",
-                url = "https://x.ai/cli/install.sh",
-                pipe_to = "bash",
-                env = { SHELL = "" },
-                post = grok_install_post }
+            win = { kind = "powershell",
+                url = "https://x.ai/cli/install.ps1" }
         },
     },
 

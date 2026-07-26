@@ -1,17 +1,21 @@
 -- provision/lib/scripts.lua
 --
--- curl-pipe-bash (or similar) script runner for the Lua provisioner.
+-- Script runner for the Lua provisioner.
 -- Scripts are NOT tracked in state.json and always re-run on each provision.
 -- The expectation is that the target installer script is itself idempotent.
 --
 -- Supported entry kinds:
 --   { kind = "curl", url = "https://...", pipe_to = "bash" }
+--     → curl -fsSL <url> | <env> <pipe_to> <args>
+--   { kind = "powershell", url = "https://..." }
+--     → powershell -NoProfile -ExecutionPolicy Bypass -Command "irm '<url>' | iex"
+--       (Windows PowerShell installers, e.g. irm https://x.ai/cli/install.ps1 | iex)
 --
 -- Additional optional fields:
---   args              string   Extra arguments appended to pipe_to (e.g. "-- --no-modify-path")
---   env               table    Environment variable overrides applied to pipe_to (the installer),
---                              not to curl. Written as KEY=VALUE prefixes on the right side of
---                              the pipe so the installer process actually receives them.
+--   args              string   Extra arguments appended to pipe_to (curl kind only)
+--   env               table    Environment variable overrides for the installer process.
+--                              curl: KEY=VALUE prefixes on the right side of the pipe.
+--                              powershell: $env:KEY='VALUE'; prefixes inside -Command.
 --   post              string   Shell command run after the primary install succeeds (e.g. cleanup).
 --   skip_if_env_set   string   Skip this script when the named env var is set and non-empty
 --                              (e.g. "ZSH" — OMZ installer errors if $ZSH points at an
@@ -95,6 +99,35 @@ function M.run(entry)
     local ok = os.execute(cmd)
     if shell_failed(ok) then
       error("script failed (curl|" .. entry.pipe_to .. "): " .. entry.url)
+    end
+
+    run_post(entry)
+
+  elseif entry.kind == "powershell" then
+    assert(entry.url, "scripts.run: powershell entry must have a url field")
+
+    -- Build $env:KEY='VALUE'; prefixes so the installer process receives them.
+    -- Escape single quotes in values for PowerShell single-quoted strings.
+    local env_prefix = ""
+    if entry.env and type(entry.env) == "table" then
+      for k, v in pairs(entry.env) do
+        local val = tostring(v):gsub("'", "''")
+        env_prefix = env_prefix .. string.format("$env:%s='%s'; ", k, val)
+      end
+    end
+
+    -- irm | iex is the canonical Windows install pattern (e.g. xAI Grok CLI).
+    -- URL is single-quoted inside -Command; escape any embedded single quotes.
+    local url = entry.url:gsub("'", "''")
+    local cmd = string.format(
+      "powershell -NoProfile -ExecutionPolicy Bypass -Command \"%sirm '%s' | iex\"",
+      env_prefix,
+      url
+    )
+
+    local ok = os.execute(cmd)
+    if shell_failed(ok) then
+      error("script failed (powershell irm|iex): " .. entry.url)
     end
 
     run_post(entry)
