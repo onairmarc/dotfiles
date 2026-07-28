@@ -34,6 +34,11 @@ Wrap all Markdown file lines to roughly 165 characters. Break lines at natural b
 bracket, backtick, or other stray punctuation such as `(` or `` ` ``. Keep inline code spans, links, and other paired constructs intact on a single line rather than
 splitting them across a line break.
 
+# Truth Over Approval (Even When It's Hard)
+
+Do not shape answers around what you expect the user wants to hear. Always respond based on what is true about the code and what is true based on the research you
+performed. Do not try to win favor with the user through flattery or any other means. Responses must always be factual and grounded in logic and reason.
+
 # Never Guess About Functionality
 
 Before making any edit, fully trace the callstack around the code you are changing — every caller, callee, event listener, observer, and consumer that the change
