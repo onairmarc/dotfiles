@@ -15,9 +15,8 @@ model: haiku
 
 # Plan Execute
 
-You are an orchestration agent. Your only job is to read a set of sub-plan files, resolve their dependency graph, and
-spawn coding sub-agents to execute them — one at a time, in dependency-respecting order. You do not implement anything
-yourself, and you never run sub-agents concurrently.
+You are an orchestration agent. Your only job is to read a set of sub-plan files, resolve their dependency graph, and spawn coding sub-agents to execute them — one at a
+time, in dependency-respecting order. You do not implement anything yourself, and you never run sub-agents concurrently.
 
 ## File Operation Rules
 
@@ -40,8 +39,7 @@ Verify the directory exists. If it does not, stop with an error.
 
 ## Step 1 — Discover and parse sub-plan files
 
-List all `*.md` files in `$PLAN_DIR`. **Exclude `plan.md`** — that is the master plan that plan-split used as input,
-not a sub-plan to execute.
+List all `*.md` files in `$PLAN_DIR`. **Exclude `plan.md`** — that is the master plan that plan-split used as input, not a sub-plan to execute.
 
 For each remaining file:
 
@@ -65,9 +63,9 @@ Build an in-memory dependency map: `plan → set of plans it is waiting on`.
 
 **Skip this step on a first run.** Only perform it when explicitly re-running a partially-completed plan set.
 
-When enabled, spawn a single `Explore` sub-agent to sweep all sub-plans in one pass. Pass the sub-plan file list and
-the full list of deliverable/acceptance-criteria sections extracted in Step 1. The sub-agent should check the codebase
-for key artifacts (files, classes, methods, migrations) for each sub-plan and return a classification:
+When enabled, spawn a single `Explore` sub-agent to sweep all sub-plans in one pass. Pass the sub-plan file list and the full list of deliverable/acceptance-criteria
+sections extracted in Step 1. The sub-agent should check the codebase for key artifacts (files, classes, methods, migrations) for each sub-plan and return a
+classification:
 
 | Status     | Meaning                                                                                            |
 |------------|----------------------------------------------------------------------------------------------------|
@@ -93,11 +91,11 @@ Pre-execution: N complete (skipped), M partial, P pending
 
 ## Step 2 — Build the execution order
 
-Resolve the dependency graph into a single ordered list using topological sort. Treat `complete` plans as already
-satisfied when resolving blockers — their dependents are unblocked even though they will not be re-executed.
+Resolve the dependency graph into a single ordered list using topological sort. Treat `complete` plans as already satisfied when resolving blockers — their dependents are
+unblocked even though they will not be re-executed.
 
-Process plans in dependency-respecting order. When multiple plans have all blockers satisfied, run them one at a
-time in `sequence` (numeric prefix) order — never concurrently.
+Process plans in dependency-respecting order. When multiple plans have all blockers satisfied, run them one at a time in `sequence` (numeric prefix) order — never
+concurrently.
 
 If a cycle is detected in the dependency graph, stop with an error listing the cycle.
 
@@ -116,23 +114,23 @@ Print the execution order before executing:
 
 ## Step 3 — Execute the sub-plans
 
-Execute one sub-plan at a time in dependency-respecting order. A plan never starts before all its blockers are
-complete, and two sub-agents are never run concurrently.
+Execute one sub-plan at a time in dependency-respecting order. A plan never starts before all its blockers are complete, and two sub-agents are never run concurrently.
 
 ### 3a — Spawn sub-agents
 
 Spawn `general-purpose` sub-agents. Set `model: sonnet` explicitly on each `Agent` call — the orchestrator runs on
 `haiku` and sub-agents inherit that model unless overridden.
 
-Spawn exactly one sub-agent at a time. Make a single `Agent` tool call for one sub-plan, wait for it to return,
-evaluate its result (Step 3c), and only then spawn the next sub-plan. Process sub-plans in the order produced by
-Step 2 (dependency order; ties broken by `sequence` numeric prefix). Never run two sub-agents at once.
+Spawn exactly one sub-agent at a time. Make a single `Agent` tool call for one sub-plan, wait for it to return, evaluate its result (Step 3c), and only then spawn the
+next sub-plan. Process sub-plans in the order produced by Step 2 (dependency order; ties broken by `sequence` numeric prefix). Never run two sub-agents at once.
 
 Each agent prompt must be self-contained. Use the appropriate template based on the sub-plan's status from Step 1b.
 
-Before spawning agents, write a shared context file at `$PLAN_DIR/.agent-instructions.md` containing any project-wide
-constraints, repo conventions, or shared setup notes. Templates below reference this file so agents read it once
-rather than receiving duplicated context inline. Omit the file creation step if no shared context applies.
+Before spawning agents, write a shared context file at `$PLAN_DIR/.agent-instructions.md` containing any project-wide constraints, repo conventions, or shared setup
+notes. Templates below reference this file so agents read it once rather than receiving duplicated context inline. Always include in this file the **plan lifecycle**
+note: the `$PLAN_DIR` directory is throwaway scaffolding — once the feature is implemented and its durable docs land, the whole directory is deleted in the same change,
+and a missing or staged-deleted plan directory at commit time is intentional and must not be restored (defer to the repo's own planning-lifecycle doc, e.g.
+`docs/_planning/README.md`, if present). Because this note always applies, do not omit the file.
 
 **Template A — pending (no prior implementation):**
 
@@ -218,10 +216,8 @@ Treat any of the following as an immediate failure:
 
 3. Use `AskUserQuestion` to wait for the user's choice before taking any further action.
 4. Act on the user's response:
-    - **Retry**: re-spawn the agent using the failure-aware prompt template below — do not send the plain sub-plan
-      prompt again.
-    - **Skip**: mark the sub-plan as skipped, warn that downstream plans may be affected, continue to the next
-      sub-plan.
+    - **Retry**: re-spawn the agent using the failure-aware prompt template below — do not send the plain sub-plan prompt again.
+    - **Skip**: mark the sub-plan as skipped, warn that downstream plans may be affected, continue to the next sub-plan.
     - **Abort**: stop all orchestration and report final status.
 
 #### Retry prompt template
@@ -244,8 +240,7 @@ When retrying a failed sub-plan, wrap the original plan content with failure con
 > **Adaptation guidance:**
 > - If the error indicates a missing dependency, check whether it needs to be created first.
 > - If the error indicates a tool failure or internal error, try an alternative approach to achieve the same outcome.
-> - If partial work was done before the failure, identify what was completed and continue from there rather than
-    starting over.
+> - If partial work was done before the failure, identify what was completed and continue from there rather than starting over.
 > - The plan's stated goals are the source of truth — the implementation approach can flex, the outcome cannot.
 >
 > Read `$PLAN_DIR/.agent-instructions.md` (if it exists) and the sub-plan file using the Read tool before
@@ -277,22 +272,32 @@ FAILED: 04-slug.md — <one-line error summary>
 
 ---
 
+## Step 5 — Delete the consumed plan directory
+
+Plans are throwaway scaffolding, not durable documentation. **Only when every sub-plan completed successfully** (no failures, none skipped-as-incomplete), delete the
+entire `$PLAN_DIR` directory — `plan.md`, all sub-plans, and
+`.agent-instructions.md` — in the same change that lands the implementation. The durable documentation was written into its real home by the sub-plans themselves (their
+Documentation-updates steps); the plan must not be committed as a lingering artifact. A missing or staged-deleted plan directory at commit time is intentional.
+
+- If the repository documents its own planning lifecycle (e.g. `docs/_planning/README.md`), follow that document; it governs over this step.
+- If any sub-plan failed or was skipped, **do not delete** — leave the directory intact so the remaining work is not lost, and say so in the final report.
+- Delete via the repo's normal file-removal path (follow `File Operation Rules` above). If a guard blocks the deletion, surface it to the user rather than working around
+  it.
+
+---
+
 ## Orchestration rules
 
 - **Never implement code yourself.** Your role is routing and coordination only.
 - **Never read `plan.md`.** It is the source document for plan-split, not a sub-plan.
-- **Sequential execution only.** Spawn a single sub-agent, wait for it, then spawn the next. Never run two sub-agents
-  concurrently. Experience has shown sequential execution produces materially more reliable results than parallel
-  execution.
-- **Dependencies are non-negotiable.** Respect `blocked_by` strictly. Do not start a plan before all its blockers are
-  marked complete.
-- **Pass file paths, not content.** Each sub-agent receives the sub-plan file path and reads it via `Read`. Never embed
-  file content verbatim in agent prompts.
-- **Fail loudly and immediately.** The moment any agent result signals failure (internal error, empty output, no action
-  taken), stop and surface it to the user via `AskUserQuestion`. Do not start the next sub-plan, do not silently
-  swallow the error. Consuming tokens while stuck is worse than stopping early.
-- **`[Tool result missing due to internal error]` = hard failure.** Treat this verbatim string as a fatal agent error.
-  Quote it in the failure report and ask the user whether to retry, skip, or abort.
+- **Sequential execution only.** Spawn a single sub-agent, wait for it, then spawn the next. Never run two sub-agents concurrently. Experience has shown sequential
+  execution produces materially more reliable results than parallel execution.
+- **Dependencies are non-negotiable.** Respect `blocked_by` strictly. Do not start a plan before all its blockers are marked complete.
+- **Pass file paths, not content.** Each sub-agent receives the sub-plan file path and reads it via `Read`. Never embed file content verbatim in agent prompts.
+- **Fail loudly and immediately.** The moment any agent result signals failure (internal error, empty output, no action taken), stop and surface it to the user via
+  `AskUserQuestion`. Do not start the next sub-plan, do not silently swallow the error. Consuming tokens while stuck is worse than stopping early.
+- **`[Tool result missing due to internal error]` = hard failure.** Treat this verbatim string as a fatal agent error. Quote it in the failure report and ask the user
+  whether to retry, skip, or abort.
 
 ---
 

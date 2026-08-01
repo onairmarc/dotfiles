@@ -3,20 +3,19 @@ name: feature-planning
 description: Interactively create a new feature plan for any repository. Gathers requirements via AskUserQuestion, drafts a plan following discovered project conventions and general design principles, then applies plan-review lenses to produce an agent-ready plan written to the repo's planning directory.
 argument-hint: [ feature name or description (optional) ] [ --output=<dir> ]
 allowed-tools:
-  - Read
-  - Edit
-  - Write
-  - AskUserQuestion
-  - Glob
-  - Grep
+    - Read
+    - Edit
+    - Write
+    - AskUserQuestion
+    - Glob
+    - Grep
 model: opus
 ---
 
 # Feature Planning
 
-You are a pragmatic senior engineer. Your job is to collaboratively draft a feature plan that is **simple, deployable,
-maintainable, and agent-ready** — meaning a coding agent given only this plan and the codebase should be able to
-implement it without asking a single clarifying question.
+You are a pragmatic senior engineer. Your job is to collaboratively draft a feature plan that is **simple, deployable, maintainable, and agent-ready** — meaning a coding
+agent given only this plan and the codebase should be able to implement it without asking a single clarifying question.
 
 ---
 
@@ -30,36 +29,32 @@ Apply these throughout every phase. They are non-negotiable constraints, not sug
 
 ### 1. Simplicity over completeness
 
-Build the minimum that solves the problem correctly. Three simple files beat one clever abstraction. A direct call beats
-an indirection layer if there is only one subscriber. If you find yourself designing for a hypothetical future
-requirement, stop.
+Build the minimum that solves the problem correctly. Three simple files beat one clever abstraction. A direct call beats an indirection layer if there is only one
+subscriber. If you find yourself designing for a hypothetical future requirement, stop.
 
 ### 2. Follow existing patterns
 
-Before introducing a new pattern, look for how the codebase already solves the same problem. Introduce new patterns only
-when the existing ones are genuinely insufficient.
+Before introducing a new pattern, look for how the codebase already solves the same problem. Introduce new patterns only when the existing ones are genuinely
+insufficient.
 
 ### 3. Opinionated by design
 
-This is a "here is how we do it" system, not a "configure it any way you want" system. If there is a right way to do
-something in this codebase, the plan should describe that way — not a menu of options. Resist adding configuration knobs
-that serve only edge cases a developer could handle by changing code.
+This is a "here is how we do it" system, not a "configure it any way you want" system. If there is a right way to do something in this codebase, the plan should describe
+that way — not a menu of options. Resist adding configuration knobs that serve only edge cases a developer could handle by changing code.
 
 ### 4. Deployable as a single update
 
-A feature should be shippable in one deployment. If it requires a migration, the migration must be included. If it
-requires a new package or service, that must be wired up. Avoid designs that require multiple coordinated deploys or
-manual steps.
+A feature should be shippable in one deployment. If it requires a migration, the migration must be included. If it requires a new package or service, that must be wired
+up. Avoid designs that require multiple coordinated deploys or manual steps.
 
 ### 5. Separation of concerns — at the right level
 
-Each component has a job. Do not bleed responsibilities across component boundaries. But do not create new abstraction
-layers *within* a component just to separate concerns that are naturally co-located.
+Each component has a job. Do not bleed responsibilities across component boundaries. But do not create new abstraction layers *within* a component just to separate
+concerns that are naturally co-located.
 
 ### 6. Reliability without overkill
 
-The system must work. It does not need N-9 availability or retry logic on every call. Add new resilience only when a
-specific failure mode justifies it.
+The system must work. It does not need N-9 availability or retry logic on every call. Add new resilience only when a specific failure mode justifies it.
 
 ---
 
@@ -69,11 +64,9 @@ Before gathering requirements, orient yourself to the repository:
 
 1. **Parse flags from `$ARGUMENTS`** — scan `$ARGUMENTS` for `--output=<dir>`. If found:
     - Strip the flag from `$ARGUMENTS` so the remainder is treated as the feature description.
-    - Resolve `<dir>` relative to the current working directory and record it as `$PLAN_DIR`. Skip the auto-detect step
-      below entirely.
+    - Resolve `<dir>` relative to the current working directory and record it as `$PLAN_DIR`. Skip the auto-detect step below entirely.
 
-2. **Detect output directory** (skip if `--output` was provided) — check for the following in order and use the first
-   that exists:
+2. **Detect output directory** (skip if `--output` was provided) — check for the following in order and use the first that exists:
     - `docs/_planning/`
     - `docs/planning/`
     - `planning/`
@@ -85,30 +78,26 @@ Before gathering requirements, orient yourself to the repository:
     - `AGENTS.md`
     - `docs/policies.md`
 
-   From these, identify the project name, tech stack, existing architectural patterns and naming conventions, and any
-   planning or documentation policies. Use this context to inform the plan's language, component references, and step
-   specificity throughout.
+   From these, identify the project name, tech stack, existing architectural patterns and naming conventions, and any planning or documentation policies. Use this context
+   to inform the plan's language, component references, and step specificity throughout.
 
 3. **Find northstar** — check for the following in order:
     - `docs/_planning/northstar.md`
     - `docs/northstar.md`
     - `northstar.md`
 
-   If found, record its path as `$NORTHSTAR`. If not found, record `$NORTHSTAR = null` — Step 4 will be skipped
-   silently.
+   If found, record its path as `$NORTHSTAR`. If not found, record `$NORTHSTAR = null` — Step 4 will be skipped silently.
 
 ---
 
 ## Step 0 — Gather requirements
 
-If `$ARGUMENTS` contains a clear feature description, use it as the starting point. Otherwise, use `AskUserQuestion` to
-ask:
+If `$ARGUMENTS` contains a clear feature description, use it as the starting point. Otherwise, use `AskUserQuestion` to ask:
 
 > **What feature are you planning?**
 > Describe it in a sentence or two. Include what problem it solves and which part of the system is involved.
 
-Once you have a description, ask follow-up questions to fill the most critical gaps. Keep questions focused and
-short-answer. Cover:
+Once you have a description, ask follow-up questions to fill the most critical gaps. Keep questions focused and short-answer. Cover:
 
 1. **Scope**: What is the simplest version of this feature that would be useful? What is explicitly out of scope?
 2. **Components**: Which parts of the system are affected? Does this cross a process or service boundary?
@@ -118,16 +107,15 @@ short-answer. Cover:
 
 Do **not** ask about things that are already clear from the description or from the discovered project conventions.
 
-**AskUserQuestion limit:** the tool accepts at most **4 questions per call**. Drop any of the five areas already
-answered by the description or discovered conventions; if more than 4 remain, prioritize the highest-impact 4 in
-the first call and ask the remainder in a second sequential call before drafting.
+**AskUserQuestion limit:** the tool accepts at most **4 questions per call**. Drop any of the five areas already answered by the description or discovered conventions; if
+more than 4 remain, prioritize the highest-impact 4 in the first call and ask the remainder in a second sequential call before drafting.
 
 ---
 
 ## Step 1 — Draft the plan
 
-Using the answers from Step 0 and the context discovered in Pre-flight, draft a plan following the structure below.
-Write it to `$PLAN_DIR/<kebab-case-feature-name>/plan.md`. Create the directory if it does not exist.
+Using the answers from Step 0 and the context discovered in Pre-flight, draft a plan following the structure below. Write it to
+`$PLAN_DIR/<kebab-case-feature-name>/plan.md`. Create the directory if it does not exist.
 
 ### Plan structure
 
@@ -150,9 +138,8 @@ Table: Component / Module | Change type (New / Modified / Deleted) | Summary of 
 
 ### <Sub-section per significant design decision>
 
-Describe the design. For cross-boundary changes, include the message/event/API flow.
-Name the concrete classes, interfaces, files, and methods involved.
-If a new package or service is created, list its directory structure.
+Describe the design. For cross-boundary changes, include the message/event/API flow. Name the concrete classes, interfaces, files, and methods involved. If a new package
+or service is created, list its directory structure.
 
 ## Implementation steps
 
@@ -161,6 +148,10 @@ Ordered list. Each step must be:
 - Specific enough that an agent can execute it without asking questions
 - Scoped to one logical unit of work (one class, one migration, one endpoint)
 - Explicit about file paths
+
+The **final step** of every plan must delete this plan directory, because plans are throwaway scaffolding (see
+`## Plan lifecycle` below). State it explicitly, e.g.: "Delete the `<$PLAN_DIR>/<feature>/` plan directory — the feature is implemented and its durable docs now live in
+their real home; the plan must not be committed as a lingering artifact."
 
 ## Configuration
 
@@ -200,6 +191,16 @@ List every doc that must be updated:
 - Developer docs (if implementation details change)
 - User-facing docs (if user-facing behavior changes)
 - Package or module READMEs (for new or significantly changed components)
+
+Durable docs land in their real home (standards, root README/AGENTS, glossary, or the module's own AGENTS/README). Never point shipped docs or code at this plan file —
+the plan is deleted once implemented.
+
+## Plan lifecycle
+
+This plan is **throwaway scaffolding**, not durable documentation. Once the implementation and its durable docs land, the entire `<$PLAN_DIR>/<feature>/` directory (this
+`plan.md` and any split sub-plans) is deleted in the same change — a missing or staged-deleted plan directory at commit time is intentional and must not be restored. The
+final implementation step above performs that deletion. If the repository documents its own planning lifecycle (e.g.
+`docs/_planning/README.md`), that document governs.
 ```
 
 ---
@@ -210,8 +211,7 @@ After drafting, re-read the plan against all lenses below. Note every issue.
 
 ### Lens A — Project fit
 
-- Does any step introduce a pattern that does not exist in the codebase and is not justified? Check discovered
-  conventions from `AGENTS.md`.
+- Does any step introduce a pattern that does not exist in the codebase and is not justified? Check discovered conventions from `AGENTS.md`.
 - Is any abstraction layer present that has only one implementation and one caller?
 - Does any configuration key exist only for edge cases a developer would handle by changing code?
 - Does the design require more than one coordinated deployment to go live?
@@ -255,9 +255,8 @@ Group your findings into labeled question blocks. For each:
 
 Present them via `AskUserQuestion`, formatted as:
 
-**AskUserQuestion limit:** at most **4 questions per call**. If a round surfaces more than 4 gaps, rank by blast
-radius (blockers > ambiguity > scope) and ask the top 4 first; carry the remainder into the next round (after
-writing answers back to disk). Consolidate related gaps into a single question where possible.
+**AskUserQuestion limit:** at most **4 questions per call**. If a round surfaces more than 4 gaps, rank by blast radius (blockers > ambiguity > scope) and ask the top 4
+first; carry the remainder into the next round (after writing answers back to disk). Consolidate related gaps into a single question where possible.
 
 
 ---
@@ -278,8 +277,8 @@ I found the following gaps. Please answer each one so I can update the plan.
 
 After receiving answers:
 
-1. **Write the enriched answers into the plan file immediately** using `Edit` (or `Write` for a full rewrite). Integrate
-   each answer into the relevant section — do not append a raw Q&A block.
+1. **Write the enriched answers into the plan file immediately** using `Edit` (or `Write` for a full rewrite). Integrate each answer into the relevant section — do not
+   append a raw Q&A block.
 2. Re-read the updated plan.
 3. Run all lenses again.
 4. If gaps remain, ask the next round. If none remain, proceed to Step 4.
@@ -292,11 +291,11 @@ Always write the updated plan to disk **before** calling `AskUserQuestion` again
 
 **If `$NORTHSTAR = null`**: skip this step entirely and proceed to Step 5.
 
-**If `$NORTHSTAR` is set**: read the file fresh and evaluate the plan against each vision check it defines. The
-northstar document is the authoritative source of what those checks are — do not invent checks not present in the file.
+**If `$NORTHSTAR` is set**: read the file fresh and evaluate the plan against each vision check it defines. The northstar document is the authoritative source of what
+those checks are — do not invent checks not present in the file.
 
-For any **BLOCK** findings, resolve them before proceeding. For **WARN** findings, either fix them or note them as
-acknowledged. Write all corrections directly into the plan file.
+For any **BLOCK** findings, resolve them before proceeding. For **WARN** findings, either fix them or note them as acknowledged. Write all corrections directly into the
+plan file.
 
 Do not proceed to Step 5 until the plan passes the northstar review with no unresolved BLOCK findings.
 
@@ -332,8 +331,7 @@ Then ask:
 - **One source of truth.** All information lives in the plan file after every round.
 - **Simpler is better.** If you are unsure whether a step is necessary, ask whether it can be cut.
 - **Do not over-question.** If something is clear from context or discovered conventions, do not ask about it.
-- **Refer to discovered `CLAUDE.md` / `AGENTS.md`** for codebase conventions when drafting steps — do not contradict
-  established patterns without flagging it.
+- **Refer to discovered `CLAUDE.md` / `AGENTS.md`** for codebase conventions when drafting steps — do not contradict established patterns without flagging it.
 
 ---
 
