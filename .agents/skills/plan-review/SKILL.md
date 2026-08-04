@@ -41,10 +41,40 @@ Store the resolved path — you will write back to it after every round of quest
 
 ---
 
+## Step 0.5 — Discover project standards & policies (mandatory)
+
+Before analyzing the plan, locate where this project documents its coding standards, conventions, and policies. A plan is not agent-ready if it violates a
+single project policy, so a reviewer must know what those policies are.
+
+1. **Start where standards are usually declared.** Read the repo-root `README.md` and `AGENTS.md` (and any per-module `AGENTS.md` / `README.md` covering the
+   area the plan touches). Follow every link or reference they make to standards, policy, or convention documents (e.g. `docs/standards/`, `docs/policies.md`,
+   `CONTRIBUTING.md`, a `standards/` directory).
+2. **If neither file names a standards location, search for it** with `Glob`/`Grep`. Likely homes: `docs/standards/`, `docs/policies*.md`,
+   `docs/conventions*.md`, `CONTRIBUTING.md`, `.editorconfig`, and linter/formatter configs (`pint.json`, `phpcs.xml`, `.php-cs-fixer*`, `.eslintrc*`,
+   `ruff.toml`, `.golangci.yml`, etc.), plus any file whose name contains `standard`, `policy`, or `convention`.
+3. **Confirm you found the right standards when they are not explicitly declared.** If the location was not named in `README.md` / `AGENTS.md`, do not silently
+   assume — tell the user which document(s) you believe are the project's standards and why, and confirm before relying on them. If you find none, say so
+   explicitly.
+4. **Read every standard in full and extract the concrete rules** the plan must obey. Record them as `$PROJECT_STANDARDS` — the checklist Lens 0 holds the plan
+   against.
+
+---
+
 ## Step 1 — Analyze the plan
 
 Read the plan in full. Then evaluate every section against all the following lenses. For each lens, note every
 specific issue you find, including the exact quote or section it refers to.
+
+### Lens 0 — Standards & policy compliance (highest priority)
+
+Hold every part of the plan against `$PROJECT_STANDARDS` from Step 0.5. This lens outranks the others: a standards violation is always a blocker.
+
+- Does any step violate a documented naming, structure, testing, logging, error-handling, dependency, migration/DB, or formatting policy?
+- Does any step introduce a dependency, pattern, or file location a policy forbids or that the project's linter/formatter config disallows?
+- Does the plan omit a policy-mandated step (required test level, required doc update, required commit/PR convention)?
+- Where a design choice conflicts with a policy, is the policy honored, or the deviation explicitly justified and confirmed with the user?
+
+Every finding here is a blocker — surface it in Step 3 before ambiguity, contradiction, or scope questions.
 
 ### Lens A — Ambiguity
 
@@ -113,8 +143,9 @@ If the plan is already complete and unambiguous, tell the user so and stop.
 Present your grouped questions to the user using `AskUserQuestion`. Format your message like this:
 
 **AskUserQuestion limit:** the tool accepts at most **4 questions per call**. If you have more than 4 gaps, rank
-by blast radius (contradictions > missing info > ambiguity > scope) and ask the top 4 first; defer the rest to
-the next round after writing answers back to disk. Consolidate tightly-related gaps into a single question.
+by blast radius (standards/policy violations > contradictions > missing info > ambiguity > scope) and ask the top
+4 first; defer the rest to the next round after writing answers back to disk. Consolidate tightly-related gaps
+into a single question.
 
 
 ---

@@ -79,6 +79,17 @@ Before analyzing drift, ground yourself in the current state of the relevant cod
     - `git log --since=...` if the plan has a date stamp
     - `git diff` only when narrowing a specific suspected change
 
+4. **Discover project standards & policies (mandatory).** Standards drift too — a policy the plan predates may now forbid something it prescribes. Locate where
+   this project documents its standards, conventions, and policies:
+    - Read the repo-root `README.md` and `AGENTS.md` (and any per-module `AGENTS.md` / `README.md` for the touched area) and follow every link they make to
+      standards/policy/convention documents.
+    - If neither names a standards location, search with `Glob`/`Grep`: `docs/standards/`, `docs/policies*.md`, `docs/conventions*.md`, `CONTRIBUTING.md`,
+      `.editorconfig`, linter/formatter configs (`pint.json`, `phpcs.xml`, `.php-cs-fixer*`, `.eslintrc*`, `ruff.toml`, `.golangci.yml`, etc.), and any file
+      whose name contains `standard`, `policy`, or `convention`.
+    - When the location was not explicitly declared, confirm with the user which document(s) you believe are the project's standards before relying on them; if
+      you find none, say so.
+    - Read them in full and record the concrete rules as `$PROJECT_STANDARDS` for Lens F.
+
 Record findings in a working list — you do not write to the plan yet.
 
 ---
@@ -131,6 +142,17 @@ Code that has been added since the plan was written that the plan should account
 - Steps that assumed a prior step's output, where that prior step is now obsolete or already done
 - Newly introduced ordering constraints (e.g. a migration must now run before another existing migration)
 - Plan phases whose blockers/blocks (if annotated) no longer reflect the real dependency graph
+
+### Lens F — Standards & policy drift (highest priority)
+
+Hold the plan's remaining work against `$PROJECT_STANDARDS` from Step 1. Policies may have been added or tightened since the plan was written, and any step that
+now violates one is a blocker to reconcile before the plan ships.
+
+- Does any not-yet-implemented step now violate a documented naming, structure, testing, logging, error-handling, dependency, migration/DB, or formatting policy?
+- Has a new policy, linter/formatter rule, or required check appeared that the plan's remaining changes must satisfy?
+- Did already-implemented work adopt a pattern that a current policy forbids, such that the resynced plan must call out remediation?
+
+Resolve standards drift the way you resolve any other drift: mechanical fixes applied directly, judgment calls confirmed with the user.
 
 ---
 

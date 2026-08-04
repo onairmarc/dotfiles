@@ -77,6 +77,21 @@ If classification is ambiguous, state your best guess and the reason, then conti
 
 ---
 
+## Step 1.5 — Discover project standards & policies (mandatory)
+
+Locate where this project documents its coding standards, conventions, and policies. The optimization plan must not violate a single one, and the audit itself
+must not flag a pattern the standards actually mandate.
+
+1. Read the repo-root `README.md` and `AGENTS.md` (and any per-module `AGENTS.md` / `README.md` for `MODULE_PATH`) and follow every link they make to
+   standards/policy/convention documents (e.g. `docs/standards/`, `docs/policies.md`, `CONTRIBUTING.md`, a `standards/` directory).
+2. If neither file names a standards location, search with `Grep`/`Glob`: `docs/standards/`, `docs/policies*.md`, `docs/conventions*.md`, `CONTRIBUTING.md`,
+   `.editorconfig`, `pint.json`, `phpcs.xml`, `.php-cs-fixer*`, and any file whose name contains `standard`, `policy`, or `convention`.
+3. When the location was not explicitly declared, confirm with the developer which document(s) you believe are the project's standards before relying on them; if
+   you find none, say so explicitly.
+4. Read them in full and record the concrete rules as `PROJECT_STANDARDS`. Pass this to feature-planning in Step 4 so every optimization step is held against it.
+
+---
+
 ## Step 2 — Audit the module
 
 Systematically search `MODULE_PATH` for every problem category below. For each hit, **read the actual file to confirm
@@ -287,7 +302,15 @@ description passed to feature-planning (feed it programmatically — do not ask 
       > to drop constraints manually — the skill handles the full remediation (drop migration, model boot() check,
       > plain index where needed). List the exact migration file paths as the argument.
 >
+> 13. Every optimization step must comply with the project's documented standards and policies (see below). No fix may violate a naming, structure, testing,
+      > logging, dependency, migration/DB, or formatting policy. Where an optimization would conflict with a policy, honor the policy and note the constraint on
+      > the step; if the two genuinely cannot be reconciled, flag it for developer review rather than shipping the violation.
+>
 > **Out of scope:** Redis, SSR, Vite, new infrastructure dependencies, files outside `{MODULE_PATH}`.
+>
+> **Project standards & policies to comply with** (discovered in Step 1.5 — the plan must not violate a single rule; give these extra attention):
+>
+> {PROJECT_STANDARDS | "(none found — state this explicitly in the plan)"}
 >
 > **Caller-supplied context** (treat as authoritative — may describe issues not discoverable by static analysis):
 >

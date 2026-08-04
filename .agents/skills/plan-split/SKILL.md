@@ -171,6 +171,11 @@ global criteria, reproduce only the subset that this sub-plan is responsible for
   it without referring to any other sub-plan or the master plan.
 - Shared context (e.g. database schema decisions, API contracts, naming conventions) must be reproduced in every
   sub-plan that needs it — do not say "see plan 01 for details".
+- **Project standards & policy constraints carry into every sub-plan.** If the master plan references or embeds project standards, conventions, or policies
+  (naming, structure, testing, logging, dependency, migration/DB, formatting, commit/PR rules), reproduce the subset that applies to each sub-plan's work in
+  that sub-plan's Context — do not point back to the master plan. If the master plan does not surface any standards, locate them first (repo-root `README.md` /
+  `AGENTS.md` and any standards/policy documents they link, or a `Glob`/`Grep` search when neither names a location) and carry the applicable rules into each
+  sub-plan so no phase can silently violate a policy.
 
 Write all files before proceeding to Step 4.
 

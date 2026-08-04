@@ -51,11 +51,38 @@ injected as cross-reference pointers when writing findings back to each file.
 
 ---
 
+## Step 0.5 — Discover project standards & policies (mandatory)
+
+Before analyzing the plans, locate where this project documents its coding standards, conventions, and policies. No plan in the group is agent-ready if it
+violates a single project policy.
+
+1. Read the repo-root `README.md` and `AGENTS.md` (and any per-module `AGENTS.md` / `README.md` for the areas the plans touch) and follow every link they make
+   to standards/policy/convention documents (e.g. `docs/standards/`, `docs/policies.md`, `CONTRIBUTING.md`, a `standards/` directory).
+2. If neither file names a standards location, search with `Glob`/`Grep`: `docs/standards/`, `docs/policies*.md`, `docs/conventions*.md`, `CONTRIBUTING.md`,
+   `.editorconfig`, linter/formatter configs, and any file whose name contains `standard`, `policy`, or `convention`.
+3. When the location was not explicitly declared, confirm with the user which document(s) you believe are the project's standards before relying on them; if you
+   find none, say so explicitly.
+4. Read them in full and record the concrete rules as `$PROJECT_STANDARDS` — the checklist Lens 0 holds every plan against.
+
+---
+
 ## Step 1 — Analyze the plans as a unified group
 
 Read all plans in full. Treat the entire set as one logical document for analysis purposes. Then evaluate every
 section across all plans against the following lenses. For each lens, note every specific issue found, including
 the exact quote or section it refers to **and which plan file it came from**.
+
+### Lens 0 — Standards & policy compliance (highest priority, per-plan and cross-plan)
+
+Hold every plan against `$PROJECT_STANDARDS` from Step 0.5. This lens outranks the others: a standards violation in any plan is always a blocker.
+
+- Does any step in any plan violate a documented naming, structure, testing, logging, error-handling, dependency, migration/DB, or formatting policy?
+- Does any plan introduce a dependency, pattern, or file location a policy forbids or that the project's linter/formatter config disallows?
+- Does any plan omit a policy-mandated step (required test level, required doc update, required commit/PR convention)?
+- Do the plans apply the standards *consistently* — e.g. two plans touching the same layer must not each interpret a naming or structure policy differently?
+- Where a design choice conflicts with a policy, is the policy honored, or the deviation explicitly justified and confirmed with the user?
+
+Every finding here is a blocker — surface it before ambiguity, contradiction, or scope questions.
 
 ### Lens A — Ambiguity (per-plan)
 
@@ -134,7 +161,7 @@ If all plans are already complete, unambiguous, and consistent with each other, 
 Present grouped questions using `AskUserQuestion`. Format:
 
 **AskUserQuestion limit:** the tool accepts at most **4 questions per call**. If more than 4 gaps exist across
-the plan group, rank by blast radius (contradictions > missing info > ambiguity > scope) and ask the top 4
+the plan group, rank by blast radius (standards/policy violations > contradictions > missing info > ambiguity > scope) and ask the top 4
 first; defer the rest to the next round (after writing answers to disk). Consolidate tightly-related gaps.
 
 

@@ -56,6 +56,12 @@ concerns that are naturally co-located.
 
 The system must work. It does not need N-9 availability or retry logic on every call. Add new resilience only when a specific failure mode justifies it.
 
+### 7. Never violate a project standard or policy
+
+The plan must not violate a single documented project standard, convention, or policy. Discover where those standards live (see Pre-flight), read them in
+full, and hold every step against them. When a natural design choice would conflict with a documented policy, the policy wins — change the design, not the
+policy. If a policy is ambiguous or appears to conflict with the goal, flag it to the user rather than guessing.
+
 ---
 
 ## Pre-flight — Discover the repo
@@ -74,14 +80,27 @@ Before gathering requirements, orient yourself to the repository:
 
    If none exist, default to `docs/_planning/`. Record this as `$PLAN_DIR`.
 
-2. **Read project conventions** — if any of the following files exist, read them and extract:
-    - `AGENTS.md`
-    - `docs/policies.md`
+3. **Discover project standards & policies (mandatory)** — locate every place this project documents coding standards, conventions, and policies. The plan must
+   not violate a single one, so finding them is not optional.
 
-   From these, identify the project name, tech stack, existing architectural patterns and naming conventions, and any planning or documentation policies. Use this context
-   to inform the plan's language, component references, and step specificity throughout.
+    1. **Start where the standards are usually declared.** Read the repo-root `README.md` and `AGENTS.md` (and any per-module `AGENTS.md` / `README.md` for the
+       area this feature touches). Follow every link or reference they make to standards, policy, or convention documents (e.g. `docs/standards/`,
+       `docs/policies.md`, `CONTRIBUTING.md`, a `standards/` directory, or a linked doc).
+    2. **If neither `README.md` nor `AGENTS.md` names a standards location, search for it** with `Glob`/`Grep`. Likely homes: `docs/standards/`,
+       `docs/policies*.md`, `docs/conventions*.md`, `CONTRIBUTING.md`, `.editorconfig`, and linter/formatter configs (`pint.json`, `phpcs.xml`,
+       `.php-cs-fixer*`, `.eslintrc*`, `ruff.toml`, `.golangci.yml`, etc.), plus any file whose name contains `standard`, `policy`, or `convention` anywhere in
+       the repo.
+    3. **Confirm you found the right standards when they are not explicitly declared.** If the location was not named in `README.md` / `AGENTS.md`, do not
+       silently assume — tell the user which document(s) you believe hold the project's standards and why, and confirm before relying on them. If you find none,
+       say so explicitly rather than proceeding as if the project has no policies.
+    4. **Read every standard in full and extract the concrete rules** that could constrain this plan — naming, module/directory structure, testing, logging,
+       error handling, dependency policy, migration/DB rules, formatting, and commit/PR policy. Record them as `$PROJECT_STANDARDS`: a checklist the plan will
+       be held against in Step 2.
 
-3. **Find northstar** — check for the following in order:
+   From these same sources, also identify the project name, tech stack, existing architectural patterns and naming conventions, and any planning or documentation
+   policies. Use this context to inform the plan's language, component references, and step specificity throughout.
+
+4. **Find northstar** — check for the following in order:
     - `docs/_planning/northstar.md`
     - `docs/northstar.md`
     - `northstar.md`
@@ -208,6 +227,17 @@ final implementation step above performs that deletion. If the repository docume
 ## Step 2 — Apply review lenses
 
 After drafting, re-read the plan against all lenses below. Note every issue.
+
+### Lens 0 — Standards & policy compliance (highest priority)
+
+Hold every step against `$PROJECT_STANDARDS` discovered in Pre-flight. This lens runs first and no plan is finalized while it has an open finding.
+
+- Does any step violate a documented naming, structure, testing, logging, error-handling, dependency, migration/DB, or formatting policy?
+- Does any step introduce a dependency, pattern, or file location that a policy forbids or that the project's linter/formatter config disallows?
+- Does the plan skip a policy-mandated step (required test level, required doc update, required commit/PR convention)?
+- For any conflict between a natural design choice and a policy, is the policy honored — or is the deviation explicitly justified and confirmed with the user?
+
+Treat every standards violation as a blocker: fix it in the plan, or if the policy genuinely cannot be met, surface it to the user before proceeding.
 
 ### Lens A — Project fit
 

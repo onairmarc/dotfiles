@@ -147,6 +147,11 @@ each update must include. Omit this section if no documentation changes are requ
 - **Intro blockquote is mandatory.** Every `plan.md` must open with the `>` callout block containing the parent
   plan path, sub-epic numbering (`NN of TT`), and the dependency statement. Reproduce any project-wide constraint
   callout from the master plan verbatim inside this block.
+- **Project standards & policies carry into every sub-epic.** If the master plan references or embeds project standards, conventions, or policies (naming,
+  structure, testing, logging, dependency, migration/DB, formatting, commit/PR rules), reproduce the subset each sub-epic must obey inside that sub-epic's plan —
+  do not point back to the master plan. If the master plan does not surface any standards, locate them first (repo-root `README.md` / `AGENTS.md` and any
+  standards/policy documents they link, or a `Glob`/`Grep` search when neither names a location) and carry the applicable rules into each sub-epic so no phase
+  can silently violate a policy.
 - **Parent plan path is relative.** Compute it from the sub-epic directory to the master plan file, e.g., if the
   master plan is at `docs/_planning/my-epic/plan.md` and the sub-epic is at `docs/_planning/my-epic/01-slug/plan.md`,
   the relative path is `../plan.md`.
