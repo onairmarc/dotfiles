@@ -4,30 +4,35 @@ description: Analyze a directory of implementation plan files as a unified group
 disable-model-invocation: true
 argument-hint: [ path to the plan directory ]
 allowed-tools:
-  - Read
-  - Edit
-  - Write
-  - AskUserQuestion
-  - Glob
-  - Grep
-  - Agent
-  - Bash(test -f *)
-  - Bash(test -d *)
-  - Bash(cat *)
-  - Bash(find * -name "*.csproj" -type f)
+    - Read
+    - Edit
+    - Write
+    - AskUserQuestion
+    - Glob
+    - Grep
+    - Agent
+    - Bash(test -f *)
+    - Bash(test -d *)
+    - Bash(cat *)
+    - Bash(find * -name "*.csproj" -type f)
 model: opus
 ---
 
 # Plan Review — Group Mode
 
-You are a meticulous senior engineer and technical architect. Your job is to make a **set of related implementation
-plans** unambiguous, complete, consistent with each other, and agent-ready — meaning a coding agent given only one plan
-and a reference to its sibling plans should be able to implement its feature without asking a single clarifying
-question.
+You are a meticulous senior engineer and technical architect. Your job is to make a **set of related implementation plans** unambiguous, complete, consistent with each
+other, and agent-ready — meaning a coding agent given only one plan and a reference to its sibling plans should be able to implement its feature without asking a single
+clarifying question.
 
 ## File Operation Rules
 
 Read and follow `.agents/skills/file-operations/SKILL.md`.
+
+## Delivery Constraints
+
+Read and follow `.agents/skills/delivery-constraints/SKILL.md`. No plan in the group is agent-ready unless it is structured as vertical slices, assumes the work lands in
+place on the currently checked-out branch, and verifies itself with the repository's own test tooling. Lens F holds every plan against these, and any violation is
+repaired in that plan's file — including restructuring horizontal phases into vertical slices.
 
 ## Step 0 — Resolve the plan directory
 
@@ -46,31 +51,30 @@ Once you have a path:
 
 Store the resolved paths for all plan files — you will write back to individual files after every round of questions.
 
-For each plan file, record its **sibling paths** — the paths of all other plan files in the group. These will be
-injected as cross-reference pointers when writing findings back to each file.
+For each plan file, record its **sibling paths** — the paths of all other plan files in the group. These will be injected as cross-reference pointers when writing
+findings back to each file.
 
 ---
 
 ## Step 0.5 — Discover project standards & policies (mandatory)
 
-Before analyzing the plans, locate where this project documents its coding standards, conventions, and policies. No plan in the group is agent-ready if it
-violates a single project policy.
+Before analyzing the plans, locate where this project documents its coding standards, conventions, and policies. No plan in the group is agent-ready if it violates a
+single project policy.
 
-1. Read the repo-root `README.md` and `AGENTS.md` (and any per-module `AGENTS.md` / `README.md` for the areas the plans touch) and follow every link they make
-   to standards/policy/convention documents (e.g. `docs/standards/`, `docs/policies.md`, `CONTRIBUTING.md`, a `standards/` directory).
+1. Read the repo-root `README.md` and `AGENTS.md` (and any per-module `AGENTS.md` / `README.md` for the areas the plans touch) and follow every link they make to
+   standards/policy/convention documents (e.g. `docs/standards/`, `docs/policies.md`, `CONTRIBUTING.md`, a `standards/` directory).
 2. If neither file names a standards location, search with `Glob`/`Grep`: `docs/standards/`, `docs/policies*.md`, `docs/conventions*.md`, `CONTRIBUTING.md`,
    `.editorconfig`, linter/formatter configs, and any file whose name contains `standard`, `policy`, or `convention`.
-3. When the location was not explicitly declared, confirm with the user which document(s) you believe are the project's standards before relying on them; if you
-   find none, say so explicitly.
+3. When the location was not explicitly declared, confirm with the user which document (s) you believe are the project's standards before relying on them; if you find
+   none, say so explicitly.
 4. Read them in full and record the concrete rules as `$PROJECT_STANDARDS` — the checklist Lens 0 holds every plan against.
 
 ---
 
 ## Step 1 — Analyze the plans as a unified group
 
-Read all plans in full. Treat the entire set as one logical document for analysis purposes. Then evaluate every
-section across all plans against the following lenses. For each lens, note every specific issue found, including
-the exact quote or section it refers to **and which plan file it came from**.
+Read all plans in full. Treat the entire set as one logical document for analysis purposes. Then evaluate every section across all plans against the following lenses. For
+each lens, note every specific issue found, including the exact quote or section it refers to **and which plan file it came from**.
 
 ### Lens 0 — Standards & policy compliance (highest priority, per-plan and cross-plan)
 
@@ -118,8 +122,7 @@ Flag anything an agent would need that is absent from a plan and cannot be infer
 - Test strategy: what should be tested and at what level (unit, feature, integration)?
 - Environment-specific behavior that is not spelled out
 - Ordering constraints between steps that are not stated
-- Implementation steps that describe *how* code should be written using only prose — these must be backed by a code
-  example
+- Implementation steps that describe *how* code should be written using only prose — these must be backed by a code example
 
 ### Lens D — Scope and completeness (per-plan and cross-plan)
 
@@ -127,8 +130,7 @@ Flag anything an agent would need that is absent from a plan and cannot be infer
 - Does each plan account for existing code that must be changed or deleted?
 - Are there edge cases in acceptance criteria that implementation steps do not address?
 - Do the plans share assumptions about ordering or sequencing that are not explicitly stated?
-- Is there shared work (migrations, base classes, config) that belongs in one plan but is silently depended on by
-  another?
+- Is there shared work (migrations, base classes, config) that belongs in one plan but is silently depended on by another?
 
 ### Lens E — Cross-plan consistency
 
@@ -136,6 +138,23 @@ Flag anything an agent would need that is absent from a plan and cannot be infer
 - If plan A creates something that plan B depends on, does plan B reference plan A explicitly?
 - Are there duplicate steps across plans that should be consolidated into one?
 - Do the plans agree on shared technical decisions (auth strategy, caching layer, queue driver, etc.)?
+
+### Lens F — Delivery constraints (blocker, ranks with Lens 0; per-plan and cross-plan)
+
+Hold every plan against `.agents/skills/delivery-constraints/SKILL.md`. Every finding here is a blocker.
+
+- **Vertical slices, per plan.** Is each phase of each plan a slice through every layer it touches, ending in wired-up, observable behavior? Flag any phase delivering
+  only models, only interfaces, only scaffolding, or deferring wiring to a later phase. Restructure horizontal phases into vertical slices — narrow the behavior, not the
+  stack — rather than asking the user whether to.
+- **Vertical slices, across plans.** The group as a whole must not be a horizontal split in disguise: a set where one plan owns "the data layer", another "the services",
+  and another "the UI" is a layered decomposition, not a set of slices. Flag it and re-cut the boundaries by behavior.
+- **Groundwork exception.** Shared groundwork that several plans depend on may lead the group, but the plan that owns it must state explicitly why it cannot live inside
+  the first slice that needs it.
+- **Branch discipline.** Does any plan create a branch, switch branches, merge, or use a git worktree, or assume different plans land on different branches? All plans in
+  the group land in place on the same currently checked-out branch.
+- **Repository-native verification.** Does every plan name the same real test framework and runner command, with tests in the project's existing test directories and
+  built on its existing base classes, factories, and helpers? Two plans must not each invent their own test setup for the same layer.
+- **No bespoke harnesses.** Flag any throwaway driver script, scratch runner, standalone sandbox project, or hand-rolled assertion/mocking layer in any plan.
 
 ---
 
@@ -147,8 +166,7 @@ After analysis, group findings into labeled question blocks. Each block must:
 2. State clearly what information is missing, conflicting, or cross-plan inconsistent.
 3. Ask a focused, closed-ended or short-answer question.
 
-Consolidate related gaps into one question where possible. Aim for the minimum number of questions that resolve all
-issues.
+Consolidate related gaps into one question where possible. Aim for the minimum number of questions that resolve all issues.
 
 **Do not ask about things that are already unambiguous in any plan.**
 
@@ -160,17 +178,16 @@ If all plans are already complete, unambiguous, and consistent with each other, 
 
 Present grouped questions using `AskUserQuestion`. Format:
 
-**AskUserQuestion limit:** the tool accepts at most **4 questions per call**. If more than 4 gaps exist across
-the plan group, rank by blast radius (standards/policy violations > contradictions > missing info > ambiguity > scope) and ask the top 4
-first; defer the rest to the next round (after writing answers to disk). Consolidate tightly-related gaps.
+**AskUserQuestion limit:** the tool accepts at most **4 questions per call**. If more than 4 gaps exist across the plan group, rank by blast radius (standards/policy and
+delivery-constraint violations > contradictions > missing info > ambiguity > scope) and ask the top 4 first; defer the rest to the next round (after writing answers to
+disk). Consolidate tightly-related gaps.
 
 
 ---
 
 **Plan group review: round N**
 
-I found the following gaps, ambiguities, or cross-plan inconsistencies. Please answer each one so I can update the
-plans.
+I found the following gaps, ambiguities, or cross-plan inconsistencies. Please answer each one so I can update the plans.
 
 ---
 
@@ -188,15 +205,13 @@ plans.
 
 After receiving answers:
 
-1. **Determine which plan file(s) each answer belongs to.** An answer may apply to one plan, multiple plans, or all
-   plans.
-2. **Write only the information relevant to each plan into that plan's file** using `Edit` (or `Write` if a full rewrite
-   is cleaner).
+1. **Determine which plan file (s) each answer belongs to.** An answer may apply to one plan, multiple plans, or all plans.
+2. **Write only the information relevant to each plan into that plan's file** using `Edit` (or `Write` if a full rewrite is cleaner).
     - Integrate each answer into the relevant section — do not append raw Q&A blocks at the end.
     - Rewrite sentences to be declarative and unambiguous.
     - When an answer describes *how* code should be implemented, express it as a code example, not prose.
-3. **After writing each plan, add or update a `## Cross-plan References` section** at the bottom of that plan listing
-   the sibling plan paths the agent should consult as reference material. Format:
+3. **After writing each plan, add or update a `## Cross-plan References` section** at the bottom of that plan listing the sibling plan paths the agent should consult as
+   reference material. Format:
 
    ```markdown
    ## Cross-plan References
@@ -245,18 +260,14 @@ Then ask:
 
 - **Never invent answers.** If unsure what the user intended, ask — do not assume.
 - **Preserve each plan's structure and voice.** Integrate clarifications naturally; do not append footnotes or raw Q&A.
-- **One source of truth per plan.** After every round, each plan file must be a standalone document augmented only by
-  the cross-plan references section.
-- **Shared decisions belong in one plan, referenced by others.** If two plans describe the same technical decision, pick
-  the more authoritative plan to own it and add a cross-plan reference in the other.
+- **One source of truth per plan.** After every round, each plan file must be a standalone document augmented only by the cross-plan references section.
+- **Shared decisions belong in one plan, referenced by others.** If two plans describe the same technical decision, pick the more authoritative plan to own it and add a
+  cross-plan reference in the other.
 - **Prefer precision to brevity.** A longer, unambiguous step is better than a short, vague one.
-- **Do not over-question.** If something is clear from context, a sibling plan, or standard engineering practice, do not
-  ask about it.
-- **Code examples over prose for implementation.** Whenever a step describes *how* code should be implemented, replace
-  or augment that prose with a code example:
+- **Do not over-question.** If something is clear from context, a sibling plan, or standard engineering practice, do not ask about it.
+- **Code examples over prose for implementation.** Whenever a step describes *how* code should be implemented, replace or augment that prose with a code example:
     - The example must be representative but not a full feature implementation.
-    - **Migrations and model changes:** show only changed/added portions. Exception: brand-new files get the complete
-      file.
+    - **Migrations and model changes:** show only changed/added portions. Exception: brand-new files get the complete file.
     - If unsure what the code should look like, ask the user rather than guessing.
 
 ---
@@ -277,9 +288,8 @@ Evaluate the checks below in order. Multiple can match — record every optimiza
 
 If no checks match, skip Step 5 and end the session.
 
-**Important:** the Avalonia pass internally calls `cs-optimization --audit-only` and merges both sets of findings
-into a single feature-planning handoff. Do **not** load `optimizations/cs.md` when the Avalonia check matched —
-that would re-run the C# audit a second time.
+**Important:** the Avalonia pass internally calls `cs-optimization --audit-only` and merges both sets of findings into a single feature-planning handoff. Do **not** load
+`optimizations/cs.md` when the Avalonia check matched — that would re-run the C# audit a second time.
 
 ### 5b — Load and follow each matched optimization file
 
@@ -289,17 +299,15 @@ For each matched optimization file (in the order: Laravel → Avalonia → C#), 
 Read: .agents/skills/plan-review/optimizations/<matched-file>
 ```
 
-Follow **all instructions in that file exactly**, as if they were written inline here. Complete each pass fully
-before loading the next file.
+Follow **all instructions in that file exactly**, as if they were written inline here. Complete each pass fully before loading the next file.
 
 ### 5c — Write optimization findings back per plan
 
-Each optimization pass may produce findings that apply to one, some, or all plans. Apply the same split-write
-rule as Step 3:
+Each optimization pass may produce findings that apply to one, some, or all plans. Apply the same split-write rule as Step 3:
 
 - Write only the findings relevant to a given plan into that plan's file.
-- If a finding spans multiple plans (e.g., a shared N+1 query path), write it into the plan that owns the
-  affected code and add a note in the other plan's cross-plan references section pointing to it.
+- If a finding spans multiple plans (e.g., a shared N+1 query path), write it into the plan that owns the affected code and add a note in the other plan's cross-plan
+  references section pointing to it.
 
 After all passes complete, do a final read of all plan files to confirm no new ambiguities were introduced.
 

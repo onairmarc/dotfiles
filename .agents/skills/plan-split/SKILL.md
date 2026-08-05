@@ -4,24 +4,33 @@ description: Split a single fleshed-out implementation plan into sequentially or
 disable-model-invocation: true
 argument-hint: [ path to the source plan file ]
 allowed-tools:
-  - Read
-  - Write
-  - AskUserQuestion
-  - Glob
-  - Bash(ls *)
-  - Bash(dirname *)
-  - Bash(test -f *)
+    - Read
+    - Write
+    - AskUserQuestion
+    - Glob
+    - Bash(ls *)
+    - Bash(dirname *)
+    - Bash(test -f *)
 model: opus
 ---
 
 # Plan Split
 
-You are a technical architect decomposing a large implementation plan into discrete, sequentially ordered sub-plans
-that can each be handed to an agent as a self-contained unit of work.
+You are a technical architect decomposing a large implementation plan into discrete, sequentially ordered sub-plans that can each be handed to an agent as a
+self-contained unit of work.
 
 ## File Operation Rules
 
 Read and follow `.agents/skills/file-operations/SKILL.md`.
+
+## Delivery Constraints
+
+Read and follow `.agents/skills/delivery-constraints/SKILL.md`. Two consequences govern this skill:
+
+- **Every sub-plan is a vertical slice.** Split boundaries are cut by behavior, never by layer. A sub-plan that delivers "the models", "the interfaces", or "the API
+  surface" with its callers deferred to a later sub-plan is an invalid split — re-cut it.
+- **Every sub-plan inherits the branch and testing rules.** All sub-plans land in place on the currently checked-out branch, and each verifies itself with the
+  repository's own test tooling. Reproduce both rules in every sub-plan (see Step 3).
 
 ---
 
@@ -37,8 +46,8 @@ Otherwise, use `AskUserQuestion` to ask the user:
 Once you have a path:
 
 - Read the file with `Read`. If it does not exist, stop with an error.
-- Derive the **output directory** as the directory that contains the plan file (i.e. `dirname` of the resolved path).
-  The sub-plan files will be written alongside the source plan in this same directory.
+- Derive the **output directory** as the directory that contains the plan file (i.e. `dirname` of the resolved path). The sub-plan files will be written alongside the
+  source plan in this same directory.
 
 No separate output directory argument is accepted or needed.
 
@@ -52,31 +61,35 @@ Read the plan in full. Identify the natural units of work that can be split into
 
 A good sub-plan boundary is where:
 
+- **A vertical slice of behavior is complete** — the sub-plan cuts through every layer it touches (schema, domain, service, transport, UI) for one narrow piece of
+  behavior, and leaves it wired up and observable. This is the primary criterion; a boundary that fails it is wrong even if it satisfies every other bullet.
 - A distinct deliverable is produced (a file, a service, a migration, a tested feature)
 - There is a natural handoff — the next phase can only begin once this one is complete
-- The deliverable leaves the codebase in a state where the relevant test suite can run and pass, providing a
-  verification checkpoint before the next sub-plan begins
-- Each sub-plan can be implemented end-to-end by a single coding agent in one sitting without needing context from a
-  sibling sub-plan that has not yet run
+- The deliverable leaves the codebase in a state where the relevant test suite can run and pass, providing a verification checkpoint before the next sub-plan begins
+- Each sub-plan can be implemented end-to-end by a single coding agent in one sitting without needing context from a sibling sub-plan that has not yet run
 
-Sub-plans are executed strictly one at a time by `plan-execute` — never concurrently. Always favor **accuracy of
-implementation over speed of implementation**. When in doubt, split finer rather than coarser: more, smaller phases
-let the test suite run between them and catch regressions before later phases compound them.
+Sub-plans are executed strictly one at a time by `plan-execute` — never concurrently. Always favor **accuracy of implementation over speed of implementation**. When in
+doubt, split finer rather than coarser: more, smaller phases let the test suite run between them and catch regressions before later phases compound them.
 
-A natural test gate between phases is one of the strongest signals that a split boundary is correct. If a candidate
-sub-plan ends in a state where tests cannot meaningfully run (e.g. it leaves the codebase mid-refactor or
-half-migrated), either move the boundary or merge it with the next sub-plan so the seam falls on a testable state.
+A natural test gate between phases is one of the strongest signals that a split boundary is correct. If a candidate sub-plan ends in a state where tests cannot
+meaningfully run (e.g. it leaves the codebase mid-refactor or half-migrated), either move the boundary or merge it with the next sub-plan so the seam falls on a testable
+state.
 
-**"Parallel" never refers to agents.** The only parallelism allowed is inside the test runner itself
-(e.g. `vendor/bin/pest --parallel`, `phpunit --parallel`, Jest workers). Coding sub-agents always run one at a time.
+**"Parallel" never refers to agents.** The only parallelism allowed is inside the test runner itself (e.g. `vendor/bin/pest --parallel`, `phpunit --parallel`, Jest
+workers). Coding sub-agents always run one at a time.
 
 ### What NOT to split
 
+- **Never split by layer.** "All models" → "all repositories" → "all controllers" → "wire it up" is a horizontal decomposition and is forbidden. When a slice is too big
+  for one sub-plan, cut it by taking a smaller piece of behavior all the way through the stack (one endpoint instead of five, one field instead of the whole form), never
+  by removing a layer and deferring it.
 - Steps so small they add more overhead than value (e.g. a single line config change does not deserve its own plan)
-- Steps that are inseparable because they form a single atomic transaction (e.g. a migration + its seeder that must
-  run together)
-- Work that only makes sense when implemented together (splitting just to have more sub-plans adds noise without
-  benefit when execution is sequential)
+- Steps that are inseparable because they form a single atomic transaction (e.g. a migration + its seeder that must run together)
+- Work that only makes sense when implemented together (splitting just to have more sub-plans adds noise without benefit when execution is sequential)
+
+**Shared groundwork exception:** groundwork that several slices depend on and that genuinely cannot be co-located with the first slice (e.g. a migration three slices
+read, or a package install) may become sub-plan `01`. Keep it as small as possible and state in that sub-plan's Context why it could not live inside the first behavioral
+slice. Anything that *can* live inside the first slice must.
 
 ### Producing the split
 
@@ -143,39 +156,53 @@ Once the user approves, write each sub-plan file using the following format.
 
 ## Context
 
-<One paragraph explaining why this unit of work exists, what it produces, and how it fits into the overall feature.
-Include any constraints or decisions from the master plan that are relevant to this sub-plan only.>
+<One paragraph explaining why this unit of work exists, what it produces, and how it fits into the overall feature. Include any constraints or decisions from the master
+plan that are relevant to this sub-plan only. State in one line what behavior is observable once this slice is complete. If this is a shared-groundwork sub-plan, state
+why the groundwork could not live inside the first behavioral slice.>
+
+---
+
+## Delivery constraints
+
+- **Vertical slice.** This sub-plan cuts through every layer it touches and ends with the behavior above wired up and observable. Do not leave anything registered,
+  injected, or created but uncalled.
+- **In place, on the current branch.** Implement on the branch already checked out, in the main working tree. Do not create a branch, switch branches, merge, or use a git
+  worktree.
+- **Repository-native verification.** Use `<the project's runner command>` with the project's existing test directories, base classes, and factories. Do not write
+  throwaway driver scripts, scratch runners, sandbox projects, or bespoke assertion helpers.
 
 ---
 
 ## Steps
 
-<The ordered implementation steps from the master plan that belong to this sub-plan. Keep them verbatim or
-lightly edited to stand alone — do not summarize or lose detail. Each step should be actionable by a coding agent
-without referring back to the master plan.>
+<The ordered implementation steps from the master plan that belong to this sub-plan. Keep them verbatim or lightly edited to stand alone — do not summarize or lose
+detail. Each step should be actionable by a coding agent without referring back to the master plan.>
 
 ---
 
 ## Acceptance Criteria
 
-<The acceptance criteria from the master plan that apply to this sub-plan's deliverable. If the master plan has
-global criteria, reproduce only the subset that this sub-plan is responsible for.>
+<The acceptance criteria from the master plan that apply to this sub-plan's deliverable. If the master plan has global criteria, reproduce only the subset that this
+sub-plan is responsible for.>
 ```
 
 **Rules for content extraction:**
 
 - Copy relevant steps verbatim from the master plan. Do not paraphrase or shorten implementation detail.
-- If a step from the master plan spans multiple sub-plans (e.g. "create X and wire it into Y" where X is plan 02 and
-  wiring is plan 03), split the step text accordingly so each sub-plan contains only its portion.
-- Every sub-plan must be self-contained: an agent reading only that file and the codebase should be able to implement
-  it without referring to any other sub-plan or the master plan.
-- Shared context (e.g. database schema decisions, API contracts, naming conventions) must be reproduced in every
-  sub-plan that needs it — do not say "see plan 01 for details".
-- **Project standards & policy constraints carry into every sub-plan.** If the master plan references or embeds project standards, conventions, or policies
-  (naming, structure, testing, logging, dependency, migration/DB, formatting, commit/PR rules), reproduce the subset that applies to each sub-plan's work in
-  that sub-plan's Context — do not point back to the master plan. If the master plan does not surface any standards, locate them first (repo-root `README.md` /
-  `AGENTS.md` and any standards/policy documents they link, or a `Glob`/`Grep` search when neither names a location) and carry the applicable rules into each
-  sub-plan so no phase can silently violate a policy.
+- If a step from the master plan spans multiple sub-plans (e.g. "create X and wire it into Y" where X is plan 02 and wiring is plan 03), split the step text accordingly
+  so each sub-plan contains only its portion.
+- Every sub-plan must be self-contained: an agent reading only that file and the codebase should be able to implement it without referring to any other sub-plan or the
+  master plan.
+- Shared context (e.g. database schema decisions, API contracts, naming conventions) must be reproduced in every sub-plan that needs it — do not say "see plan 01 for
+  details".
+- **Project standards & policy constraints carry into every sub-plan.** If the master plan references or embeds project standards, conventions, or policies (naming,
+  structure, testing, logging, dependency, migration/DB, formatting, commit/PR rules), reproduce the subset that applies to each sub-plan's work in that sub-plan's
+  Context — do not point back to the master plan. If the master plan does not surface any standards, locate them first (repo-root `README.md` /
+  `AGENTS.md` and any standards/policy documents they link, or a `Glob`/`Grep` search when neither names a location) and carry the applicable rules into each sub-plan so
+  no phase can silently violate a policy.
+- **The `## Delivery constraints` section is mandatory in every sub-plan** and must be filled in, not templated — substitute the project's real runner command, discovered
+  from the master plan or the repository. Never replace it with a pointer to the master plan or to `.agents/skills/delivery-constraints/SKILL.md`; the sub-plan must bind
+  the agent on its own.
 
 Write all files before proceeding to Step 4.
 
@@ -207,17 +234,16 @@ Then ask:
 
 ## Guidelines
 
-- **Preserve detail.** The master plan has been carefully written — do not lose implementation specifics when
-  extracting into sub-plans.
+- **Slice vertically, always.** Every sub-plan ships working behavior across the stack. If a proposed sub-plan cannot be described in terms of what someone can now do or
+  observe, it is a layer, not a slice — re-cut it.
+- **Preserve detail.** The master plan has been carefully written — do not lose implementation specifics when extracting into sub-plans.
 - **Prefer more context over less.** If in doubt whether a piece of context belongs in a sub-plan, include it.
-- **Favor accuracy over speed.** When choosing between fewer larger sub-plans or more smaller ones, pick the
-  decomposition that maximizes correctness — typically more, smaller phases with test gates between them.
-- **Require a testable seam between phases.** Each sub-plan should leave the codebase in a state where the test suite
-  can run. Acceptance criteria should describe what `vendor/bin/pest --parallel` (or the project's equivalent) is
-  expected to show when the sub-plan is complete.
-- **Sequence reflects dependency and execution order.** Sub-plans run one at a time in dependency-respecting order;
-  pick sequence numbers that reflect the order an agent should implement them in. Two sub-plans that both depend only
-  on 01 still get distinct sequence numbers (e.g. 02 and 03) and run back-to-back, never simultaneously.
+- **Favor accuracy over speed.** When choosing between fewer larger sub-plans or more smaller ones, pick the decomposition that maximizes correctness — typically more,
+  smaller phases with test gates between them.
+- **Require a testable seam between phases.** Each sub-plan should leave the codebase in a state where the test suite can run. Acceptance criteria should describe what
+  `vendor/bin/pest --parallel` (or the project's equivalent) is expected to show when the sub-plan is complete.
+- **Sequence reflects dependency and execution order.** Sub-plans run one at a time in dependency-respecting order; pick sequence numbers that reflect the order an agent
+  should implement them in. Two sub-plans that both depend only on 01 still get distinct sequence numbers (e.g. 02 and 03) and run back-to-back, never simultaneously.
 - **Slug naming:** use imperative verb phrases — `create-user-model`, `add-queue-worker`, `write-feature-tests`.
 - **Never omit acceptance criteria** from a sub-plan. If the master plan has none, derive them from the steps.
 

@@ -23,6 +23,12 @@ agent given only this plan and the codebase should be able to implement it witho
 
 Read and follow `.agents/skills/file-operations/SKILL.md`.
 
+## Delivery Constraints
+
+Read and follow `.agents/skills/delivery-constraints/SKILL.md`. Every plan this skill produces must be structured as vertical slices, must assume the work lands in place
+on the currently checked-out branch, and must verify itself with the repository's own test tooling rather than a bespoke harness. These constraints are enforced by Lens E
+in Step 2 and must be reproduced in the plan itself so an implementing agent reading only the plan is bound by them.
+
 ## General Design Principles
 
 Apply these throughout every phase. They are non-negotiable constraints, not suggestions.
@@ -58,9 +64,25 @@ The system must work. It does not need N-9 availability or retry logic on every 
 
 ### 7. Never violate a project standard or policy
 
-The plan must not violate a single documented project standard, convention, or policy. Discover where those standards live (see Pre-flight), read them in
-full, and hold every step against them. When a natural design choice would conflict with a documented policy, the policy wins — change the design, not the
-policy. If a policy is ambiguous or appears to conflict with the goal, flag it to the user rather than guessing.
+The plan must not violate a single documented project standard, convention, or policy. Discover where those standards live (see Pre-flight), read them in full, and hold
+every step against them. When a natural design choice would conflict with a documented policy, the policy wins — change the design, not the policy. If a policy is
+ambiguous or appears to conflict with the goal, flag it to the user rather than guessing.
+
+### 8. Vertical slices, never horizontal layers
+
+Every phase of the plan delivers one narrow piece of behavior cut through every layer it touches — schema, domain, service, transport, UI — and leaves it wired up and
+observable. Never plan a phase whose deliverable is "all the models" or "all the interfaces" with the wiring deferred. When a slice is too big, narrow the *behavior*
+(one endpoint instead of five), not the *stack*. See `.agents/skills/delivery-constraints/SKILL.md` for the full rule and its one permitted exception.
+
+### 9. In-place on the current branch
+
+The plan assumes implementation happens in place on the branch already checked out. No plan step creates a branch, switches branches, merges, or uses a git worktree.
+
+### 10. Verify with the repository's own tooling
+
+Tests live in the repository's existing test directories, use its existing base classes, factories, and assertion helpers, and run with its own runner command. Never plan
+a throwaway driver script, scratch runner, sandbox project, or bespoke assertion layer to prove a change works. If the repository has no test tooling at all, say so
+explicitly and verify using what does exist rather than inventing a harness.
 
 ---
 
@@ -80,22 +102,21 @@ Before gathering requirements, orient yourself to the repository:
 
    If none exist, default to `docs/_planning/`. Record this as `$PLAN_DIR`.
 
-3. **Discover project standards & policies (mandatory)** — locate every place this project documents coding standards, conventions, and policies. The plan must
-   not violate a single one, so finding them is not optional.
+3. **Discover project standards & policies (mandatory)** — locate every place this project documents coding standards, conventions, and policies. The plan must not
+   violate a single one, so finding them is not optional.
 
-    1. **Start where the standards are usually declared.** Read the repo-root `README.md` and `AGENTS.md` (and any per-module `AGENTS.md` / `README.md` for the
-       area this feature touches). Follow every link or reference they make to standards, policy, or convention documents (e.g. `docs/standards/`,
+    1. **Start where the standards are usually declared.** Read the repo-root `README.md` and `AGENTS.md` (and any per-module `AGENTS.md` / `README.md` for the area this
+       feature touches). Follow every link or reference they make to standards, policy, or convention documents (e.g. `docs/standards/`,
        `docs/policies.md`, `CONTRIBUTING.md`, a `standards/` directory, or a linked doc).
     2. **If neither `README.md` nor `AGENTS.md` names a standards location, search for it** with `Glob`/`Grep`. Likely homes: `docs/standards/`,
        `docs/policies*.md`, `docs/conventions*.md`, `CONTRIBUTING.md`, `.editorconfig`, and linter/formatter configs (`pint.json`, `phpcs.xml`,
-       `.php-cs-fixer*`, `.eslintrc*`, `ruff.toml`, `.golangci.yml`, etc.), plus any file whose name contains `standard`, `policy`, or `convention` anywhere in
-       the repo.
-    3. **Confirm you found the right standards when they are not explicitly declared.** If the location was not named in `README.md` / `AGENTS.md`, do not
-       silently assume — tell the user which document(s) you believe hold the project's standards and why, and confirm before relying on them. If you find none,
-       say so explicitly rather than proceeding as if the project has no policies.
-    4. **Read every standard in full and extract the concrete rules** that could constrain this plan — naming, module/directory structure, testing, logging,
-       error handling, dependency policy, migration/DB rules, formatting, and commit/PR policy. Record them as `$PROJECT_STANDARDS`: a checklist the plan will
-       be held against in Step 2.
+       `.php-cs-fixer*`, `.eslintrc*`, `ruff.toml`, `.golangci.yml`, etc.), plus any file whose name contains `standard`, `policy`, or `convention` anywhere in the repo.
+    3. **Confirm you found the right standards when they are not explicitly declared.** If the location was not named in `README.md` / `AGENTS.md`, do not silently
+       assume — tell the user which document (s) you believe hold the project's standards and why, and confirm before relying on them. If you find none, say so explicitly
+       rather than proceeding as if the project has no policies.
+    4. **Read every standard in full and extract the concrete rules** that could constrain this plan — naming, module/directory structure, testing, logging, error
+       handling, dependency policy, migration/DB rules, formatting, and commit/PR policy. Record them as `$PROJECT_STANDARDS`: a checklist the plan will be held against
+       in Step 2.
 
    From these same sources, also identify the project name, tech stack, existing architectural patterns and naming conventions, and any planning or documentation
    policies. Use this context to inform the plan's language, component references, and step specificity throughout.
@@ -153,6 +174,17 @@ Explicit list of things this plan does NOT cover. If nothing is out of scope, sa
 
 Table: Component / Module | Change type (New / Modified / Deleted) | Summary of change
 
+## Delivery constraints
+
+Reproduce these verbatim — they bind the implementing agent:
+
+- **Vertical slices.** Each slice below cuts through every layer it touches and ends with behavior that is wired up and observable. Do not implement a layer ahead of its
+  caller, and do not defer wiring to a later slice.
+- **In place, on the current branch.** Implement on the branch already checked out, in the main working tree. Do not create a branch, switch branches, merge, or use a git
+  worktree.
+- **Repository-native verification.** Use `<the project's test framework and runner command, e.g. vendor/bin/pest --parallel>` with the project's existing test
+  directories, base classes, and factories. Do not write throwaway driver scripts, scratch runners, sandbox projects, or bespoke assertion helpers.
+
 ## Architecture
 
 ### <Sub-section per significant design decision>
@@ -162,7 +194,13 @@ or service is created, list its directory structure.
 
 ## Implementation steps
 
-Ordered list. Each step must be:
+Organized as **vertical slices**. Group the steps under one `### Slice N — <behavior delivered>` heading per slice, ordered so each slice ships working behavior. Under
+each slice heading, state in one line what is observable when the slice is done, then give the ordered steps.
+
+If shared groundwork genuinely cannot live inside the first slice (e.g. a migration three slices read), it may lead as `### Slice 0 — <groundwork>` with an explicit
+sentence explaining why it cannot be co-located with Slice 1.
+
+Each step must be:
 
 - Specific enough that an agent can execute it without asking questions
 - Scoped to one logical unit of work (one class, one migration, one endpoint)
@@ -196,11 +234,17 @@ If no migration is required, say so explicitly.
 
 ## Tests
 
-For each implementation step that contains logic:
+Name the project's test framework and the exact runner command up front. Every test below uses that tooling and lives in the project's existing test directories — no
+bespoke harness, scratch script, or standalone sandbox.
+
+For each slice:
 
 - What is being tested (unit, integration, or end-to-end)
-- Which test project or directory
+- Which test project or directory, and which existing base class / factory / fixture it builds on
 - Key scenarios (happy path + at least one failure/edge case per logical unit)
+- The runner command that must pass before the next slice starts
+
+If the repository has no test tooling, say so explicitly and state how each slice is verified with what does exist instead.
 
 ## Documentation updates
 
@@ -272,6 +316,17 @@ Treat every standards violation as a blocker: fix it in the plan, or if the poli
 - Test strategy absent for steps containing logic
 - Documentation update list absent or incomplete
 - Ordering constraints between steps not stated
+
+### Lens E — Delivery constraints (blocker)
+
+Hold the plan against `.agents/skills/delivery-constraints/SKILL.md`. Every finding here is a blocker.
+
+- Is every slice vertical? Does any phase deliver only a layer — models, interfaces, scaffolding — with no caller and no observable behavior until a later phase?
+- Does any slice leave something registered, injected, or created but not wired up?
+- Is a "Slice 0" present without an explicit justification for why the groundwork cannot live inside Slice 1?
+- Does any step create a branch, switch branches, merge, or use a git worktree, or otherwise assume the work lands somewhere other than the current branch?
+- Does the Tests section name the project's real framework and runner command, and do all tests live in the project's existing test layout?
+- Does any step introduce a throwaway driver script, scratch runner, sandbox project, or bespoke assertion/mocking layer that duplicates existing project tooling?
 
 ---
 

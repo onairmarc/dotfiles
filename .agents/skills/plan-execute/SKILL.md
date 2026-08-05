@@ -22,6 +22,12 @@ time, in dependency-respecting order. You do not implement anything yourself, an
 
 Read and follow `.agents/skills/file-operations/SKILL.md`.
 
+## Delivery Constraints
+
+Read and follow `.agents/skills/delivery-constraints/SKILL.md`. You do not implement, but you are responsible for making sure every sub-agent is bound by these:
+sub-plans are implemented as vertical slices, in place on the currently checked-out branch, and verified with the repository's own test tooling. Reproduce them in
+`.agent-instructions.md` (Step 3a) and never spawn an agent without that file present.
+
 ---
 
 ## Step 0 — Resolve the sub-plans directory
@@ -127,7 +133,23 @@ next sub-plan. Process sub-plans in the order produced by Step 2 (dependency ord
 Each agent prompt must be self-contained. Use the appropriate template based on the sub-plan's status from Step 1b.
 
 Before spawning agents, write a shared context file at `$PLAN_DIR/.agent-instructions.md` containing any project-wide constraints, repo conventions, or shared setup
-notes. Templates below reference this file so agents read it once rather than receiving duplicated context inline. Always include in this file the **plan lifecycle**
+notes. Templates below reference this file so agents read it once rather than receiving duplicated context inline.
+
+Always include in this file the **delivery constraints**, reproduced verbatim so every sub-agent is bound by them:
+
+```markdown
+## Delivery constraints
+
+- **Vertical slices.** Implement the sub-plan as a slice through every layer it touches, ending with behavior that is wired up and observable. Do not leave anything
+  registered, injected, or created but uncalled, and do not defer wiring to a later sub-plan.
+- **In place, on the current branch.** Work on the branch already checked out, in the main working tree. Do not create a branch, switch branches, merge, or use a git
+  worktree.
+- **Repository-native verification.** Write tests in the project's existing test directories using its existing base classes, factories, and assertion helpers, and run
+  them with the project's own runner command. Do not write throwaway driver scripts, scratch `main()`/`verify.*` runners, standalone sandbox projects, or hand-rolled
+  assertion/mocking layers. If the repository has no test tooling at all, report that instead of scaffolding a harness.
+```
+
+Also always include in this file the **plan lifecycle**
 note: the `$PLAN_DIR` directory is throwaway scaffolding — once the feature is implemented and its durable docs land, the whole directory is deleted in the same change,
 and a missing or staged-deleted plan directory at commit time is intentional and must not be restored (defer to the repo's own planning-lifecycle doc, e.g.
 `docs/_planning/README.md`, if present). Because this note always applies, do not omit the file.
@@ -142,11 +164,17 @@ and a missing or staged-deleted plan directory at commit time is intentional and
 >
 > **Sub-plan file:** `<$PLAN_DIR/<filename>>`
 >
-> Read `$PLAN_DIR/.agent-instructions.md` (if it exists) and the sub-plan file using the Read tool before
+> Read `$PLAN_DIR/.agent-instructions.md` (mandatory — its delivery constraints bind you) and the sub-plan file using the Read tool before
 > implementing. The sub-plan file contains all required context.
 >
+> Work in place on the branch that is already checked out. Do not create a branch, switch branches, merge, or use a
+> git worktree. Deliver the sub-plan as a vertical slice: everything it touches must be wired up and observable when
+> you are done — nothing registered, injected, or created but uncalled.
+>
 > After implementing, run the project's full test suite using its native parallel runner
-> (`vendor/bin/pest --parallel`, `phpunit --parallel`, `npm test`, etc. — pick whichever the project uses). The
+> (`vendor/bin/pest --parallel`, `phpunit --parallel`, `npm test`, etc. — pick whichever the project uses). Write any
+> new tests inside the project's existing test directories using its existing base classes, factories, and assertion
+> helpers — never a throwaway driver script, scratch runner, sandbox project, or hand-rolled assertion layer. The
 > sub-plan is not complete until the suite passes. If the suite fails, fix the failures before reporting done. If
 > you cannot make the suite pass, stop and report the failing tests with their output instead of declaring success.
 
@@ -167,12 +195,18 @@ and a missing or staged-deleted plan directory at commit time is intentional and
 > **What still needs to be done:**
 > <bullet list of deliverables not yet satisfied, derived from the plan's acceptance criteria>
 >
-> Read `$PLAN_DIR/.agent-instructions.md` (if it exists) and the sub-plan file using the Read tool before
+> Read `$PLAN_DIR/.agent-instructions.md` (mandatory — its delivery constraints bind you) and the sub-plan file using the Read tool before
 > implementing. Do not ask clarifying questions. If you find that something listed as missing is actually already
 > present and correct, skip it and continue. The plan's stated goals are the source of truth.
 >
+> Work in place on the branch that is already checked out. Do not create a branch, switch branches, merge, or use a
+> git worktree. Deliver the sub-plan as a vertical slice: everything it touches must be wired up and observable when
+> you are done — nothing registered, injected, or created but uncalled.
+>
 > After implementing, run the project's full test suite using its native parallel runner
-> (`vendor/bin/pest --parallel`, `phpunit --parallel`, `npm test`, etc. — pick whichever the project uses). The
+> (`vendor/bin/pest --parallel`, `phpunit --parallel`, `npm test`, etc. — pick whichever the project uses). Write any
+> new tests inside the project's existing test directories using its existing base classes, factories, and assertion
+> helpers — never a throwaway driver script, scratch runner, sandbox project, or hand-rolled assertion layer. The
 > sub-plan is not complete until the suite passes. If the suite fails, fix the failures before reporting done. If
 > you cannot make the suite pass, stop and report the failing tests with their output instead of declaring success.
 
@@ -243,7 +277,7 @@ When retrying a failed sub-plan, wrap the original plan content with failure con
 > - If partial work was done before the failure, identify what was completed and continue from there rather than starting over.
 > - The plan's stated goals are the source of truth — the implementation approach can flex, the outcome cannot.
 >
-> Read `$PLAN_DIR/.agent-instructions.md` (if it exists) and the sub-plan file using the Read tool before
+> Read `$PLAN_DIR/.agent-instructions.md` (mandatory — its delivery constraints bind you) and the sub-plan file using the Read tool before
 > implementing.
 
 ---
@@ -289,6 +323,9 @@ Documentation-updates steps); the plan must not be committed as a lingering arti
 ## Orchestration rules
 
 - **Never implement code yourself.** Your role is routing and coordination only.
+- **Never branch.** You and every sub-agent work in place on the currently checked-out branch. Do not create a branch, switch branches, merge, or use a git worktree, and
+  treat a sub-agent that reports doing so as a failure per Step 3c.
+- **Always write `.agent-instructions.md` first.** It carries the delivery constraints; spawning a sub-agent without it means the sub-agent is unbound.
 - **Never read `plan.md`.** It is the source document for plan-split, not a sub-plan.
 - **Sequential execution only.** Spawn a single sub-agent, wait for it, then spawn the next. Never run two sub-agents concurrently. Experience has shown sequential
   execution produces materially more reliable results than parallel execution.
