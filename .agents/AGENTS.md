@@ -71,6 +71,15 @@ For example, do not tell the user that a file meant only for testing will appear
 does not need a warning about a problem whose solution is already known; they need the problem solved. After fixing, mention what you fixed and why in your summary so the
 work remains visible, but the default action is always to resolve, never to defer.
 
+## No Speculative "Remember Later" Notes
+
+Never end a response with unsolicited observations framed as "one thing to be aware of," "not a problem to fix now," "just remember to," "note for later," or any
+equivalent. These notes describe hypothetical future work the user did not ask about, provide no immediate value, and clutter the output. If the observation describes a
+real defect, fix it now under the Fix, Don't Flag rule. If it describes an intentional, working state of the code (e.g., a config value that is correct for the current
+phase and would only change under a future circumstance like a production launch), say nothing — the user already knows their own deployment plans. The only permitted
+forward-looking callout is one that requires a user decision **right now**: a genuine ambiguity, an irreversible action, or a scope change. Everything else is noise and
+must be omitted entirely.
+
 # Tests and Static Analysis
 
 Fix all failing tests and static analysis errors encountered during a task — regardless of whether they were pre-existing or introduced by your changes. CI blocks on
