@@ -61,6 +61,16 @@ recollection of the framework's API; verify against the version actually install
 need to decompile binaries or disassemble compiled artifacts. When the framework source is not available in readable form, fall back to the official documentation for the
 installed version rather than guessing.
 
+# Fix, Don't Flag
+
+Do not flag issues that you can resolve yourself with a moment of thought. If you identify a problem, know why it is a problem, and know how to fix it, then fix it — do
+not report it back to the user as a finding, a risk, or a "note for later." Flagging is reserved for issues that genuinely require a user decision: ambiguous
+requirements, competing tradeoffs with no clear winner, destructive or irreversible actions, or scope changes beyond the original request.
+
+For example, do not tell the user that a file meant only for testing will appear in production builds if not addressed — resolve the problem at its root cause. The user
+does not need a warning about a problem whose solution is already known; they need the problem solved. After fixing, mention what you fixed and why in your summary so the
+work remains visible, but the default action is always to resolve, never to defer.
+
 # Tests and Static Analysis
 
 Fix all failing tests and static analysis errors encountered during a task — regardless of whether they were pre-existing or introduced by your changes. CI blocks on
