@@ -25,7 +25,8 @@ Read and follow `.agents/skills/file-operations/SKILL.md`.
 ## Delivery Constraints
 
 Read and follow `.agents/skills/delivery-constraints/SKILL.md`. You do not implement, but you are responsible for making sure every sub-agent is bound by these:
-sub-plans are implemented as vertical slices, in place on the currently checked-out branch, and verified with the repository's own test tooling. Reproduce them in
+sub-plans are implemented as vertical slices, in place on the currently checked-out branch — or on a new branch you create off main before spawning the first sub-agent,
+when your branch check shows main is checked out — and verified with the repository's own test tooling. Reproduce them in
 `.agent-instructions.md` (Step 3a) and never spawn an agent without that file present.
 
 ---
@@ -142,7 +143,9 @@ Always include in this file the **delivery constraints**, reproduced verbatim so
 
 - **Vertical slices.** Implement the sub-plan as a slice through every layer it touches, ending with behavior that is wired up and observable. Do not leave anything
   registered, injected, or created but uncalled, and do not defer wiring to a later sub-plan.
-- **In place, on the current branch.** Work on the branch already checked out, in the main working tree. Do not create a branch, switch branches, merge, or use a git
+- **In place, on the current branch.** Before your first change, run `git rev-parse --abbrev-ref HEAD` to confirm what branch is actually checked out — never assume from
+  memory or from the plan text. The orchestrator has already branched off main if that was needed, so the checked-out branch should not be the repository's main branch.
+  Work in place on it. If the check unexpectedly shows the main branch, stop and report that instead of implementing. Do not switch branches, merge, or use a git
   worktree.
 - **Repository-native verification.** Write tests in the project's existing test directories using its existing base classes, factories, and assertion helpers, and run
   them with the project's own runner command. Do not write throwaway driver scripts, scratch `main()`/`verify.*` runners, standalone sandbox projects, or hand-rolled
@@ -167,9 +170,11 @@ and a missing or staged-deleted plan directory at commit time is intentional and
 > Read `$PLAN_DIR/.agent-instructions.md` (mandatory — its delivery constraints bind you) and the sub-plan file using the Read tool before
 > implementing. The sub-plan file contains all required context.
 >
-> Work in place on the branch that is already checked out. Do not create a branch, switch branches, merge, or use a
-> git worktree. Deliver the sub-plan as a vertical slice: everything it touches must be wired up and observable when
-> you are done — nothing registered, injected, or created but uncalled.
+> Before your first change, run `git rev-parse --abbrev-ref HEAD` to confirm what branch is actually checked out —
+> do not assume from memory or from the plan. Work in place on that branch. It should not be the repository's main
+> branch; if it is, stop and report that instead of implementing. Do not create a branch, switch branches, merge, or
+> use a git worktree. Deliver the sub-plan as a vertical slice: everything it touches must be wired up and observable
+> when you are done — nothing registered, injected, or created but uncalled.
 >
 > After implementing, run the project's full test suite using its native parallel runner
 > (`vendor/bin/pest --parallel`, `phpunit --parallel`, `npm test`, etc. — pick whichever the project uses). Write any
@@ -199,9 +204,11 @@ and a missing or staged-deleted plan directory at commit time is intentional and
 > implementing. Do not ask clarifying questions. If you find that something listed as missing is actually already
 > present and correct, skip it and continue. The plan's stated goals are the source of truth.
 >
-> Work in place on the branch that is already checked out. Do not create a branch, switch branches, merge, or use a
-> git worktree. Deliver the sub-plan as a vertical slice: everything it touches must be wired up and observable when
-> you are done — nothing registered, injected, or created but uncalled.
+> Before your first change, run `git rev-parse --abbrev-ref HEAD` to confirm what branch is actually checked out —
+> do not assume from memory or from the plan. Work in place on that branch. It should not be the repository's main
+> branch; if it is, stop and report that instead of implementing. Do not create a branch, switch branches, merge, or
+> use a git worktree. Deliver the sub-plan as a vertical slice: everything it touches must be wired up and observable
+> when you are done — nothing registered, injected, or created but uncalled.
 >
 > After implementing, run the project's full test suite using its native parallel runner
 > (`vendor/bin/pest --parallel`, `phpunit --parallel`, `npm test`, etc. — pick whichever the project uses). Write any
@@ -323,8 +330,11 @@ Documentation-updates steps); the plan must not be committed as a lingering arti
 ## Orchestration rules
 
 - **Never implement code yourself.** Your role is routing and coordination only.
-- **Never branch.** You and every sub-agent work in place on the currently checked-out branch. Do not create a branch, switch branches, merge, or use a git worktree, and
-  treat a sub-agent that reports doing so as a failure per Step 3c.
+- **Check the branch yourself, once, before the first sub-agent.** Run `git rev-parse --abbrev-ref HEAD` to read the branch actually checked out right now — never rely on
+  memory or on an earlier check. If it is not the repository's main branch, proceed. If it is main, run `git checkout -b <descriptive-branch-name>` off it first, state
+  the branch name you created, and then proceed. Do this before spawning any sub-agent so every sub-agent inherits the correct branch.
+- **Never branch again after that.** You and every sub-agent then work in place on that branch. No further branch creation, no switching branches, no merging, no git
+  worktrees — treat a sub-agent that reports doing any of those as a failure per Step 3c.
 - **Always write `.agent-instructions.md` first.** It carries the delivery constraints; spawning a sub-agent without it means the sub-agent is unbound.
 - **Never read `plan.md`.** It is the source document for plan-split, not a sub-plan.
 - **Sequential execution only.** Spawn a single sub-agent, wait for it, then spawn the next. Never run two sub-agents concurrently. Experience has shown sequential

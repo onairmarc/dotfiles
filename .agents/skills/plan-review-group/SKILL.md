@@ -31,8 +31,9 @@ Read and follow `.agents/skills/file-operations/SKILL.md`.
 ## Delivery Constraints
 
 Read and follow `.agents/skills/delivery-constraints/SKILL.md`. No plan in the group is agent-ready unless it is structured as vertical slices, assumes the work lands in
-place on the currently checked-out branch, and verifies itself with the repository's own test tooling. Lens F holds every plan against these, and any violation is
-repaired in that plan's file — including restructuring horizontal phases into vertical slices.
+place on the currently checked-out branch — or on a new branch created off main when a branch check shows main is checked out — and verifies itself with the repository's
+own test tooling. Lens F holds every plan against these, and any violation is repaired in that plan's file — including restructuring horizontal phases into vertical
+slices.
 
 ## Step 0 — Resolve the plan directory
 
@@ -150,8 +151,9 @@ Hold every plan against `.agents/skills/delivery-constraints/SKILL.md`. Every fi
   and another "the UI" is a layered decomposition, not a set of slices. Flag it and re-cut the boundaries by behavior.
 - **Groundwork exception.** Shared groundwork that several plans depend on may lead the group, but the plan that owns it must state explicitly why it cannot live inside
   the first slice that needs it.
-- **Branch discipline.** Does any plan create a branch, switch branches, merge, or use a git worktree, or assume different plans land on different branches? All plans in
-  the group land in place on the same currently checked-out branch.
+- **Branch discipline.** Does any plan switch to an existing branch, merge, or use a git worktree, or assume different plans land on different branches? All plans in the
+  group land in place on the same branch. Does each plan require an explicit `git rev-parse --abbrev-ref HEAD` check before the first change — never trusting memory or
+  the plan text — with a branch-off-main step if that check shows main? Only the first plan to run may create that branch; the rest must land on it in place.
 - **Repository-native verification.** Does every plan name the same real test framework and runner command, with tests in the project's existing test directories and
   built on its existing base classes, factories, and helpers? Two plans must not each invent their own test setup for the same layer.
 - **No bespoke harnesses.** Flag any throwaway driver script, scratch runner, standalone sandbox project, or hand-rolled assertion/mocking layer in any plan.

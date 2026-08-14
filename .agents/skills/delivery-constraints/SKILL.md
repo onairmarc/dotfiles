@@ -38,17 +38,36 @@ inside the first vertical slice. Anything that *can* live inside the first slice
 
 ---
 
-## 2. Build in place, on the current branch
+## 2. Build in place, on the current branch — unless that branch is main
 
-All implementation work happens in place on the branch that is already checked out, in the main working tree.
+All implementation work happens in place, in the main working tree, on the branch that is already checked out — **provided that branch is not the repository's main
+branch**.
 
+**Always check the branch before deciding.** Immediately before any implementation work begins, run `git rev-parse --abbrev-ref HEAD` to read the branch that is actually
+checked out right now, and `git symbolic-ref --short refs/remotes/origin/HEAD` (falling back to `main`, then `master`) to identify the repository's main branch. Never
+rely on memory, on an earlier check in the same session, or on what a plan file says the branch is — re-run the check every time.
+
+**If the current branch is not the main branch:**
+
+- Work in place on it.
 - Do **not** create a new branch.
 - Do **not** switch branches.
+
+**If the current branch is the main branch:**
+
+- Create a new branch off it first — `git checkout -b <descriptive-branch-name>` — and state the branch name being created.
+- Then work in place on that new branch for the remainder of the work.
+- Do this once, before the first change; do not branch again mid-work.
+
+**In both cases:**
+
 - Do **not** create or use a git worktree.
 - Do **not** commit to a detached HEAD.
+- Do **not** merge branches.
 
-Plans must not contain a step that creates, switches, or merges branches, and must not assume the work will land on a branch other than the one currently checked out. If
-a plan's work genuinely appears to belong on a different branch, stop and surface that to the user rather than changing branches.
+Plans must not contain a step that switches to an existing branch or merges branches, and must not assume the work lands on some other pre-existing branch. The only
+branch creation a plan may contain is the "branch off main if currently on main" step above, which must be preceded by an explicit branch check. If a plan's work
+genuinely appears to belong on a different existing branch, stop and surface that to the user rather than switching branches.
 
 ---
 

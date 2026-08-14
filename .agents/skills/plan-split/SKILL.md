@@ -29,8 +29,9 @@ Read and follow `.agents/skills/delivery-constraints/SKILL.md`. Two consequences
 
 - **Every sub-plan is a vertical slice.** Split boundaries are cut by behavior, never by layer. A sub-plan that delivers "the models", "the interfaces", or "the API
   surface" with its callers deferred to a later sub-plan is an invalid split — re-cut it.
-- **Every sub-plan inherits the branch and testing rules.** All sub-plans land in place on the currently checked-out branch, and each verifies itself with the
-  repository's own test tooling. Reproduce both rules in every sub-plan (see Step 3).
+- **Every sub-plan inherits the branch and testing rules.** All sub-plans land in place on the currently checked-out branch — or, when a branch check shows main is
+  checked out, on a new branch created off main by the first sub-plan to run — and each verifies itself with the repository's own test tooling. Reproduce both rules in
+  every sub-plan (see Step 3).
 
 ---
 
@@ -166,8 +167,9 @@ why the groundwork could not live inside the first behavioral slice.>
 
 - **Vertical slice.** This sub-plan cuts through every layer it touches and ends with the behavior above wired up and observable. Do not leave anything registered,
   injected, or created but uncalled.
-- **In place, on the current branch.** Implement on the branch already checked out, in the main working tree. Do not create a branch, switch branches, merge, or use a git
-  worktree.
+- **In place, on the current branch — unless it is main.** Before the first change, run `git rev-parse --abbrev-ref HEAD` to check what branch is actually checked out;
+  never assume from memory or from this sub-plan. If it is not the repository's main branch, implement in place on it. If it is main, run
+  `git checkout -b <descriptive-branch-name>` first and implement on that new branch. Either way, do not switch to an existing branch, merge, or use a git worktree.
 - **Repository-native verification.** Use `<the project's runner command>` with the project's existing test directories, base classes, and factories. Do not write
   throwaway driver scripts, scratch runners, sandbox projects, or bespoke assertion helpers.
 

@@ -46,9 +46,9 @@ Read and follow `.agents/skills/file-operations/SKILL.md`.
 ## Delivery Constraints
 
 Read and follow `.agents/skills/delivery-constraints/SKILL.md`. The resynced plan's **remaining** work must be structured as vertical slices, must land in place on the
-currently checked-out branch, and must be verified with the repository's own test tooling. Lens G holds the remaining work against these. Restructuring leftover
-horizontal phases into vertical slices is a reconciliation, not a scope change — it does not alter what "done" means and does not need user approval, though a restructure
-that drops or adds outcomes does.
+currently checked-out branch — or on a new branch created off main when a branch check shows main is checked out — and must be verified with the repository's own test
+tooling. Lens G holds the remaining work against these. Restructuring leftover horizontal phases into vertical slices is a reconciliation, not a scope change — it does
+not alter what "done" means and does not need user approval, though a restructure that drops or adds outcomes does.
 
 ## Step 0 — Resolve the plan file
 
@@ -161,8 +161,9 @@ Hold the plan's remaining work against `.agents/skills/delivery-constraints/SKIL
   to wire up? Re-cut the remaining phases so each one ends with wired-up, observable behavior.
 - **Orphaned scaffolding.** Did already-implemented work leave anything registered, injected, or created but uncalled? Call it out and give the remaining plan a slice
   that either wires it up or removes it.
-- **Branch discipline.** Does any remaining step create a branch, switch branches, merge, or use a git worktree? Remove it — the remaining work lands in place on the
-  currently checked-out branch.
+- **Branch discipline.** Does any remaining step switch to an existing branch, merge, or use a git worktree? Remove it — the remaining work lands in place on the
+  currently checked-out branch. Does the plan still require a `git rev-parse --abbrev-ref HEAD` check before the next change, with a branch-off-main step if that check
+  shows main is checked out? Add it if the plan predates that rule.
 - **Test tooling drift.** Has the project's test framework, runner command, base test case, or factory layout changed since the plan was written? Update the plan's test
   strategy to the current tooling.
 - **Bespoke harnesses.** Does the remaining work prescribe a throwaway driver script, scratch runner, sandbox project, or hand-rolled assertion layer? Replace it with the

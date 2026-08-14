@@ -35,8 +35,8 @@ Read and follow `.agents/skills/file-operations/SKILL.md`.
 
 Read and follow `.agents/skills/delivery-constraints/SKILL.md`. Sub-epics are cut by behavior, never by layer: a sub-epic that owns "the data layer" while another owns
 "the services" and a third owns "the UI" is a horizontal decomposition and is invalid — re-cut it so each sub-epic ships working behavior through every layer it touches.
-All sub-epics land in place on the currently checked-out branch, and each verifies itself with the repository's own test tooling. The base skill's shared-groundwork
-exception applies unchanged.
+All sub-epics land in place on the currently checked-out branch — or, when a branch check shows main is checked out, on a new branch created off main by the first
+sub-epic to run — and each verifies itself with the repository's own test tooling. The base skill's shared-groundwork exception applies unchanged.
 
 **Before doing anything else**, read the base skill:
 
@@ -98,8 +98,9 @@ Omit this section only if there is genuinely nothing to call out.>
 
 - **Vertical slice.** This sub-epic cuts through every layer it touches and ends with its stated behavior wired up and observable. Nothing is left registered, injected,
   or created but uncalled. If this sub-epic is shared groundwork, state here why it could not live inside the first behavioral sub-epic.
-- **In place, on the current branch.** Implement on the branch already checked out, in the main working tree. Do not create a branch, switch branches, merge, or use a git
-  worktree.
+- **In place, on the current branch — unless it is main.** Before the first change, run `git rev-parse --abbrev-ref HEAD` to check what branch is actually checked out;
+  never assume from memory or from this sub-epic. If it is not the repository's main branch, implement in place on it. If it is main, run
+  `git checkout -b <descriptive-branch-name>` first and implement on that new branch. Either way, do not switch to an existing branch, merge, or use a git worktree.
 - **Repository-native verification.** Use `<the project's runner command>` with the project's existing test directories, base classes, and factories. Do not write
   throwaway driver scripts, scratch runners, sandbox projects, or bespoke assertion helpers.
 

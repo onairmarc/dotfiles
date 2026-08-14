@@ -28,8 +28,8 @@ Read and follow `.agents/skills/file-operations/SKILL.md`.
 ## Delivery Constraints
 
 Read and follow `.agents/skills/delivery-constraints/SKILL.md`. A plan is not agent-ready unless it is structured as vertical slices, assumes the work lands in place on
-the currently checked-out branch, and verifies itself with the repository's own test tooling. Lens E holds the plan against these, and any violation is repaired in the
-plan file — including restructuring horizontal phases into vertical slices.
+the currently checked-out branch — or on a new branch created off main when a branch check shows main is checked out — and verifies itself with the repository's own test
+tooling. Lens E holds the plan against these, and any violation is repaired in the plan file — including restructuring horizontal phases into vertical slices.
 
 ## Step 0 — Resolve the plan file
 
@@ -130,8 +130,9 @@ Hold the plan against `.agents/skills/delivery-constraints/SKILL.md`. Every find
   stack — rather than asking the user whether to.
 - **Groundwork exception.** If a leading groundwork phase exists, does the plan state explicitly why it cannot live inside the first slice? If not, either fold it in or
   add the justification.
-- **Branch discipline.** Does any step create a branch, switch branches, merge, or use a git worktree, or assume the work lands anywhere but the currently checked-out
-  branch? Remove it.
+- **Branch discipline.** Does any step switch to an existing branch, merge, or use a git worktree, or assume the work lands anywhere but the currently checked-out branch?
+  Remove it. Does the plan require the implementing agent to run `git rev-parse --abbrev-ref HEAD` before the first change — rather than trusting memory or the plan
+  text — and to create a new branch off main if that check shows main is checked out? If not, add it.
 - **Repository-native verification.** Does the plan name the project's real test framework and runner command? Do its tests live in the project's existing test
   directories and build on its existing base classes, factories, and helpers?
 - **No bespoke harnesses.** Flag any throwaway driver script, scratch `main()`/`verify.*` runner, standalone sandbox project, or hand-rolled assertion/mocking layer that
