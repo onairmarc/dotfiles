@@ -1,12 +1,18 @@
 #!/usr/bin/env bash
 #
 # Recreates skill symlinks from the source of truth (.agents/skills/)
-# to the target directories (.claude/skills and .github/skills)
+# to the target directories (.claude/skills and ~/.claude/skills)
+#
+# Skills are organized into domain subdirectories under .agents/skills/
+# (e.g. .agents/skills/planning/feature-planning/). Regardless of how deep a
+# skill lives in the source tree, it is deployed FLAT: each skill directory is
+# symlinked by its own name directly into the target skills directory, so the
+# consumer always sees ~/.claude/skills/<skill-name>/SKILL.md.
 #
 # Usage: agent_symlink [--global]
 #
 # Options:
-#   --global    Create symlink from ~/.claude/skills to this repo's .agents/skills
+#   --global    Create symlinks from ~/.claude/skills to this repo's .agents/skills
 #
 # Note: On Windows, requires Developer Mode enabled or Administrator privileges
 
@@ -28,6 +34,35 @@ log_warn() {
 
 log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
+}
+
+# Link every skill under a source root FLAT into a target directory.
+#
+# A "skill" is any directory containing a SKILL.md, at any depth beneath the
+# source root. Each such directory is symlinked into the target by its own
+# basename, so the domain subdirectory it lives in is collapsed away. On a name
+# collision the later caller wins (the existing link is removed and replaced),
+# which lets private skills override public ones when linked afterwards.
+#
+# Args: <source_root> <target_dir> [label]
+link_skills_flat() {
+    local source_root="$1"
+    local target_dir="$2"
+    local label="$3"
+    local skill_md skill_path skill_name
+
+    while IFS= read -r -d '' skill_md; do
+        skill_path="$(dirname "$skill_md")"
+        skill_name="$(basename "$skill_path")"
+
+        if [[ -L "$target_dir/$skill_name" ]] || [[ -e "$target_dir/$skill_name" ]]; then
+            log_warn "  Skill collision on '$skill_name': ${label:-later} wins, overriding earlier"
+            rm -rf "$target_dir/$skill_name"
+        fi
+
+        ln -s "$skill_path" "$target_dir/$skill_name"
+        log_info "  Linked ${label:+$label }skill: $skill_name"
+    done < <(find "$source_root" -name "SKILL.md" -type f -print0)
 }
 
 # Parse command line arguments
@@ -97,7 +132,7 @@ if [[ "$GLOBAL_MODE" == true ]]; then
     # Ensure parent directory exists
     mkdir -p "$CLAUDE_DIR"
 
-    # 1. Link ~/.claude/skills -> .agents/skills (interleave with dotfiles-private if present)
+    # 1. Link ~/.claude/skills <- .agents/skills (interleave with dotfiles-private if present)
     SKILLS_TARGET="$CLAUDE_DIR/skills"
     SKILLS_SOURCE="$REPO_ROOT/.agents/skills"
 
@@ -105,6 +140,14 @@ if [[ "$GLOBAL_MODE" == true ]]; then
         log_error "Source directory does not exist: $SKILLS_SOURCE"
         exit 1
     fi
+
+    # The target is always a real directory populated with per-skill symlinks, so
+    # remove any prior directory or symlink and recreate it fresh.
+    if [[ -e "$SKILLS_TARGET" ]] || [[ -L "$SKILLS_TARGET" ]]; then
+        log_info "  Removing existing: $SKILLS_TARGET"
+        rm -rf "$SKILLS_TARGET"
+    fi
+    mkdir -p "$SKILLS_TARGET"
 
     # Resolve private dotfiles location (env var preferred, default fallback)
     PRIVATE_DIR="${DF_PRIVATE_DIRECTORY:-$HOME/Documents/GitHub/dotfiles-private}"
@@ -115,43 +158,14 @@ if [[ "$GLOBAL_MODE" == true ]]; then
         log_info "  Public:  $SKILLS_SOURCE"
         log_info "  Private: $PRIVATE_SKILLS_SOURCE"
 
-        if [[ -e "$SKILLS_TARGET" ]] || [[ -L "$SKILLS_TARGET" ]]; then
-            log_info "  Removing existing: $SKILLS_TARGET"
-            rm -rf "$SKILLS_TARGET"
-        fi
-
-        mkdir -p "$SKILLS_TARGET"
-
-        # Link public skills first
-        for skill_path in "$SKILLS_SOURCE"/*/; do
-            [[ -d "$skill_path" ]] || continue
-            skill_name="$(basename "$skill_path")"
-            ln -s "$skill_path" "$SKILLS_TARGET/$skill_name"
-            log_info "  Linked public skill: $skill_name"
-        done
-
-        # Link private skills; private wins on collision with warning
-        for skill_path in "$PRIVATE_SKILLS_SOURCE"/*/; do
-            [[ -d "$skill_path" ]] || continue
-            skill_name="$(basename "$skill_path")"
-            if [[ -L "$SKILLS_TARGET/$skill_name" ]] || [[ -e "$SKILLS_TARGET/$skill_name" ]]; then
-                log_warn "  Skill collision on '$skill_name': private wins, overriding public"
-                rm -rf "$SKILLS_TARGET/$skill_name"
-            fi
-            ln -s "$skill_path" "$SKILLS_TARGET/$skill_name"
-            log_info "  Linked private skill: $skill_name"
-        done
+        # Link public skills first, then private; private wins on collision.
+        link_skills_flat "$SKILLS_SOURCE" "$SKILLS_TARGET" "public"
+        link_skills_flat "$PRIVATE_SKILLS_SOURCE" "$SKILLS_TARGET" "private"
     else
-        log_info "Global mode: Creating symlink from ~/.claude/skills to $SKILLS_SOURCE"
+        log_info "Global mode: linking public skills into $SKILLS_TARGET"
         log_info "  (no private dotfiles found at $PRIVATE_DIR)"
 
-        if [[ -e "$SKILLS_TARGET" ]] || [[ -L "$SKILLS_TARGET" ]]; then
-            log_info "  Removing existing: $SKILLS_TARGET"
-            rm -rf "$SKILLS_TARGET"
-        fi
-
-        ln -s "$SKILLS_SOURCE" "$SKILLS_TARGET"
-        log_info "  Created global symlink: $SKILLS_TARGET -> $SKILLS_SOURCE"
+        link_skills_flat "$SKILLS_SOURCE" "$SKILLS_TARGET" ""
     fi
 
     # 2. Link ~/.claude/CLAUDE.md -> .agents/AGENTS.md
@@ -200,47 +214,47 @@ if [[ "$RECURSIVE_MODE" == true ]]; then
     exit 0
 fi
 
-# Define target symlinks as: "target_path|relative_source"
-# This avoids complex path expansions in array keys
-SYMLINK_PAIRS=(
-    ".claude/skills|../.agents/skills"
-    "CLAUDE.md|AGENTS.md"
-)
+# Default (in-repo) mode.
+#
+# 1. Populate .claude/skills with flat per-skill symlinks into .agents/skills.
+#    A wholesale directory symlink is not used because the source is organized
+#    into domain subdirectories that must be collapsed away for the consumer.
+LOCAL_SKILLS_TARGET="$REPO_ROOT/.claude/skills"
+LOCAL_SKILLS_SOURCE="$REPO_ROOT/.agents/skills"
 
-for PAIR in "${SYMLINK_PAIRS[@]}"; do
-    TARGET_PATH="${PAIR%%|*}"
-    RELATIVE_SOURCE="${PAIR##*|}"
+if [[ ! -d "$LOCAL_SKILLS_SOURCE" ]]; then
+    log_warn "Skipping .claude/skills: source does not exist ($LOCAL_SKILLS_SOURCE)"
+else
+    log_info "Populating $LOCAL_SKILLS_TARGET with per-skill symlinks"
 
-    TARGET="$REPO_ROOT/$TARGET_PATH"
-    PARENT_DIR="$(dirname "$TARGET")"
-    LINK_NAME="$(basename "$TARGET")"
+    if [[ -e "$LOCAL_SKILLS_TARGET" ]] || [[ -L "$LOCAL_SKILLS_TARGET" ]]; then
+        log_info "  Removing existing: $LOCAL_SKILLS_TARGET"
+        rm -rf "$LOCAL_SKILLS_TARGET"
+    fi
+    mkdir -p "$LOCAL_SKILLS_TARGET"
 
-    # Resolve full source path to verify it exists
-    FULL_SOURCE="$PARENT_DIR/$RELATIVE_SOURCE"
+    link_skills_flat "$LOCAL_SKILLS_SOURCE" "$LOCAL_SKILLS_TARGET" ""
+fi
 
-    # Verify source exists before operating on target at all
-    if [[ ! -e "$FULL_SOURCE" ]]; then
-        log_warn "Skipping $LINK_NAME: source does not exist ($RELATIVE_SOURCE)"
-        continue
+# 2. Link CLAUDE.md -> AGENTS.md at the repo root.
+CLAUDE_MD_TARGET="$REPO_ROOT/CLAUDE.md"
+AGENTS_MD_SOURCE="$REPO_ROOT/AGENTS.md"
+
+if [[ ! -e "$AGENTS_MD_SOURCE" ]]; then
+    log_warn "Skipping CLAUDE.md: source does not exist (AGENTS.md)"
+else
+    log_info "Creating symlink: $CLAUDE_MD_TARGET -> AGENTS.md"
+
+    if [[ -e "$CLAUDE_MD_TARGET" ]] || [[ -L "$CLAUDE_MD_TARGET" ]]; then
+        log_info "  Removing existing: $CLAUDE_MD_TARGET"
+        rm -rf "$CLAUDE_MD_TARGET"
     fi
 
-    log_info "Creating symlink: $TARGET -> $RELATIVE_SOURCE"
-
-    # Remove existing target if it exists (file, directory, or symlink)
-    if [[ -e "$TARGET" ]] || [[ -L "$TARGET" ]]; then
-        log_info "  Removing existing: $TARGET"
-        rm -rf "$TARGET"
-    fi
-
-    # Ensure parent directory exists
-    mkdir -p "$PARENT_DIR"
-
-    # Create symlink from parent directory
-    pushd "$PARENT_DIR" > /dev/null
-    ln -s "$RELATIVE_SOURCE" "$LINK_NAME"
+    pushd "$REPO_ROOT" > /dev/null
+    ln -s "AGENTS.md" "CLAUDE.md"
     popd > /dev/null
 
     log_info "  Created symlink"
-done
+fi
 
 log_info "Sync complete!"

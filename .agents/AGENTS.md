@@ -133,4 +133,4 @@ skill as nonexistent when it is missing from **both** the repository and the use
 # File Operation Rules
 
 File operation rules — including which tools to use, the ban on manipulating files via Bash, and when to delete a file — live in the
-`file-operations` skill: [`.agents/skills/file-operations/SKILL.md`](skills/file-operations/SKILL.md). Read that file before performing any file operation.
+`file-operations` skill: [`.agents/skills/shared/file-operations/SKILL.md`](skills/shared/file-operations/SKILL.md). Read that file before performing any file operation.
