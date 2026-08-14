@@ -16,8 +16,12 @@ Use the dedicated file tools for all file operations:
 Never manipulate files via Bash (`echo >`, `cat <<EOF`, `sed -i`, `awk -i`, `tee`, redirection, etc.). Edit and Write are the only approved methods of file editing. `rm`
 is the only approved method of file deletion.
 
+## When to Copy or Move Files
+
+If the task at hand is purely file organization, you may run the platform native copy or move command.
+
 ## When to Delete a File
 
-Only delete a file when a refactor calls for it — for example, when the file has become functionally empty and no longer serves a purpose.
-In that case, deletion is mandatory: delete the file rather than leaving a comment explaining why it is now empty and was not removed.
-Do not delete files for any other reason without explicit user direction.
+Only delete a file when a refactor calls for it — for example, when the file has become functionally empty and no longer serves a purpose. In that case, deletion is
+mandatory: delete the file rather than leaving a comment explaining why it is now empty and was not removed. Do not delete files for any other reason without explicit
+user direction.
