@@ -1,6 +1,6 @@
 ---
 name: feature-planning
-description: Interactively create a new feature plan for any repository. Gathers requirements via AskUserQuestion, drafts a plan following discovered project conventions and general design principles, then applies plan-review lenses to produce an agent-ready plan written to the repo's planning directory.
+description: Interactively create a new feature plan for any repository. Uses a pm-review discovery brief, the codebase, and project conventions to answer as much as possible itself, then asks the user only the residual unknowns via AskUserQuestion (confirming its premise when it has none). Drafts a plan following discovered conventions, the northstar vision, and general design principles, then applies plan-review lenses to produce an agent-ready plan written to the repo's planning directory.
 argument-hint: [ feature name or description (optional) ] [ --output=<dir> ]
 allowed-tools:
     - Read
@@ -26,8 +26,9 @@ Read and follow `.agents/skills/file-operations/SKILL.md`.
 ## Delivery Constraints
 
 Read and follow `.agents/skills/delivery-constraints/SKILL.md`. Every plan this skill produces must be structured as vertical slices, must assume the work lands in place
-on the currently checked-out branch, and must verify itself with the repository's own test tooling rather than a bespoke harness. These constraints are enforced by Lens E
-in Step 2 and must be reproduced in the plan itself so an implementing agent reading only the plan is bound by them.
+on the currently checked-out branch — or, if that branch is main, on a new branch created off it after an explicit branch check — and must verify itself with the
+repository's own test tooling rather than a bespoke harness. These constraints are enforced by Lens E in Step 2 and must be reproduced in the plan itself so an
+implementing agent reading only the plan is bound by them.
 
 ## General Design Principles
 
@@ -74,9 +75,11 @@ Every phase of the plan delivers one narrow piece of behavior cut through every 
 observable. Never plan a phase whose deliverable is "all the models" or "all the interfaces" with the wiring deferred. When a slice is too big, narrow the *behavior*
 (one endpoint instead of five), not the *stack*. See `.agents/skills/delivery-constraints/SKILL.md` for the full rule and its one permitted exception.
 
-### 9. In-place on the current branch
+### 9. In-place on the current branch, unless that branch is main
 
-The plan assumes implementation happens in place on the branch already checked out. No plan step creates a branch, switches branches, merges, or uses a git worktree.
+The plan assumes implementation happens in place on the branch already checked out, and requires the implementing agent to verify the current branch with
+`git rev-parse --abbrev-ref HEAD` before starting rather than trusting memory or the plan text. If that check shows the main branch, the agent creates a new branch off it
+first and works there. No plan step switches to an existing branch, merges, or uses a git worktree.
 
 ### 10. Verify with the repository's own tooling
 
@@ -121,34 +124,64 @@ Before gathering requirements, orient yourself to the repository:
    From these same sources, also identify the project name, tech stack, existing architectural patterns and naming conventions, and any planning or documentation
    policies. Use this context to inform the plan's language, component references, and step specificity throughout.
 
-4. **Find northstar** — check for the following in order:
+4. **Find northstar** — check for the following in order (durable home first, legacy locations after):
+    - `docs/product/northstar.md`
     - `docs/_planning/northstar.md`
     - `docs/northstar.md`
     - `northstar.md`
 
    If found, record its path as `$NORTHSTAR`. If not found, record `$NORTHSTAR = null` — Step 4 will be skipped silently.
 
+5. **Find a PM discovery brief** — the `pm-review` skill's discovery mode writes a **durable** product-side brief before planning begins. Unlike plans, briefs are
+   permanent documentation and live **outside** `$PLAN_DIR`, in the durable product-docs home alongside the northstar: the first that exists of `docs/product/discovery/`,
+   `docs/discovery/`, `docs/_discovery/`, `discovery/`; else `docs/product/discovery/`. Record it as `$DISCOVERY_DIR`. Look for a brief that matches this feature:
+    - If `$ARGUMENTS` names a feature, derive its kebab-case slug and check `$DISCOVERY_DIR/<slug>.md`.
+    - Otherwise, glob `$DISCOVERY_DIR/*.md`; if exactly one clearly matches the feature description, use it. If several plausibly match, ask the user which brief (if any)
+      this plan is for.
+
+   If a brief is found, record its path as `$DISCOVERY_BRIEF` and read it in full — it carries the impacted domains, invariants at risk, affected personas, edge cases,
+   success metrics, vision fit, risks/constraints, resolved open questions, and a recommended scope. If none is found, record `$DISCOVERY_BRIEF = null`. Never invent a
+   brief; its absence just means discovery was not run through `pm-review`. The brief is durable — never delete or move it during plan cleanup.
+
 ---
 
 ## Step 0 — Gather requirements
 
-If `$ARGUMENTS` contains a clear feature description, use it as the starting point. Otherwise, use `AskUserQuestion` to ask:
+The discovery brief (`$DISCOVERY_BRIEF`), the codebase, and the discovered project conventions are **inputs that inform your questions — not a substitute for them, and
+not an either/or with them.** The goal of this step is to reach the point where you could draft the plan without a single remaining unknown. You get there by combining
+every available source, then asking the user **only** about what none of those sources could answer.
 
-> **What feature are you planning?**
-> Describe it in a sentence or two. Include what problem it solves and which part of the system is involved.
+1. **Establish the starting description.**
+    - If `$DISCOVERY_BRIEF` is set, read it as the authoritative product-side starting point: seed the plan's Goal, scope, and affected components from its Summary,
+      Recommended scope, and Impacted domains; carry its Invariants at risk, Edge cases, and Risks & constraints forward as hard requirements; treat its Vision fit as the
+      settled reconciliation with the northstar. Do not re-litigate what the brief already decided.
+    - Otherwise, use `$ARGUMENTS` if it contains a clear description; if not, ask the user with `AskUserQuestion`:
+      *"What feature are you planning? Describe it in a sentence or two — the problem it solves and the part of the system involved."*
 
-Once you have a description, ask follow-up questions to fill the most critical gaps. Keep questions focused and short-answer. Cover:
+2. **Answer as much as you can yourself, from the brief + the code + the conventions.** For each area below, first try to determine the answer by reading the brief and
+   tracing the actual code and documented conventions. Only what remains genuinely undetermined after that becomes a question for the user.
 
-1. **Scope**: What is the simplest version of this feature that would be useful? What is explicitly out of scope?
-2. **Components**: Which parts of the system are affected? Does this cross a process or service boundary?
-3. **Data**: Does this require new database tables, columns, or migrations? Or is it purely in-memory / config?
-4. **Configuration**: Does anything need to be configurable by the end user or operator, or is it fixed behavior?
-5. **Existing code**: Is there existing code this replaces, extends, or must remain compatible with?
+    - **Scope**: the simplest useful version, and what is explicitly out of scope.
+    - **Components**: which parts of the system are affected; whether it crosses a process or service boundary.
+    - **Data**: whether it needs new tables, columns, or migrations, or is purely in-memory / config.
+    - **Configuration**: whether anything must be configurable, or is fixed behavior.
+    - **Existing code**: what this replaces, extends, or must stay compatible with.
 
-Do **not** ask about things that are already clear from the description or from the discovered project conventions.
+3. **Ask only the residual unknowns.** Put the questions the combined sources could not answer to the user via
+   `AskUserQuestion` — focused, short-answer, highest-impact first. Do not ask anything the brief, the code, or the conventions already answer.
 
-**AskUserQuestion limit:** the tool accepts at most **4 questions per call**. Drop any of the five areas already answered by the description or discovered conventions; if
-more than 4 remain, prioritize the highest-impact 4 in the first call and ask the remainder in a second sequential call before drafting.
+   **AskUserQuestion limit:** at most **4 questions per call**. If more than 4 residual unknowns remain, ask the top 4 by blast radius first, then the rest in a second
+   call before drafting.
+
+4. **If you have no questions, do not silently proceed — confirm the premise first.** Reaching zero questions is a claim that the brief, the code, and the conventions
+   fully determine the plan. State that claim explicitly to the user with
+   `AskUserQuestion`: name **what led you to have no questions** — e.g. "the discovery brief resolves scope and edge cases, the code shows the extension point in `X`, and
+   convention `Y` fixes the rest" — and present the premise you are about to plan from (intended scope, affected components, key decisions). Give the user a clear path to
+   **confirm** or **correct** it.
+    - If the user confirms, proceed to Step 1 and write the plan.
+    - If the user corrects any part, fold the correction in and re-check for new unknowns before drafting.
+
+   Never write the plan on an unconfirmed premise, even when you believe it is complete.
 
 ---
 
@@ -180,8 +213,9 @@ Reproduce these verbatim — they bind the implementing agent:
 
 - **Vertical slices.** Each slice below cuts through every layer it touches and ends with behavior that is wired up and observable. Do not implement a layer ahead of its
   caller, and do not defer wiring to a later slice.
-- **In place, on the current branch.** Implement on the branch already checked out, in the main working tree. Do not create a branch, switch branches, merge, or use a git
-  worktree.
+- **In place, on the current branch — unless it is main.** Before the first change, run `git rev-parse --abbrev-ref HEAD` to check what branch is actually checked out;
+  never assume from memory or from this plan. If it is not the repository's main branch, implement in place on it. If it is main, run
+  `git checkout -b <descriptive-branch-name>` first and implement on that new branch. Either way, do not switch to an existing branch, merge, or use a git worktree.
 - **Repository-native verification.** Use `<the project's test framework and runner command, e.g. vendor/bin/pest --parallel>` with the project's existing test
   directories, base classes, and factories. Do not write throwaway driver scripts, scratch runners, sandbox projects, or bespoke assertion helpers.
 
@@ -324,7 +358,8 @@ Hold the plan against `.agents/skills/delivery-constraints/SKILL.md`. Every find
 - Is every slice vertical? Does any phase deliver only a layer — models, interfaces, scaffolding — with no caller and no observable behavior until a later phase?
 - Does any slice leave something registered, injected, or created but not wired up?
 - Is a "Slice 0" present without an explicit justification for why the groundwork cannot live inside Slice 1?
-- Does any step create a branch, switch branches, merge, or use a git worktree, or otherwise assume the work lands somewhere other than the current branch?
+- Does any step switch to an existing branch, merge, or use a git worktree, or otherwise assume the work lands somewhere other than the current branch? Does the plan
+  require an explicit `git rev-parse --abbrev-ref HEAD` check before the first change, with a branch-off-main step if that check shows main?
 - Does the Tests section name the project's real framework and runner command, and do all tests live in the project's existing test layout?
 - Does any step introduce a throwaway driver script, scratch runner, sandbox project, or bespoke assertion/mocking layer that duplicates existing project tooling?
 

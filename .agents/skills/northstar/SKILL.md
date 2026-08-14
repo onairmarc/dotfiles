@@ -1,27 +1,25 @@
 ---
 name: northstar
-description: Interactively create or update the northstar.md product vision document for a repository. Gathers vision, users, scope, deployment model, guiding principles (with BLOCK/WARN checks), and sanctioned feature tracking via AskUserQuestion. Pulls existing features from SP Projects (via SP Projects MCP) when available, then writes northstar.md to the repo's planning directory.
+description: Interactively create or update the northstar.md product vision document for a repository. Gathers vision, users, scope, deployment model, guiding principles (with BLOCK/WARN checks), and sanctioned feature tracking via AskUserQuestion. Pulls existing features from SP Projects (via SP Projects MCP) when available, then writes northstar.md to the repo's durable product-docs directory (docs/product/).
 disable-model-invocation: true
 argument-hint: [ optional: path to existing northstar.md to update ]
 allowed-tools:
-  - Read
-  - Edit
-  - Write
-  - AskUserQuestion
-  - Glob
-  - Grep
+    - Read
+    - Edit
+    - Write
+    - AskUserQuestion
+    - Glob
+    - Grep
 model: opus
 ---
 
 # Northstar
 
-You are a pragmatic senior engineer and product architect. Your job is to collaboratively draft a
-**northstar document** — a concise, authoritative reference for a repository's product vision, scope, and guiding
-principles that every future feature plan must be evaluated against.
+You are a pragmatic senior engineer and product architect. Your job is to collaboratively draft a **northstar document** — a concise, authoritative reference for a
+repository's product vision, scope, and guiding principles that every future feature plan must be evaluated against.
 
-The output is a `northstar.md` file that the `feature-planning` skill reads automatically in its review step. Every
-section you write must be specific enough that a coding agent given only this file and a feature description can make a
-principled decision about whether the feature fits the product's intent.
+The output is a `northstar.md` file that the `feature-planning` skill reads automatically in its review step. Every section you write must be specific enough that a
+coding agent given only this file and a feature description can make a principled decision about whether the feature fits the product's intent.
 
 ## File Operation Rules
 
@@ -33,30 +31,41 @@ Read and follow `.agents/skills/file-operations/SKILL.md`.
 
 Before gathering any input, orient yourself:
 
-1. **Detect `$PLAN_DIR`** — check for the following in order and use the first that exists:
-    - `docs/_planning/`
-    - `docs/planning/`
-    - `planning/`
-    - `_planning/`
+1. **Detect directories.**
+    - **`$PLAN_DIR`** (disposable plans and the ideas backlog) — the first that exists of `docs/_planning/`, `docs/planning/`,
+      `planning/`, `_planning/`; else default to `docs/_planning/`.
+    - **`$PRODUCT_DIR`** (durable product docs — the northstar's home, shared with pm-review discovery briefs) — always
+      `docs/product/` (use it if it exists, otherwise create it at Step 5). This is fixed, not auto-detected, so the northstar and the discovery briefs
+      (`docs/product/discovery/`) always co-locate under one durable home. The northstar is durable documentation and belongs here, **not** inside the disposable
+      `$PLAN_DIR`. `docs/northstar.md` and `northstar.md` remain read-only legacy locations (Step 2) that are migrated into `$PRODUCT_DIR` on the next write.
 
-   If none exist, default to `docs/_planning/`. Record this as `$PLAN_DIR`.
-
-2. **Check for existing northstar** — if `$PLAN_DIR/northstar.md` exists:
-    - If `$ARGUMENTS` contains a path to an existing northstar, use that path instead.
+2. **Check for existing northstar** — locate it, durable home first, in this order: `$PRODUCT_DIR/northstar.md`,
+   `$PLAN_DIR/northstar.md`, `docs/northstar.md`, `northstar.md`. If `$ARGUMENTS` contains a path to an existing northstar, use that path instead. Record the resolved
+   path as `$NORTHSTAR_PATH`. If one exists:
     - Ask the user via `AskUserQuestion`: **Refine the existing northstar, or start fresh?**
         - **Refine**: read the existing file, treat its content as Step 0–4 answers, then jump to Step 5 (Review lenses)
-          and surface only what is missing or weak.
-        - **Start fresh**: proceed through all steps normally; the existing file will be overwritten at Step 5.
+          and surface only what is missing or weak. If it currently lives outside `$PRODUCT_DIR` (a legacy location), write the refined version to
+          `$PRODUCT_DIR/northstar.md` in Step 5 and note the move to the user.
+        - **Start fresh**: proceed through all steps normally; the file is written to `$PRODUCT_DIR/northstar.md` at Step 5.
 
 3. **Read project conventions** — if any of the following exist, read them:
     - `AGENTS.md`
     - `docs/policies.md`
 
-   Extract: project name, tech stack, architectural patterns, team conventions. Use this throughout to ground your
-   questions and avoid asking for things already documented.
+   Extract: project name, tech stack, architectural patterns, team conventions. Use this throughout to ground your questions and avoid asking for things already
+   documented.
 
 4. **Check for ideas file** — if `$PLAN_DIR/_ideas.md` exists, record its path as `$IDEAS_FILE`. Otherwise, record
    `$IDEAS_FILE = null`.
+
+5. **Check for a pm-review knowledge base** — the `pm-review` skill maintains a companion product-domain knowledge base at
+   `.agents/pm-review.md` (or, in multi-module repos, an index there pointing to `app_modules/<MODULE>/pm-review.md`). Record whether one exists as `$PM_REVIEW`. This is
+   the domain counterpart to this vision document; you will read it for grounding in Step 0 if present, and recommend creating it in Step 7 if absent. **Never create or
+   edit `pm-review.md` from this skill** — it is produced only by the user explicitly invoking the `pm-review` skill.
+
+   If `$PM_REVIEW` exists, read it and use its `product`, `personas`, `domains`, and `non_goals` to ground your questions — the northstar's Primary Users should agree
+   with its personas, Core Capabilities with its domains, and Explicit Out of Scope with its `non_goals`. Where they conflict, surface the specific contradiction to the
+   user rather than silently overriding the knowledge base.
 
 ---
 
@@ -68,8 +77,7 @@ Ask the following in a **single `AskUserQuestion` call**:
 2. In one or two sentences: what problem does this product solve, and who does it solve it for?
 3. What does success look like for the primary end user? (What can they do, or stop doing, because this product exists?)
 
-Use answers from `AGENTS.md` / `docs/policies.md` if already available — do not ask for information that is already
-clear.
+Use answers from `AGENTS.md` / `docs/policies.md` if already available — do not ask for information that is already clear.
 
 ---
 
@@ -79,8 +87,7 @@ Ask the following in a **single `AskUserQuestion` call**:
 
 1. Who are the primary user roles? For each, name the role and one or two activities they perform in the product.
 2. How is the product deployed? (e.g., self-hosted on-premises, SaaS/cloud, CLI tool, desktop app, library/SDK)
-3. Are there any platform or OS constraints? (e.g., Windows-only service, Linux server + macOS workstation,
-   browser-only)
+3. Are there any platform or OS constraints? (e.g., Windows-only service, Linux server + macOS workstation, browser-only)
 
 ---
 
@@ -88,39 +95,32 @@ Ask the following in a **single `AskUserQuestion` call**:
 
 Ask the following in a **single `AskUserQuestion` call**:
 
-1. What are the major capability domains this product covers? List 4–8 areas (e.g., audio playback, schedule management,
-   content library, diagnostics).
-2. What is **explicitly out of scope** — things adjacent teams or users might expect but this product will never do? Be
-   specific; vague answers are not useful here.
-3. What is the scale target? (e.g., individual developer, small team of 5–10, small-to-medium business, enterprise with
-   1000+ users)
-4. Is there a feature priority order? List the most critical capability domains in ranked order (1 = must never break).
-   If no clear priority exists, say so.
+1. What are the major capability domains this product covers? List 4–8 areas (e.g., audio playback, schedule management, content library, diagnostics).
+2. What is **explicitly out of scope** — things adjacent teams or users might expect but this product will never do? Be specific; vague answers are not useful here.
+3. What is the scale target? (e.g., individual developer, small team of 5–10, small-to-medium business, enterprise with 1000+ users)
+4. Is there a feature priority order? List the most critical capability domains in ranked order (1 = must never break). If no clear priority exists, say so.
 
 ---
 
 ## Step 3 — Guiding principles
 
-Guiding principles are the heart of the northstar. The `feature-planning` skill will read each principle and its
-BLOCK/WARN annotation when reviewing a plan. A principle is only useful if it is specific enough to cause a real plan to
-fail.
+Guiding principles are the heart of the northstar. The `feature-planning` skill will read each principle and its BLOCK/WARN annotation when reviewing a plan. A principle
+is only useful if it is specific enough to cause a real plan to fail.
 
 Ask in a **single `AskUserQuestion` call**:
 
 > Please describe 3–10 principles that should guide all feature work in this product. For each, provide:
 > - A short name (2–5 words)
 > - A 1–2 sentence description of the constraint or rule
-> - Whether a violation should **BLOCK** the plan (must be resolved before implementation) or **WARN** (flag and
-    acknowledge, but may proceed)
+> - Whether a violation should **BLOCK** the plan (must be resolved before implementation) or **WARN** (flag and acknowledge, but may proceed)
 >
 > Here are three examples to anchor your thinking — adapt or replace them as fits your product:
 >
-> - **Solve a Real User Problem** — Every feature must trace to a concrete workflow for a named user role. BLOCK if a
-    plan describes a feature without identifying a user who benefits.
-> - **Prefer Narrow Scope** — Build the minimum that solves the problem correctly. Do not design for hypothetical future
-    requirements. WARN if a plan contains steps that serve unconfirmed future needs.
-> - **Tests Are Not Optional** — Every step that contains logic must include a test strategy. BLOCK if a plan omits
-    tests for a step with branching logic or side effects.
+> - **Solve a Real User Problem** — Every feature must trace to a concrete workflow for a named user role. BLOCK if a plan describes a feature without identifying a user
+    who benefits.
+> - **Prefer Narrow Scope** — Build the minimum that solves the problem correctly. Do not design for hypothetical future requirements. WARN if a plan contains steps that
+    serve unconfirmed future needs.
+> - **Tests Are Not Optional** — Every step that contains logic must include a test strategy. BLOCK if a plan omits tests for a step with branching logic or side effects.
 
 If the user provides fewer than 3 principles, prompt them for at least one more before proceeding.
 
@@ -128,11 +128,11 @@ If the user provides fewer than 3 principles, prompt them for at least one more 
 
 ## Step 4 — Sanctioned feature set
 
-### 4a — Ask which tool(s) the team uses
+### 4a — Ask which tool (s) the team uses
 
 Ask in a **single `AskUserQuestion` call**:
 
-1. Which tool(s) does the team use to track approved and planned features?
+1. Which tool (s) does the team use to track approved and planned features?
     - `_ideas.md` (a markdown file alongside this northstar)
     - SP Projects (specify the project name)
     - A combination (specify which)
@@ -142,20 +142,18 @@ Record the answer as `$TRACKING_TOOLS`. Proceed to 4b before asking for the feat
 
 ### 4b — Pull features from connected tools
 
-Attempt to fetch existing features from each tool the user named. Do this silently — do not report each attempt to the
-user unless it produces a useful result or a failure worth noting.
+Attempt to fetch existing features from each tool the user named. Do this silently — do not report each attempt to the user unless it produces a useful result or a
+failure worth noting.
 
 #### SP Projects (if selected)
 
-1. Call `mcp__sp_projects__getProjects`. If the call fails or the tool is unavailable, record `$SP = unavailable`,
-   inform the user in one line ("SP Projects MCP is not yet available — I'll collect features manually instead."), and
-   skip the remaining SP Projects sub-steps.
+1. Call `mcp__sp_projects__getProjects`. If the call fails or the tool is unavailable, record `$SP = unavailable`, inform the user in one line ("SP Projects MCP is not
+   yet available — I'll collect features manually instead."), and skip the remaining SP Projects sub-steps.
 
 2. If the call succeeds, match the project the user named. If ambiguous, ask the user to confirm. Store
    `$SP_PROJECT_ID` and `$SP_PROJECT_NAME`.
 
-3. Call `mcp__sp_projects__getFeatures` with `$SP_PROJECT_ID` to retrieve the list of approved and planned features.
-   Collect: name, status, description.
+3. Call `mcp__sp_projects__getFeatures` with `$SP_PROJECT_ID` to retrieve the list of approved and planned features. Collect: name, status, description.
 
 4. Record `$SP_FEATURES` = the collected list.
 
@@ -165,22 +163,22 @@ Read `$IDEAS_FILE` now and parse its contents into a feature list. Record as `$I
 
 ### 4c — Ask the user to confirm and extend the feature list
 
-Compose a starting list by merging all collected features (`$SP_FEATURES`, `$IDEAS_FEATURES`). Remove
-exact duplicates by name.
+Compose a starting list by merging all collected features (`$SP_FEATURES`, `$IDEAS_FEATURES`). Remove exact duplicates by name.
 
 Ask in a **single `AskUserQuestion` call**:
 
-> Here is the feature list I assembled from [tool(s)]. Please confirm, remove, or add to it — each entry needs a name
+> Here is the feature list I assembled from [tool (s)]. Please confirm, remove, or add to it — each entry needs a name
 > and one sentence. If a tool was unavailable, list any features I should include that aren't shown.
 
-Present the merged list as a numbered draft. If no features were fetched from any tool (all unavailable or none
-selected), ask the user to list approved/planned features directly.
+Present the merged list as a numbered draft. If no features were fetched from any tool (all unavailable or none selected), ask the user to list approved/planned features
+directly.
 
 ---
 
 ## Step 5 — Draft northstar.md
 
-Using all gathered answers, write `$PLAN_DIR/northstar.md`. Create the directory if it does not exist.
+Using all gathered answers, write `$PRODUCT_DIR/northstar.md` — the durable product-docs home, not the disposable `$PLAN_DIR`. Create the directory if it does not exist.
+If a legacy northstar was found outside `$PRODUCT_DIR` in Pre-flight, write the new version here and delete the legacy copy so there is a single source of truth.
 
 ### northstar.md structure
 
@@ -238,8 +236,7 @@ Using all gathered answers, write `$PLAN_DIR/northstar.md`. Create the directory
 
 ## Sanctioned Feature Set
 
-Features are tracked in: <tool name(s) and location — e.g., `_ideas.md` alongside this
-file / SP Projects "Project Name" / combination>
+Features are tracked in: <tool name (s) and location — e.g., `_ideas.md` alongside this file / SP Projects "Project Name" / combination>
 
 | Feature         | Status  | Summary        |
 |-----------------|---------|----------------|
@@ -260,30 +257,27 @@ After drafting, re-read the file against these lenses. Note every issue.
 
 ### Lens A — Specificity
 
-- Is any principle so general it could apply to any software product? (e.g., "Write good code", "Make it fast") —
-  tighten it to this product's actual constraints.
+- Is any principle so general it could apply to any software product? (e.g., "Write good code", "Make it fast") — tighten it to this product's actual constraints.
 - Does any out-of-scope entry lack a reason? A reason is required.
 - Is the vision paragraph product-specific, or could it describe a competitor's product unchanged?
 
 ### Lens B — Actionability
 
 - Does every principle have a concrete BLOCK or WARN annotation?
-- Is the BLOCK/WARN condition specific enough that a coding agent could evaluate it against a plan? (e.g., "BLOCK if the
-  plan assumes internet access" is actionable; "BLOCK if it's not good" is not.)
+- Is the BLOCK/WARN condition specific enough that a coding agent could evaluate it against a plan? (e.g., "BLOCK if the plan assumes internet access" is actionable;
+  "BLOCK if it's not good" is not.)
 - Is the severity appropriate? A BLOCK must be a genuine show-stopper, not a preference.
 
 ### Lens C — Scope completeness
 
 - Is everything the product does covered under Core Capabilities?
-- Could a feature planner reasonably assume something is in scope that is actually out of scope? If so, add it to
-  Explicit Out of Scope.
+- Could a feature planner reasonably assume something is in scope that is actually out of scope? If so, add it to Explicit Out of Scope.
 - Does the scale target include design guidance (not just an audience description)?
 
 ### Lens D — User grounding
 
 - Does every primary user role appear at least once — in Capabilities, in Guiding Principles, or in the Vision?
-- Is any role listed but then absent from the rest of the document? (Indicates the role was named but not actually
-  considered.)
+- Is any role listed but then absent from the rest of the document? (Indicates the role was named but not actually considered.)
 
 ### Lens E — Feature tracking
 
@@ -292,9 +286,8 @@ After drafting, re-read the file against these lenses. Note every issue.
 
 If any lens surfaces an issue, present them via `AskUserQuestion` using this format:
 
-**AskUserQuestion limit:** the tool accepts at most **4 questions per call**. If more than 4 issues surface,
-rank by severity (BLOCK-equivalents > contradictions > ambiguity > completeness) and ask the top 4 first; defer
-the rest to the next round (after writing answers to disk). Consolidate tightly-related issues into one question.
+**AskUserQuestion limit:** the tool accepts at most **4 questions per call**. If more than 4 issues surface, rank by severity (BLOCK-equivalents > contradictions >
+ambiguity > completeness) and ask the top 4 first; defer the rest to the next round (after writing answers to disk). Consolidate tightly-related issues into one question.
 
 
 ---
@@ -315,8 +308,7 @@ I found the following gaps. Please answer each one so I can update the northstar
 
 After receiving answers:
 
-1. Write the enriched answers into the northstar file immediately using `Edit`. Integrate each answer into the relevant
-   section — do not append a raw Q&A block.
+1. Write the enriched answers into the northstar file immediately using `Edit`. Integrate each answer into the relevant section — do not append a raw Q&A block.
 2. Re-read the updated file.
 3. Run all lenses again.
 4. If gaps remain, ask the next round. If none remain, proceed to Step 7.
@@ -341,6 +333,11 @@ Once the northstar passes all lenses, present:
 The northstar is ready. The feature-planning skill will now evaluate every plan against these principles in its Step 4 review.
 ```
 
+**If `$PM_REVIEW` does not exist**, add a one-line recommendation below the summary (do not create the file yourself):
+
+> No `pm-review` knowledge base found. To capture the product's domain depth — personas, domain invariants, glossary, and
+> review lenses that complement this vision — run the `pm-review` skill; it will bootstrap `.agents/pm-review.md`.
+
 Then ask:
 
 > The northstar has been written to `<path>`. Would you like to adjust anything, or is it ready to use?
@@ -350,12 +347,9 @@ Then ask:
 ## Guidelines
 
 - **Never invent answers.** If the user's intent is unclear, ask — do not assume product details.
-- **Preserve specificity.** Generic content helps no one. Every sentence should be true of *this* product and false of
-  some other product.
-- **One source of truth.** All information lives in the northstar file after every round — never hold unanswered
-  questions in your head.
-- **Principles must be actionable.** If you cannot write a concrete BLOCK or WARN condition for a principle, the
-  principle is too vague — ask the user to sharpen it.
+- **Preserve specificity.** Generic content helps no one. Every sentence should be true of *this* product and false of some other product.
+- **One source of truth.** All information lives in the northstar file after every round — never hold unanswered questions in your head.
+- **Principles must be actionable.** If you cannot write a concrete BLOCK or WARN condition for a principle, the principle is too vague — ask the user to sharpen it.
 - **Do not over-question.** If something is clear from `AGENTS.md` or `docs/policies.md`, do not ask about it again.
 - **Simpler is better.** Fewer strong principles beat many weak ones.
 
