@@ -12,67 +12,15 @@ Read `composer.json` at the repo root (use `Bash(cat *)` or `Read`). Classify:
 
 If `composer.json` does not exist, skip Step 5.
 
-## 5b — Extract explicit paths from the plan
+## 5b–5d — Run the common procedure
 
-If Laravel is detected, re-read the final (enriched) plan file. Collect every **directory or file path** that
-appears in implementation steps — anything that looks like a source path (e.g. `app/Services/Foo`,
-`src/Http/Controllers`, `packages/my-package/src`). Deduplicate and discard:
+Follow `~/.claude/skills/plan-review/optimizations/_common.md` with these parameters:
 
-- `vendor/`
-- `node_modules/`
-- `tests/` paths (test files, not source)
-- Migration file paths (already handled by `no-db-constraints`)
-- Any path that does not exist on disk (`Bash(test -f *)`)
-
-If no valid source paths survive, use the most specific directory the plan targets overall (e.g. `app/` for an
-application plan, `src/` for a package). **Never pass an empty or repo-root path** — laravel-optimization
-scanning the entire codebase defeats the purpose.
-
-## 5c — Invoke laravel-optimization
-
-Spawn an `Agent` sub-agent with **`model: opus`** for each unique top-level module path extracted in 5b. Use
-this prompt (fill in the bracketed values):
-
-```
-Run the laravel-optimization skill on `<module-path>`.
-Context: this audit follows a plan-review pass on `<plan-file-path>`.
-Do NOT invoke feature-planning or write to any plan file.
-Return your full structured audit findings so the caller can incorporate them into the reviewed plan.
-```
-
-Example: if the plan touches `app/Services/Billing` and `app/Http/Controllers/BillingController.php`, pass
-`app/Services/Billing` as the module path (the directory, not the individual file).
-
-If the plan spans multiple unrelated module directories, spawn one Agent per directory. Do not combine
-unrelated paths into a single invocation. Collect all sub-agent results before proceeding to 5d.
-
-## 5d — Incorporate findings into the reviewed plan
-
-After laravel-optimization completes, read its audit results (the structured findings it emits before handing off
-to feature-planning). Then re-open the plan file you have been enriching and incorporate the performance findings
-directly into it — do **not** leave them in a separate optimization plan file.
-
-**How to incorporate:**
-
-1. Locate the implementation steps section of the reviewed plan.
-2. For each laravel-optimization finding that applies to code touched by the plan:
-    - If the plan already has a step that modifies the affected file/method, **annotate that step** with a
-      `> ⚠ Performance note:` blockquote describing the issue and the required fix (e.g. add eager loading, wrap in
-      `Cache::remember`, use `->exists()` instead of `->count() > 0`).
-    - If no existing step covers the affected code, **add a new numbered step** in the appropriate phase that
-      addresses the finding. Follow the same step format used elsewhere in the plan (file path, before/after code
-      snippet).
-3. If laravel-optimization found DB constraint violations, add a step instructing the agent to run
-   `/no-db-constraints <migration-file-path>` for each affected migration — place it before any step that seeds
-   or queries the constrained table.
-4. Write the updated plan back to disk with `Edit` (or `Write` if a full rewrite is cleaner).
-5. Re-read the updated plan and confirm no new ambiguities were introduced by the additions. If any were, resolve
-   them as much as you can on your own and use the `AskUserQuestion` tool for any that you cannot.
-
-If laravel-optimization found **no issues**, add a single note at the bottom of the plan:
-
-```markdown
-> **Laravel performance audit:** no issues found in the scanned module paths.
-```
-
-Then write the plan and proceed to the final summary.
+- `{{OPTIMIZATION_SKILL}}` = `laravel-optimization`
+- `{{PATH_NOUN}}` = `module`
+- `{{DISCARD_PATHS}}` = `vendor/`, `node_modules/`, migration file paths (already handled by `no-db-constraints`)
+- `{{FIX_EXAMPLES}}` = add eager loading, wrap in `Cache::remember`, use `->exists()` instead of `->count() > 0`
+- `{{AUDIT_LABEL}}` = `Laravel performance audit`
+- `{{EXTRA_STEPS}}` = If `laravel-optimization` found DB constraint violations, add a step instructing the agent to run
+  `/no-db-constraints <migration-file-path>` for each affected migration — placed before any step that seeds or queries the constrained
+  table.
