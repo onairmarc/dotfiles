@@ -1,6 +1,6 @@
 ---
 name: scaffold-standards
-description: Scaffold the documentation and coding-standards surface for any project, regardless of language. Interactively interviews the project (stack, test/build/static-analysis/format commands, logging sink, module layout), then copies and fills language-agnostic templates into docs/standards/ — a policies.md index plus one file per policy under docs/standards/policies/, each tagged BLOCK or WARN — along with a docs/_planning/ lifecycle README and root AGENTS.md + README.md. Framework-specific rules come from optional policy packs (Laravel ships today) applied only when the stack matches. Use when the user wants to bootstrap a docs directory, set up coding standards, add a standards/policies doc, or establish convention docs for a new or existing repository.
+description: Scaffold the documentation and coding-standards surface for any project, regardless of language. Interactively interviews the project (stack, test/build/static-analysis/format commands, logging sink, module layout), then copies and fills language-agnostic templates into docs/standards/ — a policies.md index plus one file per policy under docs/standards/policies/, each tagged BLOCK or WARN — along with a docs/_planning/ lifecycle README, root AGENTS.md + README.md, and per-module AGENTS.md + README.md for every discovered sub-project (skeletons for all, deep-dive for the top few). Framework-specific rules come from optional policy packs (Laravel ships today) applied only when the stack matches, and a final review-lens pass iterates the whole surface until it is complete, specific, stack-correct, and internally consistent. Use when the user wants to bootstrap a docs directory, set up coding standards, add a standards/policies doc, or establish convention docs for a new or existing repository.
 argument-hint: [ target project root (optional) ]
 allowed-tools:
     - Read
@@ -39,6 +39,8 @@ What it scaffolds (the **full surface**):
 | planning `README.md` | `docs/_planning/README.md`   | Plan lifecycle — plans are throwaway scaffolding, docs land elsewhere. |
 | root `AGENTS.md`     | `AGENTS.md`                  | AI-agent guidance and reference-file index.                            |
 | root `README.md`     | `README.md`                  | Human-facing project overview.                                         |
+| module `AGENTS.md`   | `<module>/AGENTS.md`         | Per-sub-project agent guidance — role, key files, invariants.          |
+| module `README.md`   | `<module>/README.md`         | Per-sub-project human overview — purpose, structure, run/test.         |
 
 **One policy, one file.** `policies.md` is an index and nothing more: a reader (human or agent) opens only the one or two policy files their change touches instead of
 loading the whole rule set. Every policy file carries the same shape — a one-sentence statement, a rationale paragraph that says *why* the rule earns its cost, a
@@ -72,7 +74,23 @@ bodies from scratch.
    MUST surface them and ask the user, per artifact, whether to **skip** (leave the existing file untouched), **overwrite**, or **merge** (open the existing file, read
    it, and fold the template's missing sections in without discarding the user's content). Never blind-overwrite an existing doc.
 5. **Read the existing docs layout** if the project already has a `docs/` tree — reuse its conventions (sidebar frontmatter style, existing standards filenames) rather
-   than fighting them.
+   than fighting them. Treat an existing `CLAUDE.md` as an alias of `AGENTS.md`: if the repo has `CLAUDE.md` but no `AGENTS.md`, read it as the already-answered
+   agent-guidance input and confirm with the user whether to keep writing `CLAUDE.md` or migrate to `AGENTS.md` (default: migrate, leaving a one-line `CLAUDE.md` pointer).
+6. **Discover sub-projects.** Detect the module/package/project units this repo ships so each can get its own `AGENTS.md` + `README.md`. Discovery is stack-shaped:
+
+   | Stack signal                          | Sub-project unit                                                                            |
+   |---------------------------------------|--------------------------------------------------------------------------------------------|
+   | `app_modules/*` or `modules/*` dirs   | Each directory with a `composer.json`.                                                      |
+   | `*.sln` / multiple `*.csproj`         | Each `*.csproj` (skip `bin/`, `obj/`, and test projects unless the user wants them).        |
+   | root `package.json` `workspaces`      | Each workspace, or every `packages/*/package.json`.                                         |
+   | multiple `go.mod` / `pyproject.toml`  | Each non-root module manifest.                                                              |
+   | single-project repo                   | No sub-projects — the root docs are the only docs.                                          |
+
+   Use `Glob`; fall back to `find -L` via `Bash` when a source directory is symlinked. Record the list as `{ name, path }` pairs, and drop folders that exist but are not
+   first-class deliverables (`examples/`, `tools/`, generated proxies) — confirm the final list with the user in the Interview Phase. If discovery finds nothing, skip the
+   Per-Project Docs Phase entirely.
+7. **Detect the northstar.** If `{{PLANNING_PATH}}/northstar.md` or `<root>/northstar.md` exists, record its path as `{{NORTHSTAR}}`. The review-lens pass checks that no
+   policy contradicts it. If none exists, `{{NORTHSTAR}}` is null and the northstar check is skipped.
 
 ---
 
@@ -204,8 +222,9 @@ content in every section — never a placeholder and never a generic "fill this 
 
 Write the policy files **first**, then the index, then the remaining artifacts — the index's rows are determined by what actually landed in `policies/`.
 
-For each template — the policy files selected in **Policy Set Selection**, then every other template under
-`<skill_dir>/resources/`, in the order listed in the Pre-flight table:
+The `<skill_dir>/resources/project/` templates are **not** copied here — they are applied once per sub-project in the Per-Project Docs Phase below. For every other
+template — the policy files selected in **Policy Set Selection**, then each remaining template under `<skill_dir>/resources/`, in the order listed in the Pre-flight
+table:
 
 1. **Read the template** with the Read tool.
 2. **Resolve every `{{VALUE}}` token** to its detected/confirmed value.
@@ -254,6 +273,60 @@ After the files land, make them cohere:
 
 ---
 
+## Per-Project Docs Phase
+
+If Pre-flight discovered sub-projects, give each its own `AGENTS.md` + `README.md` so an agent working inside a module reads module-scoped guidance without loading the
+whole repo. Skip this phase entirely for a single-project repo. The templates are at `<skill_dir>/resources/project/AGENTS.md` and
+`<skill_dir>/resources/project/README.md`; they use the same `{{VALUE}}` / `{{GEN:…}}` machinery and the same full-automation contract — **no `{{` token and no `TODO`
+survives** in a written file.
+
+**Skeletons for every module first.** For each discovered sub-project, copy both templates into `<module>/`, resolving:
+
+- `{{MODULE_NAME}}` — the module's name.
+- `{{ROOT_RELATIVE}}` — the relative path from the module directory back to the repo root (e.g. `../..` for `app_modules/billing/`), so the "supplements the root
+  AGENTS.md" link resolves.
+- `{{GEN:…}}` blocks — author from the module's manifest and top-level tree. A skeleton lists the module's top-level directories with a one-line role each and states plainly
+  when no invariants have been captured yet; it never leaves a placeholder. Honor the per-file collision decision from Pre-flight (skip / overwrite / merge).
+
+A skeleton with correct headers, a resolved role, working cross-links, and an honest "no invariants captured yet" line is a real deliverable — better than an invented
+body that drifts from the code.
+
+**Deep-dive the top few.** After the skeletons land, ask the user via `AskUserQuestion` which 3–5 modules to fully populate now (recommend the ones they emphasized in the
+Interview Phase). For each selected module, run one consolidated `AskUserQuestion`:
+
+> **`<module>` deep-dive.** (1) The 5–10 most important files or directories and each one's role. (2) Any invariants, gotchas, or boot-order constraints an agent must
+> respect. (3) Run/test commands specific to this module, if they differ from the root commands.
+
+Then Edit that module's `AGENTS.md` + `README.md` to fold the answers into the Key Files, Invariants / Hot Spots, Key Components, and Running / Testing sections. Modules
+not selected stay as skeletons for a later session or human authoring.
+
+**Wire the modules into the root.** Add one row per module to the root `AGENTS.md` "Reference Files" table (domain → the module's `AGENTS.md`), and surface the modules in
+the root `README.md` Architecture section. Every `{{ROOT_RELATIVE}}/AGENTS.md` link and every root-to-module link must resolve.
+
+---
+
+## Review-Lens Phase
+
+After every file is written and wired, re-read the whole generated surface and pass it through five lenses. This is an **iterate-until-clean** loop, not a one-shot
+checklist — each round drives concrete edits, then re-runs every lens.
+
+- **Lens A — Completeness.** Every discovered module has paired `AGENTS.md` + `README.md` (skeleton at minimum). Every policy that landed has a `policies.md` index row and,
+  where load-bearing, an `AGENTS.md` rules bullet. Every sibling standards artifact promised in the templates exists and is non-empty.
+- **Lens B — Specificity.** Every policy carries a concrete `BLOCK`/`WARN` footer, and its statement is true of *this* project and false of some other project of the same
+  stack. Generic platitudes are tightened or removed.
+- **Lens C — Stack-fit.** Every invoked command, tool name, file extension, and config path matches the detected stack — no `.csproj` in a Laravel doc, no `composer.json`
+  in a .NET doc, no combined "lint" command where the analyzer and the formatter must stay split.
+- **Lens D — Agent-readiness.** An agent can open the root `AGENTS.md` cold and follow the Reference Files table to the right sub-doc or module for any domain. Every
+  cross-link resolves to a file that was actually written.
+- **Lens E — Consistency.** Project and module names are spelled identically across every file; docs/planning paths agree everywhere; anchor links point at headings that
+  exist. If `{{NORTHSTAR}}` is set, no policy contradicts a northstar principle — flag any that does.
+
+When a lens surfaces issues, present them via `AskUserQuestion` (at most 4 questions per call, ranked BLOCK-equivalents → stack-fit errors → ambiguity → completeness,
+tightly-related issues consolidated). Write the fixes to disk **before** the next question, re-read the changed files, and re-run all five lenses. Repeat until a full pass
+finds nothing. Issues the agent can resolve itself (a broken link, a missing index row, a misspelled module name) are fixed directly without a question.
+
+---
+
 ## Deliverable
 
 Report, in a short summary (not by dumping file contents):
@@ -261,7 +334,9 @@ Report, in a short summary (not by dumping file contents):
 - The resolved project root, `{{DOCS_PATH}}`, and `{{PLANNING_PATH}}`.
 - The policy set: how many policies were written, which conditional policies gated **in** and which gated **out** (and why), which pack was adopted (or that none
   applied), and which core policies a pack superseded.
+- The sub-projects discovered: how many got skeleton `AGENTS.md` + `README.md` and which were deep-dived (or that the repo is single-project and the phase was skipped).
 - The list of files written, skipped, or merged.
+- How many review-lens rounds ran and that the final pass was clean.
 - Confirmation that the written files are complete — no tokens, no TODO markers, every section carries real project-specific content.
 
 ---
@@ -285,5 +360,9 @@ Report, in a short summary (not by dumping file contents):
   command emitted anywhere. `formatter-authority.md` still bars the first at BLOCK in every mode, and `static-analysis.md` still requires the second.
 - [ ] All internal cross-links resolve against the chosen docs/planning paths — including every `./<name>.md` link between policy files.
 - [ ] The `AGENTS.md` reference index lists exactly the standards docs that were written and routes to the policy index, not to individual policy files.
+- [ ] Every discovered sub-project has paired `AGENTS.md` + `README.md` (skeleton at minimum), each `{{ROOT_RELATIVE}}` link resolves, and every module is wired into the
+  root `AGENTS.md` Reference Files table and root `README.md` Architecture section. (Skipped only for a genuinely single-project repo.)
+- [ ] The five review lenses ran as an iterate-until-clean loop, every surfaced issue was fixed on disk before the next question, and a full final pass found nothing — no
+  broken cross-link, no name-spelling drift, and no policy contradicting `{{NORTHSTAR}}` when one exists.
 - [ ] No file was written via shell redirection — only Write/Edit.
 - [ ] The summary reports written/skipped/merged files and confirms zero remaining tokens/TODOs.
