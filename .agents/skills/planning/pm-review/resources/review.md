@@ -39,29 +39,8 @@ Analyze every change through **both** lens sets and collect findings.
 
 ### Universal lenses (always applied, every product)
 
-**U1. Compliance, Privacy & Data Protection**
-
-- Does the change capture, expose, or move PII? Is consent/opt-in recorded with timestamps where required?
-- Are right-to-deletion, data-retention, and audit-trail obligations (create/edit/delete with actor + timestamp) respected?
-- Are regulatory requirements for this product's jurisdiction (GDPR/CCPA and any domain-specific rules) still satisfied?
-
-**U2. Access Control & Multi-Tenant Isolation**
-
-- Is authorization enforced at the query/data layer, not just hidden in the UI?
-- Do new queries and models scope to the current tenant? Could the change leak one tenant's data to another (including shared infrastructure: search indexes, caches,
-  media/CDN, queues)?
-- Do new routes, actions, and endpoints carry the correct role/permission checks?
-
-**U3. UX & Feature Completeness**
-
-- Are error messages actionable for the actual end user, free of developer jargon?
-- Are defaults sensible for the persona? Are empty / zero / boundary states handled (no records, nothing selected, limits hit)?
-- Is the feature complete enough to ship, or are there gaps a user would immediately notice?
-
-**U4. Metrics, Analytics & Performance**
-
-- Do analytics/tracking events fire for new features? Is attribution/tracking accuracy preserved? Is bot-vs-human traffic handled where it matters?
-- Do bulk/expensive operations run asynchronously (queues/jobs) rather than inline? Are there N+1 or unbounded-query risks, or timeout risk on large datasets?
+Apply the four universal lenses (U1 Compliance/Privacy, U2 Access Control/Multi-Tenant, U3 UX/Completeness, U4 Metrics/Performance) defined in `resources/_lenses.md`,
+asking each one **backward-looking**: does the change in front of you actually handle it?
 
 ### Invariants & product-specific lenses
 

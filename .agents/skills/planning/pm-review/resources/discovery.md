@@ -52,17 +52,8 @@ Run **both** lens sets against the idea, forward-looking (what *would* this need
 
 ### Universal lenses (always applied)
 
-**U1. Compliance, Privacy & Data Protection** — Would this capture, expose, or move PII? Does it need consent records, retention rules, right-to-deletion handling, or an
-audit trail? Any regulatory obligation triggered?
-
-**U2. Access Control & Multi-Tenant Isolation** — Who is allowed to do this? Does it need new roles/permissions? Could it cross tenant boundaries or touch shared
-infrastructure (search, cache, media, queues) in a way that risks a leak?
-
-**U3. UX & Feature Completeness** — What is the minimum lovable version for the affected persona? Which empty / zero / boundary states must be designed? What would a user
-immediately notice as missing?
-
-**U4. Metrics, Analytics & Performance** — Which `success_metrics` does this move, and how would we know? What events must be tracked? Does it involve bulk/expensive work
-that must be async, or large-dataset paths at risk of timeouts / N+1?
+Apply the four universal lenses (U1 Compliance/Privacy, U2 Access Control/Multi-Tenant, U3 UX/Completeness, U4 Metrics/Performance) defined in `resources/_lenses.md`,
+asking each one **forward-looking**: what would this idea need, capture, or put at risk?
 
 ### Product-specific lenses
 
