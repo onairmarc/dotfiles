@@ -138,75 +138,11 @@ Apply any corrections and re-present if changes were requested. Repeat until the
 
 ## Step 3 — Write the sub-plan files
 
-Once the user approves, write each sub-plan file using the following format.
-
-**Filename:** `<sequence>-<slug>.md`
-**Location:** the same directory as the source plan file
-
-### Sub-plan file format
-
-```markdown
-# <Title>
-
-## Dependencies
-
-**Blocked by:** <comma-separated list of plan filenames, or "none">
-**Blocks:** <comma-separated list of plan filenames, or "none">
-
----
-
-## Context
-
-<One paragraph explaining why this unit of work exists, what it produces, and how it fits into the overall feature. Include any constraints or decisions from the master
-plan that are relevant to this sub-plan only. State in one line what behavior is observable once this slice is complete. If this is a shared-groundwork sub-plan, state
-why the groundwork could not live inside the first behavioral slice.>
-
----
-
-## Delivery constraints
-
-- **Vertical slice.** This sub-plan cuts through every layer it touches and ends with the behavior above wired up and observable. Do not leave anything registered,
-  injected, or created but uncalled.
-- **In place, on the current branch — unless it is main.** Before the first change, run `git rev-parse --abbrev-ref HEAD` to check what branch is actually checked out;
-  never assume from memory or from this sub-plan. If it is not the repository's main branch, implement in place on it. If it is main, run
-  `git checkout -b <descriptive-branch-name>` first and implement on that new branch. Either way, do not switch to an existing branch, merge, or use a git worktree.
-- **Repository-native verification.** Use `<the project's runner command>` with the project's existing test directories, base classes, and factories. Do not write
-  throwaway driver scripts, scratch runners, sandbox projects, or bespoke assertion helpers.
-
----
-
-## Steps
-
-<The ordered implementation steps from the master plan that belong to this sub-plan. Keep them verbatim or lightly edited to stand alone — do not summarize or lose
-detail. Each step should be actionable by a coding agent without referring back to the master plan.>
-
----
-
-## Acceptance Criteria
-
-<The acceptance criteria from the master plan that apply to this sub-plan's deliverable. If the master plan has global criteria, reproduce only the subset that this
-sub-plan is responsible for.>
-```
-
-**Rules for content extraction:**
-
-- Copy relevant steps verbatim from the master plan. Do not paraphrase or shorten implementation detail.
-- If a step from the master plan spans multiple sub-plans (e.g. "create X and wire it into Y" where X is plan 02 and wiring is plan 03), split the step text accordingly
-  so each sub-plan contains only its portion.
-- Every sub-plan must be self-contained: an agent reading only that file and the codebase should be able to implement it without referring to any other sub-plan or the
-  master plan.
-- Shared context (e.g. database schema decisions, API contracts, naming conventions) must be reproduced in every sub-plan that needs it — do not say "see plan 01 for
-  details".
-- **Project standards & policy constraints carry into every sub-plan.** If the master plan references or embeds project standards, conventions, or policies (naming,
-  structure, testing, logging, dependency, migration/DB, formatting, commit/PR rules), reproduce the subset that applies to each sub-plan's work in that sub-plan's
-  Context — do not point back to the master plan. If the master plan does not surface any standards, locate them first (repo-root `README.md` /
-  `AGENTS.md` and any standards/policy documents they link, or a `Glob`/`Grep` search when neither names a location) and carry the applicable rules into each sub-plan so
-  no phase can silently violate a policy.
-- **The `## Delivery constraints` section is mandatory in every sub-plan** and must be filled in, not templated — substitute the project's real runner command, discovered
-  from the master plan or the repository. Never replace it with a pointer to the master plan or to `~/.claude/skills/delivery-constraints/SKILL.md`; the sub-plan must bind
-  the agent on its own.
-
-Write all files before proceeding to Step 4.
+Once the user approves, write each sub-plan following the **Sub-plan structure**, **Content-extraction rules**, and **Dependency contract** in
+`~/.claude/skills/planning-commons/plan-format.md`. In brief: filename `<sequence>-<slug>.md` written alongside the source plan; a `## Dependencies` header with mirror-image
+`**Blocked by:**` / `**Blocks:**` filename lists; the `## Delivery constraints` block reproduced verbatim with the project's real runner command filled in (mandatory, never
+a pointer); every sub-plan self-contained, with steps copied verbatim from the master plan and the applicable subset of `$PROJECT_STANDARDS` carried into each sub-plan's
+Context. Write all files before proceeding to Step 4.
 
 ---
 

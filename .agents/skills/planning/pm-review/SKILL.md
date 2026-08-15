@@ -157,16 +157,8 @@ The `domains` one-liners in the index let discovery mode route an idea to the ri
 The knowledge base captures the product's *domain*; the **northstar** captures the product's *vision* — its in-scope capabilities, explicit out-of-scope list, guiding
 principles (each annotated BLOCK or WARN), and sanctioned feature set. Both modes hold their reasoning against it, so load it here once.
 
-Detect the planning directory — the first that exists of `docs/_planning/`, `docs/planning/`, `planning/`, `_planning/`; else default to `docs/_planning/`. Then check, in
-order, for the northstar (durable home first, legacy locations after):
-
-- `docs/product/northstar.md`
-- `<planning-dir>/northstar.md`
-- `docs/northstar.md`
-- `northstar.md`
-
-Record the first that exists as `$NORTHSTAR` and read it in full. If none exists, record `$NORTHSTAR = null` — the mode files skip every northstar check silently rather
-than inventing vision constraints.
+Resolve `$PLAN_DIR` and the `$NORTHSTAR` ladder per `~/.claude/skills/planning-commons/paths.md`. Read the resolved northstar in full. If none exists, `$NORTHSTAR = null`
+— the mode files skip every northstar check silently rather than inventing vision constraints.
 
 ### Keep the northstar and the knowledge base in sync
 

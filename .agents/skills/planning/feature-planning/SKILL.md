@@ -69,23 +69,12 @@ The plan must not violate a single documented project standard, convention, or p
 every step against them. When a natural design choice would conflict with a documented policy, the policy wins — change the design, not the policy. If a policy is
 ambiguous or appears to conflict with the goal, flag it to the user rather than guessing.
 
-### 8. Vertical slices, never horizontal layers
+### 8. Honor the delivery constraints
 
-Every phase of the plan delivers one narrow piece of behavior cut through every layer it touches — schema, domain, service, transport, UI — and leaves it wired up and
-observable. Never plan a phase whose deliverable is "all the models" or "all the interfaces" with the wiring deferred. When a slice is too big, narrow the *behavior*
-(one endpoint instead of five), not the *stack*. See `~/.claude/skills/delivery-constraints/SKILL.md` for the full rule and its one permitted exception.
-
-### 9. In-place on the current branch, unless that branch is main
-
-The plan assumes implementation happens in place on the branch already checked out, and requires the implementing agent to verify the current branch with
-`git rev-parse --abbrev-ref HEAD` before starting rather than trusting memory or the plan text. If that check shows the main branch, the agent creates a new branch off it
-first and works there. No plan step switches to an existing branch, merges, or uses a git worktree.
-
-### 10. Verify with the repository's own tooling
-
-Tests live in the repository's existing test directories, use its existing base classes, factories, and assertion helpers, and run with its own runner command. Never plan
-a throwaway driver script, scratch runner, sandbox project, or bespoke assertion layer to prove a change works. If the repository has no test tooling at all, say so
-explicitly and verify using what does exist rather than inventing a harness.
+Every plan is structured as vertical slices, assumes implementation lands in place on the currently checked-out branch (branching off main only after an explicit branch
+check), and verifies itself with the repository's own test tooling rather than a bespoke harness. These are the non-negotiable rules in
+`~/.claude/skills/delivery-constraints/SKILL.md`; they are enforced by Lens E in Step 2 and reproduced verbatim in the plan itself (see the plan's `## Delivery
+constraints` section).
 
 ---
 
@@ -97,44 +86,20 @@ Before gathering requirements, orient yourself to the repository:
     - Strip the flag from `$ARGUMENTS` so the remainder is treated as the feature description.
     - Resolve `<dir>` relative to the current working directory and record it as `$PLAN_DIR`. Skip the auto-detect step below entirely.
 
-2. **Detect output directory** (skip if `--output` was provided) — check for the following in order and use the first that exists:
-    - `docs/_planning/`
-    - `docs/planning/`
-    - `planning/`
-    - `_planning/`
+2. **Detect output directory** (skip if `--output` was provided) — resolve `$PLAN_DIR` per the `$PLAN_DIR` ladder in
+   `~/.claude/skills/planning-commons/paths.md`.
 
-   If none exist, default to `docs/_planning/`. Record this as `$PLAN_DIR`.
+3. **Discover project standards & policies (mandatory)** — the plan must not violate a single documented policy, so finding them is not optional. Follow the
+   standards-discovery procedure in `~/.claude/skills/planning-commons/paths.md` and record the extracted rules as `$PROJECT_STANDARDS`, the checklist the plan is held
+   against in Step 2. From those same sources, also identify the project name, tech stack, existing architectural patterns and naming conventions, and any planning or
+   documentation policies, and use that context to inform the plan's language, component references, and step specificity throughout.
 
-3. **Discover project standards & policies (mandatory)** — locate every place this project documents coding standards, conventions, and policies. The plan must not
-   violate a single one, so finding them is not optional.
-
-    1. **Start where the standards are usually declared.** Read the repo-root `README.md` and `AGENTS.md` (and any per-module `AGENTS.md` / `README.md` for the area this
-       feature touches). Follow every link or reference they make to standards, policy, or convention documents (e.g. `docs/standards/`,
-       `docs/policies.md`, `CONTRIBUTING.md`, a `standards/` directory, or a linked doc).
-    2. **If neither `README.md` nor `AGENTS.md` names a standards location, search for it** with `Glob`/`Grep`. Likely homes: `docs/standards/`,
-       `docs/policies*.md`, `docs/conventions*.md`, `CONTRIBUTING.md`, `.editorconfig`, and linter/formatter configs (`pint.json`, `phpcs.xml`,
-       `.php-cs-fixer*`, `.eslintrc*`, `ruff.toml`, `.golangci.yml`, etc.), plus any file whose name contains `standard`, `policy`, or `convention` anywhere in the repo.
-    3. **Confirm you found the right standards when they are not explicitly declared.** If the location was not named in `README.md` / `AGENTS.md`, do not silently
-       assume — tell the user which document (s) you believe hold the project's standards and why, and confirm before relying on them. If you find none, say so explicitly
-       rather than proceeding as if the project has no policies.
-    4. **Read every standard in full and extract the concrete rules** that could constrain this plan — naming, module/directory structure, testing, logging, error
-       handling, dependency policy, migration/DB rules, formatting, and commit/PR policy. Record them as `$PROJECT_STANDARDS`: a checklist the plan will be held against
-       in Step 2.
-
-   From these same sources, also identify the project name, tech stack, existing architectural patterns and naming conventions, and any planning or documentation
-   policies. Use this context to inform the plan's language, component references, and step specificity throughout.
-
-4. **Find northstar** — check for the following in order (durable home first, legacy locations after):
-    - `docs/product/northstar.md`
-    - `docs/_planning/northstar.md`
-    - `docs/northstar.md`
-    - `northstar.md`
-
-   If found, record its path as `$NORTHSTAR`. If not found, record `$NORTHSTAR = null` — Step 4 will be skipped silently.
+4. **Find northstar** — resolve `$NORTHSTAR` per the `$NORTHSTAR` ladder in `~/.claude/skills/planning-commons/paths.md`. If none is found, `$NORTHSTAR = null` and Step 4
+   is skipped silently.
 
 5. **Find a PM discovery brief** — the `pm-review` skill's discovery mode writes a **durable** product-side brief before planning begins. Unlike plans, briefs are
-   permanent documentation and live **outside** `$PLAN_DIR`, in the durable product-docs home alongside the northstar: the first that exists of `docs/product/discovery/`,
-   `docs/discovery/`, `docs/_discovery/`, `discovery/`; else `docs/product/discovery/`. Record it as `$DISCOVERY_DIR`. Look for a brief that matches this feature:
+   permanent documentation and live **outside** `$PLAN_DIR`: resolve `$DISCOVERY_DIR` per the `$DISCOVERY_DIR` ladder in `~/.claude/skills/planning-commons/paths.md`. Look
+   for a brief that matches this feature:
     - If `$ARGUMENTS` names a feature, derive its kebab-case slug and check `$DISCOVERY_DIR/<slug>.md`.
     - Otherwise, glob `$DISCOVERY_DIR/*.md`; if exactly one clearly matches the feature description, use it. If several plausibly match, ask the user which brief (if any)
       this plan is for.
@@ -168,10 +133,8 @@ every available source, then asking the user **only** about what none of those s
     - **Existing code**: what this replaces, extends, or must stay compatible with.
 
 3. **Ask only the residual unknowns.** Put the questions the combined sources could not answer to the user via
-   `AskUserQuestion` — focused, short-answer, highest-impact first. Do not ask anything the brief, the code, or the conventions already answer.
-
-   **AskUserQuestion limit:** at most **4 questions per call**. If more than 4 residual unknowns remain, ask the top 4 by blast radius first, then the rest in a second
-   call before drafting.
+   `AskUserQuestion` — focused, short-answer, highest-impact first, batched per the AskUserQuestion rules in `~/.claude/skills/planning-commons/review-loop.md`. Do not ask
+   anything the brief, the code, or the conventions already answer.
 
 4. **If you have no questions, do not silently proceed — confirm the premise first.** Reaching zero questions is a claim that the brief, the code, and the conventions
    fully determine the plan. State that claim explicitly to the user with
@@ -187,123 +150,10 @@ every available source, then asking the user **only** about what none of those s
 
 ## Step 1 — Draft the plan
 
-Using the answers from Step 0 and the context discovered in Pre-flight, draft a plan following the structure below. Write it to
-`$PLAN_DIR/<kebab-case-feature-name>/plan.md`. Create the directory if it does not exist.
-
-### Plan structure
-
-```markdown
-# <Feature Name> — Implementation Plan
-
-## Goal
-
-One paragraph: what problem this solves and what success looks like.
-
-## Out of scope
-
-Explicit list of things this plan does NOT cover. If nothing is out of scope, say so.
-
-## Affected components
-
-Table: Component / Module | Change type (New / Modified / Deleted) | Summary of change
-
-## Delivery constraints
-
-Reproduce these verbatim — they bind the implementing agent:
-
-- **Vertical slices.** Each slice below cuts through every layer it touches and ends with behavior that is wired up and observable. Do not implement a layer ahead of its
-  caller, and do not defer wiring to a later slice.
-- **In place, on the current branch — unless it is main.** Before the first change, run `git rev-parse --abbrev-ref HEAD` to check what branch is actually checked out;
-  never assume from memory or from this plan. If it is not the repository's main branch, implement in place on it. If it is main, run
-  `git checkout -b <descriptive-branch-name>` first and implement on that new branch. Either way, do not switch to an existing branch, merge, or use a git worktree.
-- **Repository-native verification.** Use `<the project's test framework and runner command, e.g. vendor/bin/pest --parallel>` with the project's existing test
-  directories, base classes, and factories. Do not write throwaway driver scripts, scratch runners, sandbox projects, or bespoke assertion helpers.
-
-## Architecture
-
-### <Sub-section per significant design decision>
-
-Describe the design. For cross-boundary changes, include the message/event/API flow. Name the concrete classes, interfaces, files, and methods involved. If a new package
-or service is created, list its directory structure. When a decision here is cross-cutting or architectural — an approach chosen over real alternatives, a boundary drawn,
-a trade-off accepted — list an ADR for it under **Documentation updates** so the reasoning survives the plan's deletion.
-
-## Implementation steps
-
-Organized as **vertical slices**. Group the steps under one `### Slice N — <behavior delivered>` heading per slice, ordered so each slice ships working behavior. Under
-each slice heading, state in one line what is observable when the slice is done, then give the ordered steps.
-
-If shared groundwork genuinely cannot live inside the first slice (e.g. a migration three slices read), it may lead as `### Slice 0 — <groundwork>` with an explicit
-sentence explaining why it cannot be co-located with Slice 1.
-
-Each step must be:
-
-- Specific enough that an agent can execute it without asking questions
-- Scoped to one logical unit of work (one class, one migration, one endpoint)
-- Explicit about file paths
-
-The **final step** of every plan must delete this plan directory, because plans are throwaway scaffolding (see
-`## Plan lifecycle` below). State it explicitly, e.g.: "Delete the `<$PLAN_DIR>/<feature>/` plan directory — the feature is implemented and its durable docs now live in
-their real home; the plan must not be committed as a lingering artifact."
-
-## Configuration
-
-List every new config key. For each:
-
-- Key name and location
-- Type and valid range
-- Default value
-- Whether it is hot-reloadable (if applicable)
-- Why it needs to be configurable (if not obvious)
-
-If there is no new configuration, say so explicitly.
-
-## Migration
-
-If a database migration is required:
-
-- List the new/changed tables and columns
-- Note any data backfill logic
-- Confirm the migration is included in the implementation steps
-
-If no migration is required, say so explicitly.
-
-## Tests
-
-Name the project's test framework and the exact runner command up front. Every test below uses that tooling and lives in the project's existing test directories — no
-bespoke harness, scratch script, or standalone sandbox.
-
-For each slice:
-
-- What is being tested (unit, integration, or end-to-end)
-- Which test project or directory, and which existing base class / factory / fixture it builds on
-- Key scenarios (happy path + at least one failure/edge case per logical unit)
-- The runner command that must pass before the next slice starts
-
-If the repository has no test tooling, say so explicitly and state how each slice is verified with what does exist instead.
-
-## Documentation updates
-
-List every doc that must be updated:
-
-- CLAUDE.md / AGENTS.md (if architecture, project structure, or policies change)
-- Developer docs (if implementation details change)
-- User-facing docs (if user-facing behavior changes)
-- Package or module READMEs (for new or significantly changed components)
-- An **ADR** (Architecture Decision Record), when this plan settles a cross-cutting or architectural decision worth preserving — an approach chosen over alternatives, a
-  boundary drawn, a trade-off accepted. Record it as a durable, numbered document at `docs/decisions/NNNN-<slug>.md` (or the owning module's `docs/decisions/` when the
-  decision is module-scoped), capturing the question, the options weighed, the decision, and its consequences. The plan is deleted; the ADR is the surviving record of
-  *why* the code looks the way it does. If the project documents its own ADR convention (Documentation policy / glossary), follow it.
-
-Durable docs land in their real home (standards, root README/AGENTS, glossary, an ADR under `docs/decisions/`, or the module's own AGENTS/README). Never point shipped
-docs or code at this plan file — the plan is deleted once implemented.
-
-## Plan lifecycle
-
-This plan is **throwaway scaffolding**, not durable documentation. Once the implementation and its durable docs land, the entire `<$PLAN_DIR>/<feature>/` directory (this
-`plan.md` and any split sub-plans) is deleted in the same change — a missing or staged-deleted plan directory at commit time is intentional and must not be restored. The
-final implementation step above performs that deletion. If the repository documents its own planning lifecycle (e.g.
-`docs/_planning/README.md`), that document governs.
-```
+Using the answers from Step 0 and the context discovered in Pre-flight, draft the plan following the **Master plan structure** in
+`~/.claude/skills/planning-commons/plan-format.md`. Write it to `$PLAN_DIR/<kebab-case-feature-name>/plan.md`, creating the directory if it does not exist. Reproduce that
+doc's `## Delivery constraints` block verbatim into the plan with the project's real test runner command filled in, organize `## Implementation steps` as vertical
+`### Slice N —` sections, and make the final step delete the plan directory. Fill every section from the Pre-flight context and Step 0 answers — leave no placeholder.
 
 ---
 
@@ -372,43 +222,9 @@ Hold the plan against `~/.claude/skills/delivery-constraints/SKILL.md`. Every fi
 
 ## Step 3 — Iterate via AskUserQuestion
 
-Group your findings into labeled question blocks. For each:
-
-1. Quote or cite the specific plan text.
-2. State what is missing or conflicting.
-3. Ask a focused, short-answer question.
-
-Present them via `AskUserQuestion`, formatted as:
-
-**AskUserQuestion limit:** at most **4 questions per call**. If a round surfaces more than 4 gaps, rank by blast radius (blockers > ambiguity > scope) and ask the top 4
-first; carry the remainder into the next round (after writing answers back to disk). Consolidate related gaps into a single question where possible.
-
-
----
-
-**Plan review: round N**
-
-I found the following gaps. Please answer each one so I can update the plan.
-
----
-
-**[Lens label — short title]**
-
-> *Quoted plan text*
-
-❓ Your question.
-
----
-
-After receiving answers:
-
-1. **Write the enriched answers into the plan file immediately** using `Edit` (or `Write` for a full rewrite). Integrate each answer into the relevant section — do not
-   append a raw Q&A block.
-2. Re-read the updated plan.
-3. Run all lenses again.
-4. If gaps remain, ask the next round. If none remain, proceed to Step 4.
-
-Always write the updated plan to disk **before** calling `AskUserQuestion` again.
+Group your findings into labeled question blocks — each quoting the plan text, stating what is missing or conflicting, and asking one focused short-answer question — then
+run the interactive review loop in `~/.claude/skills/planning-commons/review-loop.md`: batch at most 4 questions per call ranked by blast radius, write every answer into
+the plan immediately, re-read, re-run all lenses, and repeat until no gaps remain. Label each round **Plan review: round N**. When the plan is clean, proceed to Step 4.
 
 ---
 

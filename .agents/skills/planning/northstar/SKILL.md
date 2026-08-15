@@ -31,17 +31,13 @@ Read and follow `~/.claude/skills/file-operations/SKILL.md`.
 
 Before gathering any input, orient yourself:
 
-1. **Detect directories.**
-    - **`$PLAN_DIR`** (disposable plans and the ideas backlog) — the first that exists of `docs/_planning/`, `docs/planning/`,
-      `planning/`, `_planning/`; else default to `docs/_planning/`.
-    - **`$PRODUCT_DIR`** (durable product docs — the northstar's home, shared with pm-review discovery briefs) — always
-      `docs/product/` (use it if it exists, otherwise create it at Step 5). This is fixed, not auto-detected, so the northstar and the discovery briefs
-      (`docs/product/discovery/`) always co-locate under one durable home. The northstar is durable documentation and belongs here, **not** inside the disposable
-      `$PLAN_DIR`. `docs/northstar.md` and `northstar.md` remain read-only legacy locations (Step 2) that are migrated into `$PRODUCT_DIR` on the next write.
+1. **Detect directories.** Resolve `$PLAN_DIR` (disposable plans and the ideas backlog) and `$PRODUCT_DIR` (durable product docs — the northstar's home, shared with
+   pm-review discovery briefs, always `docs/product/`) per `~/.claude/skills/planning-commons/paths.md`. The northstar is durable documentation and belongs in
+   `$PRODUCT_DIR`, **not** inside the disposable `$PLAN_DIR`; a northstar found at a legacy location is migrated into `$PRODUCT_DIR` on the next write. Create `$PRODUCT_DIR`
+   at Step 5 if it does not exist.
 
-2. **Check for existing northstar** — locate it, durable home first, in this order: `$PRODUCT_DIR/northstar.md`,
-   `$PLAN_DIR/northstar.md`, `docs/northstar.md`, `northstar.md`. If `$ARGUMENTS` contains a path to an existing northstar, use that path instead. Record the resolved
-   path as `$NORTHSTAR_PATH`. If one exists:
+2. **Check for existing northstar** — resolve `$NORTHSTAR_PATH` per the `$NORTHSTAR` ladder in `~/.claude/skills/planning-commons/paths.md` (durable home first, legacy
+   locations after). If `$ARGUMENTS` contains a path to an existing northstar, use that instead. If one exists:
     - Ask the user via `AskUserQuestion`: **Refine the existing northstar, or start fresh?**
         - **Refine**: read the existing file, treat its content as Step 0–4 answers, then jump to Step 5 (Review lenses)
           and surface only what is missing or weak. If it currently lives outside `$PRODUCT_DIR` (a legacy location), write the refined version to
@@ -284,36 +280,9 @@ After drafting, re-read the file against these lenses. Note every issue.
 - Is the tracking tool recorded clearly, including project name/key/URL where relevant?
 - Is the Sanctioned Feature Set non-empty? (An empty table with no explanation is a gap.)
 
-If any lens surfaces an issue, present them via `AskUserQuestion` using this format:
-
-**AskUserQuestion limit:** the tool accepts at most **4 questions per call**. If more than 4 issues surface, rank by severity (BLOCK-equivalents > contradictions >
-ambiguity > completeness) and ask the top 4 first; defer the rest to the next round (after writing answers to disk). Consolidate tightly-related issues into one question.
-
-
----
-
-**Northstar review: round N**
-
-I found the following gaps. Please answer each one so I can update the northstar.
-
----
-
-**[Lens label — short title]**
-
-> *Quoted northstar text*
-
-❓ Your question.
-
----
-
-After receiving answers:
-
-1. Write the enriched answers into the northstar file immediately using `Edit`. Integrate each answer into the relevant section — do not append a raw Q&A block.
-2. Re-read the updated file.
-3. Run all lenses again.
-4. If gaps remain, ask the next round. If none remain, proceed to Step 7.
-
-Always write the updated file to disk **before** calling `AskUserQuestion` again.
+If any lens surfaces an issue, run the interactive review loop in `~/.claude/skills/planning-commons/review-loop.md`: batch at most 4 questions per call ranked by
+severity, write every answer into the northstar file immediately, re-read, re-run all lenses, and repeat until clean. Label each round **Northstar review: round N**. When
+no gaps remain, proceed to Step 7.
 
 ---
 

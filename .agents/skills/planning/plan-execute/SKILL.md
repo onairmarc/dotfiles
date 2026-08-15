@@ -46,23 +46,12 @@ Verify the directory exists. If it does not, stop with an error.
 
 ## Step 1 — Discover and parse sub-plan files
 
-List all `*.md` files in `$PLAN_DIR`. **Exclude `plan.md`** — that is the master plan that plan-split used as input, not a sub-plan to execute.
+Parse the sub-plans per the **Dependency contract** in `~/.claude/skills/planning-commons/plan-format.md` — the authoritative spec `plan-split` emits against.
 
-For each remaining file:
-
-1. Read it in full.
-2. Extract the following fields from the `## Dependencies` section:
-    - **Blocked by:** — comma-separated list of filenames (or `none`)
-    - **Blocks:** — comma-separated list of filenames (or `none`)
-3. Record:
-    - `file` — the filename (e.g. `02-create-user-model.md`)
-    - `sequence` — the numeric prefix (e.g. `2`)
-    - `title` — the H1 heading from the file
-    - `blocked_by` — set of filenames that must complete before this plan can start (empty if `none`)
-    - `blocks` — set of filenames this plan unblocks when complete (empty if `none`)
-    - `content` — the full file content, to pass verbatim to the sub-agent
-
-Build an in-memory dependency map: `plan → set of plans it is waiting on`.
+List all `*.md` files in `$PLAN_DIR`. **Exclude `plan.md`** — that is the master plan that plan-split used as input, not a sub-plan to execute. For each remaining file,
+read it in full and record the contract's fields: `file` (filename), `sequence` (numeric prefix), `title` (H1 heading), `blocked_by` and `blocks` (the comma-separated
+filename lists from its `## Dependencies` section, empty when `none`), and `content` (the full file, passed verbatim to the sub-agent). Build an in-memory dependency map:
+`plan → set of plans it is waiting on`.
 
 ---
 

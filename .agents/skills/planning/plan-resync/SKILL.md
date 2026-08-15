@@ -80,16 +80,8 @@ Before analyzing drift, ground yourself in the current state of the relevant cod
     - `git log --since=...` if the plan has a date stamp
     - `git diff` only when narrowing a specific suspected change
 
-4. **Discover project standards & policies (mandatory).** Standards drift too — a policy the plan predates may now forbid something it prescribes. Locate where this
-   project documents its standards, conventions, and policies:
-    - Read the repo-root `README.md` and `AGENTS.md` (and any per-module `AGENTS.md` / `README.md` for the touched area) and follow every link they make to
-      standards/policy/convention documents.
-    - If neither names a standards location, search with `Glob`/`Grep`: `docs/standards/`, `docs/policies*.md`, `docs/conventions*.md`, `CONTRIBUTING.md`,
-      `.editorconfig`, linter/formatter configs (`pint.json`, `phpcs.xml`, `.php-cs-fixer*`, `.eslintrc*`, `ruff.toml`, `.golangci.yml`, etc.), and any file whose name
-      contains `standard`, `policy`, or `convention`.
-    - When the location was not explicitly declared, confirm with the user which document (s) you believe are the project's standards before relying on them; if you find
-      none, say so.
-    - Read them in full and record the concrete rules as `$PROJECT_STANDARDS` for Lens F.
+4. **Discover project standards & policies (mandatory).** Standards drift too — a policy the plan predates may now forbid something it prescribes. Follow the
+   standards-discovery procedure in `~/.claude/skills/planning-commons/paths.md` and record the extracted rules as `$PROJECT_STANDARDS` for Lens F.
 
 Record findings in a working list — you do not write to the plan yet.
 
@@ -186,39 +178,18 @@ If the plan is already fully in sync with the codebase, tell the user so and sto
 
 ## Step 4 — Ask questions via AskUserQuestion (repeat until done)
 
-Present grouped questions using `AskUserQuestion`. Format your message like this:
+Run the interactive review loop in `~/.claude/skills/planning-commons/review-loop.md`, with these resync specifics:
 
-**AskUserQuestion limit:** the tool accepts at most **4 questions per call**. If more than 4 drift points need user input, rank by blast radius and ask the top 4 first;
-defer the rest to the next round (after writing mechanical updates to disk). Consolidate tightly-related drift points into a single question.
+- Label each round **Plan resync: round N** — N drift points to reconcile.
+- Prefer the loop's **compact one-line variant** for findings — `**[Lens]** "quoted plan text" — current: path:LINE — Q: <closed-ended question>` — using a multi-line
+  block only when a finding needs a code snippet or multi-field context.
+- Only judgment calls and scope questions (Step 3) go to `AskUserQuestion`; **apply mechanical updates and confirmed reconciliations directly to the plan** without asking.
+  When writing answers back, mark fully implemented items as done (with a short note citing the implementing file(s)/commit), rewrite stale references to the current code,
+  replace invalidated assumptions with the current factual state, add steps/context for newly relevant code, re-annotate dependencies to real ordering constraints, and
+  express any new implementation work as a code example (see the **Code examples** guideline below).
 
-
----
-
-**Plan resync: round N** — N drift points to reconcile.
-
-For each finding, one line:
-
-`**[Lens]** "quoted plan text" — current: path:LINE — Q: <closed-ended question>`
-
-Use a multi-line block only when the finding requires a code snippet or multi-field context.
-
----
-
-After receiving answers:
-
-1. **Apply mechanical updates and confirmed reconciliations directly to the plan file** using `Edit` (or `Write` if a full rewrite is cleaner). Specifically:
-    - Mark fully implemented items as done, with a short note citing the implementing file (s) / commit if relevant.
-    - Rewrite stale references to match the current code.
-    - Replace invalidated assumption statements with the current factual state.
-    - Add new steps or context for newly relevant code the plan must now address.
-    - Reorder / re-annotate dependencies to match real ordering constraints.
-    - When the resync introduces new implementation work, express *how* via a code example, not prose — see the **Code examples** guideline below.
-2. Re-read the updated plan.
-3. Re-run the lenses against the codebase. New drift may have surfaced once obvious issues were fixed.
-4. If drift remains, compile a new question set and repeat Step 4 with the next round number.
-5. If no drift remains, proceed to Step 5.
-
-**Important:** always write the updated plan to disk *before* calling `AskUserQuestion` again in the next round.
+Re-read and re-run the lenses against the codebase after each round — new drift may surface once obvious issues are fixed — and always write to disk before the next
+`AskUserQuestion` call. When no drift remains, proceed to Step 5.
 
 ---
 
