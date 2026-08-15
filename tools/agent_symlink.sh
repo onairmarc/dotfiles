@@ -12,7 +12,10 @@
 # Usage: agent_symlink [--global]
 #
 # Options:
-#   --global    Create symlinks from ~/.claude/skills to this repo's .agents/skills
+#   --global    Create symlinks from ~/.claude/skills to this repo's .agents/skills.
+#               May be run from any directory on the filesystem: the dotfiles repo
+#               root is resolved from this script's own location, the work runs
+#               there, and the caller's working directory is restored on exit.
 #
 # Note: On Windows, requires Developer Mode enabled or Administrator privileges
 
@@ -95,23 +98,44 @@ fi
 # Save original directory to return to later
 ORIGINAL_DIR="$(pwd)"
 
-# Ensure we return to original directory on exit
+# Ensure we return to original directory on exit, so all navigation below is
+# transparent to the caller regardless of where they invoked the script from.
 cleanup() {
     cd "$ORIGINAL_DIR"
 }
 trap cleanup EXIT
 
-# Verify we are in a git repository
-if ! git rev-parse --git-dir > /dev/null 2>&1; then
-    log_error "Not in a git repository. Please run this script from within a git repo."
-    exit 1
+# Resolve this script's real directory, following symlinks (the script may be
+# invoked through a symlink on PATH). macOS `readlink` has no `-f`, so walk the
+# symlink chain manually for portability.
+SCRIPT_SOURCE="${BASH_SOURCE[0]}"
+while [[ -L "$SCRIPT_SOURCE" ]]; do
+    SCRIPT_DIR="$(cd -P "$(dirname "$SCRIPT_SOURCE")" > /dev/null 2>&1 && pwd)"
+    SCRIPT_SOURCE="$(readlink "$SCRIPT_SOURCE")"
+    [[ "$SCRIPT_SOURCE" != /* ]] && SCRIPT_SOURCE="$SCRIPT_DIR/$SCRIPT_SOURCE"
+done
+SCRIPT_DIR="$(cd -P "$(dirname "$SCRIPT_SOURCE")" > /dev/null 2>&1 && pwd)"
+
+# The script lives at <dotfiles>/tools/agent_symlink.sh, so its parent's parent
+# is the dotfiles repo root.
+DOTFILES_ROOT="$(dirname "$SCRIPT_DIR")"
+
+if [[ "$GLOBAL_MODE" == true ]]; then
+    # Global mode targets the dotfiles repo itself, located via the script path
+    # rather than the caller's CWD — so it works from anywhere on the filesystem.
+    REPO_ROOT="$DOTFILES_ROOT"
+else
+    # Default and recursive modes operate on the current repository.
+    if ! git rev-parse --git-dir > /dev/null 2>&1; then
+        log_error "Not in a git repository. Please run this script from within a git repo."
+        exit 1
+    fi
+    REPO_ROOT="$(git rev-parse --show-toplevel)"
 fi
 
-# Get the repo root and navigate to it
-REPO_ROOT="$(git rev-parse --show-toplevel)"
-
+# Navigate to the repo root to run the rest of the script. The EXIT trap above
+# restores the caller's directory, keeping this move invisible to them.
 if [[ "$ORIGINAL_DIR" != "$REPO_ROOT" ]]; then
-    log_info "Navigating to repo root: $REPO_ROOT"
     cd "$REPO_ROOT"
 fi
 
