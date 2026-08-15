@@ -224,7 +224,8 @@ Reproduce these verbatim — they bind the implementing agent:
 ### <Sub-section per significant design decision>
 
 Describe the design. For cross-boundary changes, include the message/event/API flow. Name the concrete classes, interfaces, files, and methods involved. If a new package
-or service is created, list its directory structure.
+or service is created, list its directory structure. When a decision here is cross-cutting or architectural — an approach chosen over real alternatives, a boundary drawn,
+a trade-off accepted — list an ADR for it under **Documentation updates** so the reasoning survives the plan's deletion.
 
 ## Implementation steps
 
@@ -288,9 +289,13 @@ List every doc that must be updated:
 - Developer docs (if implementation details change)
 - User-facing docs (if user-facing behavior changes)
 - Package or module READMEs (for new or significantly changed components)
+- An **ADR** (Architecture Decision Record), when this plan settles a cross-cutting or architectural decision worth preserving — an approach chosen over alternatives, a
+  boundary drawn, a trade-off accepted. Record it as a durable, numbered document at `docs/decisions/NNNN-<slug>.md` (or the owning module's `docs/decisions/` when the
+  decision is module-scoped), capturing the question, the options weighed, the decision, and its consequences. The plan is deleted; the ADR is the surviving record of
+  *why* the code looks the way it does. If the project documents its own ADR convention (Documentation policy / glossary), follow it.
 
-Durable docs land in their real home (standards, root README/AGENTS, glossary, or the module's own AGENTS/README). Never point shipped docs or code at this plan file —
-the plan is deleted once implemented.
+Durable docs land in their real home (standards, root README/AGENTS, glossary, an ADR under `docs/decisions/`, or the module's own AGENTS/README). Never point shipped
+docs or code at this plan file — the plan is deleted once implemented.
 
 ## Plan lifecycle
 
