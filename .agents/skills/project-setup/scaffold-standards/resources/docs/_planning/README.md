@@ -11,6 +11,10 @@ Treat plans as consumable scaffolding:
 - **Durable docs are created separately.** Every plan must include explicit steps that write the lasting documentation into its real home — `{{DOCS_PATH}}/`, the project
   `README.md`/`AGENTS.md`, the [glossary]({{DOCS_PATH}}/glossary.md), or a module's own doc. The plan directs where that documentation lands; it does not itself serve as
   that documentation.
+- **Architectural decisions become ADRs, not plan prose.** When a plan settles a cross-cutting or architectural decision worth preserving — an approach chosen over
+  alternatives, a boundary drawn, a trade-off accepted — that reasoning is durable and must be recorded as an ADR (Architecture Decision Record) at
+  `{{DOCS_PATH}}/decisions/NNNN-<slug>.md`, or in the owning module's `docs/decisions/` when the decision is module-scoped. The plan is deleted; the ADR is why the code
+  looks the way it does, and it outlives the plan. See the Documentation policy for the ADR format.
 - **Do not point durable docs or code comments at a plan.** A `{{PLANNING_PATH}}/<feature>/plan.md` path must not appear as a reference in shipped docs or code — the plan
   will be deleted.
 - **Delete the plan once implemented.** After a feature's plan is implemented and verified, delete its
