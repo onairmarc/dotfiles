@@ -120,6 +120,9 @@ Flag anything an agent would need that is absent:
 - Does the plan account for existing code that must be changed or deleted?
 - Are there edge cases in the acceptance criteria that the implementation steps do not address?
 - If the plan references a ticket, story, or design doc, does it reproduce enough detail to be self-contained?
+- Does the plan settle a cross-cutting or architectural decision — an approach chosen over alternatives, a boundary drawn, a trade-off accepted — without recording it as
+  an **ADR** in the durable decisions home (`docs/decisions/NNNN-<slug>.md`, or the owning module's `docs/decisions/`)? Such reasoning is lost when the plan is deleted;
+  the Documentation updates section must list the ADR. If the project documents its own ADR convention, hold the plan against it.
 
 ### Lens E — Delivery constraints (blocker, ranks with Lens 0)
 
