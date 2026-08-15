@@ -1,8 +1,8 @@
 ---
 name: cache-lock-guide
-description: Apply this skill when implementing concurrency guards, mutex patterns, idempotency checks, or duplicate-operation prevention — such as preventing double-submissions, race conditions on model state transitions, or any situation where lockForUpdate() might otherwise be used.
+description: Apply this skill when implementing concurrency guards, mutex patterns, idempotency checks, or duplicate-operation prevention in a Laravel application — such as preventing double-submissions, race conditions on model state transitions, or any situation where lockForUpdate() might otherwise be used.
 disable-model-invocation: false
-allowed-tools: []
+allowed-tools: [ ]
 model: haiku
 ---
 
@@ -34,5 +34,4 @@ Model::where('id', $this->id)->lockForUpdate()->first(); // ❌ prefer Cache::lo
 - `"article.{$id}.submit-for-approval"` — prevent concurrent approval submissions
 - `"approval-workflow.{$id}.review"` — prevent concurrent approve/reject
 
-Use `->block($seconds, $callback)` to wait for the lock. If the lock cannot be acquired within the timeout, Laravel
-throws a `LockTimeoutException`.
+Use `->block($seconds, $callback)` to wait for the lock. If the lock cannot be acquired within the timeout, Laravel throws a `LockTimeoutException`.
