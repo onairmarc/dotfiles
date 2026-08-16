@@ -1,18 +1,22 @@
 #!/usr/bin/env bash
 #
 # Recreates skill symlinks from the source of truth (.agents/skills/)
-# to the target directories (.claude/skills and ~/.claude/skills)
+# to the target directories (.claude/skills and ~/.claude/skills).
+# When --global is used and OpenCode is installed, also populates
+# ~/.config/opencode/skills.
 #
 # Skills are organized into domain subdirectories under .agents/skills/
 # (e.g. .agents/skills/planning/feature-planning/). Regardless of how deep a
 # skill lives in the source tree, it is deployed FLAT: each skill directory is
 # symlinked by its own name directly into the target skills directory, so the
-# consumer always sees ~/.claude/skills/<skill-name>/SKILL.md.
+# consumer always sees ~/.claude/skills/<skill-name>/SKILL.md (and, when
+# OpenCode is present, ~/.config/opencode/skills/<skill-name>/SKILL.md).
 #
 # Usage: agent_symlink [--global]
 #
 # Options:
 #   --global    Create symlinks from ~/.claude/skills to this repo's .agents/skills.
+#               If OpenCode is installed, also symlink into ~/.config/opencode/skills.
 #               May be run from any directory on the filesystem: the dotfiles repo
 #               root is resolved from this script's own location, the work runs
 #               there, and the caller's working directory is restored on exit.
@@ -66,6 +70,46 @@ link_skills_flat() {
         ln -s "$skill_path" "$target_dir/$skill_name"
         log_info "  Linked ${label:+$label }skill: $skill_name"
     done < <(find "$source_root" -name "SKILL.md" -type f -print0)
+}
+
+# True when the OpenCode CLI is on PATH or at the installer's default location
+# (~/.opencode/bin/opencode), which this repo's provisioner uses.
+opencode_is_installed() {
+    command -v opencode >/dev/null 2>&1 || [[ -x "$HOME/.opencode/bin/opencode" ]]
+}
+
+# Recreate a target skills directory and populate it with flat per-skill
+# symlinks. Public skills are linked first; private skills override on collision.
+#
+# Args: <target_dir> <public_source> <label> [private_source] [private_dir]
+populate_skills_target() {
+    local target_dir="$1"
+    local public_source="$2"
+    local label="$3"
+    local private_source="$4"
+    local private_dir="$5"
+
+    if [[ -e "$target_dir" ]] || [[ -L "$target_dir" ]]; then
+        log_info "  Removing existing: $target_dir"
+        rm -rf "$target_dir"
+    fi
+    mkdir -p "$target_dir"
+
+    if [[ -n "$private_source" && -d "$private_source" ]]; then
+        log_info "${label}: interleaving public + private skills into $target_dir"
+        log_info "  Public:  $public_source"
+        log_info "  Private: $private_source"
+
+        link_skills_flat "$public_source" "$target_dir" "public"
+        link_skills_flat "$private_source" "$target_dir" "private"
+    else
+        log_info "${label}: linking public skills into $target_dir"
+        if [[ -n "$private_dir" ]]; then
+            log_info "  (no private dotfiles found at $private_dir)"
+        fi
+
+        link_skills_flat "$public_source" "$target_dir" ""
+    fi
 }
 
 # Parse command line arguments
@@ -165,31 +209,18 @@ if [[ "$GLOBAL_MODE" == true ]]; then
         exit 1
     fi
 
-    # The target is always a real directory populated with per-skill symlinks, so
-    # remove any prior directory or symlink and recreate it fresh.
-    if [[ -e "$SKILLS_TARGET" ]] || [[ -L "$SKILLS_TARGET" ]]; then
-        log_info "  Removing existing: $SKILLS_TARGET"
-        rm -rf "$SKILLS_TARGET"
-    fi
-    mkdir -p "$SKILLS_TARGET"
-
     # Resolve private dotfiles location (env var preferred, default fallback)
     PRIVATE_DIR="${DF_PRIVATE_DIRECTORY:-$HOME/Documents/GitHub/dotfiles-private}"
     PRIVATE_SKILLS_SOURCE="$PRIVATE_DIR/.agents/skills"
 
-    if [[ -d "$PRIVATE_SKILLS_SOURCE" ]]; then
-        log_info "Global mode: interleaving public + private skills into $SKILLS_TARGET"
-        log_info "  Public:  $SKILLS_SOURCE"
-        log_info "  Private: $PRIVATE_SKILLS_SOURCE"
+    populate_skills_target "$SKILLS_TARGET" "$SKILLS_SOURCE" "Global mode" \
+        "$PRIVATE_SKILLS_SOURCE" "$PRIVATE_DIR"
 
-        # Link public skills first, then private; private wins on collision.
-        link_skills_flat "$SKILLS_SOURCE" "$SKILLS_TARGET" "public"
-        link_skills_flat "$PRIVATE_SKILLS_SOURCE" "$SKILLS_TARGET" "private"
-    else
-        log_info "Global mode: linking public skills into $SKILLS_TARGET"
-        log_info "  (no private dotfiles found at $PRIVATE_DIR)"
-
-        link_skills_flat "$SKILLS_SOURCE" "$SKILLS_TARGET" ""
+    # 1b. If OpenCode is installed, also flatten into its global skills directory.
+    if opencode_is_installed; then
+        OPENCODE_SKILLS_TARGET="$HOME/.config/opencode/skills"
+        populate_skills_target "$OPENCODE_SKILLS_TARGET" "$SKILLS_SOURCE" "OpenCode" \
+            "$PRIVATE_SKILLS_SOURCE" "$PRIVATE_DIR"
     fi
 
     # 2. Link ~/.claude/CLAUDE.md -> .agents/AGENTS.md
