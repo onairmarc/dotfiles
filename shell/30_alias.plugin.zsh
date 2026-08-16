@@ -28,6 +28,7 @@ alias linecountdetail='git ls-files | xargs wc -l'
 alias migrate='art migrate'
 alias mono='vendor/bin/monorepo-builder'
 alias mpc='art'
+alias opencode='command opencode --auto'
 alias peck='vendor/bin/peck'
 alias phpacker="vendor/bin/phpacker"
 alias phpunit='vendor/bin/phpunit'

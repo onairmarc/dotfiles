@@ -78,6 +78,31 @@ opencode_is_installed() {
     command -v opencode >/dev/null 2>&1 || [[ -x "$HOME/.opencode/bin/opencode" ]]
 }
 
+# Replace target with a symlink to source. Skips if source is missing.
+# Args: <source> <target> <label>
+link_file() {
+    local source="$1"
+    local target="$2"
+    local label="$3"
+
+    if [[ ! -e "$source" ]]; then
+        log_warn "Source does not exist, skipping: $source"
+        return 0
+    fi
+
+    mkdir -p "$(dirname "$target")"
+
+    log_info "${label}: $target -> $source"
+
+    if [[ -e "$target" ]] || [[ -L "$target" ]]; then
+        log_info "  Removing existing: $target"
+        rm -f "$target"
+    fi
+
+    ln -s "$source" "$target"
+    log_info "  Created symlink: $target -> $source"
+}
+
 # Recreate a target skills directory and populate it with flat per-skill
 # symlinks. Public skills are linked first; private skills override on collision.
 #
@@ -224,22 +249,7 @@ if [[ "$GLOBAL_MODE" == true ]]; then
     fi
 
     # 2. Link ~/.claude/CLAUDE.md -> .agents/AGENTS.md
-    CLAUDE_MD_TARGET="$CLAUDE_DIR/CLAUDE.md"
-    AGENTS_MD_SOURCE="$REPO_ROOT/.agents/AGENTS.md"
-
-    if [[ ! -f "$AGENTS_MD_SOURCE" ]]; then
-        log_warn "Source file does not exist, skipping: $AGENTS_MD_SOURCE"
-    else
-        log_info "Global mode: Creating symlink from ~/.claude/CLAUDE.md to $AGENTS_MD_SOURCE"
-
-        if [[ -e "$CLAUDE_MD_TARGET" ]] || [[ -L "$CLAUDE_MD_TARGET" ]]; then
-            log_info "  Removing existing: $CLAUDE_MD_TARGET"
-            rm -f "$CLAUDE_MD_TARGET"
-        fi
-
-        ln -s "$AGENTS_MD_SOURCE" "$CLAUDE_MD_TARGET"
-        log_info "  Created global symlink: $CLAUDE_MD_TARGET -> $AGENTS_MD_SOURCE"
-    fi
+    link_file "$REPO_ROOT/.agents/AGENTS.md" "$CLAUDE_DIR/CLAUDE.md" "Global mode"
 
     log_info "Sync complete!"
     exit 0
