@@ -1,7 +1,8 @@
 # Optimization Pass — Common Procedure
 
-The shared 5b–5d procedure for every stack-specific optimization pass. Each stack file (`laravel.md`, `cs.md`, `avalonia.md`) runs its own
-`5a` detection, sets the handful of parameters below, then follows this procedure. Wherever a `{{PARAM}}` appears, substitute the value the stack file provides:
+The shared 5b–5d procedure for every stack-specific optimization pass. Each stack file (`laravel.md`, `cs.md`, `avalonia.md`, `tanstack.md`,
+`react.md`) runs its own `5a` detection, sets the handful of parameters below, then follows this procedure. Wherever a `{{PARAM}}` appears,
+substitute the value the stack file provides:
 
 | Parameter                | Meaning                                                                            |
 |--------------------------|------------------------------------------------------------------------------------|

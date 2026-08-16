@@ -13,6 +13,7 @@ allowed-tools:
     - Bash(test -f *)
     - Bash(cat *)
     - Bash(find * -name "*.csproj" -type f)
+    - Bash(find * -name "package.json" -type f)
 model: opus
 ---
 
@@ -212,15 +213,20 @@ Evaluate the checks below in order. Multiple can match — record every optimiza
 | `composer.json` exists at repo root AND contains `"laravel/framework"` in `require`/`require-dev`, OR `"type": "library"` AND any `laravel/` package in `require` | **Laravel**   | `optimizations/laravel.md`  |
 | Any `.csproj` found (via `Bash(find * -name "*.csproj" -type f)`) AND any of those files contains `Avalonia` in a `PackageReference` or `<UseAvalonia>true`       | **Avalonia**  | `optimizations/avalonia.md` |
 | Any `.csproj` found AND the Avalonia check above did **not** match                                                                                                | **C# (.NET)** | `optimizations/cs.md`       |
+| Any `package.json` (exclude `node_modules/`) lists `@tanstack/react-query`, `@tanstack/react-table`, `@tanstack/react-router`, `@tanstack/react-form`, `@tanstack/react-virtual`, or the matching `@tanstack/*-core` package | **TanStack**  | `optimizations/tanstack.md` |
+| Any `package.json` (exclude `node_modules/`) lists `"react"` in `dependencies` or `devDependencies` AND the TanStack check above did **not** match               | **React**     | `optimizations/react.md`    |
 
 If no checks match, skip Step 5 and proceed to the final summary.
 
 **Important:** the Avalonia pass internally calls `cs-optimization --audit-only` and merges both sets of findings into a single feature-planning handoff. Do **not** load
 `optimizations/cs.md` when the Avalonia check matched — that would re-run the C# audit a second time.
 
+**Important:** the TanStack pass internally calls `react-optimization --audit-only` and merges both sets of findings into a single feature-planning handoff. Do **not**
+load `optimizations/react.md` when the TanStack check matched — that would re-run the React audit a second time.
+
 ### 5b — Load and follow each matched optimization file
 
-For each matched optimization file (in the order: Laravel → Avalonia → C#), read it using the `Read` tool:
+For each matched optimization file (in the order: Laravel → Avalonia → C# → TanStack → React), read it using the `Read` tool:
 
 ```
 Read: ~/.claude/skills/plan-review/optimizations/<matched-file>
