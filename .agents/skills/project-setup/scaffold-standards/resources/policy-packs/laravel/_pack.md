@@ -53,6 +53,7 @@ the user; adopt each individual policy only when its own gate matches.
     - `filament-panel-rbac.md` → core `authorization-identifier-naming.md`
     - `no-foreign-key-constraints.md` → core `module-isolation.md`
     - `no-db-facade.md` and `queue-jobs.md` → pack `cache-lock-over-lockforupdate.md`
+    - `cache-lock-over-lockforupdate.md` → core `cache-key-naming.md`
     - `queue-jobs.md` and `data-transfer-objects` rules in `eloquent-vs-dto.md` → core `module-isolation.md`
     - `queue-jobs.md` → pack `eloquent-vs-dto.md` and pack `ambient-log-context.md`
     - `dto-class-properties.md` → pack `eloquent-vs-dto.md`
@@ -68,3 +69,4 @@ the user; adopt each individual policy only when its own gate matches.
     - core `module-isolation.md` → `data-transfer-objects.md`, replaced by pack `eloquent-vs-dto.md`
     - core `background-jobs.md` → `concurrency-guards.md` and `data-transfer-objects.md`, replaced by pack `cache-lock-over-lockforupdate.md` and `eloquent-vs-dto.md`
       (only relevant when `queue-jobs.md` gated out and the core file was written)
+    - core `cache-key-naming.md` → `concurrency-guards.md`, replaced by pack `cache-lock-over-lockforupdate.md`

@@ -38,10 +38,11 @@ hub methods, and invariants before making changes.
 | Logging — what to emit, and how to read it | [`{{DOCS_PATH}}/policies/structured-logging.md`]({{DOCS_PATH}}/policies/structured-logging.md) |
 | Project terminology and acronyms           | [`{{DOCS_PATH}}/glossary.md`]({{DOCS_PATH}}/glossary.md)                                       |
 
-{{GEN:add a row for `module-isolation.md` ("Cross-module reach, published surface") only if that Tier 2 policy was actually written. Then add one row per repo-level skill
-found under the project's skills directory — the note above promises this table lists them, so an existing skill that is missing here makes that promise false; give each
-row the domain it covers and a link to its `SKILL.md`. Then add a row for any other area-specific doc this project has. Do NOT list a doc or skill that does not exist. If
-the project has no skills directory, add no skill rows.}}
+{{GEN:add a row for `module-isolation.md` ("Cross-module reach, published surface") only if that Tier 2 policy was actually written. Add a row for `cache-key-naming.md`
+("Cache keys / lock keys") only if that Tier 2 policy was written. Add a row for `authorization-identifier-naming.md` ("Permission / role identifier naming") only if that
+Tier 2 policy was written. Then add one row per repo-level skill found under the project's skills directory — the note above promises this table lists them, so an existing
+skill that is missing here makes that promise false; give each row the domain it covers and a link to its `SKILL.md`. Then add a row for any other area-specific doc this
+project has. Do NOT list a doc or skill that does not exist. If the project has no skills directory, add no skill rows.}}
 
 ## Project Overview
 

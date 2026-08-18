@@ -113,8 +113,8 @@ Run a fast, shallow scan of the target root to pre-fill interview answers. Do no
 - **Framework signature** — the dependency or directory pattern each policy pack gates on (see the pack manifests under
   `<skill_dir>/resources/policy-packs/*/_pack.md`). Check for the framework's **component** packages too, not just its meta-package: a library or in-repo package pulls in
   the pieces it needs (`illuminate/support` rather than `laravel/framework`) and would otherwise miss a pack that applies to it.
-- **Concern signatures** — evidence that a *conditional* policy applies: a migrations directory, a queue/worker dependency, a frontend build config, an
-  authorization/permission package.
+- **Concern signatures** — evidence that a *conditional* policy applies: a migrations directory, a queue/worker dependency, a cache/lock API (`Cache`, Redis), a frontend
+  build config, an authorization/permission package.
 
 Record what you detected; every detected value becomes a **pre-filled default** in the interview, not a silent assumption.
 
@@ -145,6 +145,7 @@ concern it does have is a gap.
 | `module-isolation.md`                | `{{MODULE_LAYOUT}}` has more than one module/package.                             |
 | `background-jobs.md`                 | The project dispatches queued or scheduled background work.                       |
 | `concurrency-guards.md`              | The project has concurrent writers to the same entity (workers, replicas).        |
+| `cache-key-naming.md`                | The project uses a cache or distributed lock (`Cache`, Redis, or equivalent). Forced on when `concurrency-guards.md` (or a pack file that supersedes it) is written. |
 | `immutable-value-types.md`           | `{{PRIMARY_LANGUAGE}}` has a mutable/immutable split worth mandating.             |
 | `frontend-component-testing.md`      | The project ships a UI component layer with a component test runner.              |
 | `type-sealing.md`                    | `{{PRIMARY_LANGUAGE}}` has sealing keywords AND the user wants the default fixed. |

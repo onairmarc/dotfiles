@@ -66,7 +66,7 @@ published-surface working list; drop the clause entirely if that policy was not 
 | [Version Control](./policies/version-control.md)           | Branch off `{{DEFAULT_BRANCH}}`; focused commits that message the *why*. | WARN     |
 
 {{GEN:append one table section per additional policy group this project actually received. This covers every Tier 2 conditional policy that gated in — data access, schema
-migrations, module isolation (its own section, "Modules and boundaries"), background jobs, concurrency guards, immutable value types, frontend component testing, type
-sealing, authorization identifier naming — and every framework-pack policy that was copied in. No Tier 2 policy is pre-listed above, so each one that landed needs a row
-written here. Each row follows the same shape: linked title, one-line summary, BLOCK/WARN severity matching that file's footer. Remove any row above whose policy file was
-not written.}}
+migrations, module isolation (its own section, "Modules and boundaries"), background jobs, concurrency guards, cache key naming, immutable value types, frontend component
+testing, type sealing, authorization identifier naming — and every framework-pack policy that was copied in. No Tier 2 policy is pre-listed above, so each one that landed
+needs a row written here. Each row follows the same shape: linked title, one-line summary, BLOCK/WARN severity matching that file's footer. Remove any row above whose
+policy file was not written.}}

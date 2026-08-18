@@ -10,7 +10,7 @@ transactions still wrap the actual write for atomicity, but the concurrency guar
 **Rules:**
 
 - Concurrency and idempotency guards use the project's distributed lock, acquired with an explicit time-to-live and an explicit wait timeout.
-- Lock keys are scoped to the entity (`invoice.charge.{id}`, not `charge`) so unrelated work does not contend.
+- Lock keys are scoped to the entity so unrelated work does not contend, and they follow [Cache Key Naming](./cache-key-naming.md).
 - Never hold a lock across an unbounded operation. If a slow external call is unavoidable, keep the lock's TTL longer than the call's own timeout and make the work
   idempotent anyway.
 - Atomic multi-row writes that must succeed or roll back together are wrapped in a transaction — that is the right tool for atomicity, not for concurrency.

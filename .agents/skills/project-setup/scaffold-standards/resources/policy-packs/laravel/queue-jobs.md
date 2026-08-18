@@ -51,7 +51,7 @@ class SyncContact implements ShouldQueue
 
     public function handle(): void
     {
-        Cache::lock("contact.sync.{$this->contact->id}", 120)->block(10, function (): void {
+        Cache::lock("contact:sync:{$this->contact->id}", 120)->block(10, function (): void {
             Http::post('https://api.example/contacts', $this->contact->toArray())->throw();
         });
     }
