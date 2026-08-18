@@ -9,7 +9,7 @@ allowed-tools:
     - AskUserQuestion
     - Glob
     - Grep
-model: opus
+model: claude-opus-4-6
 ---
 
 # Feature Planning
@@ -25,8 +25,8 @@ Read and follow `~/.claude/skills/file-operations/SKILL.md`.
 
 ## Delivery Constraints
 
-Read and follow `~/.claude/skills/delivery-constraints/SKILL.md`. Every plan this skill produces must be structured as vertical slices, must assume the work lands in place
-on the currently checked-out branch — or, if that branch is main, on a new branch created off it after an explicit branch check — and must verify itself with the
+Read and follow `~/.claude/skills/delivery-constraints/SKILL.md`. Every plan this skill produces must be structured as vertical slices, must assume the work lands in
+place on the currently checked-out branch — or, if that branch is main, on a new branch created off it after an explicit branch check — and must verify itself with the
 repository's own test tooling rather than a bespoke harness. These constraints are enforced by Lens E in Step 2 and must be reproduced in the plan itself so an
 implementing agent reading only the plan is bound by them.
 
@@ -98,8 +98,8 @@ Before gathering requirements, orient yourself to the repository:
    is skipped silently.
 
 5. **Find a PM discovery brief** — the `pm-review` skill's discovery mode writes a **durable** product-side brief before planning begins. Unlike plans, briefs are
-   permanent documentation and live **outside** `$PLAN_DIR`: resolve `$DISCOVERY_DIR` per the `$DISCOVERY_DIR` ladder in `~/.claude/skills/planning-commons/paths.md`. Look
-   for a brief that matches this feature:
+   permanent documentation and live **outside** `$PLAN_DIR`: resolve `$DISCOVERY_DIR` per the `$DISCOVERY_DIR` ladder in `~/.claude/skills/planning-commons/paths.md`.
+   Look for a brief that matches this feature:
     - If `$ARGUMENTS` names a feature, derive its kebab-case slug and check `$DISCOVERY_DIR/<slug>.md`.
     - Otherwise, glob `$DISCOVERY_DIR/*.md`; if exactly one clearly matches the feature description, use it. If several plausibly match, ask the user which brief (if any)
       this plan is for.
@@ -133,8 +133,8 @@ every available source, then asking the user **only** about what none of those s
     - **Existing code**: what this replaces, extends, or must stay compatible with.
 
 3. **Ask only the residual unknowns.** Put the questions the combined sources could not answer to the user via
-   `AskUserQuestion` — focused, short-answer, highest-impact first, batched per the AskUserQuestion rules in `~/.claude/skills/planning-commons/review-loop.md`. Do not ask
-   anything the brief, the code, or the conventions already answer.
+   `AskUserQuestion` — focused, short-answer, highest-impact first, batched per the AskUserQuestion rules in `~/.claude/skills/planning-commons/review-loop.md`. Do not
+   ask anything the brief, the code, or the conventions already answer.
 
 4. **If you have no questions, do not silently proceed — confirm the premise first.** Reaching zero questions is a claim that the brief, the code, and the conventions
    fully determine the plan. State that claim explicitly to the user with

@@ -14,7 +14,7 @@ allowed-tools:
     - Bash(cat *)
     - Bash(find * -name "*.csproj" -type f)
     - Bash(find * -name "package.json" -type f)
-model: opus
+model: claude-opus-4-6
 ---
 
 # Plan Review
@@ -208,13 +208,13 @@ After Step 4, detect the project type and run the matching optimization pass **b
 
 Evaluate the checks below in order. Multiple can match — record every optimization file that applies.
 
-| Check                                                                                                                                                             | Match label   | Optimization file           |
-|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|-----------------------------|
-| `composer.json` exists at repo root AND contains `"laravel/framework"` in `require`/`require-dev`, OR `"type": "library"` AND any `laravel/` package in `require` | **Laravel**   | `optimizations/laravel.md`  |
-| Any `.csproj` found (via `Bash(find * -name "*.csproj" -type f)`) AND any of those files contains `Avalonia` in a `PackageReference` or `<UseAvalonia>true`       | **Avalonia**  | `optimizations/avalonia.md` |
-| Any `.csproj` found AND the Avalonia check above did **not** match                                                                                                | **C# (.NET)** | `optimizations/cs.md`       |
+| Check                                                                                                                                                                                                                        | Match label   | Optimization file           |
+|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|-----------------------------|
+| `composer.json` exists at repo root AND contains `"laravel/framework"` in `require`/`require-dev`, OR `"type": "library"` AND any `laravel/` package in `require`                                                            | **Laravel**   | `optimizations/laravel.md`  |
+| Any `.csproj` found (via `Bash(find * -name "*.csproj" -type f)`) AND any of those files contains `Avalonia` in a `PackageReference` or `<UseAvalonia>true`                                                                  | **Avalonia**  | `optimizations/avalonia.md` |
+| Any `.csproj` found AND the Avalonia check above did **not** match                                                                                                                                                           | **C# (.NET)** | `optimizations/cs.md`       |
 | Any `package.json` (exclude `node_modules/`) lists `@tanstack/react-query`, `@tanstack/react-table`, `@tanstack/react-router`, `@tanstack/react-form`, `@tanstack/react-virtual`, or the matching `@tanstack/*-core` package | **TanStack**  | `optimizations/tanstack.md` |
-| Any `package.json` (exclude `node_modules/`) lists `"react"` in `dependencies` or `devDependencies` AND the TanStack check above did **not** match               | **React**     | `optimizations/react.md`    |
+| Any `package.json` (exclude `node_modules/`) lists `"react"` in `dependencies` or `devDependencies` AND the TanStack check above did **not** match                                                                           | **React**     | `optimizations/react.md`    |
 
 If no checks match, skip Step 5 and proceed to the final summary.
 

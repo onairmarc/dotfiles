@@ -17,7 +17,7 @@ allowed-tools:
     - Bash(git status *)
     - Bash(git show *)
     - Bash(find * -name "*.csproj" -type f)
-model: opus
+model: claude-opus-4-6
 ---
 
 # Plan Resync
@@ -183,10 +183,10 @@ Run the interactive review loop in `~/.claude/skills/planning-commons/review-loo
 - Label each round **Plan resync: round N** — N drift points to reconcile.
 - Prefer the loop's **compact one-line variant** for findings — `**[Lens]** "quoted plan text" — current: path:LINE — Q: <closed-ended question>` — using a multi-line
   block only when a finding needs a code snippet or multi-field context.
-- Only judgment calls and scope questions (Step 3) go to `AskUserQuestion`; **apply mechanical updates and confirmed reconciliations directly to the plan** without asking.
-  When writing answers back, mark fully implemented items as done (with a short note citing the implementing file(s)/commit), rewrite stale references to the current code,
-  replace invalidated assumptions with the current factual state, add steps/context for newly relevant code, re-annotate dependencies to real ordering constraints, and
-  express any new implementation work as a code example (see the **Code examples** guideline below).
+- Only judgment calls and scope questions (Step 3) go to `AskUserQuestion`; **apply mechanical updates and confirmed reconciliations directly to the plan** without
+  asking. When writing answers back, mark fully implemented items as done (with a short note citing the implementing file (s)/commit), rewrite stale references to the
+  current code, replace invalidated assumptions with the current factual state, add steps/context for newly relevant code, re-annotate dependencies to real ordering
+  constraints, and express any new implementation work as a code example (see the **Code examples** guideline below).
 
 Re-read and re-run the lenses against the codebase after each round — new drift may surface once obvious issues are fixed — and always write to disk before the next
 `AskUserQuestion` call. When no drift remains, proceed to Step 5.
