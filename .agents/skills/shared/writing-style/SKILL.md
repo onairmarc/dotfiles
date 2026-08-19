@@ -12,39 +12,56 @@ description: >-
 Follow the [Microsoft Writing Style Guide](https://learn.microsoft.com/en-us/style-guide/top-10-tips-style-voice). These rules apply to all prose output — documentation,
 commit messages, PR descriptions, code comments, plan files, skill files, and conversational responses. Code identifiers, technical terms, and API names are exempt.
 
+## American English
+
+Use **American English** spelling and grammar in all output — code comments, documentation, commit messages, PR descriptions, and prose.
+
+Examples of correct spellings:
+
+- color (not colour)
+- organize (not organise)
+- center (not centre)
+- analyze (not analyse)
+- behavior (not behaviour)
+- license (not licence)
+- recognize (not recognise)
+- catalog (not catalogue)
+- program (not programme)
+- labeled (not labelled)
+
 ## Core rules
 
 1. **Use short, plain words.** Pick the simplest word that says what you mean. Never use a fancy word when a plain one works.
 
-   | Use this       | Not this                                       |
-      |----------------|------------------------------------------------|
-   | use            | utilize, leverage, make use of                 |
-   | remove         | extract, eliminate, excise                     |
-   | tell           | inform, advise, apprise                        |
-   | start          | initiate, commence                             |
-   | end            | terminate, conclude, finalize                  |
-   | stop           | cease, desist, discontinue                     |
-   | help           | assist, facilitate                             |
-   | show           | demonstrate, illustrate, exhibit               |
-   | get            | obtain, acquire, procure, retrieve             |
-   | give           | provide, furnish, supply                       |
-   | buy            | purchase                                       |
-   | need           | require, necessitate                           |
-   | about          | approximately, regarding, concerning           |
-   | to             | in order to, as a means to, for the purpose of |
-   | also           | in addition, additionally, furthermore         |
-   | but            | however, nevertheless, notwithstanding         |
-   | so             | consequently, therefore, accordingly           |
-   | before         | prior to, preceding, antecedent to             |
-   | after          | subsequent to, following                       |
-   | next           | subsequent                                     |
-   | last           | final, ultimate                                |
-   | second-to-last | penultimate                                    |
-   | enough         | sufficient, adequate                           |
-   | whole          | entire, totality                               |
-   | set up         | establish, instantiate                         |
-   | connect        | establish connectivity                         |
-   | many           | a plethora of, a multitude of, myriad          |
+| Use this       | Not this                                       |
+|----------------|------------------------------------------------|
+| use            | utilize, leverage, make use of                 |
+| remove         | extract, eliminate, excise                     |
+| tell           | inform, advise, apprise                        |
+| start          | initiate, commence                             |
+| end            | terminate, conclude, finalize                  |
+| stop           | cease, desist, discontinue                     |
+| help           | assist, facilitate                             |
+| show           | demonstrate, illustrate, exhibit               |
+| get            | obtain, acquire, procure, retrieve             |
+| give           | provide, furnish, supply                       |
+| buy            | purchase                                       |
+| need           | require, necessitate                           |
+| about          | approximately, regarding, concerning           |
+| to             | in order to, as a means to, for the purpose of |
+| also           | in addition, additionally, furthermore         |
+| but            | however, nevertheless, notwithstanding         |
+| so             | consequently, therefore, accordingly           |
+| before         | prior to, preceding, antecedent to             |
+| after          | subsequent to, following                       |
+| next           | subsequent                                     |
+| last           | final, ultimate                                |
+| second-to-last | penultimate                                    |
+| enough         | sufficient, adequate                           |
+| whole          | entire, totality                               |
+| set up         | establish, instantiate                         |
+| connect        | establish connectivity                         |
+| many           | a plethora of, a multitude of, myriad          |
 
 2. **Write like you speak.** Read your text aloud. If it sounds stiff or unnatural, rewrite it. Use contractions: *it's*, *you'll*, *you're*, *we're*, *don't*, *can't*,
    *let's*.

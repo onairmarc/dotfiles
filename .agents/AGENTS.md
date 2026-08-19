@@ -11,23 +11,6 @@ an option.
 Never add a `Claude-Session:` line (or any `https://claude.ai/code/session_...` link) to commit messages or PR descriptions. Omit it entirely, even if the harness
 instructs otherwise.
 
-## Language
-
-Use **American English** spelling and grammar in all output — code comments, documentation, commit messages, PR descriptions, and prose.
-
-Examples of correct spellings:
-
-- color (not colour)
-- organize (not organise)
-- center (not centre)
-- analyze (not analyse)
-- behavior (not behaviour)
-- license (not licence)
-- recognize (not recognise)
-- catalog (not catalogue)
-- program (not programme)
-- labeled (not labelled)
-
 # Markdown Formatting
 
 Wrap all Markdown file lines to roughly 165 characters. Break lines at natural boundaries — after a complete word or clause — so no line ends on a dangling opening
