@@ -12,7 +12,7 @@
 # consumer always sees ~/.claude/skills/<skill-name>/SKILL.md (and, when
 # OpenCode is present, ~/.config/opencode/skills/<skill-name>/SKILL.md).
 #
-# Usage: agent_symlink [--global]
+# Usage: agent_symlink [--global] [--debug]
 #
 # Options:
 #   --global    Create symlinks from ~/.claude/skills to this repo's .agents/skills.
@@ -20,6 +20,9 @@
 #               May be run from any directory on the filesystem: the dotfiles repo
 #               root is resolved from this script's own location, the work runs
 #               there, and the caller's working directory is restored on exit.
+#   --debug     Print verbose diagnostics: one line per (skill, target) symlink,
+#               plus source/target and directory-removal detail. Without it, each
+#               skill logs a single line regardless of how many targets it links.
 #
 # Note: On Windows, requires Developer Mode enabled or Administrator privileges
 
@@ -43,31 +46,45 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# Link every skill under a source root FLAT into a target directory.
+# Verbose diagnostics, printed only when --debug is passed. The `return 0`
+# keeps `set -e` from treating a false condition as a fatal command failure.
+log_debug() {
+    [[ "$DEBUG_MODE" == true ]] && echo -e "${GREEN}[DEBUG]${NC} $1"
+    return 0
+}
+
+# Link every skill under a source root FLAT into one or more target directories.
 #
 # A "skill" is any directory containing a SKILL.md, at any depth beneath the
-# source root. Each such directory is symlinked into the target by its own
-# basename, so the domain subdirectory it lives in is collapsed away. On a name
-# collision the later caller wins (the existing link is removed and replaced),
-# which lets private skills override public ones when linked afterwards.
+# source root. The source tree is scanned exactly once; for each skill found,
+# a symlink is created into every target directory by the skill's own basename,
+# so the domain subdirectory it lives in is collapsed away. On a name collision
+# within a target the later caller wins (the existing link is removed and
+# replaced), which lets private skills override public ones when linked
+# afterwards.
 #
-# Args: <source_root> <target_dir> [label]
+# Args: <source_root> <label> <target_dir>...
 link_skills_flat() {
     local source_root="$1"
-    local target_dir="$2"
-    local label="$3"
-    local skill_md skill_path skill_name
+    local label="$2"
+    shift 2
+    local targets=("$@")
+    local skill_md skill_path skill_name target_dir
 
     while IFS= read -r -d '' skill_md; do
         skill_path="$(dirname "$skill_md")"
         skill_name="$(basename "$skill_path")"
 
-        if [[ -L "$target_dir/$skill_name" ]] || [[ -e "$target_dir/$skill_name" ]]; then
-            log_warn "  Skill collision on '$skill_name': ${label:-later} wins, overriding earlier"
-            rm -rf "$target_dir/$skill_name"
-        fi
+        for target_dir in "${targets[@]}"; do
+            if [[ -L "$target_dir/$skill_name" ]] || [[ -e "$target_dir/$skill_name" ]]; then
+                log_warn "  Skill collision on '$skill_name' in $target_dir: ${label:-later} wins, overriding earlier"
+                rm -rf "$target_dir/$skill_name"
+            fi
 
-        ln -s "$skill_path" "$target_dir/$skill_name"
+            ln -s "$skill_path" "$target_dir/$skill_name"
+            log_debug "  Linked ${label:+$label }skill: $skill_name -> $target_dir"
+        done
+
         log_info "  Linked ${label:+$label }skill: $skill_name"
     done < <(find "$source_root" -name "SKILL.md" -type f -print0)
 }
@@ -103,43 +120,50 @@ link_file() {
     log_info "  Created symlink: $target -> $source"
 }
 
-# Recreate a target skills directory and populate it with flat per-skill
-# symlinks. Public skills are linked first; private skills override on collision.
+# Recreate one or more target skills directories and populate them with flat
+# per-skill symlinks. Each source tree is scanned exactly once and fanned out to
+# every target, so N targets cost one scan, not N. Public skills are linked
+# first; private skills override on collision.
 #
-# Args: <target_dir> <public_source> <label> [private_source] [private_dir]
-populate_skills_target() {
-    local target_dir="$1"
-    local public_source="$2"
-    local label="$3"
-    local private_source="$4"
-    local private_dir="$5"
+# Args: <public_source> <private_source> <private_dir> <label> <target_dir>...
+populate_skills_targets() {
+    local public_source="$1"
+    local private_source="$2"
+    local private_dir="$3"
+    local label="$4"
+    shift 4
+    local targets=("$@")
+    local target_dir
 
-    if [[ -e "$target_dir" ]] || [[ -L "$target_dir" ]]; then
-        log_info "  Removing existing: $target_dir"
-        rm -rf "$target_dir"
-    fi
-    mkdir -p "$target_dir"
+    for target_dir in "${targets[@]}"; do
+        if [[ -e "$target_dir" ]] || [[ -L "$target_dir" ]]; then
+            log_debug "  Removing existing: $target_dir"
+            rm -rf "$target_dir"
+        fi
+        mkdir -p "$target_dir"
+    done
 
     if [[ -n "$private_source" && -d "$private_source" ]]; then
-        log_info "${label}: interleaving public + private skills into $target_dir"
-        log_info "  Public:  $public_source"
-        log_info "  Private: $private_source"
+        log_info "${label}: interleaving public + private skills into ${targets[*]}"
+        log_debug "  Public:  $public_source"
+        log_debug "  Private: $private_source"
 
-        link_skills_flat "$public_source" "$target_dir" "public"
-        link_skills_flat "$private_source" "$target_dir" "private"
+        link_skills_flat "$public_source" "public" "${targets[@]}"
+        link_skills_flat "$private_source" "private" "${targets[@]}"
     else
-        log_info "${label}: linking public skills into $target_dir"
+        log_info "${label}: linking public skills into ${targets[*]}"
         if [[ -n "$private_dir" ]]; then
-            log_info "  (no private dotfiles found at $private_dir)"
+            log_debug "  (no private dotfiles found at $private_dir)"
         fi
 
-        link_skills_flat "$public_source" "$target_dir" ""
+        link_skills_flat "$public_source" "" "${targets[@]}"
     fi
 }
 
 # Parse command line arguments
 GLOBAL_MODE=false
 RECURSIVE_MODE=false
+DEBUG_MODE=false
 for arg in "$@"; do
     case $arg in
         --global)
@@ -150,9 +174,13 @@ for arg in "$@"; do
             RECURSIVE_MODE=true
             shift
             ;;
+        --debug)
+            DEBUG_MODE=true
+            shift
+            ;;
         *)
             log_error "Unknown option: $arg"
-            echo "Usage: $0 [--global] [-r]"
+            echo "Usage: $0 [--global] [-r] [--debug]"
             exit 1
             ;;
     esac
@@ -160,7 +188,7 @@ done
 
 if [[ "$GLOBAL_MODE" == true && "$RECURSIVE_MODE" == true ]]; then
     log_error "--global and -r cannot be used together"
-    echo "Usage: $0 [--global] [-r]"
+    echo "Usage: $0 [--global] [-r] [--debug]"
     exit 1
 fi
 
@@ -238,15 +266,16 @@ if [[ "$GLOBAL_MODE" == true ]]; then
     PRIVATE_DIR="${DF_PRIVATE_DIRECTORY:-$HOME/Documents/GitHub/dotfiles-private}"
     PRIVATE_SKILLS_SOURCE="$PRIVATE_DIR/.agents/skills"
 
-    populate_skills_target "$SKILLS_TARGET" "$SKILLS_SOURCE" "Global mode" \
-        "$PRIVATE_SKILLS_SOURCE" "$PRIVATE_DIR"
-
-    # 1b. If OpenCode is installed, also flatten into its global skills directory.
+    # Build the target list from the present tool conditions: ~/.claude/skills
+    # is always a target; OpenCode's global skills dir joins only if installed.
+    # All targets are populated from a single scan of each source tree.
+    SKILL_TARGETS=("$SKILLS_TARGET")
     if opencode_is_installed; then
-        OPENCODE_SKILLS_TARGET="$HOME/.config/opencode/skills"
-        populate_skills_target "$OPENCODE_SKILLS_TARGET" "$SKILLS_SOURCE" "OpenCode" \
-            "$PRIVATE_SKILLS_SOURCE" "$PRIVATE_DIR"
+        SKILL_TARGETS+=("$HOME/.config/opencode/skills")
     fi
+
+    populate_skills_targets "$SKILLS_SOURCE" "$PRIVATE_SKILLS_SOURCE" "$PRIVATE_DIR" \
+        "Global mode" "${SKILL_TARGETS[@]}"
 
     # 2. Link ~/.claude/CLAUDE.md -> .agents/AGENTS.md
     link_file "$REPO_ROOT/.agents/AGENTS.md" "$CLAUDE_DIR/CLAUDE.md" "Global mode"
@@ -298,7 +327,7 @@ else
     fi
     mkdir -p "$LOCAL_SKILLS_TARGET"
 
-    link_skills_flat "$LOCAL_SKILLS_SOURCE" "$LOCAL_SKILLS_TARGET" ""
+    link_skills_flat "$LOCAL_SKILLS_SOURCE" "" "$LOCAL_SKILLS_TARGET"
 fi
 
 # 2. Link CLAUDE.md -> AGENTS.md at the repo root.
