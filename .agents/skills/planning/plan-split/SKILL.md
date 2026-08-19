@@ -92,6 +92,11 @@ workers). Coding sub-agents always run one at a time.
 read, or a package install) may become sub-plan `01`. Keep it as small as possible and state in that sub-plan's Context why it could not live inside the first behavioral
 slice. Anything that *can* live inside the first slice must.
 
+**Change-audit as final sub-plan:** the last sub-plan before plan-directory cleanup must be a change-audit pass. This sub-plan invokes the `change-audit` skill
+(`~/.claude/skills/audits/change-audit/SKILL.md`) to audit every file changed on the branch for materially useful simplifications and implement accepted fixes. It is
+blocked by all preceding sub-plans and blocks nothing (except the plan-deletion step, which is not a sub-plan). Its steps are: run `/change-audit`, confirm all tests
+pass after fixes are applied. If the master plan already contains a change-audit step, extract it into this final sub-plan; if it does not, add one.
+
 ### Producing the split
 
 For each sub-plan, determine:

@@ -218,6 +218,14 @@ Hold the plan against `~/.claude/skills/delivery-constraints/SKILL.md`. Every fi
 - Does the Tests section name the project's real framework and runner command, and do all tests live in the project's existing test layout?
 - Does any step introduce a throwaway driver script, scratch runner, sandbox project, or bespoke assertion/mocking layer that duplicates existing project tooling?
 
+### Lens F — Change audit step (blocker)
+
+- Does the plan include a second-to-last step that runs `/change-audit` after all behavioral slices are complete and all tests pass, but before the plan directory is
+  deleted?
+- Does the change-audit step explicitly require all tests to pass after fixes are applied?
+- If the step is missing, absent, or placed in the wrong position, this is a blocker — add it per the template in
+  `~/.claude/skills/planning-commons/plan-format.md`.
+
 ---
 
 ## Step 3 — Iterate via AskUserQuestion

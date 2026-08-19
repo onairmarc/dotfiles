@@ -85,6 +85,12 @@ Each step must be:
 - Scoped to one logical unit of work (one class, one migration, one endpoint)
 - Explicit about file paths
 
+The **second-to-last step** of every plan must run a change-audit pass on the branch. Invoke the `change-audit` skill
+(`~/.claude/skills/audits/change-audit/SKILL.md`) to audit every file changed on the branch for materially useful simplifications and
+implement accepted fixes. This step runs after all behavioral slices are complete and all tests pass, but before the plan directory is
+deleted. State it explicitly, e.g.: "Run `/change-audit` — audit all changed files on this branch for data-structure, state-representation,
+and control-flow simplifications, and implement the accepted fixes. All tests must pass after fixes are applied."
+
 The **final step** of every plan must delete this plan directory, because plans are throwaway scaffolding (see `## Plan lifecycle`).
 State it explicitly, e.g.: "Delete the `<$PLAN_DIR>/<feature>/` plan directory — the feature is implemented and its durable docs now live
 in their real home; the plan must not be committed as a lingering artifact."

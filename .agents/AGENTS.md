@@ -130,6 +130,11 @@ Do not assume a skill does not exist just because it is absent from this reposit
 When looking for a skill, check both levels. If a skill is not present in the repository, check the user-level skills before concluding it is unavailable. Only treat a
 skill as nonexistent when it is missing from **both** the repository and the user-level skills.
 
+# Writing Style
+
+Writing style rules — plain-language word choice, sentence structure, capitalization, punctuation, banned words, and audience adaptation — live in the `writing-style`
+skill: [`.agents/skills/shared/writing-style/SKILL.md`](skills/shared/writing-style/SKILL.md). Read that file before writing any prose.
+
 # File Operation Rules
 
 File operation rules — including which tools to use, the ban on manipulating files via Bash, and when to delete a file — live in the
