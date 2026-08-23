@@ -17,6 +17,7 @@ the user; adopt each individual policy only when its own gate matches.
 | `no-foreign-key-constraints.md`    | BLOCK    | Data, configuration, transfer shapes | User confirms the project enforces relations in Eloquent only  | —                          |
 | `eloquent-vs-dto.md`               | WARN     | Data, configuration, transfer shapes | Always (with pack)                                             | `data-transfer-objects.md` |
 | `dto-class-properties.md`          | WARN     | Data, configuration, transfer shapes | `spatie/laravel-data` required                                 | —                          |
+| `dto-magical-creation.md`          | WARN     | Data, configuration, transfer shapes | `spatie/laravel-data` required                                 | —                          |
 | `typed-config-classes.md`          | BLOCK    | Data, configuration, transfer shapes | Always (with pack)                                             | `typed-config-objects.md`  |
 | `carbon-immutable-only.md`         | WARN     | Code style, structure, language      | Always (with pack)                                             | `immutable-value-types.md` |
 | `illuminate-over-stdlib.md`        | WARN     | Code style, structure, language      | Always (with pack)                                             | —                          |
@@ -56,7 +57,8 @@ the user; adopt each individual policy only when its own gate matches.
     - `cache-lock-over-lockforupdate.md` → core `cache-key-naming.md`
     - `queue-jobs.md` and `data-transfer-objects` rules in `eloquent-vs-dto.md` → core `module-isolation.md`
     - `queue-jobs.md` → pack `eloquent-vs-dto.md` and pack `ambient-log-context.md`
-    - `dto-class-properties.md` → pack `eloquent-vs-dto.md`
+    - `dto-class-properties.md` → pack `eloquent-vs-dto.md` and pack `dto-magical-creation.md`
+    - `dto-magical-creation.md` → pack `dto-class-properties.md` and pack `eloquent-vs-dto.md`
     - `no-final-or-readonly.md` → pack `typed-config-classes.md`
     - `illuminate-over-stdlib.md` → core `dependencies.md` (always written) and pack `carbon-immutable-only.md`
     - `ambient-log-context.md` → core `structured-logging.md` (always written)

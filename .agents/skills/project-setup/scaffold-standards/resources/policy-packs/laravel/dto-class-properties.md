@@ -13,6 +13,8 @@ defaults, invariant checks — and promotion is fine in that case.
 - New `Data` subclasses declare public typed **class properties**, not promoted constructor parameters, when no constructor logic is needed.
 - Rely on laravel-data's property hydration; do not add a constructor to make `::from(...)` work.
 - Convert a grandfathered DTO opportunistically the next time you edit it — this is a new-DTO rule, not a mass-migration mandate.
+- The same "no boilerplate to move data across" logic governs **construction**: build a DTO with `::from($source)` and add a named creation method only when the mapping
+  does real work. See [DTO Construction via `::from()`](./dto-magical-creation.md).
 
 **Example:**
 
