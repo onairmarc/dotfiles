@@ -6,11 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "jq -r '.tool_input.command' | grep -qE '(^|[^[:alnum:]_])git[[:space:]]+((checkout|reset|clean|restore)([[:space:]]|$)|stash[[:space:]]+(drop|clear)([[:space:]]|$)|switch[[:space:]][^&|;]*(-f([[:space:]]|$)|--force|--discard-changes))' && printf '%s' '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Blocked: this git command can discard uncommitted or untracked work (checkout, reset, clean, restore, stash drop/clear, switch --force). Save with git stash first, or run it yourself with the ! prefix if intended.\"}}' || true"
-          },
-          {
-            "type": "command",
-            "command": "jq -r '.tool_input.command' | grep -qE '(^|[^[:alnum:]_])(git[[:space:]]+push([[:space:]]|$)|gh[[:space:]]+(pr[[:space:]]+(create|edit|merge|ready|comment)|issue[[:space:]]+(create|edit|comment)|release[[:space:]]+create)([[:space:]]|$))' && printf '%s' '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Blocked: outward-facing publish command (git push; gh pr/issue create, edit, comment; gh pr merge/ready; gh release create). Run it yourself with the ! prefix if you intend to publish.\"}}' || true"
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guard-bash.sh"
           }
         ]
       }
