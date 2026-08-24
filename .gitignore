@@ -2,3 +2,5 @@
 .idea/
 .migrations/.migration_history
 .claude/*
+!.claude/
+!.claude/settings.json
