@@ -1,4 +1,7 @@
 .DS_Store
 .idea/
 .migrations/.migration_history
-.claude/settings.local.json
+.claude/*
+!.claude/
+!.claude/settings.json
+!.claude/hooks/*
