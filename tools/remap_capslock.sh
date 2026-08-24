@@ -7,11 +7,11 @@ set -e
 set -u
 
 # Color codes
-COL_RED='\033[0;31m'
-COL_GREEN='\033[0;32m'
-COL_YELLOW='\033[1;33m'
-COL_CYAN='\033[0;36m'
-COL_RESET='\033[0m'
+COL_RED=$'\033[0;31m'
+COL_GREEN=$'\033[0;32m'
+COL_YELLOW=$'\033[1;33m'
+COL_CYAN=$'\033[0;36m'
+COL_RESET=$'\033[0m'
 
 LAUNCH_AGENT_PLIST="$HOME/Library/LaunchAgents/com.user.capslock-escape.plist"
 
