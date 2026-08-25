@@ -17,7 +17,7 @@
 //                     powershell: $env:KEY='VALUE'; prefixes inside -Command.
 //   post              Shell command run after the primary install succeeds.
 //   skip_if_env_set   Skip when the named env var is set and non-empty.
-import {shellOk, shq} from "./shell.ts";
+import { sh, powershell, shq } from "./shell.ts";
 
 export interface ScriptEntry {
     kind: "curl" | "powershell";
@@ -34,7 +34,8 @@ function runPost(entry: ScriptEntry): void {
         return;
     }
 
-    if (!shellOk(entry.post)) {
+    // post steps are POSIX shell snippets (mac-only cleanup).
+    if (!sh(entry.post)) {
         throw new Error("script post-step failed: " + entry.post);
     }
 }
@@ -86,7 +87,8 @@ export function run(entry: ScriptEntry): void {
 
         const trailing = entry.args && entry.args !== "" ? " " + entry.args : "";
         const cmd = `curl -fsSL ${shq(entry.url)} | ${envPrefix}${entry.pipe_to}${trailing}`;
-        if (!shellOk(cmd)) {
+        // Genuine `curl … | bash` pipeline — needs a POSIX shell (macOS).
+        if (!sh(cmd)) {
             throw new Error(`script failed (curl|${entry.pipe_to}): ${entry.url}`);
         }
 
@@ -107,8 +109,8 @@ export function run(entry: ScriptEntry): void {
         // irm | iex is the canonical Windows install pattern (e.g. xAI Grok CLI).
         // URL is single-quoted inside -Command; escape any embedded single quotes.
         const url = entry.url.replace(/'/g, "''");
-        const cmd = `powershell -NoProfile -ExecutionPolicy Bypass -Command "${envPrefix}irm '${url}' | iex"`;
-        if (!shellOk(cmd)) {
+        const command = `${envPrefix}irm '${url}' | iex`;
+        if (!powershell(command)) {
             throw new Error(`script failed (powershell irm|iex): ${entry.url}`);
         }
 
