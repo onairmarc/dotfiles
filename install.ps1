@@ -2,7 +2,7 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-# Force UTF-8 for console I/O so Lua's UTF-8 output renders correctly
+# Force UTF-8 for console I/O so the provisioner's UTF-8 output renders correctly
 # (otherwise ✓/✗/… appear as mojibake like Γ£ô / Γ£ù / ΓÇª).
 [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
 $OutputEncoding = [System.Text.UTF8Encoding]::new()
@@ -44,75 +44,52 @@ else
     Write-Host "[+] Chocolatey is already installed." -ForegroundColor Green
 }
 
-# Ensure Lua and Git are installed
-foreach ($pkg in @("lua", "git"))
+# Ensure Git is installed
+if (-not (Get-Command git -ErrorAction SilentlyContinue))
 {
-    if (-not (Get-Command $pkg -ErrorAction SilentlyContinue))
-    {
-        Write-Host "[*] Installing $pkg..." -ForegroundColor Yellow
-        choco install $pkg -y
-    }
-    else
-    {
-        Write-Host "[+] $pkg is already installed." -ForegroundColor Green
-    }
+    Write-Host "[*] Installing git..." -ForegroundColor Yellow
+    choco install git -y
 }
-
-# The Chocolatey `lua` package bundles a stale 7z.exe in its install directory
-# and adds that directory to PATH. Composer auto-detects any 7z.exe on PATH and
-# prefers it over PHP's ZipArchive, but this bundled copy fails to extract
-# archives containing case-only filename collisions. Remove it so Composer (and
-# any other tool) falls back to its built-in extractor. Lua itself does not use
-# this binary at runtime.
-foreach ($luaDir in @(
-    "C:\Program Files (x86)\Lua\5.1",
-    "C:\Program Files\Lua\5.1"
-))
+else
 {
-    $stray7z = Join-Path $luaDir "7z.exe"
-    if (Test-Path -LiteralPath $stray7z)
-    {
-        try
-        {
-            Remove-Item -LiteralPath $stray7z -Force
-            Write-Host "[+] Removed bundled 7z.exe from $luaDir (conflicts with Composer)." -ForegroundColor Green
-        }
-        catch
-        {
-            Write-Host "[-] Failed to remove $stray7z. Re-run this script in an Administrator shell." -ForegroundColor Red
-        }
-    }
+    Write-Host "[+] git is already installed." -ForegroundColor Green
 }
 
 # Refresh PATH so freshly installed choco shims resolve in this session
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" +
     [System.Environment]::GetEnvironmentVariable("Path", "User")
 
-$LuaCmd = Get-Command lua -ErrorAction SilentlyContinue
-if (-not $LuaCmd)
+# Ensure Bun is installed — it is the provisioner runtime (provision\main.ts).
+if (-not (Get-Command bun -ErrorAction SilentlyContinue))
 {
-    $chocoLua = Join-Path $env:ChocolateyInstall "bin\lua.exe"
-    if ($env:ChocolateyInstall -and (Test-Path $chocoLua))
+    Write-Host "[*] Installing bun..." -ForegroundColor Yellow
+    powershell -NoProfile -ExecutionPolicy Bypass -Command "irm bun.sh/install.ps1 | iex"
+    # The installer adds %USERPROFILE%\.bun\bin to the User PATH; surface it now.
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" +
+        [System.Environment]::GetEnvironmentVariable("Path", "User")
+}
+else
+{
+    Write-Host "[+] bun is already installed." -ForegroundColor Green
+}
+
+$BunCmd = Get-Command bun -ErrorAction SilentlyContinue
+if (-not $BunCmd)
+{
+    $userBun = Join-Path $env:USERPROFILE ".bun\bin\bun.exe"
+    if (Test-Path $userBun)
     {
-        $LuaPath = $chocoLua
+        $BunPath = $userBun
     }
     else
     {
-        $fallback = "C:\ProgramData\chocolatey\bin\lua.exe"
-        if (Test-Path $fallback)
-        {
-            $LuaPath = $fallback
-        }
-        else
-        {
-            Write-Host "[-] lua not found on PATH after install. Open a new shell and retry." -ForegroundColor Red
-            exit 1
-        }
+        Write-Host "[-] bun not found on PATH after install. Open a new shell and retry." -ForegroundColor Red
+        exit 1
     }
 }
 else
 {
-    $LuaPath = $LuaCmd.Source
+    $BunPath = $BunCmd.Source
 }
 
 # Clone dotfiles repo if not present
@@ -163,4 +140,4 @@ foreach ($name in @(".zshrc", ".bashrc", ".bash_profile"))
 }
 
 Set-Location $DotfilesDirectory
-& $LuaPath "$DotfilesDirectory\provision\main.lua" windows @args
+& $BunPath "$DotfilesDirectory\provision\main.ts" windows @args

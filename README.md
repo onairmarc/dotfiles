@@ -22,9 +22,9 @@ pwsh install.ps1
 Both scripts:
 
 1. Install Homebrew (macOS) or Chocolatey (Windows) if missing.
-2. Install Lua 5.4 and Git if missing.
+2. Install Bun and Git if missing.
 3. Clone this repository to `$DF_ROOT_DIRECTORY` if not already present.
-4. Hand off to `lua provision/main.lua <platform>` which runs the full provisioner.
+4. Hand off to `bun provision/main.ts <platform>` which runs the full provisioner.
 
 ---
 
@@ -37,8 +37,9 @@ Zsh is the primary shell on macOS; bash is supported on Windows via `framework/b
 
 ### Provisioner
 
-All tool installation and configuration is driven by the Lua provisioner in `provision/`. The entry
-point is `provision/main.lua`, which reads `provision/manifest.lua` and executes each entry:
+All tool installation and configuration is driven by the TypeScript provisioner in `provision/`, run by
+[Bun](https://bun.sh) with zero third-party dependencies. The entry point is `provision/main.ts`, which
+reads `provision/manifest.ts` and executes each entry:
 
 - **Tools** — installed via Homebrew (macOS) or Chocolatey (Windows).
 - **Configurators** — one-time setup scripts in `provision/configurators/`.
@@ -46,12 +47,14 @@ point is `provision/main.lua`, which reads `provision/manifest.lua` and executes
 
 ### Adding a Tool
 
-Add one entry to `provision/manifest.lua`:
+Add one entry to the `tools` array in `provision/manifest.ts`:
 
-```lua
-{ name = "mytool",
-  mac = { backend = "brew", id = "mytool" },
-  win = { backend = "choco", id = "mytool" } },
+```ts
+{
+  name: "mytool",
+  mac: { backend: "brew", id: "mytool" },
+  win: { backend: "choco", id: "mytool" },
+},
 ```
 
 No script edits are needed anywhere else.
@@ -74,8 +77,9 @@ If unset, the default fallback is `$HOME/Documents/GitHub/dotfiles` (macOS/Linux
 
 ### `DF_DEBUG_TIMING`
 
-This variable is a **no-op** in the current architecture. The legacy timing harness was removed as part
-of the Lua modernization. There is no custom timing instrumentation in the new provisioner.
+This variable is a **no-op** in the current architecture. The legacy timing harness was removed when the
+bash orchestration layer was consolidated into the provisioner. There is no custom timing instrumentation
+in the provisioner.
 
 ---
 
@@ -89,27 +93,27 @@ its key from that file:
 ```sh
 # Example: force the ghostty configurator to re-run
 # Open ~/.df_data/state.json and delete the "ghostty" key, then re-run:
-lua provision/main.lua mac
+bun provision/main.ts mac
 ```
 
 Or you can delete the key with `jq`:
 
 ```sh
-jq 'del(.configurators.ghostty)' ~/.df_data/state.json > /tmp/state.json && mv /tmp/state.json ~/.df_data/state.json
-lua provision/main.lua mac
+jq 'del(.configurators_run.ghostty)' ~/.df_data/state.json > /tmp/state.json && mv /tmp/state.json ~/.df_data/state.json
+bun provision/main.ts mac
 ```
 
 ### Runtime Dependencies
 
 | Dependency | Required for              | Notes                                    |
 |------------|---------------------------|------------------------------------------|
-| Lua 5.4    | Provisioning              | Not needed for shell startup             |
+| Bun        | Provisioning              | Not needed for shell startup             |
 | Homebrew   | macOS tool installation   | Installed automatically by `install.sh`  |
 | Chocolatey | Windows tool installation | Installed automatically by `install.ps1` |
 | zsh        | Shell plugins (macOS)     | Pre-installed on macOS                   |
 
-> **Lua 5.4 is a hard runtime dependency for provisioning.** It is not required for shell startup — you
-> can source the shell plugins without Lua installed.
+> **Bun is a hard runtime dependency for provisioning.** It is not required for shell startup — you can
+> source the shell plugins without Bun installed.
 
 ---
 
@@ -123,30 +127,31 @@ repository at `~/Documents/GitHub/dotfiles-private/`. The shell loader sources
 
 ## Migration Impact
 
-The Lua provisioner modernization consolidated the bash orchestration layer into a single Lua-driven
-entry point. Key metrics:
+The provisioner modernization consolidated the bash orchestration layer into a single typed entry point.
+It was first ported from bash to Lua, then from Lua to TypeScript (run by Bun with zero third-party
+runtime dependencies), which is the current implementation. Key metrics:
 
 ### Line Counts
 
-| Area                             | Before (shell/bash) | After (Lua)     |
-|----------------------------------|---------------------|-----------------|
-| `framework/` (7 files)           | 974 lines           | removed         |
-| `autoloader/` (2 files)          | 60 lines            | removed         |
-| `startup/` (1 file)              | 18 lines            | removed         |
-| `install.sh`                     | 207 lines           | 37 lines        |
-| `install.ps1`                    | 137 lines           | 53 lines        |
-| `provision/` (Lua, excl. vendor) | —                   | 1,457 lines     |
-| **Total**                        | **1,396 lines**     | **1,547 lines** |
+| Area                    | Before (shell/bash) | After (TypeScript) |
+|-------------------------|---------------------|--------------------|
+| `framework/` (7 files)  | 974 lines           | removed            |
+| `autoloader/` (2 files) | 60 lines            | removed            |
+| `startup/` (1 file)     | 18 lines            | removed            |
+| `install.sh`            | 207 lines           | 65 lines           |
+| `install.ps1`           | 137 lines           | 143 lines          |
+| `provision/` (TS)       | —                   | 1,580 lines        |
+| **Total**               | **1,396 lines**     | **1,788 lines**    |
 
-The Lua total is higher because the provisioner is a proper library with state management, platform
+The provisioner total is higher because it is a proper library with state management, platform
 abstraction, and per-platform backend routing — capabilities that were previously handled ad-hoc or
-not at all. The install scripts themselves shrank by ~75%.
+not at all.
 
 ### Tool-Add Cost
 
 |                            | Before                                                                                         | After                              |
 |----------------------------|------------------------------------------------------------------------------------------------|------------------------------------|
-| Add a tool                 | Edit `install.sh` (~1 line) + `install.ps1` (~1 line) = 2 edits across 2 files with drift risk | 1 line in `provision/manifest.lua` |
+| Add a tool                 | Edit `install.sh` (~1 line) + `install.ps1` (~1 line) = 2 edits across 2 files with drift risk | 1 entry in `provision/manifest.ts` |
 | Cross-platform consistency | Manual — easy to add Mac but forget Windows                                                    | Enforced by manifest structure     |
 
 ---
