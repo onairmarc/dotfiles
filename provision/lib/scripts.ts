@@ -17,7 +17,7 @@
 //                     powershell: $env:KEY='VALUE'; prefixes inside -Command.
 //   post              Shell command run after the primary install succeeds.
 //   skip_if_env_set   Skip when the named env var is set and non-empty.
-import { sh, powershell, shq } from "./shell.ts";
+import {powershell, sh, shq} from "./shell.ts";
 
 export interface ScriptEntry {
     kind: "curl" | "powershell";
@@ -87,6 +87,7 @@ export function run(entry: ScriptEntry): void {
 
         const trailing = entry.args && entry.args !== "" ? " " + entry.args : "";
         const cmd = `curl -fsSL ${shq(entry.url)} | ${envPrefix}${entry.pipe_to}${trailing}`;
+
         // Genuine `curl … | bash` pipeline — needs a POSIX shell (macOS).
         if (!sh(cmd)) {
             throw new Error(`script failed (curl|${entry.pipe_to}): ${entry.url}`);
