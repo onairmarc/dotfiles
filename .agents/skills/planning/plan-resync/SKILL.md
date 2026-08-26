@@ -70,7 +70,8 @@ Before analyzing drift, ground yourself in the current state of the relevant cod
 
 1. **Identify every concrete reference in the plan** — file paths, class names, function names, route names, migration names, config keys, env vars, package names,
    table/column names, command names, job names, etc.
-2. **Delegate verification to a single `Explore` sub-agent.** Pass the resolved plan path and the full reference list. Instruct it to return a compact table: `reference | status (exists | missing | renamed | signature-changed) |
+2. **Delegate verification to a single `Explore` sub-agent.** Pick a model that fits the work — prefer using fewer tokens while still doing the job well. Pass the
+   resolved plan path and the full reference list. Instruct it to return a compact table: `reference | status (exists | missing | renamed | signature-changed) |
    current location | note`. Also ask it to surface newly added neighbors of plan-targeted files, refactors that moved logic elsewhere, and deletions of things the plan
    assumed would still be there. The sub-agent must use
    `Grep -C 3` for context where surrounding lines are enough to confirm a match, and escalate to `Read` only when grep context is insufficient.

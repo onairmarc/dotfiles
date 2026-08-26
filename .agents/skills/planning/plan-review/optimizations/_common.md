@@ -29,7 +29,8 @@ If no valid source paths survive, use the most specific directory the plan targe
 
 ## 5c — Invoke `{{OPTIMIZATION_SKILL}}`
 
-Spawn an `Agent` sub-agent with **`model: opus`** for each unique top-level `{{PATH_NOUN}}` path extracted in 5b. Use this prompt (fill in the bracketed values):
+Spawn an `Agent` sub-agent for each unique top-level `{{PATH_NOUN}}` path extracted in 5b. On each `Agent` call, pick a model that fits the work — prefer using fewer
+tokens while still doing the job well. Use this prompt (fill in the bracketed values):
 
 ```
 Run the {{OPTIMIZATION_SKILL}} skill on `<{{PATH_NOUN}}-path>`.

@@ -58,7 +58,8 @@ filename lists from its `## Dependencies` section, empty when `none`), and `cont
 
 **Skip this step on a first run.** Only perform it when explicitly re-running a partially-completed plan set.
 
-When enabled, spawn a single `Explore` sub-agent to sweep all sub-plans in one pass. Pass the sub-plan file list and the full list of deliverable/acceptance-criteria
+When enabled, spawn a single `Explore` sub-agent to sweep all sub-plans in one pass. Pick a model that fits the work — prefer using fewer tokens while still doing the job
+well. Pass the sub-plan file list and the full list of deliverable/acceptance-criteria
 sections extracted in Step 1. The sub-agent should check the codebase for key artifacts (files, classes, methods, migrations) for each sub-plan and return a
 classification:
 
@@ -113,11 +114,9 @@ Execute one sub-plan at a time in dependency-respecting order. A plan never star
 
 ### 3a — Spawn sub-agents
 
-Spawn `general-purpose` sub-agents. Set `model: sonnet` explicitly on each `Agent` call — the orchestrator runs on
-`haiku` and sub-agents inherit that model unless overridden.
-
-Spawn exactly one sub-agent at a time. Make a single `Agent` tool call for one sub-plan, wait for it to return, evaluate its result (Step 3c), and only then spawn the
-next sub-plan. Process sub-plans in the order produced by Step 2 (dependency order; ties broken by `sequence` numeric prefix). Never run two sub-agents at once.
+Spawn `general-purpose` sub-agents. On each `Agent` call, pick a model that fits the work — prefer using fewer tokens while still doing the job well. Spawn exactly one
+sub-agent at a time. Make a single `Agent` tool call for one sub-plan, wait for it to return, evaluate its result (Step 3c), and only then spawn the next sub-plan. Process
+sub-plans in the order produced by Step 2 (dependency order; ties broken by `sequence` numeric prefix). Never run two sub-agents at once.
 
 Each agent prompt must be self-contained. Use the appropriate template based on the sub-plan's status from Step 1b.
 

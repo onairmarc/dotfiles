@@ -7,7 +7,8 @@ vs. changed-files-only) are prepended by the calling skill.
 
 ## Dispatch rules
 
-Use fresh, read-only agents where available. Give every worker one distinct subsystem with an exact, non-overlapping ownership boundary.
+Use fresh, read-only agents where available. Pick a model that fits the work — prefer using fewer tokens while still doing the job well. Give every worker one distinct
+subsystem with an exact, non-overlapping ownership boundary.
 
 Keep concurrency bounded to the number of lanes you can actively coordinate. Use one consolidated wait mechanism, do not interrupt
 productive workers merely because they are slow, and close completed workers after harvesting their results.

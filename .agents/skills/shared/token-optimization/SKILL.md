@@ -135,19 +135,13 @@ sub-agent per item rather than scanning serially in the orchestrator.
 
 ---
 
-**B3 — Model too heavy for orchestration-only work**
+**B3 — Sub-agent model not matched to the work**
 
-Look for: `model: opus` or `model: sonnet` in a skill whose body contains phrases like "routing and coordination
-only", "you do not implement anything yourself", "spawn sub-agents", or "orchestrat*".
+Look for: `Agent` or `Explore` spawns that pin a named model (a vendor id, or names like opus / sonnet / haiku), or that give no guidance on model choice.
 
-Flag if: the skill's stated role is pure orchestration (no code generation, no analysis) but uses a heavyweight model.
+Flag if: an orchestrator spawns sub-agents without telling the caller to pick a model that fits the work, or it names a specific model.
 
-Recommendation: set `model: haiku` for orchestrator-only skills. If the same skill spawns sub-agents that do
-real work, pass `model: sonnet` (or `model: opus`) explicitly in each `Agent` tool call — sub-agents inherit
-from the caller unless overridden per-invocation.
-
-Note: sub-agents spawned as `general-purpose` inherit the orchestrator's model by default. If you downgrade the
-orchestrator to `haiku`, explicitly set the sub-agent model per `Agent` call to prevent unintended cascade.
+Recommendation: on each `Agent` call, pick a model that fits the work. Prefer using fewer tokens while still doing the job well. Do not name a vendor model.
 
 ---
 
@@ -256,17 +250,15 @@ variable is empty rather than defaulting to repo-wide search.
 
 ---
 
-**E4 — Model too heavy for read-only analysis**
+**E4 — Named or oversized model for the work**
 
-Look for: `model: opus` or `model: sonnet` in a skill whose body contains no code generation, no agent
-spawning, and only reads files, greps patterns, and emits a report.
+Look for: a named model in frontmatter or body (a vendor id, or names like opus / sonnet / haiku), or `Agent` /
+`Explore` spawns with no guidance on model choice.
 
-Flag if: the skill's entire job is static analysis and report output with no writing, editing, or sub-agent
-coordination.
+Flag if: the skill names a specific model, or it spawns sub-agents without saying to pick a model that fits the work.
 
-Recommendation: `model: sonnet` suffices for most analysis skills. `model: haiku` is appropriate for simple
-pattern-matching audits with deterministic output formats. Reserve `model: opus` for skills that require
-multi-step reasoning over ambiguous evidence or produce complex structured plans.
+Recommendation: remove named-model pins. Pick a model that fits the work. Prefer using fewer tokens while still doing
+the job well.
 
 ---
 
@@ -322,16 +314,16 @@ platform evolves. Before presenting findings from these lenses, verify each clai
 |------|-----------------------------------------------------------------------------------------------------|
 | A1   | Sub-agents can receive a file path in their prompt and read it themselves via `Read`                |
 | B1   | All sub-agent output accumulates in the orchestrator's context window                               |
-| B3   | `general-purpose` sub-agents inherit the orchestrator's model unless overridden per `Agent` call    |
 | C1   | A single `Agent` tool call bundles all agents — orchestrator receives no results until all complete |
 
-**Only run this step if at least one finding from lenses A1, B1, B3, or C1 was recorded in Step 2.**
+**Only run this step if at least one finding from lenses A1, B1, or C1 was recorded in Step 2.**
 Skip entirely if none of those lenses triggered.
 
 ### Verification procedure
 
-Spawn a single `claude-code-guide` sub-agent with the following prompt, passing only the claims that have
-corresponding findings from Step 2 (omit claims for lenses that did not trigger):
+Spawn a single `claude-code-guide` sub-agent with the following prompt, passing only the claims that have corresponding
+findings from Step 2 (omit claims for lenses that did not trigger). Pick a model that fits the work — prefer using fewer
+tokens while still doing the job well.
 
 ---
 
