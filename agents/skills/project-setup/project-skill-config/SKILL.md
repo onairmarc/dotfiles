@@ -26,7 +26,7 @@ Set these variables for use throughout the skill:
 
 - `$REPO_ROOT` — current working directory (the repository root)
 - `$REPO_SETTINGS` — `$REPO_ROOT/.claude/settings.json`
-- `$USER_SKILLS_DIR` — `~/.claude/skills`
+- `$USER_SKILLS_DIR` — `~/.config/opencode/skills`
 - `$PLUGIN_CACHE_DIR` — `~/.claude/plugins/cache`
 
 ---
@@ -38,7 +38,7 @@ Glob for all skill discovery — Glob does not traverse symlinked directories.
 
 Run in parallel:
 
-1. **Local skills:** Run `find -L ~/.claude/skills -name SKILL.md -maxdepth 2`. For each path returned, read its
+1. **Local skills:** Run `find -L ~/.config/opencode/skills -name SKILL.md -maxdepth 2`. For each path returned, read its
    YAML frontmatter to extract `name` and `description`. Record as `{ name, description, source: "local", path }`.
 
 2. **Plugin skills:** Run `find -L ~/.claude/plugins/cache -name SKILL.md -maxdepth 6`. For each path returned,
@@ -204,7 +204,7 @@ The following skills are already configured in `skillOverrides` but may need upd
 |-------|---------|-------------|--------------|--------|
 | laravel-optimization | off | on | stack | composer.json now includes laravel/framework |
 | code-review-cs | on | off | skill description | skill now targets Blazor only, repo has no Blazor |
-| some-old-skill | off | remove | skill deleted | skill no longer exists in ~/.claude/skills |
+| some-old-skill | off | remove | skill deleted | skill no longer exists in ~/.config/opencode/skills |
 ```
 
 Omit the reevaluation section entirely if Step 4b produced no candidates.

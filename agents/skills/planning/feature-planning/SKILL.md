@@ -20,11 +20,11 @@ agent given only this plan and the codebase should be able to implement it witho
 
 ## File Operation Rules
 
-Read and follow `~/.claude/skills/file-operations/SKILL.md`.
+Read and follow `~/.config/opencode/skills/file-operations/SKILL.md`.
 
 ## Delivery Constraints
 
-Read and follow `~/.claude/skills/delivery-constraints/SKILL.md`. Every plan this skill produces must be structured as vertical slices, must assume the work lands in
+Read and follow `~/.config/opencode/skills/delivery-constraints/SKILL.md`. Every plan this skill produces must be structured as vertical slices, must assume the work lands in
 place on the currently checked-out branch — or, if that branch is main, on a new branch created off it after an explicit branch check — and must verify itself with the
 repository's own test tooling rather than a bespoke harness. These constraints are enforced by Lens E in Step 2 and must be reproduced in the plan itself so an
 implementing agent reading only the plan is bound by them.
@@ -72,7 +72,7 @@ ambiguous or appears to conflict with the goal, flag it to the user rather than 
 
 Every plan is structured as vertical slices, assumes implementation lands in place on the currently checked-out branch (branching off main only after an explicit branch
 check), and verifies itself with the repository's own test tooling rather than a bespoke harness. These are the non-negotiable rules in
-`~/.claude/skills/delivery-constraints/SKILL.md`; they are enforced by Lens E in Step 2 and reproduced verbatim in the plan itself (see the plan's `## Delivery
+`~/.config/opencode/skills/delivery-constraints/SKILL.md`; they are enforced by Lens E in Step 2 and reproduced verbatim in the plan itself (see the plan's `## Delivery
 constraints` section).
 
 ---
@@ -86,18 +86,18 @@ Before gathering requirements, orient yourself to the repository:
     - Resolve `<dir>` relative to the current working directory and record it as `$PLAN_DIR`. Skip the auto-detect step below entirely.
 
 2. **Detect output directory** (skip if `--output` was provided) — resolve `$PLAN_DIR` per the `$PLAN_DIR` ladder in
-   `~/.claude/skills/planning-commons/paths.md`.
+   `~/.config/opencode/skills/planning-commons/paths.md`.
 
 3. **Discover project standards & policies (mandatory)** — the plan must not violate a single documented policy, so finding them is not optional. Follow the
-   standards-discovery procedure in `~/.claude/skills/planning-commons/paths.md` and record the extracted rules as `$PROJECT_STANDARDS`, the checklist the plan is held
+   standards-discovery procedure in `~/.config/opencode/skills/planning-commons/paths.md` and record the extracted rules as `$PROJECT_STANDARDS`, the checklist the plan is held
    against in Step 2. From those same sources, also identify the project name, tech stack, existing architectural patterns and naming conventions, and any planning or
    documentation policies, and use that context to inform the plan's language, component references, and step specificity throughout.
 
-4. **Find northstar** — resolve `$NORTHSTAR` per the `$NORTHSTAR` ladder in `~/.claude/skills/planning-commons/paths.md`. If none is found, `$NORTHSTAR = null` and Step 4
+4. **Find northstar** — resolve `$NORTHSTAR` per the `$NORTHSTAR` ladder in `~/.config/opencode/skills/planning-commons/paths.md`. If none is found, `$NORTHSTAR = null` and Step 4
    is skipped silently.
 
 5. **Find a PM discovery brief** — the `pm-review` skill's discovery mode writes a **durable** product-side brief before planning begins. Unlike plans, briefs are
-   permanent documentation and live **outside** `$PLAN_DIR`: resolve `$DISCOVERY_DIR` per the `$DISCOVERY_DIR` ladder in `~/.claude/skills/planning-commons/paths.md`.
+   permanent documentation and live **outside** `$PLAN_DIR`: resolve `$DISCOVERY_DIR` per the `$DISCOVERY_DIR` ladder in `~/.config/opencode/skills/planning-commons/paths.md`.
    Look for a brief that matches this feature:
     - If `$ARGUMENTS` names a feature, derive its kebab-case slug and check `$DISCOVERY_DIR/<slug>.md`.
     - Otherwise, glob `$DISCOVERY_DIR/*.md`; if exactly one clearly matches the feature description, use it. If several plausibly match, ask the user which brief (if any)
@@ -132,7 +132,7 @@ every available source, then asking the user **only** about what none of those s
     - **Existing code**: what this replaces, extends, or must stay compatible with.
 
 3. **Ask only the residual unknowns.** Put the questions the combined sources could not answer to the user via
-   `AskUserQuestion` — focused, short-answer, highest-impact first, batched per the AskUserQuestion rules in `~/.claude/skills/planning-commons/review-loop.md`. Do not
+   `AskUserQuestion` — focused, short-answer, highest-impact first, batched per the AskUserQuestion rules in `~/.config/opencode/skills/planning-commons/review-loop.md`. Do not
    ask anything the brief, the code, or the conventions already answer.
 
 4. **If you have no questions, do not silently proceed — confirm the premise first.** Reaching zero questions is a claim that the brief, the code, and the conventions
@@ -150,7 +150,7 @@ every available source, then asking the user **only** about what none of those s
 ## Step 1 — Draft the plan
 
 Using the answers from Step 0 and the context discovered in Pre-flight, draft the plan following the **Master plan structure** in
-`~/.claude/skills/planning-commons/plan-format.md`. Write it to `$PLAN_DIR/<kebab-case-feature-name>/plan.md`, creating the directory if it does not exist. Reproduce that
+`~/.config/opencode/skills/planning-commons/plan-format.md`. Write it to `$PLAN_DIR/<kebab-case-feature-name>/plan.md`, creating the directory if it does not exist. Reproduce that
 doc's `## Delivery constraints` block verbatim into the plan with the project's real test runner command filled in, organize `## Implementation steps` as vertical
 `### Slice N —` sections, and make the final step delete the plan directory. Fill every section from the Pre-flight context and Step 0 answers — leave no placeholder.
 
@@ -207,7 +207,7 @@ Treat every standards violation as a blocker: fix it in the plan, or if the poli
 
 ### Lens E — Delivery constraints (blocker)
 
-Hold the plan against `~/.claude/skills/delivery-constraints/SKILL.md`. Every finding here is a blocker.
+Hold the plan against `~/.config/opencode/skills/delivery-constraints/SKILL.md`. Every finding here is a blocker.
 
 - Is every slice vertical? Does any phase deliver only a layer — models, interfaces, scaffolding — with no caller and no observable behavior until a later phase?
 - Does any slice leave something registered, injected, or created but not wired up?
@@ -223,14 +223,14 @@ Hold the plan against `~/.claude/skills/delivery-constraints/SKILL.md`. Every fi
   deleted?
 - Does the change-audit step explicitly require all tests to pass after fixes are applied?
 - If the step is missing, absent, or placed in the wrong position, this is a blocker — add it per the template in
-  `~/.claude/skills/planning-commons/plan-format.md`.
+  `~/.config/opencode/skills/planning-commons/plan-format.md`.
 
 ---
 
 ## Step 3 — Iterate via AskUserQuestion
 
 Group your findings into labeled question blocks — each quoting the plan text, stating what is missing or conflicting, and asking one focused short-answer question — then
-run the interactive review loop in `~/.claude/skills/planning-commons/review-loop.md`: batch at most 4 questions per call ranked by blast radius, write every answer into
+run the interactive review loop in `~/.config/opencode/skills/planning-commons/review-loop.md`: batch at most 4 questions per call ranked by blast radius, write every answer into
 the plan immediately, re-read, re-run all lenses, and repeat until no gaps remain. Label each round **Plan review: round N**. When the plan is clean, proceed to Step 4.
 
 ---

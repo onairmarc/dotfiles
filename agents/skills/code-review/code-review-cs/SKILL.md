@@ -25,7 +25,7 @@ This skill extends the base `code-review` skill with C#/.NET-specific rules.
 **Before doing anything else**, read the base skill:
 
 ```
-~/.claude/skills/code-review/SKILL.md
+~/.config/opencode/skills/code-review/SKILL.md
 ```
 
 Follow every step defined there, applying the overrides below in the matching steps. Where a section is

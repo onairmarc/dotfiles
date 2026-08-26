@@ -13,8 +13,8 @@ When working in a given area, read the corresponding standards doc before making
 hub methods, and invariants before making changes.
 
 > **Skills exist at two levels.** Repo-level skills live in `.agents/skills/` and are listed in the table below.
-> User-level skills live in `~/.claude/skills/` (i.e., `C:\Users\<username>\.claude\skills\` on Windows or
-> `~/.claude/skills/` on Linux/macOS) and are **not** listed here. Before concluding a skill does not exist, check the
+> User-level skills live in `~/.config/opencode/skills/` (i.e., `C:\Users\<username>\.config\opencode\skills\` on Windows
+> or `~/.config/opencode/skills/` on Linux/macOS) and are **not** listed here. Before concluding a skill does not exist, check the
 > user-level skills directory. User-level skills take the same `/<skill-name>` invocation form as repo skills.
 
 > **Memory writes MUST mirror into a repo skill.** Whenever an AI agent records something to its machine-local memory

@@ -19,11 +19,11 @@ time, in dependency-respecting order. You do not implement anything yourself, an
 
 ## File Operation Rules
 
-Read and follow `~/.claude/skills/file-operations/SKILL.md`.
+Read and follow `~/.config/opencode/skills/file-operations/SKILL.md`.
 
 ## Delivery Constraints
 
-Read and follow `~/.claude/skills/delivery-constraints/SKILL.md`. You do not implement, but you are responsible for making sure every sub-agent is bound by these:
+Read and follow `~/.config/opencode/skills/delivery-constraints/SKILL.md`. You do not implement, but you are responsible for making sure every sub-agent is bound by these:
 sub-plans are implemented as vertical slices, in place on the currently checked-out branch — or on a new branch you create off main before spawning the first sub-agent,
 when your branch check shows main is checked out — and verified with the repository's own test tooling. Reproduce them in
 `.agent-instructions.md` (Step 3a) and never spawn an agent without that file present.
@@ -45,7 +45,7 @@ Verify the directory exists. If it does not, stop with an error.
 
 ## Step 1 — Discover and parse sub-plan files
 
-Parse the sub-plans per the **Dependency contract** in `~/.claude/skills/planning-commons/plan-format.md` — the authoritative spec `plan-split` emits against.
+Parse the sub-plans per the **Dependency contract** in `~/.config/opencode/skills/planning-commons/plan-format.md` — the authoritative spec `plan-split` emits against.
 
 List all `*.md` files in `$PLAN_DIR`. **Exclude `plan.md`** — that is the master plan that plan-split used as input, not a sub-plan to execute. For each remaining file,
 read it in full and record the contract's fields: `file` (filename), `sequence` (numeric prefix), `title` (H1 heading), `blocked_by` and `blocks` (the comma-separated

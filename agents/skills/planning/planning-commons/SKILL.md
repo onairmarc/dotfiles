@@ -7,8 +7,8 @@ description: Canonical shared references for the planning skills — path resolu
 
 A small library of reference documents shared across the planning skills (`feature-planning`, `northstar`, `pm-review`, `plan-review`,
 `plan-resync`, `plan-split`, `plan-execute`). Each doc is the single source of truth for one cross-cutting concern; a skill reads the one it needs at the point it needs
-it, exactly as skills already read `~/.claude/skills/delivery-constraints/SKILL.md` and
-`~/.claude/skills/file-operations/SKILL.md`.
+it, exactly as skills already read `~/.config/opencode/skills/delivery-constraints/SKILL.md` and
+`~/.config/opencode/skills/file-operations/SKILL.md`.
 
 | Concern                                           | File                               | Read it when…                                                                                                              |
 |---------------------------------------------------|------------------------------------|----------------------------------------------------------------------------------------------------------------------------|

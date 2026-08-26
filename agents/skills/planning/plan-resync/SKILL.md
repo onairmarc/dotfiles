@@ -40,11 +40,11 @@ was written to achieve must still be the outcome the resynced plan achieves.
 
 ## File Operation Rules
 
-Read and follow `~/.claude/skills/file-operations/SKILL.md`.
+Read and follow `~/.config/opencode/skills/file-operations/SKILL.md`.
 
 ## Delivery Constraints
 
-Read and follow `~/.claude/skills/delivery-constraints/SKILL.md`. The resynced plan's **remaining** work must be structured as vertical slices, must land in place on the
+Read and follow `~/.config/opencode/skills/delivery-constraints/SKILL.md`. The resynced plan's **remaining** work must be structured as vertical slices, must land in place on the
 currently checked-out branch — or on a new branch created off main when a branch check shows main is checked out — and must be verified with the repository's own test
 tooling. Lens G holds the remaining work against these. Restructuring leftover horizontal phases into vertical slices is a reconciliation, not a scope change — it does
 not alter what "done" means and does not need user approval, though a restructure that drops or adds outcomes does.
@@ -81,7 +81,7 @@ Before analyzing drift, ground yourself in the current state of the relevant cod
     - `git diff` only when narrowing a specific suspected change
 
 4. **Discover project standards & policies (mandatory).** Standards drift too — a policy the plan predates may now forbid something it prescribes. Follow the
-   standards-discovery procedure in `~/.claude/skills/planning-commons/paths.md` and record the extracted rules as `$PROJECT_STANDARDS` for Lens F.
+   standards-discovery procedure in `~/.config/opencode/skills/planning-commons/paths.md` and record the extracted rules as `$PROJECT_STANDARDS` for Lens F.
 
 Record findings in a working list — you do not write to the plan yet.
 
@@ -147,7 +147,7 @@ Resolve standards drift the way you resolve any other drift: mechanical fixes ap
 
 ### Lens G — Delivery constraint drift (highest priority)
 
-Hold the plan's remaining work against `~/.claude/skills/delivery-constraints/SKILL.md`.
+Hold the plan's remaining work against `~/.config/opencode/skills/delivery-constraints/SKILL.md`.
 
 - **Vertical slices.** Is the remaining work still a set of vertical slices, or has partial implementation left a half-built layer that the plan now expects a later phase
   to wire up? Re-cut the remaining phases so each one ends with wired-up, observable behavior.
@@ -178,7 +178,7 @@ If the plan is already fully in sync with the codebase, tell the user so and sto
 
 ## Step 4 — Ask questions via AskUserQuestion (repeat until done)
 
-Run the interactive review loop in `~/.claude/skills/planning-commons/review-loop.md`, with these resync specifics:
+Run the interactive review loop in `~/.config/opencode/skills/planning-commons/review-loop.md`, with these resync specifics:
 
 - Label each round **Plan resync: round N** — N drift points to reconcile.
 - Prefer the loop's **compact one-line variant** for findings — `**[Lens]** "quoted plan text" — current: path:LINE — Q: <closed-ended question>` — using a multi-line

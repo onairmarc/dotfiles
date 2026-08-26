@@ -14,7 +14,7 @@ Every finding a lens raises carries a severity:
 - **WARN** — a flag for human review. Either fix it or record it as acknowledged, then proceed.
 
 Two classes of finding are **always blockers**, outranking everything else: a violation of `$PROJECT_STANDARDS` (see
-[`paths.md`](paths.md)) and a violation of the delivery constraints (`~/.claude/skills/delivery-constraints/SKILL.md`).
+[`paths.md`](paths.md)) and a violation of the delivery constraints (`~/.config/opencode/skills/delivery-constraints/SKILL.md`).
 
 **Northstar severity.** When `$NORTHSTAR` is set, each Guiding Principle carries its own `> BLOCK if …` / `> WARN if …` annotation — the
 northstar file is the authoritative source of those checks; do not invent checks it does not state. When `$NORTHSTAR = null`, skip every

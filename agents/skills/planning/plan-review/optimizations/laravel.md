@@ -14,7 +14,7 @@ If `composer.json` does not exist, skip Step 5.
 
 ## 5b–5d — Run the common procedure
 
-Follow `~/.claude/skills/plan-review/optimizations/_common.md` with these parameters:
+Follow `~/.config/opencode/skills/plan-review/optimizations/_common.md` with these parameters:
 
 - `{{OPTIMIZATION_SKILL}}` = `laravel-optimization`
 - `{{PATH_NOUN}}` = `module`

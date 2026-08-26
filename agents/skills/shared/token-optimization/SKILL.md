@@ -279,10 +279,10 @@ rule explicitly so the agent can apply it without asking.
 
 **E6 — Reference skill loaded redundantly**
 
-Look for: instructions to read a shared reference skill (e.g., `Read: ~/.claude/skills/file-operations/SKILL.md`)
+Look for: instructions to read a shared reference skill (e.g., `Read: ~/.config/opencode/skills/file-operations/SKILL.md`)
 appearing more than once in the skill body, or appearing inside a loop that executes per-item.
 
-Flag if: the same `Read: ~/.claude/skills/...` instruction appears in multiple steps or could be executed
+Flag if: the same `Read: ~/.config/opencode/skills/...` instruction appears in multiple steps or could be executed
 multiple times during a single skill run.
 
 Recommendation: load reference skills once at the top of execution (Step 0 or Step 1). Store the rules in

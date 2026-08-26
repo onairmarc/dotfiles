@@ -114,7 +114,7 @@ Search **each** name independently (`inertia-best-practices` and `vercel-react-b
 2. Sibling checkouts of this repo (the inertia skill is often a **private** fork next to this repo):
    `{repo-parent}/*/.agents/skills/{name}/SKILL.md` and `{repo-parent}/*/agents/skills/{name}/SKILL.md` (e.g.
    `../dotfiles-private/agents/skills/inertia-best-practices/SKILL.md`)
-3. User-level, following symlinks: `find -L ~/.claude/skills ~/.claude/plugins ~/.grok/skills ~/.grok/bundled/skills -name SKILL.md` and keep any path whose parent
+3. User-level, following symlinks: `find -L ~/.config/opencode/skills ~/.claude/plugins ~/.grok/skills ~/.grok/bundled/skills -name SKILL.md` and keep any path whose parent
    directory is `{name}`
 
 Use `Bash(test -f *)` / `Glob` / `find -L`. Do not assume a skill is missing because it is absent from this repository.

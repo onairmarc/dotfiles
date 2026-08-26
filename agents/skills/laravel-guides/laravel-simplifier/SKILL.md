@@ -7,7 +7,7 @@ description: >-
 
 # Laravel simplifier
 
-First read and follow `~/.claude/skills/code-simplifier/SKILL.md` — the shared code-simplifier skill. It defines the full simplification process, the
+First read and follow `~/.config/opencode/skills/code-simplifier/SKILL.md` — the shared code-simplifier skill. It defines the full simplification process, the
 preserve-functionality contract, the clarity/balance principles, and the recently-modified scope rule. This skill layers PHP/Laravel-specific standards on top of that
 base.
 

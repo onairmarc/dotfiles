@@ -6,7 +6,7 @@ by the caller (any `.csproj` that did not match the Avalonia check), so there is
 
 ## 5b–5d — Run the common procedure
 
-Follow `~/.claude/skills/plan-review/optimizations/_common.md` with these parameters:
+Follow `~/.config/opencode/skills/plan-review/optimizations/_common.md` with these parameters:
 
 - `{{OPTIMIZATION_SKILL}}` = `cs-optimization`
 - `{{PATH_NOUN}}` = `project`

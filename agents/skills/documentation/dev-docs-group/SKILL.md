@@ -23,12 +23,12 @@ This skill extends the base `dev-docs` skill with plan-driven scoping and code-v
 
 ## File Operation Rules
 
-Read and follow `~/.claude/skills/file-operations/SKILL.md`.
+Read and follow `~/.config/opencode/skills/file-operations/SKILL.md`.
 
 **Before doing anything else**, read the base skill:
 
 ```
-~/.claude/skills/dev-docs/SKILL.md
+~/.config/opencode/skills/dev-docs/SKILL.md
 ```
 
 Follow every standard, guideline, and verification step defined there. The additions below run **before** you

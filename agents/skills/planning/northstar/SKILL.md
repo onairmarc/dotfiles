@@ -22,7 +22,7 @@ coding agent given only this file and a feature description can make a principle
 
 ## File Operation Rules
 
-Read and follow `~/.claude/skills/file-operations/SKILL.md`.
+Read and follow `~/.config/opencode/skills/file-operations/SKILL.md`.
 
 ---
 
@@ -31,11 +31,11 @@ Read and follow `~/.claude/skills/file-operations/SKILL.md`.
 Before gathering any input, orient yourself:
 
 1. **Detect directories.** Resolve `$PLAN_DIR` (disposable plans and the ideas backlog) and `$PRODUCT_DIR` (durable product docs — the northstar's home, shared with
-   pm-review discovery briefs, always `docs/product/`) per `~/.claude/skills/planning-commons/paths.md`. The northstar is durable documentation and belongs in
+   pm-review discovery briefs, always `docs/product/`) per `~/.config/opencode/skills/planning-commons/paths.md`. The northstar is durable documentation and belongs in
    `$PRODUCT_DIR`, **not** inside the disposable `$PLAN_DIR`; a northstar found at a legacy location is migrated into `$PRODUCT_DIR` on the next write. Create `$PRODUCT_DIR`
    at Step 5 if it does not exist.
 
-2. **Check for existing northstar** — resolve `$NORTHSTAR_PATH` per the `$NORTHSTAR` ladder in `~/.claude/skills/planning-commons/paths.md` (durable home first, legacy
+2. **Check for existing northstar** — resolve `$NORTHSTAR_PATH` per the `$NORTHSTAR` ladder in `~/.config/opencode/skills/planning-commons/paths.md` (durable home first, legacy
    locations after). If `$ARGUMENTS` contains a path to an existing northstar, use that instead. If one exists:
     - Ask the user via `AskUserQuestion`: **Refine the existing northstar, or start fresh?**
         - **Refine**: read the existing file, treat its content as Step 0–4 answers, then jump to Step 5 (Review lenses)
@@ -279,7 +279,7 @@ After drafting, re-read the file against these lenses. Note every issue.
 - Is the tracking tool recorded clearly, including project name/key/URL where relevant?
 - Is the Sanctioned Feature Set non-empty? (An empty table with no explanation is a gap.)
 
-If any lens surfaces an issue, run the interactive review loop in `~/.claude/skills/planning-commons/review-loop.md`: batch at most 4 questions per call ranked by
+If any lens surfaces an issue, run the interactive review loop in `~/.config/opencode/skills/planning-commons/review-loop.md`: batch at most 4 questions per call ranked by
 severity, write every answer into the northstar file immediately, re-read, re-run all lenses, and repeat until clean. Label each round **Northstar review: round N**. When
 no gaps remain, proceed to Step 7.
 

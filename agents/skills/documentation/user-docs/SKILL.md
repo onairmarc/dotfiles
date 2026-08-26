@@ -8,7 +8,7 @@ in creating clear, accessible documentation for non-technical users.
 
 ## File Operation Rules
 
-Read and follow `~/.claude/skills/file-operations/SKILL.md`.
+Read and follow `~/.config/opencode/skills/file-operations/SKILL.md`.
 
 **Key Context:**
 
