@@ -1,28 +1,36 @@
 #!/usr/bin/env bash
 #
 # Recreates skill symlinks from the source of truth (.agents/skills/)
-# to the target directories (.claude/skills and ~/.claude/skills).
-# When --global is used and OpenCode is installed, also populates
-# ~/.config/opencode/skills.
+# to the OpenCode target directories (.opencode/skills and, in --global
+# mode, ~/.config/opencode/skills). Pass --claude to also populate the
+# Claude Code targets (.claude/skills and ~/.claude/skills).
 #
 # Skills are organized into domain subdirectories under .agents/skills/
 # (e.g. .agents/skills/planning/feature-planning/). Regardless of how deep a
 # skill lives in the source tree, it is deployed FLAT: each skill directory is
 # symlinked by its own name directly into the target skills directory, so the
-# consumer always sees ~/.claude/skills/<skill-name>/SKILL.md (and, when
-# OpenCode is present, ~/.config/opencode/skills/<skill-name>/SKILL.md).
+# consumer always sees ~/.config/opencode/skills/<skill-name>/SKILL.md (and,
+# with --claude, ~/.claude/skills/<skill-name>/SKILL.md).
 #
-# Usage: agent_symlink [--global] [--debug]
+# Usage: agent_symlink [--global] [--claude] [-r] [--debug]
 #
 # Options:
-#   --global    Create symlinks from ~/.claude/skills to this repo's .agents/skills.
-#               If OpenCode is installed, also symlink into ~/.config/opencode/skills.
+#   --global    Create symlinks from ~/.config/opencode/skills to this repo's
+#               .agents/skills, and link ~/.config/opencode/AGENTS.md to
+#               .agents/AGENTS.md. With --claude, also symlink into
+#               ~/.claude/skills and link ~/.claude/CLAUDE.md.
 #               May be run from any directory on the filesystem: the dotfiles repo
 #               root is resolved from this script's own location, the work runs
 #               there, and the caller's working directory is restored on exit.
+#   --claude    Also perform Claude Code actions: populate .claude/skills (or
+#               ~/.claude/skills in --global mode) and create CLAUDE.md -> AGENTS.md
+#               symlinks. Required for -r/--recursive.
 #   --debug     Print verbose diagnostics: one line per (skill, target) symlink,
 #               plus source/target and directory-removal detail. Without it, each
 #               skill logs a single line regardless of how many targets it links.
+#   -r, --recursive
+#               Claude-specific. Requires --claude. Link CLAUDE.md -> AGENTS.md
+#               in every directory that has AGENTS.md.
 #
 # Note: On Windows, requires Developer Mode enabled or Administrator privileges
 
@@ -33,6 +41,8 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
+
+USAGE="Usage: $0 [--global] [--claude] [-r] [--debug]"
 
 log_info() {
     echo -e "${GREEN}[INFO]${NC} $1"
@@ -87,12 +97,6 @@ link_skills_flat() {
 
         log_info "  Linked ${label:+$label }skill: $skill_name"
     done < <(find "$source_root" -name "SKILL.md" -type f -print0)
-}
-
-# True when the OpenCode CLI is on PATH or at the installer's default location
-# (~/.opencode/bin/opencode), which this repo's provisioner uses.
-opencode_is_installed() {
-    command -v opencode >/dev/null 2>&1 || [[ -x "$HOME/.opencode/bin/opencode" ]]
 }
 
 # Replace target with a symlink to source. Skips if source is missing.
@@ -162,12 +166,17 @@ populate_skills_targets() {
 
 # Parse command line arguments
 GLOBAL_MODE=false
+CLAUDE_MODE=false
 RECURSIVE_MODE=false
 DEBUG_MODE=false
 for arg in "$@"; do
     case $arg in
         --global)
             GLOBAL_MODE=true
+            shift
+            ;;
+        --claude)
+            CLAUDE_MODE=true
             shift
             ;;
         -r|--recursive)
@@ -180,7 +189,7 @@ for arg in "$@"; do
             ;;
         *)
             log_error "Unknown option: $arg"
-            echo "Usage: $0 [--global] [-r] [--debug]"
+            echo "$USAGE"
             exit 1
             ;;
     esac
@@ -188,7 +197,13 @@ done
 
 if [[ "$GLOBAL_MODE" == true && "$RECURSIVE_MODE" == true ]]; then
     log_error "--global and -r cannot be used together"
-    echo "Usage: $0 [--global] [-r] [--debug]"
+    echo "$USAGE"
+    exit 1
+fi
+
+if [[ "$RECURSIVE_MODE" == true && "$CLAUDE_MODE" != true ]]; then
+    log_error "-r/--recursive is Claude-specific; pass --claude"
+    echo "$USAGE"
     exit 1
 fi
 
@@ -246,15 +261,9 @@ if is_windows; then
     export MSYS=winsymlinks:nativestrict
 fi
 
-# Handle global mode: link ~/.claude/skills and ~/.claude/CLAUDE.md to this repo's .agents/
+# Handle global mode: link OpenCode (and, with --claude, Claude Code) home
+# directories to this repo's .agents/.
 if [[ "$GLOBAL_MODE" == true ]]; then
-    CLAUDE_DIR="$HOME/.claude"
-
-    # Ensure parent directory exists
-    mkdir -p "$CLAUDE_DIR"
-
-    # 1. Link ~/.claude/skills <- .agents/skills (interleave with dotfiles-private if present)
-    SKILLS_TARGET="$CLAUDE_DIR/skills"
     SKILLS_SOURCE="$REPO_ROOT/.agents/skills"
 
     if [[ ! -d "$SKILLS_SOURCE" ]]; then
@@ -266,25 +275,29 @@ if [[ "$GLOBAL_MODE" == true ]]; then
     PRIVATE_DIR="${DF_PRIVATE_DIRECTORY:-$HOME/Documents/GitHub/dotfiles-private}"
     PRIVATE_SKILLS_SOURCE="$PRIVATE_DIR/.agents/skills"
 
-    # Build the target list from the present tool conditions: ~/.claude/skills
-    # is always a target; OpenCode's global skills dir joins only if installed.
+    # OpenCode is always a target. Claude Code joins only with --claude.
     # All targets are populated from a single scan of each source tree.
-    SKILL_TARGETS=("$SKILLS_TARGET")
-    if opencode_is_installed; then
-        SKILL_TARGETS+=("$HOME/.config/opencode/skills")
+    SKILL_TARGETS=("$HOME/.config/opencode/skills")
+    if [[ "$CLAUDE_MODE" == true ]]; then
+        mkdir -p "$HOME/.claude"
+        SKILL_TARGETS+=("$HOME/.claude/skills")
     fi
 
     populate_skills_targets "$SKILLS_SOURCE" "$PRIVATE_SKILLS_SOURCE" "$PRIVATE_DIR" \
         "Global mode" "${SKILL_TARGETS[@]}"
 
-    # 2. Link ~/.claude/CLAUDE.md -> .agents/AGENTS.md
-    link_file "$REPO_ROOT/.agents/AGENTS.md" "$CLAUDE_DIR/CLAUDE.md" "Global mode"
+    link_file "$REPO_ROOT/.agents/AGENTS.md" "$HOME/.config/opencode/AGENTS.md" "Global mode"
+
+    if [[ "$CLAUDE_MODE" == true ]]; then
+        link_file "$REPO_ROOT/.agents/AGENTS.md" "$HOME/.claude/CLAUDE.md" "Global mode"
+    fi
 
     log_info "Sync complete!"
     exit 0
 fi
 
-# Handle recursive mode: link CLAUDE.md -> AGENTS.md in every dir that has AGENTS.md
+# Handle recursive mode: link CLAUDE.md -> AGENTS.md in every dir that has AGENTS.md.
+# Claude-specific; --claude is required (checked at parse time).
 if [[ "$RECURSIVE_MODE" == true ]]; then
     log_info "Recursive mode: scanning for AGENTS.md files under $(pwd)"
     found=0
@@ -310,45 +323,42 @@ fi
 
 # Default (in-repo) mode.
 #
-# 1. Populate .claude/skills with flat per-skill symlinks into .agents/skills.
-#    A wholesale directory symlink is not used because the source is organized
-#    into domain subdirectories that must be collapsed away for the consumer.
-LOCAL_SKILLS_TARGET="$REPO_ROOT/.claude/skills"
+# Populate .opencode/skills with flat per-skill symlinks into .agents/skills.
+# A wholesale directory symlink is not used because the source is organized
+# into domain subdirectories that must be collapsed away for the consumer.
+# With --claude, also populate .claude/skills and link CLAUDE.md -> AGENTS.md.
 LOCAL_SKILLS_SOURCE="$REPO_ROOT/.agents/skills"
-
-if [[ ! -d "$LOCAL_SKILLS_SOURCE" ]]; then
-    log_warn "Skipping .claude/skills: source does not exist ($LOCAL_SKILLS_SOURCE)"
-else
-    log_info "Populating $LOCAL_SKILLS_TARGET with per-skill symlinks"
-
-    if [[ -e "$LOCAL_SKILLS_TARGET" ]] || [[ -L "$LOCAL_SKILLS_TARGET" ]]; then
-        log_info "  Removing existing: $LOCAL_SKILLS_TARGET"
-        rm -rf "$LOCAL_SKILLS_TARGET"
-    fi
-    mkdir -p "$LOCAL_SKILLS_TARGET"
-
-    link_skills_flat "$LOCAL_SKILLS_SOURCE" "" "$LOCAL_SKILLS_TARGET"
+LOCAL_SKILL_TARGETS=("$REPO_ROOT/.opencode/skills")
+if [[ "$CLAUDE_MODE" == true ]]; then
+    LOCAL_SKILL_TARGETS+=("$REPO_ROOT/.claude/skills")
 fi
 
-# 2. Link CLAUDE.md -> AGENTS.md at the repo root.
-CLAUDE_MD_TARGET="$REPO_ROOT/CLAUDE.md"
-AGENTS_MD_SOURCE="$REPO_ROOT/AGENTS.md"
-
-if [[ ! -e "$AGENTS_MD_SOURCE" ]]; then
-    log_warn "Skipping CLAUDE.md: source does not exist (AGENTS.md)"
+if [[ ! -d "$LOCAL_SKILLS_SOURCE" ]]; then
+    log_warn "Skipping skills: source does not exist ($LOCAL_SKILLS_SOURCE)"
 else
-    log_info "Creating symlink: $CLAUDE_MD_TARGET -> AGENTS.md"
+    populate_skills_targets "$LOCAL_SKILLS_SOURCE" "" "" "In-repo mode" "${LOCAL_SKILL_TARGETS[@]}"
+fi
 
-    if [[ -e "$CLAUDE_MD_TARGET" ]] || [[ -L "$CLAUDE_MD_TARGET" ]]; then
-        log_info "  Removing existing: $CLAUDE_MD_TARGET"
-        rm -rf "$CLAUDE_MD_TARGET"
+if [[ "$CLAUDE_MODE" == true ]]; then
+    CLAUDE_MD_TARGET="$REPO_ROOT/CLAUDE.md"
+    AGENTS_MD_SOURCE="$REPO_ROOT/AGENTS.md"
+
+    if [[ ! -e "$AGENTS_MD_SOURCE" ]]; then
+        log_warn "Skipping CLAUDE.md: source does not exist (AGENTS.md)"
+    else
+        log_info "Creating symlink: $CLAUDE_MD_TARGET -> AGENTS.md"
+
+        if [[ -e "$CLAUDE_MD_TARGET" ]] || [[ -L "$CLAUDE_MD_TARGET" ]]; then
+            log_info "  Removing existing: $CLAUDE_MD_TARGET"
+            rm -rf "$CLAUDE_MD_TARGET"
+        fi
+
+        pushd "$REPO_ROOT" > /dev/null
+        ln -s "AGENTS.md" "CLAUDE.md"
+        popd > /dev/null
+
+        log_info "  Created symlink"
     fi
-
-    pushd "$REPO_ROOT" > /dev/null
-    ln -s "AGENTS.md" "CLAUDE.md"
-    popd > /dev/null
-
-    log_info "  Created symlink"
 fi
 
 log_info "Sync complete!"
