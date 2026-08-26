@@ -1,4 +1,4 @@
-import {lstatSync, mkdirSync, readdirSync, rmSync, symlinkSync} from "node:fs";
+import {lstatSync, mkdirSync, readFileSync, readdirSync, rmSync, symlinkSync} from "node:fs";
 import {dirname, join} from "node:path";
 
 function exists(path: string): boolean {
@@ -35,6 +35,47 @@ function findNamedFiles(root: string, name: string): string[] {
     walk(root);
 
     return out;
+}
+
+function skillFrontmatterError(skillDir: string): string | null {
+    const path = join(skillDir, "SKILL.md");
+    let text: string;
+    try {
+        text = readFileSync(path, "utf8");
+    } catch {
+        return `${path}: missing SKILL.md`;
+    }
+
+    if (!text.startsWith("---")) {
+        return `${path}: missing YAML frontmatter`;
+    }
+
+    const end = text.indexOf("\n---", 3);
+    if (end === -1) {
+        return `${path}: unclosed YAML frontmatter`;
+    }
+
+    let data: unknown;
+    try {
+        data = Bun.YAML.parse(text.slice(4, end));
+    } catch (error) {
+        return `${path}: invalid YAML frontmatter (${error instanceof Error ? error.message : String(error)})`;
+    }
+
+    if (data === null || typeof data !== "object" || Array.isArray(data)) {
+        return `${path}: frontmatter must be a mapping`;
+    }
+
+    const fields = data as Record<string, unknown>;
+    if (typeof fields.name !== "string" || fields.name.trim() === "") {
+        return `${path}: missing name`;
+    }
+
+    if (typeof fields.description !== "string" || fields.description.trim() === "") {
+        return `${path}: missing description`;
+    }
+
+    return null;
 }
 
 function findSkillDirs(root: string): string[] {
@@ -144,11 +185,17 @@ function logDebug(msg: string): void {
     }
 }
 
-function linkSkillsFlat(sourceRoot: string, label: string, targets: string[]): void {
+function linkSkillsFlat(sourceRoot: string, label: string, targets: string[]): string[] {
     const prefix = label !== "" ? `${label} ` : "";
+    const errors: string[] = [];
 
     for (const skillPath of findSkillDirs(sourceRoot)) {
         const skillName = skillPath.split(/[/\\]/).pop() ?? skillPath;
+        const frontmatterError = skillFrontmatterError(skillPath);
+        if (frontmatterError !== null) {
+            errors.push(frontmatterError);
+            logWarn(`  ${frontmatterError}`);
+        }
 
         for (const targetDir of targets) {
             const dest = join(targetDir, skillName);
@@ -163,6 +210,8 @@ function linkSkillsFlat(sourceRoot: string, label: string, targets: string[]): v
 
         logInfo(`  Linked ${prefix}skill: ${skillName}`);
     }
+
+    return errors;
 }
 
 const RED = "\x1b[0;31m";
@@ -179,7 +228,7 @@ function populateSkillsTargets(
     privateDir: string,
     label: string,
     targets: string[],
-): void {
+): string[] {
     for (const targetDir of targets) {
         if (exists(targetDir)) {
             logDebug(`  Removing existing: ${targetDir}`);
@@ -193,10 +242,11 @@ function populateSkillsTargets(
         logInfo(`${label}: interleaving public + private skills into ${targets.join(" ")}`);
         logDebug(`  Public:  ${publicSource}`);
         logDebug(`  Private: ${privateSource}`);
-        linkSkillsFlat(publicSource, "public", targets);
-        linkSkillsFlat(privateSource, "private", targets);
 
-        return;
+        return [
+            ...linkSkillsFlat(publicSource, "public", targets),
+            ...linkSkillsFlat(privateSource, "private", targets),
+        ];
     }
 
     logInfo(`${label}: linking public skills into ${targets.join(" ")}`);
@@ -205,7 +255,16 @@ function populateSkillsTargets(
         logDebug(`  (no private dotfiles found at ${privateDir})`);
     }
 
-    linkSkillsFlat(publicSource, "", targets);
+    return linkSkillsFlat(publicSource, "", targets);
+}
+
+function finishSync(skillErrors: string[]): void {
+    if (skillErrors.length > 0) {
+        logError(`${skillErrors.length} skill(s) have invalid SKILL.md frontmatter`);
+        process.exit(1);
+    }
+
+    logInfo("Sync complete!");
 }
 
 function main(argv: string[]): void {
@@ -280,7 +339,7 @@ function main(argv: string[]): void {
             skillTargets.push(join(homeDir(), ".claude", "skills"));
         }
 
-        populateSkillsTargets(skillsSource, privateSkillsSource, privateDir, "Global mode", skillTargets);
+        const skillErrors = populateSkillsTargets(skillsSource, privateSkillsSource, privateDir, "Global mode", skillTargets);
         linkFile(join(repoRoot, "agents", "AGENTS.md"), join(homeDir(), ".config", "opencode", "AGENTS.md"), "Global mode");
         linkFile(join(repoRoot, "opencode", "opencode.json"), join(homeDir(), ".config", "opencode", "opencode.json"), "Global mode");
         linkFile(join(repoRoot, "opencode", "tui.json"), join(homeDir(), ".config", "opencode", "tui.json"), "Global mode");
@@ -289,7 +348,7 @@ function main(argv: string[]): void {
             linkFile(join(repoRoot, "agents", "AGENTS.md"), join(homeDir(), ".claude", "CLAUDE.md"), "Global mode");
         }
 
-        logInfo("Sync complete!");
+        finishSync(skillErrors);
 
         return;
     }
@@ -327,10 +386,11 @@ function main(argv: string[]): void {
         localSkillTargets.push(join(repoRoot, ".claude", "skills"));
     }
 
+    let skillErrors: string[] = [];
     if (!isDir(localSkillsSource)) {
         logWarn(`Skipping skills: source does not exist (${localSkillsSource})`);
     } else {
-        populateSkillsTargets(localSkillsSource, "", "", "In-repo mode", localSkillTargets);
+        skillErrors = populateSkillsTargets(localSkillsSource, "", "", "In-repo mode", localSkillTargets);
     }
 
     if (claudeMode) {
@@ -351,7 +411,7 @@ function main(argv: string[]): void {
         }
     }
 
-    logInfo("Sync complete!");
+    finishSync(skillErrors);
 }
 
 if (import.meta.main) {

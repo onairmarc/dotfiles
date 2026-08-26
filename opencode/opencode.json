@@ -1,59 +1,59 @@
 {
-  "$schema": "https://opencode.ai/config.json",
-  "autoupdate": false,
-  "model": "anthropic/claude-opus-4-8",
-  "permission": {
-    "bash": {
-      "*": "allow",
-      "git push": "deny",
-      "git push *": "deny",
-      "git checkout": "deny",
-      "git checkout *": "deny",
-      "git reset": "deny",
-      "git reset *": "deny",
-      "git clean": "deny",
-      "git clean *": "deny",
-      "git restore": "deny",
-      "git restore *": "deny",
-      "git stash drop": "deny",
-      "git stash drop *": "deny",
-      "git stash clear": "deny",
-      "git stash clear *": "deny",
-      "git switch": "deny",
-      "git switch *": "deny",
-      "gh pr create": "deny",
-      "gh pr create *": "deny",
-      "gh pr edit": "deny",
-      "gh pr edit *": "deny",
-      "gh pr merge": "deny",
-      "gh pr merge *": "deny",
-      "gh pr ready": "deny",
-      "gh pr ready *": "deny",
-      "gh pr comment": "deny",
-      "gh pr comment *": "deny",
-      "gh issue create": "deny",
-      "gh issue create *": "deny",
-      "gh issue edit": "deny",
-      "gh issue edit *": "deny",
-      "gh issue comment": "deny",
-      "gh issue comment *": "deny",
-      "gh release create": "deny",
-      "gh release create *": "deny"
-    }
-  },
-  "mcp": {
-    "sentry": {
-      "type": "remote",
-      "url": "https://mcp.sentry.dev/mcp",
-      "oauth": {}
+    "$schema": "https://opencode.ai/config.json",
+    "autoupdate": false,
+    "model": "anthropic/claude-opus-4-8",
+    "permission": {
+        "bash": {
+            "*": "allow",
+            "git push": "deny",
+            "git push *": "deny",
+            "git checkout": "deny",
+            "git checkout *": "deny",
+            "git reset": "deny",
+            "git reset *": "deny",
+            "git clean": "deny",
+            "git clean *": "deny",
+            "git restore": "deny",
+            "git restore *": "deny",
+            "git stash drop": "deny",
+            "git stash drop *": "deny",
+            "git stash clear": "deny",
+            "git stash clear *": "deny",
+            "git switch": "deny",
+            "git switch *": "deny",
+            "gh pr create": "deny",
+            "gh pr create *": "deny",
+            "gh pr edit": "deny",
+            "gh pr edit *": "deny",
+            "gh pr merge": "deny",
+            "gh pr merge *": "deny",
+            "gh pr ready": "deny",
+            "gh pr ready *": "deny",
+            "gh pr comment": "deny",
+            "gh pr comment *": "deny",
+            "gh issue create": "deny",
+            "gh issue create *": "deny",
+            "gh issue edit": "deny",
+            "gh issue edit *": "deny",
+            "gh issue comment": "deny",
+            "gh issue comment *": "deny",
+            "gh release create": "deny",
+            "gh release create *": "deny"
+        }
     },
-    "servicepoint-projects": {
-      "type": "remote",
-      "url": "https://console.servicepointhq.com/api/v1/mcp/projects",
-      "oauth": false,
-      "headers": {
-        "Authorization": "Bearer {env:SERVICEPOINT_TOKEN}"
-      }
+    "mcp": {
+        "sentry": {
+            "type": "remote",
+            "url": "https://mcp.sentry.dev/mcp",
+            "oauth": {}
+        },
+        "servicepoint-projects": {
+            "type": "remote",
+            "url": "https://console.servicepointhq.com/api/v1/mcp/projects",
+            "oauth": false,
+            "headers": {
+                "Authorization": "Bearer {env:SERVICEPOINT_TOKEN}"
+            }
+        }
     }
-  }
 }
