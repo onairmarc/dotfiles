@@ -17,8 +17,9 @@
 # Options:
 #   --global    Create symlinks from ~/.config/opencode/skills to this repo's
 #               .agents/skills, and link ~/.config/opencode/AGENTS.md to
-#               .agents/AGENTS.md. With --claude, also symlink into
-#               ~/.claude/skills and link ~/.claude/CLAUDE.md.
+#               .agents/AGENTS.md, and symlink opencode/opencode.json and
+#               opencode/tui.json into ~/.config/opencode/. With --claude, also
+#               symlink into ~/.claude/skills and link ~/.claude/CLAUDE.md.
 #               May be run from any directory on the filesystem: the dotfiles repo
 #               root is resolved from this script's own location, the work runs
 #               there, and the caller's working directory is restored on exit.
@@ -287,6 +288,8 @@ if [[ "$GLOBAL_MODE" == true ]]; then
         "Global mode" "${SKILL_TARGETS[@]}"
 
     link_file "$REPO_ROOT/.agents/AGENTS.md" "$HOME/.config/opencode/AGENTS.md" "Global mode"
+    link_file "$REPO_ROOT/opencode/opencode.json" "$HOME/.config/opencode/opencode.json" "Global mode"
+    link_file "$REPO_ROOT/opencode/tui.json" "$HOME/.config/opencode/tui.json" "Global mode"
 
     if [[ "$CLAUDE_MODE" == true ]]; then
         link_file "$REPO_ROOT/.agents/AGENTS.md" "$HOME/.claude/CLAUDE.md" "Global mode"

@@ -12,6 +12,7 @@
 import * as capslock from "./configurators/capslock.ts";
 import * as ghostty from "./configurators/ghostty.ts";
 import * as iterm from "./configurators/iterm.ts";
+import * as opencode from "./configurators/opencode.ts";
 import * as stripeCompletion from "./configurators/stripe_completion.ts";
 import type {BackendOpts} from "./lib/backend.ts";
 import type {Migration} from "./lib/migrations.ts";
@@ -283,6 +284,7 @@ const manifest: Manifest = {
         {name: "ghostty", run: ghostty.run, platforms: ["mac"]},
         {name: "capslock", run: capslock.run, platforms: ["mac"]},
         {name: "stripe_completion", run: stripeCompletion.run, platforms: ["mac", "win"]},
+        {name: "opencode", run: opencode.run, platforms: ["mac", "win"]},
     ],
 
 // -------------------------------------------------------------------------
