@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 #
-# Recreates skill symlinks from the source of truth (.agents/skills/)
+# Recreates skill symlinks from the source of truth (agents/skills/)
 # to the OpenCode target directories (.opencode/skills and, in --global
 # mode, ~/.config/opencode/skills). Pass --claude to also populate the
 # Claude Code targets (.claude/skills and ~/.claude/skills).
 #
-# Skills are organized into domain subdirectories under .agents/skills/
-# (e.g. .agents/skills/planning/feature-planning/). Regardless of how deep a
+# Skills are organized into domain subdirectories under agents/skills/
+# (e.g. agents/skills/planning/feature-planning/). Regardless of how deep a
 # skill lives in the source tree, it is deployed FLAT: each skill directory is
 # symlinked by its own name directly into the target skills directory, so the
 # consumer always sees ~/.config/opencode/skills/<skill-name>/SKILL.md (and,
@@ -16,8 +16,8 @@
 #
 # Options:
 #   --global    Create symlinks from ~/.config/opencode/skills to this repo's
-#               .agents/skills, and link ~/.config/opencode/AGENTS.md to
-#               .agents/AGENTS.md, and symlink opencode/opencode.json and
+#               agents/skills, and link ~/.config/opencode/AGENTS.md to
+#               agents/AGENTS.md, and symlink opencode/opencode.json and
 #               opencode/tui.json into ~/.config/opencode/. With --claude, also
 #               symlink into ~/.claude/skills and link ~/.claude/CLAUDE.md.
 #               May be run from any directory on the filesystem: the dotfiles repo
@@ -263,9 +263,9 @@ if is_windows; then
 fi
 
 # Handle global mode: link OpenCode (and, with --claude, Claude Code) home
-# directories to this repo's .agents/.
+# directories to this repo's agents/.
 if [[ "$GLOBAL_MODE" == true ]]; then
-    SKILLS_SOURCE="$REPO_ROOT/.agents/skills"
+    SKILLS_SOURCE="$REPO_ROOT/agents/skills"
 
     if [[ ! -d "$SKILLS_SOURCE" ]]; then
         log_error "Source directory does not exist: $SKILLS_SOURCE"
@@ -274,7 +274,7 @@ if [[ "$GLOBAL_MODE" == true ]]; then
 
     # Resolve private dotfiles location (env var preferred, default fallback)
     PRIVATE_DIR="${DF_PRIVATE_DIRECTORY:-$HOME/Documents/GitHub/dotfiles-private}"
-    PRIVATE_SKILLS_SOURCE="$PRIVATE_DIR/.agents/skills"
+    PRIVATE_SKILLS_SOURCE="$PRIVATE_DIR/agents/skills"
 
     # OpenCode is always a target. Claude Code joins only with --claude.
     # All targets are populated from a single scan of each source tree.
@@ -287,12 +287,12 @@ if [[ "$GLOBAL_MODE" == true ]]; then
     populate_skills_targets "$SKILLS_SOURCE" "$PRIVATE_SKILLS_SOURCE" "$PRIVATE_DIR" \
         "Global mode" "${SKILL_TARGETS[@]}"
 
-    link_file "$REPO_ROOT/.agents/AGENTS.md" "$HOME/.config/opencode/AGENTS.md" "Global mode"
+    link_file "$REPO_ROOT/agents/AGENTS.md" "$HOME/.config/opencode/AGENTS.md" "Global mode"
     link_file "$REPO_ROOT/opencode/opencode.json" "$HOME/.config/opencode/opencode.json" "Global mode"
     link_file "$REPO_ROOT/opencode/tui.json" "$HOME/.config/opencode/tui.json" "Global mode"
 
     if [[ "$CLAUDE_MODE" == true ]]; then
-        link_file "$REPO_ROOT/.agents/AGENTS.md" "$HOME/.claude/CLAUDE.md" "Global mode"
+        link_file "$REPO_ROOT/agents/AGENTS.md" "$HOME/.claude/CLAUDE.md" "Global mode"
     fi
 
     log_info "Sync complete!"
@@ -326,11 +326,11 @@ fi
 
 # Default (in-repo) mode.
 #
-# Populate .opencode/skills with flat per-skill symlinks into .agents/skills.
+# Populate .opencode/skills with flat per-skill symlinks into agents/skills.
 # A wholesale directory symlink is not used because the source is organized
 # into domain subdirectories that must be collapsed away for the consumer.
 # With --claude, also populate .claude/skills and link CLAUDE.md -> AGENTS.md.
-LOCAL_SKILLS_SOURCE="$REPO_ROOT/.agents/skills"
+LOCAL_SKILLS_SOURCE="$REPO_ROOT/agents/skills"
 LOCAL_SKILL_TARGETS=("$REPO_ROOT/.opencode/skills")
 if [[ "$CLAUDE_MODE" == true ]]; then
     LOCAL_SKILL_TARGETS+=("$REPO_ROOT/.claude/skills")

@@ -1,8 +1,8 @@
 .DS_Store
 .idea/
-.migrations/.migration_history
-.claude/*
-!.claude/
-!.claude/settings.json
-!.claude/hooks/*
+claude/*
+!claude/
+!claude/settings.json
+!claude/hooks/
+!claude/hooks/*
 node_modules/*

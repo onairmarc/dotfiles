@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${DF_ROOT_DIRECTORY:-$HOME/Documents/GitHub/dotfiles}/.claude/hooks/guard-bash.sh\""
+            "command": "bash \"${DF_ROOT_DIRECTORY:-$HOME/Documents/GitHub/dotfiles}/claude/hooks/guard-bash.sh\""
           }
         ]
       }

@@ -54,7 +54,7 @@ const migration: Migration = {
 
         // Private dotfiles history (optional — may not exist on all machines).
         const privateRoot = home + "/Documents/GitHub/dotfiles-private";
-        importHistory(privateRoot + "/.migrations/.migration_history", "private:");
+        importHistory(privateRoot + "/migrations/.migration_history", "private:");
     },
 };
 

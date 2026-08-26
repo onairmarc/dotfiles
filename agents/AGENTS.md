@@ -116,9 +116,9 @@ skill as nonexistent when it is missing from **both** the repository and the use
 # Writing Style
 
 Writing style rules — plain-language word choice, sentence structure, capitalization, punctuation, banned words, and audience adaptation — live in the `writing-style`
-skill: [`.agents/skills/shared/writing-style/SKILL.md`](skills/shared/writing-style/SKILL.md). Read that file before writing any prose.
+skill: [`agents/skills/shared/writing-style/SKILL.md`](skills/shared/writing-style/SKILL.md). Read that file before writing any prose.
 
 # File Operation Rules
 
 File operation rules — including which tools to use, the ban on manipulating files via Bash, and when to delete a file — live in the
-`file-operations` skill: [`.agents/skills/shared/file-operations/SKILL.md`](skills/shared/file-operations/SKILL.md). Read that file before performing any file operation.
+`file-operations` skill: [`agents/skills/shared/file-operations/SKILL.md`](skills/shared/file-operations/SKILL.md). Read that file before performing any file operation.

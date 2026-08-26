@@ -112,7 +112,8 @@ Search **each** name independently (`inertia-best-practices` and `vercel-react-b
 
 1. Current repo: `.agents/skills/**/{name}/SKILL.md`, `.claude/skills/{name}/SKILL.md`, `skills/{name}/SKILL.md`
 2. Sibling checkouts of this repo (the inertia skill is often a **private** fork next to this repo):
-   `{repo-parent}/*/.agents/skills/{name}/SKILL.md` (e.g. `../dotfiles-private/.agents/skills/inertia-best-practices/SKILL.md`)
+   `{repo-parent}/*/.agents/skills/{name}/SKILL.md` and `{repo-parent}/*/agents/skills/{name}/SKILL.md` (e.g.
+   `../dotfiles-private/agents/skills/inertia-best-practices/SKILL.md`)
 3. User-level, following symlinks: `find -L ~/.claude/skills ~/.claude/plugins ~/.grok/skills ~/.grok/bundled/skills -name SKILL.md` and keep any path whose parent
    directory is `{name}`
 

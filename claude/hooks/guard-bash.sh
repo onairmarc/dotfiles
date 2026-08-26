@@ -22,7 +22,7 @@
 #   with "re:" and the remainder is used as a raw regex, verbatim.
 #
 # Test a command without Claude:
-#   echo '{"tool_input":{"command":"git push"}}' | .claude/hooks/guard-bash.sh
+#   echo '{"tool_input":{"command":"git push"}}' | claude/hooks/guard-bash.sh
 set -euo pipefail
 
 RULES=(

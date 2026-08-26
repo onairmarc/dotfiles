@@ -120,8 +120,8 @@ bun provision/main.ts mac
 ## Private Configuration
 
 User-specific and workflow-specific exports (API tokens, cert paths, etc.) live in the sibling private
-repository at `~/Documents/GitHub/dotfiles-private/`. The shell loader sources
-`~/.config/env.sh` / `~/.config/alias.sh` / `~/.config/func.sh` from that repo when present.
+repository at `~/Documents/GitHub/dotfiles-private/`. The shell loader sources that repo's `entrypoint.sh`,
+which loads `config/env.sh`, `config/alias.sh`, and `config/func.sh` when present.
 
 ---
 
