@@ -13,7 +13,6 @@ allowed-tools:
     - Skill(feature-planning)
     - Skill(cs-optimization)
     - AskUserQuestion
-model: opus
 ---
 
 # Avalonia Optimization Skill

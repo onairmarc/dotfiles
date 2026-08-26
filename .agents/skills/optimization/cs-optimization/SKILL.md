@@ -11,7 +11,6 @@ allowed-tools:
     - Bash(cat *)
     - Skill(feature-planning)
     - AskUserQuestion
-model: opus
 ---
 
 # C# Optimization Skill

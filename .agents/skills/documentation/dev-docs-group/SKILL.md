@@ -15,7 +15,6 @@ allowed-tools:
   - Bash(test -d *)
   - Bash(cat *)
   - Bash(find * -name "*.csproj" -type f)
-model: opus
 ---
 
 # Dev Docs — Group Mode (extends dev-docs)

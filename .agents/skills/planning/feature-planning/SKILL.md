@@ -9,7 +9,6 @@ allowed-tools:
     - AskUserQuestion
     - Glob
     - Grep
-model: claude-opus-4-6
 ---
 
 # Feature Planning

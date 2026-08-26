@@ -13,7 +13,6 @@ allowed-tools:
   - AskUserQuestion
   - WebFetch(domain:laravel.com)
   - WebFetch(domain:*.laravel.com)
-model: opus
 ---
 
 # Livewire Upgrade Analysis

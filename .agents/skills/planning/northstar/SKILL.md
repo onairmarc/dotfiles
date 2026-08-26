@@ -10,7 +10,6 @@ allowed-tools:
     - AskUserQuestion
     - Glob
     - Grep
-model: opus
 ---
 
 # Northstar

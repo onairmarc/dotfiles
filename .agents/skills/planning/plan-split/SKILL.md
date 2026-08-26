@@ -11,7 +11,6 @@ allowed-tools:
     - Bash(ls *)
     - Bash(dirname *)
     - Bash(test -f *)
-model: claude-opus-4-6
 ---
 
 # Plan Split

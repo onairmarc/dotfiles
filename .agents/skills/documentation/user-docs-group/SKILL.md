@@ -14,7 +14,6 @@ allowed-tools:
   - Bash(test -f *)
   - Bash(test -d *)
   - Bash(cat *)
-model: opus
 ---
 
 # User Docs — Group Mode (extends user-docs)

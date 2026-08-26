@@ -14,7 +14,6 @@ allowed-tools:
     - Bash(cat *)
     - Bash(find * -name "*.csproj" -type f)
     - Bash(find * -name "package.json" -type f)
-model: claude-opus-4-6
 ---
 
 # Plan Review

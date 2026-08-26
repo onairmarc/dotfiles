@@ -12,7 +12,6 @@ allowed-tools:
     - Skill(feature-planning)
     - Skill(no-db-constraints)
     - AskUserQuestion
-model: opus
 ---
 
 # Laravel Optimization Skill

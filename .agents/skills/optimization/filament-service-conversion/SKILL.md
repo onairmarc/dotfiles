@@ -12,7 +12,6 @@ allowed-tools:
     - Skill(feature-planning)
     - Skill(file-operations)
     - AskUserQuestion
-model: opus
 ---
 
 # Filament → Service Class Conversion Skill

@@ -14,7 +14,6 @@ allowed-tools:
   - Bash(git diff *)
   - Bash(git log *)
   - Bash(test -f *)
-model: sonnet
 ---
 
 # Code Review

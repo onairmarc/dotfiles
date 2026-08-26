@@ -20,7 +20,6 @@
                  - Bash(application/vendor/bin/pest *)
                  - Bash(vendor/bin/phpunit *)
                  - Bash(application/vendor/bin/phpunit *)
-             model: opus
 
              # PHP Code Review (extends code-review)
 

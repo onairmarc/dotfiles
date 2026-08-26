@@ -12,7 +12,6 @@ allowed-tools:
   - Bash(find *)
   - Bash(find -L *)
   - AskUserQuestion
-model: sonnet
 ---
 
 # Project Skill Config

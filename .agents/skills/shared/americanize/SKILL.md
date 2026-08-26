@@ -9,7 +9,6 @@ allowed-tools:
     - Glob
     - Grep
     - Bash(find *)
-model: sonnet
 ---
 
 # Americanize

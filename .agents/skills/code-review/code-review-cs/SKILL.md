@@ -16,7 +16,6 @@ allowed-tools:
   - Bash(test -f *)
   - Bash(dotnet build *)
   - Bash(dotnet test *)
-model: opus
 ---
 
 # C# Code Review (extends code-review)

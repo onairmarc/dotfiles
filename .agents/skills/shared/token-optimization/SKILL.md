@@ -10,7 +10,6 @@ allowed-tools:
   - Agent
   - AskUserQuestion
   - Bash(test -f *)
-model: opus
 ---
 
 # Token Optimization Skill

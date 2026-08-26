@@ -4,7 +4,6 @@ description: >-
     Simplifies and refines code in any language for clarity, consistency, and maintainability while preserving all functionality. Prefers
     readable, explicit code over compact cleverness. Focuses on recently modified code unless instructed otherwise. Language-agnostic — applies
     the same principles to any codebase and defers to that project's own standards and conventions.
-model: opus
 ---
 
 # Code simplifier

@@ -15,7 +15,6 @@ allowed-tools:
     - Bash(cat *)
     - Skill(feature-planning)
     - AskUserQuestion
-model: opus
 ---
 
 # React Optimization Skill

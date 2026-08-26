@@ -17,7 +17,6 @@ allowed-tools:
     - Bash(git status *)
     - Bash(git show *)
     - Bash(find * -name "*.csproj" -type f)
-model: claude-opus-4-6
 ---
 
 # Plan Resync

@@ -11,7 +11,6 @@ allowed-tools:
   - Grep
   - Bash
   - AskUserQuestion
-model: opus
 ---
 
 # No DB Constraints Skill

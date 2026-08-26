@@ -3,7 +3,6 @@ name: laravel-simplifier
 description: >-
     Simplifies and refines PHP/Laravel code for clarity, consistency, and maintainability while preserving all functionality. Applies the shared
     code-simplifier skill with Laravel-specific standards layered on top. Focuses on recently modified code unless instructed otherwise.
-model: opus
 ---
 
 # Laravel simplifier

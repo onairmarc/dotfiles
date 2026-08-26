@@ -10,7 +10,6 @@ allowed-tools:
     - Bash(grep *)
     - Agent
     - AskUserQuestion
-model: haiku
 ---
 
 # Plan Execute

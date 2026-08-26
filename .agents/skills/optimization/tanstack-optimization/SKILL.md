@@ -16,7 +16,6 @@ allowed-tools:
     - Skill(feature-planning)
     - Skill(react-optimization)
     - AskUserQuestion
-model: opus
 ---
 
 # TanStack Optimization Skill
