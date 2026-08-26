@@ -11,11 +11,11 @@ art() {
 }
 
 agent_symlink () {
-  bash "$DF_ROOT_DIRECTORY/tools/agent_symlink.sh" "$@"
+  bun "$DF_ROOT_DIRECTORY/tools/agent_symlink.ts" "$@"
 }
 
 battery () {
-  bash "$DF_ROOT_DIRECTORY/tools/battery.sh" "$@"
+  bun "$DF_ROOT_DIRECTORY/tools/battery.ts" "$@"
 }
 
 analize() {
@@ -301,7 +301,7 @@ rebuild() {
 }
 
 remap_caps() {
-  bash "$DF_ROOT_DIRECTORY/tools/remap_capslock.sh" "$@"
+  bun "$DF_ROOT_DIRECTORY/provision/configurators/capslock.ts" "$@"
 }
 
 rmd() {
@@ -488,5 +488,5 @@ zpi() {
 }
 
 jb_configure() {
-    source "$DF_ROOT_DIRECTORY/tools/copy_jetbrains_keymaps.sh"
+    bun "$DF_ROOT_DIRECTORY/tools/copy_jetbrains_keymaps.ts" "$@"
 }

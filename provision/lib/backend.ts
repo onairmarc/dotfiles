@@ -26,7 +26,6 @@ export interface BackendOpts {
 
 export interface Backend {
     isInstalled(id: string, opts?: BackendOpts): boolean;
-
     install(id: string, opts?: BackendOpts): void;
 }
 

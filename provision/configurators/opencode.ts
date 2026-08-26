@@ -21,12 +21,13 @@ function lstatOrNull(path: string): ReturnType<typeof lstatSync> | null {
 
 function linkFile(src: string, dest: string): void {
     const stat = lstatOrNull(dest);
-
     if (stat && stat.isSymbolicLink()) {
         if (readlinkSync(dest) === src) {
             log.info("opencode", dest + " already linked — skipping");
+
             return;
         }
+
         unlinkSync(dest);
     } else if (stat && stat.isFile()) {
         log.info("opencode", "backing up existing " + dest + " to " + dest + ".bak");
@@ -41,9 +42,7 @@ export function run(): void {
     const home = platform.home();
     const dfRoot = platform.dotfilesRoot();
     const configDir = home + "/.config/opencode";
-
     mkdirSync(configDir, {recursive: true});
-
     linkFile(dfRoot + "/opencode/opencode.json", configDir + "/opencode.json");
     linkFile(dfRoot + "/opencode/tui.json", configDir + "/tui.json");
 }

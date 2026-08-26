@@ -2,7 +2,7 @@
 : "${DF_ROOT_DIRECTORY:=$HOME/Documents/GitHub/dotfiles}"
 export DF_ROOT_DIRECTORY
 export DF_DATA_DIR="${DF_DATA_DIR:-$HOME/.df_data}"
-# DF_PRIVATE_DIRECTORY: env-var-with-fallback (matches agent_symlink.sh)
+# DF_PRIVATE_DIRECTORY: env-var-with-fallback (matches agent_symlink.ts)
 export DF_PRIVATE_DIRECTORY="${DF_PRIVATE_DIRECTORY:-$HOME/Documents/GitHub/dotfiles-private}"
 
 if [ -n "$ZSH_VERSION" ]; then

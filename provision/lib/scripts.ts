@@ -15,7 +15,7 @@
 //   env               Environment variable overrides for the installer process.
 //                     curl: KEY=VALUE prefixes on the right side of the pipe.
 //                     powershell: $env:KEY='VALUE'; prefixes inside -Command.
-//   post              Shell command run after the primary install succeeds.
+//   post              Function run after the primary install succeeds.
 //   skip_if_env_set   Skip when the named env var is set and non-empty.
 import {powershell, sh, shq} from "./shell.ts";
 
@@ -25,18 +25,18 @@ export interface ScriptEntry {
     pipe_to?: string;
     args?: string;
     env?: Record<string, string>;
-    post?: string;
+    post?: () => void;
     skip_if_env_set?: string;
 }
 
 function runPost(entry: ScriptEntry): void {
-    if (!entry.post || entry.post === "") {
+    if (typeof entry.post !== "function") {
         return;
     }
-
-    // post steps are POSIX shell snippets (mac-only cleanup).
-    if (!sh(entry.post)) {
-        throw new Error("script post-step failed: " + entry.post);
+    try {
+        entry.post();
+    } catch (err) {
+        throw new Error("script post-step failed: " + (err instanceof Error ? err.message : String(err)));
     }
 }
 

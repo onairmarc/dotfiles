@@ -173,7 +173,7 @@ avoiding accidental command execution.
 
 ## Battery CLI
 
-`tools/battery.sh` is a friendly macOS battery wrapper around `pmset`,
+`tools/battery.ts` is a friendly macOS battery wrapper around `pmset`,
 `ioreg -rn AppleSmartBattery`, and `system_profiler SPPowerDataType`. It is
 exposed in the shell as the `battery` function (see `shell/40_func.plugin.zsh`).
 
@@ -199,5 +199,5 @@ Color is auto-disabled when stdout is not a TTY, when `NO_COLOR` is set, or when
 
 ## JetBrains
 
-Keymaps and code inspection profiles are stored in `JetBrains/`. The `copy_jetbrains_keymaps.sh` tool
+Keymaps and code inspection profiles are stored in `JetBrains/`. The `copy_jetbrains_keymaps.ts` tool
 copies them to the correct JetBrains IDE config directories.

@@ -6,3 +6,4 @@ claude/*
 !claude/hooks/
 !claude/hooks/*
 node_modules/*
+.opencode/*
