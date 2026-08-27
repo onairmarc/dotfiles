@@ -80,6 +80,8 @@ then write tests that fit them.
 
 - Tests live in the repository's existing test directories and follow its existing test naming, structure, and base classes.
 - Tests are run with the project's own runner command (e.g. `vendor/bin/pest --parallel`, `phpunit`, `dotnet test`, `npm test`) — whatever the repo actually uses.
+- Verification runs the suite **scoped to the module (s) the slice touched — never the whole-repo suite**. When a slice spans several modules, run each touched module's
+  suite separately. Keep the runner's own parallel flag; the only sanctioned parallelism is inside the test runner, never across agents.
 - New test dependencies are added only when the repository has no existing way to cover the case, and the plan states why.
 
 **Forbidden — these are the "useless test harnesses" this rule exists to stop:**

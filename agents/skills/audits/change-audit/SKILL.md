@@ -51,7 +51,8 @@ For each accepted recommendation, in priority order:
 
 1. Trace the full callstack — every caller, callee, event listener, observer, and consumer the change touches — before writing any edit.
 2. Implement the simplification. Edit only the minimum set of files required. Do not introduce unrelated changes.
-3. Run the project's test suite and static analysis after each fix. If tests fail, fix the root cause — do not disable tests or suppress warnings.
+3. Run the test suite scoped to the module (s) containing the changed files — never the whole-repo suite — plus static analysis, after each fix. When the change spans
+   several modules, run each touched module's suite separately. If tests fail, fix the root cause — do not disable tests or suppress warnings.
 4. Update the audit log with the fix applied status.
 
 If a recommendation cannot be safely implemented without risking regression or requiring a user decision (ambiguous requirements, competing tradeoffs, destructive
@@ -61,7 +62,8 @@ actions), flag it to the user with full context via `AskUserQuestion` instead of
 
 After all fixes are applied:
 
-- Run the full test suite and static analysis one final time.
+- Run the test suite scoped to the module (s) touched by the change — each touched module's suite separately when several — plus static analysis, one final time. Never
+  the whole-repo suite.
 - Verify no unrelated files were modified.
 - Update the scratchpad with the final status of every subsystem row.
 

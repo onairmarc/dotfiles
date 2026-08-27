@@ -23,7 +23,8 @@ Read and follow `~/.config/opencode/skills/file-operations/SKILL.md`.
 
 ## Delivery Constraints
 
-Read and follow `~/.config/opencode/skills/delivery-constraints/SKILL.md`. You do not implement, but you are responsible for making sure every sub-agent is bound by these:
+Read and follow `~/.config/opencode/skills/delivery-constraints/SKILL.md`. You do not implement, but you are responsible for making sure every sub-agent is bound by
+these:
 sub-plans are implemented as vertical slices, in place on the currently checked-out branch — or on a new branch you create off main before spawning the first sub-agent,
 when your branch check shows main is checked out — and verified with the repository's own test tooling. Reproduce them in
 `.agent-instructions.md` (Step 3a) and never spawn an agent without that file present.
@@ -59,9 +60,8 @@ filename lists from its `## Dependencies` section, empty when `none`), and `cont
 **Skip this step on a first run.** Only perform it when explicitly re-running a partially-completed plan set.
 
 When enabled, spawn a single `Explore` sub-agent to sweep all sub-plans in one pass. Pick a model that fits the work — prefer using fewer tokens while still doing the job
-well. Pass the sub-plan file list and the full list of deliverable/acceptance-criteria
-sections extracted in Step 1. The sub-agent should check the codebase for key artifacts (files, classes, methods, migrations) for each sub-plan and return a
-classification:
+well. Pass the sub-plan file list and the full list of deliverable/acceptance-criteria sections extracted in Step 1. The sub-agent should check the codebase for key
+artifacts (files, classes, methods, migrations) for each sub-plan and return a classification:
 
 | Status     | Meaning                                                                                            |
 |------------|----------------------------------------------------------------------------------------------------|
@@ -115,8 +115,8 @@ Execute one sub-plan at a time in dependency-respecting order. A plan never star
 ### 3a — Spawn sub-agents
 
 Spawn `general-purpose` sub-agents. On each `Agent` call, pick a model that fits the work — prefer using fewer tokens while still doing the job well. Spawn exactly one
-sub-agent at a time. Make a single `Agent` tool call for one sub-plan, wait for it to return, evaluate its result (Step 3c), and only then spawn the next sub-plan. Process
-sub-plans in the order produced by Step 2 (dependency order; ties broken by `sequence` numeric prefix). Never run two sub-agents at once.
+sub-agent at a time. Make a single `Agent` tool call for one sub-plan, wait for it to return, evaluate its result (Step 3c), and only then spawn the next sub-plan.
+Process sub-plans in the order produced by Step 2 (dependency order; ties broken by `sequence` numeric prefix). Never run two sub-agents at once.
 
 Each agent prompt must be self-contained. Use the appropriate template based on the sub-plan's status from Step 1b.
 
@@ -134,9 +134,23 @@ Always include in this file the **delivery constraints**, reproduced verbatim so
   memory or from the plan text. The orchestrator has already branched off main if that was needed, so the checked-out branch should not be the repository's main branch.
   Work in place on it. If the check unexpectedly shows the main branch, stop and report that instead of implementing. Do not switch branches, merge, or use a git
   worktree.
-- **Repository-native verification.** Write tests in the project's existing test directories using its existing base classes, factories, and assertion helpers, and run
-  them with the project's own runner command. Do not write throwaway driver scripts, scratch `main()`/`verify.*` runners, standalone sandbox projects, or hand-rolled
-  assertion/mocking layers. If the repository has no test tooling at all, report that instead of scaffolding a harness.
+- **Repository-native verification.** Write tests in the project's existing test directories using its existing base classes, factories, and assertion helpers. Run the
+  suite scoped to the module (s) the sub-plan touched — never the whole-repo suite; run each touched module's suite separately when the work spans several — with the
+  project's own runner command, keeping its parallel flag. Do not write throwaway driver scripts, scratch `main()`/`verify.*` runners, standalone sandbox projects, or
+  hand-rolled assertion/mocking layers. If the repository has no test tooling at all, report that instead of scaffolding a harness.
+```
+
+Also include an **Applicable guardrails** section, discovered once by you from the repo's stack, listing the guardrail skills every sub-agent must read before editing —
+so recurring corrections are loaded up front rather than re-derived per sub-agent. Detect which apply from the languages, frameworks, and package managers actually
+present, and reproduce only the relevant ones (omit the section only if none apply):
+
+```markdown
+## Applicable guardrails — read before editing
+
+Read each listed skill in full before making any edit; it encodes a correction that recurs in this repo.
+
+- <path to each guardrail skill relevant to this repo's stack — e.g. tenant-context-guide, npm-to-bun, cache-lock-guide, no-db-constraints, the dependencies policy
+  (pin/lock, no floating versions) — one bullet each, with a one-line statement of the rule it enforces>
 ```
 
 Also always include in this file the **plan lifecycle**
@@ -163,12 +177,14 @@ and a missing or staged-deleted plan directory at commit time is intentional and
 > use a git worktree. Deliver the sub-plan as a vertical slice: everything it touches must be wired up and observable
 > when you are done — nothing registered, injected, or created but uncalled.
 >
-> After implementing, run the project's full test suite using its native parallel runner
-> (`vendor/bin/pest --parallel`, `phpunit --parallel`, `npm test`, etc. — pick whichever the project uses). Write any
-> new tests inside the project's existing test directories using its existing base classes, factories, and assertion
-> helpers — never a throwaway driver script, scratch runner, sandbox project, or hand-rolled assertion layer. The
-> sub-plan is not complete until the suite passes. If the suite fails, fix the failures before reporting done. If
-> you cannot make the suite pass, stop and report the failing tests with their output instead of declaring success.
+> After implementing, run the test suite scoped to the module (s) this sub-plan touched — never the whole-repo suite —
+> using the project's native parallel runner (`vendor/bin/pest --parallel <module test path>`, `phpunit --parallel`,
+> `npm test`, etc. — pick whichever the project uses, and keep the parallel flag). If the sub-plan touches more than
+> one module, run each touched module's suite separately. Write any new tests inside the project's existing test
+> directories using its existing base classes, factories, and assertion helpers — never a throwaway driver script,
+> scratch runner, sandbox project, or hand-rolled assertion layer. The sub-plan is not complete until those scoped
+> suites pass. If a suite fails, fix the failures before reporting done. If you cannot make it pass, stop and report
+> the failing tests with their output instead of declaring success.
 
 ---
 
@@ -197,12 +213,14 @@ and a missing or staged-deleted plan directory at commit time is intentional and
 > use a git worktree. Deliver the sub-plan as a vertical slice: everything it touches must be wired up and observable
 > when you are done — nothing registered, injected, or created but uncalled.
 >
-> After implementing, run the project's full test suite using its native parallel runner
-> (`vendor/bin/pest --parallel`, `phpunit --parallel`, `npm test`, etc. — pick whichever the project uses). Write any
-> new tests inside the project's existing test directories using its existing base classes, factories, and assertion
-> helpers — never a throwaway driver script, scratch runner, sandbox project, or hand-rolled assertion layer. The
-> sub-plan is not complete until the suite passes. If the suite fails, fix the failures before reporting done. If
-> you cannot make the suite pass, stop and report the failing tests with their output instead of declaring success.
+> After implementing, run the test suite scoped to the module (s) this sub-plan touched — never the whole-repo suite —
+> using the project's native parallel runner (`vendor/bin/pest --parallel <module test path>`, `phpunit --parallel`,
+> `npm test`, etc. — pick whichever the project uses, and keep the parallel flag). If the sub-plan touches more than
+> one module, run each touched module's suite separately. Write any new tests inside the project's existing test
+> directories using its existing base classes, factories, and assertion helpers — never a throwaway driver script,
+> scratch runner, sandbox project, or hand-rolled assertion layer. The sub-plan is not complete until those scoped
+> suites pass. If a suite fails, fix the failures before reporting done. If you cannot make it pass, stop and report
+> the failing tests with their output instead of declaring success.
 
 ---
 
@@ -325,7 +343,9 @@ Documentation-updates steps); the plan must not be committed as a lingering arti
 - **Always write `.agent-instructions.md` first.** It carries the delivery constraints; spawning a sub-agent without it means the sub-agent is unbound.
 - **Never read `plan.md`.** It is the source document for plan-split, not a sub-plan.
 - **Sequential execution only.** Spawn a single sub-agent, wait for it, then spawn the next. Never run two sub-agents concurrently. Experience has shown sequential
-  execution produces materially more reliable results than parallel execution.
+  execution produces materially more reliable results than parallel execution: an orchestrator that fans out multiple implementing sub-agents at once measurably degrades
+  their output quality. Do not re-introduce concurrent implementation as an "optimization" — the reliability regression is the reason this rule exists. (This bans
+  concurrent *implementing* agents only; bounded concurrency among read-only audit workers is a separate, permitted case.)
 - **Dependencies are non-negotiable.** Respect `blocked_by` strictly. Do not start a plan before all its blockers are marked complete.
 - **Pass file paths, not content.** Each sub-agent receives the sub-plan file path and reads it via `Read`. Never embed file content verbatim in agent prompts.
 - **Fail loudly and immediately.** The moment any agent result signals failure (internal error, empty output, no action taken), stop and surface it to the user via

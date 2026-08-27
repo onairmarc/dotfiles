@@ -241,7 +241,8 @@ programmatically — do not ask the user to retype it):
 > **Replace "Implementation steps" with phases:**
 >
 > **Phase 0 — Baseline (mandatory, non-negotiable)**
-> - Run the full test suite and static analysis using the repo's own commands (discover them from the standards docs / CI config; do not guess).
+> - Run the existing test suite filtered to this Filament module/directory, plus static analysis, using the repo's own commands (discover them from the standards docs /
+    CI config; do not guess). Never run the whole-repo suite.
 > - Record a green baseline. If anything fails at baseline, stop and report — do not begin extraction on a red suite.
 >
 > **Phase 1..N — one phase per domain, in the dependency order the audit identified (or any order when domains are independent — say which).** Within each phase:
@@ -249,7 +250,7 @@ programmatically — do not ask the user to retype it):
 > - Add or extend the service's unit tests next, following the repo's existing test layout and conventions (append to the per-service test file where one exists).
 > - Only then edit each Filament class to delegate, keeping every frozen surface from the audit intact.
 > - Close the phase by running the named feature/unit test files for the domain, then the full suite. A single failing test = that step is a failure. Revert and fix
->   before continuing.
+    before continuing.
 >
 > **Final phase — gate + documentation.** Full suite + static analysis green; land the module/architecture documentation updates the project's documentation policy
 > requires (note the new services, the thin-adapter contract, the reference pattern, and every preserved seam); follow the repo's plan-lifecycle rules for the plan
@@ -258,23 +259,23 @@ programmatically — do not ask the user to retype it):
 > **Hard constraints to embed in the plan:**
 > 1. Every extraction cites exact file path and line range — no approximations.
 > 2. Service methods take models + plain arrays/scalars and return models/values/void or throw typed exceptions. They never reference `Filament\*`, `Notification`,
->    `Livewire`, `Get`/`Set`, or a page/record context object. Never call `request()` inside a service — the Filament layer passes request-derived values as plain
->    arguments.
-> 3. Every Filament class keeps its public Livewire surface identical: action names, form field names, computed-property names, dispatched events, notifications,
->    and exception→notification mappings all stay in the Filament layer.
-> 4. Every frozen surface from the audit (reflection grabs, container-swap fakes, direct method calls, job/event constructors) is listed as a named constraint on
->    the step that touches it. Container seams stay container-resolved; faked methods stay ordinary public methods.
+     `Livewire`, `Get`/`Set`, or a page/record context object. Never call `request()` inside a service — the Filament layer passes request-derived values as plain
+     arguments.
+> 3. Every Filament class keeps its public Livewire surface identical: action names, form field names, computed-property names, dispatched events, notifications, and
+     exception→notification mappings all stay in the Filament layer.
+> 4. Every frozen surface from the audit (reflection grabs, container-swap fakes, direct method calls, job/event constructors) is listed as a named constraint on the step
+     that touches it. Container seams stay container-resolved; faked methods stay ordinary public methods.
 > 5. Services are resolved the way their existing call sites already resolve them (`::make()`, `app(...)`, injection). Matching surrounding code beats uniformity.
 > 6. Guards bound to live Filament state stay in the Filament closure; only derivations move.
-> 7. No DTOs on the extracted service surface (see the audit's standards reconciliation); plain arrays preserve Filament's sparse-payload `fill()` semantics. Record
->    the strong-typing deferral in the plan and the merge request.
+> 7. No DTOs on the extracted service surface (see the audit's standards reconciliation); plain arrays preserve Filament's sparse-payload `fill()` semantics. Record the
+     strong-typing deferral in the plan and the merge request.
 > 8. Within a domain, the service and its tests land before any Filament class that calls them. Run the full suite after each domain.
 > 9. Phase 0 is non-negotiable. A single test failure after any step = hard stop. Revert, fix, re-run.
 > 10. No new configuration keys, no migrations, no dependency changes. Cache keys, TTL literals, and column values move verbatim.
 > 11. Opportunistic BLOCK-policy fixes apply only to call sites the plan already moves or opens, exactly as the audit enumerated them.
 > 12. Where the audit flagged a coverage gap, the plan states that the new service tests are the sole regression signal for that domain.
-> 13. Every step must comply with the project's documented standards and policies (below). Where an extraction would conflict with a policy, honor the policy and
->     note the constraint on the step; if the two genuinely cannot be reconciled, flag it for developer review rather than shipping the violation.
+> 13. Every step must comply with the project's documented standards and policies (below). Where an extraction would conflict with a policy, honor the policy and note the
+      constraint on the step; if the two genuinely cannot be reconciled, flag it for developer review rather than shipping the violation.
 >
 > **Out of scope (carry the audit's list verbatim, with reasons):**
 >
