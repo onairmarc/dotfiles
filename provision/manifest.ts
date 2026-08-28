@@ -185,6 +185,13 @@ const manifest: Manifest = {
             mac: {kind: "curl", url: "https://opencode.ai/install", pipe_to: "bash"},
             win: {kind: "curl", url: "https://opencode.ai/install", pipe_to: "bash"},
         },
+        // OpenCode quota plugin (mac + win). bunx is available because bun is
+        // the provisioner runtime, installed by install.sh / install.ps1.
+        {
+            name: "opencode-quota",
+            mac: {kind: "cmd", argv: ["bunx", "@slkiser/opencode-quota", "init"]},
+            win: {kind: "cmd", argv: ["bunx", "@slkiser/opencode-quota", "init"]},
+        },
         // Syft SBOM / vulnerability scanner (mac-only)
         {
             name: "syft",

@@ -9,19 +9,23 @@
 //     → curl -fsSL <url> | <env> <pipe_to> <args>
 //   { kind: "powershell", url: "https://..." }
 //     → powershell -NoProfile -ExecutionPolicy Bypass -Command "irm '<url>' | iex"
+//   { kind: "cmd", argv: ["bunx", "@pkg", "init"] }
+//     → spawn argv directly (no shell)
 //
 // Additional optional fields:
+//   argv              Program + args for kind "cmd". Spawned with no shell.
 //   args              Extra arguments appended to pipe_to (curl kind only).
 //   env               Environment variable overrides for the installer process.
 //                     curl: KEY=VALUE prefixes on the right side of the pipe.
 //                     powershell: $env:KEY='VALUE'; prefixes inside -Command.
 //   post              Function run after the primary install succeeds.
 //   skip_if_env_set   Skip when the named env var is set and non-empty.
-import {powershell, sh, shq} from "./shell.ts";
+import {powershell, runInherit, sh, shq} from "./shell.ts";
 
 export interface ScriptEntry {
-    kind: "curl" | "powershell";
-    url: string;
+    kind: "curl" | "powershell" | "cmd";
+    url?: string;
+    argv?: string[];
     pipe_to?: string;
     args?: string;
     env?: Record<string, string>;
@@ -113,6 +117,16 @@ export function run(entry: ScriptEntry): void {
         const command = `${envPrefix}irm '${url}' | iex`;
         if (!powershell(command)) {
             throw new Error(`script failed (powershell irm|iex): ${entry.url}`);
+        }
+
+        runPost(entry);
+    } else if (entry.kind === "cmd") {
+        if (!entry.argv || entry.argv.length === 0) {
+            throw new Error("scripts.run: cmd entry must have a non-empty argv field");
+        }
+
+        if (!runInherit(entry.argv)) {
+            throw new Error(`script failed (cmd): ${entry.argv.join(" ")}`);
         }
 
         runPost(entry);
