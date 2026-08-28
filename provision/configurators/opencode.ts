@@ -4,9 +4,9 @@
 //
 // Logic (all native node:fs — no shell):
 //   1. Create ~/.config/opencode/ if missing.
-//   2. For opencode.json and tui.json: if a real file exists, rename it to *.bak.
-//   3. If the path is not already a symlink to the repo file, create the symlink.
-import {lstatSync, mkdirSync, readlinkSync, renameSync, symlinkSync, unlinkSync} from "node:fs";
+//   2. For each config file: if a real file exists, rename it to *.bak.
+//   3. If the path is not already a write-through symlink to the repo file, create it.
+import {lstatSync, mkdirSync, readdirSync, readlinkSync, renameSync, symlinkSync, unlinkSync} from "node:fs";
 import * as log from "../lib/log.ts";
 import * as platform from "../lib/platform.ts";
 
@@ -38,11 +38,32 @@ function linkFile(src: string, dest: string): void {
     log.info("opencode", dest + " symlinked");
 }
 
+function linkPluginTree(srcRoot: string, destRoot: string): void {
+    let entries;
+    try {
+        entries = readdirSync(srcRoot, {withFileTypes: true});
+    } catch {
+        return;
+    }
+
+    mkdirSync(destRoot, {recursive: true});
+    for (const entry of entries) {
+        const src = srcRoot + "/" + entry.name;
+        const dest = destRoot + "/" + entry.name;
+        if (entry.isDirectory()) {
+            linkPluginTree(src, dest);
+        } else if (entry.isFile()) {
+            linkFile(src, dest);
+        }
+    }
+}
+
 export function run(): void {
     const home = platform.home();
     const dfRoot = platform.dotfilesRoot();
     const configDir = home + "/.config/opencode";
     mkdirSync(configDir, {recursive: true});
-    linkFile(dfRoot + "/opencode/opencode.json", configDir + "/opencode.json");
-    linkFile(dfRoot + "/opencode/tui.json", configDir + "/tui.json");
+    linkFile(dfRoot + "/opencode/opencode.jsonc", configDir + "/opencode.jsonc");
+    linkFile(dfRoot + "/opencode/tui.jsonc", configDir + "/tui.jsonc");
+    linkPluginTree(dfRoot + "/opencode/plugins", configDir);
 }

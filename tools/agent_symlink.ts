@@ -1,5 +1,13 @@
-import {lstatSync, mkdirSync, readFileSync, readdirSync, rmSync, symlinkSync} from "node:fs";
-import {dirname, join} from "node:path";
+// tools/agent_symlink.ts
+//
+// Links repo files into OpenCode (and optional Claude) config paths.
+//
+// Every link this tool creates is write-through: the path a program opens
+// (`linkPath`) is a symlink whose referent is the file or directory in this
+// repo. Writes through the link mutate the repo file. Never copy, never
+// hard-link, and never create a Windows junction.
+import {lstatSync, mkdirSync, readFileSync, readdirSync, readlinkSync, rmSync, symlinkSync} from "node:fs";
+import {dirname, isAbsolute, join, relative} from "node:path";
 
 function exists(path: string): boolean {
     try {
@@ -27,6 +35,32 @@ function findNamedFiles(root: string, name: string): string[] {
             if (entry.isDirectory()) {
                 walk(path);
             } else if (entry.isFile() && entry.name === name) {
+                out.push(path);
+            }
+        }
+    };
+
+    walk(root);
+
+    return out;
+}
+
+function findFiles(root: string): string[] {
+    const out: string[] = [];
+    const walk = (dir: string): void => {
+        let entries;
+        try {
+            entries = readdirSync(dir, {withFileTypes: true});
+        } catch {
+            return;
+        }
+
+        for (const entry of entries) {
+            const path = join(dir, entry.name);
+
+            if (entry.isDirectory()) {
+                walk(path);
+            } else if (entry.isFile()) {
                 out.push(path);
             }
         }
@@ -144,37 +178,60 @@ function logInfo(msg: string): void {
     process.stdout.write(`${GREEN}[INFO]${NC} ${msg}\n`);
 }
 
-function symlink(target: string, path: string): void {
-    let type: "dir" | "file" | undefined;
-
-    if (process.platform === "win32") {
-        try {
-            type = lstatSync(target).isDirectory() ? "dir" : "file";
-        } catch {
-            type = "file";
-        }
+function resolveReferent(referent: string, linkPath: string): string {
+    if (isAbsolute(referent)) {
+        return referent;
     }
 
-    symlinkSync(target, path, type);
+    return join(dirname(linkPath), referent);
 }
 
-function linkFile(source: string, target: string, label: string): void {
-    if (!exists(source)) {
-        logWarn(`Source does not exist, skipping: ${source}`);
+function writeThroughType(referent: string, linkPath: string): "dir" | "file" | undefined {
+    if (process.platform !== "win32") {
+        return undefined;
+    }
+
+    try {
+        return lstatSync(resolveReferent(referent, linkPath)).isDirectory() ? "dir" : "file";
+    } catch {
+        return "file";
+    }
+}
+
+function alreadyWriteThrough(linkPath: string, referent: string): boolean {
+    try {
+        return lstatSync(linkPath).isSymbolicLink() && readlinkSync(linkPath) === referent;
+    } catch {
+        return false;
+    }
+}
+
+function createWriteThroughLink(referent: string, linkPath: string): void {
+    symlinkSync(referent, linkPath, writeThroughType(referent, linkPath));
+}
+
+function linkWriteThrough(referent: string, linkPath: string, label: string): void {
+    if (!exists(resolveReferent(referent, linkPath))) {
+        logWarn(`Source does not exist, skipping: ${referent}`);
 
         return;
     }
 
-    mkdirSync(dirname(target), {recursive: true});
-    logInfo(`${label}: ${target} -> ${source}`);
+    mkdirSync(dirname(linkPath), {recursive: true});
+    if (alreadyWriteThrough(linkPath, referent)) {
+        logInfo(`${label}: ${linkPath} already write-through -> ${referent}`);
 
-    if (exists(target)) {
-        logInfo(`  Removing existing: ${target}`);
-        rmSync(target, {force: true});
+        return;
     }
 
-    symlink(source, target);
-    logInfo(`  Created symlink: ${target} -> ${source}`);
+    logInfo(`${label}: ${linkPath} -> ${referent}`);
+    if (exists(linkPath)) {
+        logInfo(`  Removing existing: ${linkPath}`);
+        rmSync(linkPath, {recursive: true, force: true});
+    }
+
+    createWriteThroughLink(referent, linkPath);
+    logInfo(`  Created write-through symlink: ${linkPath} -> ${referent}`);
 }
 
 let debugMode = false;
@@ -204,7 +261,7 @@ function linkSkillsFlat(sourceRoot: string, label: string, targets: string[]): s
                 rmSync(dest, {recursive: true, force: true});
             }
 
-            symlink(skillPath, dest);
+            createWriteThroughLink(skillPath, dest);
             logDebug(`  Linked ${prefix}skill: ${skillName} -> ${targetDir}`);
         }
 
@@ -340,12 +397,17 @@ function main(argv: string[]): void {
         }
 
         const skillErrors = populateSkillsTargets(skillsSource, privateSkillsSource, privateDir, "Global mode", skillTargets);
-        linkFile(join(repoRoot, "agents", "AGENTS.md"), join(homeDir(), ".config", "opencode", "AGENTS.md"), "Global mode");
-        linkFile(join(repoRoot, "opencode", "opencode.jsonc"), join(homeDir(), ".config", "opencode", "opencode.jsonc"), "Global mode");
-        linkFile(join(repoRoot, "opencode", "tui.jsonc"), join(homeDir(), ".config", "opencode", "tui.jsonc"), "Global mode");
+        const configDir = join(homeDir(), ".config", "opencode");
+        const pluginsSource = join(repoRoot, "opencode", "plugins");
+        linkWriteThrough(join(repoRoot, "agents", "AGENTS.md"), join(configDir, "AGENTS.md"), "Global mode");
+        linkWriteThrough(join(repoRoot, "opencode", "opencode.jsonc"), join(configDir, "opencode.jsonc"), "Global mode");
+        linkWriteThrough(join(repoRoot, "opencode", "tui.jsonc"), join(configDir, "tui.jsonc"), "Global mode");
+        for (const file of findFiles(pluginsSource)) {
+            linkWriteThrough(file, join(configDir, relative(pluginsSource, file)), "Global mode");
+        }
 
         if (claudeMode) {
-            linkFile(join(repoRoot, "agents", "AGENTS.md"), join(homeDir(), ".claude", "CLAUDE.md"), "Global mode");
+            linkWriteThrough(join(repoRoot, "agents", "AGENTS.md"), join(homeDir(), ".claude", "CLAUDE.md"), "Global mode");
         }
 
         finishSync(skillErrors);
@@ -369,8 +431,8 @@ function main(argv: string[]): void {
                 continue;
             }
 
-            symlink("AGENTS.md", claudeFile);
-            logInfo(`  Created symlink: ${claudeFile} -> AGENTS.md`);
+            createWriteThroughLink("AGENTS.md", claudeFile);
+            logInfo(`  Created write-through symlink: ${claudeFile} -> AGENTS.md`);
             found += 1;
         }
 
@@ -399,15 +461,7 @@ function main(argv: string[]): void {
         if (!exists(agentsMdSource)) {
             logWarn("Skipping CLAUDE.md: source does not exist (AGENTS.md)");
         } else {
-            logInfo(`Creating symlink: ${claudeMdTarget} -> AGENTS.md`);
-
-            if (exists(claudeMdTarget)) {
-                logInfo(`  Removing existing: ${claudeMdTarget}`);
-                rmSync(claudeMdTarget, {recursive: true, force: true});
-            }
-
-            symlink("AGENTS.md", claudeMdTarget);
-            logInfo("  Created symlink");
+            linkWriteThrough("AGENTS.md", claudeMdTarget, "In-repo mode");
         }
     }
 
