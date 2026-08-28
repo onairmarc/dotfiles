@@ -192,15 +192,6 @@ const manifest: Manifest = {
             mac: {kind: "cmd", argv: ["bunx", "@slkiser/opencode-quota", "init"]},
             win: {kind: "cmd", argv: ["bunx", "@slkiser/opencode-quota", "init"]},
         },
-        // Syft SBOM / vulnerability scanner (mac-only)
-        {
-            name: "syft",
-            mac: {
-                kind: "curl",
-                url: "https://get.anchore.io/syft",
-                pipe_to: "sudo sh -s -- -b /usr/local/bin",
-            },
-        },
         // Grok CLI (xAI).
         // mac: curl install.sh | bash. SHELL is cleared so the installer does not
         // rewrite ~/.zshrc / ~/.bashrc (PATH/completions live in shell/92_grok.plugin.zsh).
