@@ -1,6 +1,6 @@
 ---
 name: plan-execute
-description: Agent orchestrator that executes all sub-plans produced by plan-split. Reads the dependency graph from sub-plan files, then spawns one coding sub-agent at a time in dependency-respecting order until all sub-plans are done. Sequential execution only — never runs sub-agents concurrently. Invoke when asked to execute, run, or implement a set of split plans.
+description: Agent orchestrator that executes all sub-plans produced by plan-split. Reads the dependency graph from sub-plan files. Reconfirms whether parallel execution is permitted (default no) before compiling the graph. Sequential (the default) spawns one coding sub-agent at a time; parallel spawns ready sub-agents together per the graph. Invoke when asked to execute, run, or implement a set of split plans.
 argument-hint: [ path to directory containing sub-plan files ]
 allowed-tools:
     - Read
@@ -10,6 +10,7 @@ allowed-tools:
     - Bash(grep *)
     - Agent
     - AskUserQuestion
+    - TodoWrite
 ---
 
 # Plan Execute
@@ -28,6 +29,11 @@ these:
 sub-plans are implemented as vertical slices, in place on the currently checked-out branch — or on a new branch you create off main before spawning the first sub-agent,
 when your branch check shows main is checked out — and verified with the repository's own test tooling. Reproduce them in
 `.agent-instructions.md` (Step 3a) and never spawn an agent without that file present.
+
+## Task tracking
+
+Read and follow `~/.config/opencode/skills/planning-commons/task-tracking.md`. Seed the list from the **plan-execute** starter before Step 0, and keep it current through
+every step.
 
 ---
 
@@ -82,6 +88,32 @@ Report pre-execution status as a one-liner before printing the wave plan:
 ```
 Pre-execution: N complete (skipped), M partial, P pending
 ```
+
+---
+
+## Step 1c — Reconfirm whether parallel execution is permitted
+
+Before compiling the execution graph (Step 2), use `AskUserQuestion` with exactly one question:
+
+- **header:** `Parallel execution`
+- **question:** The sub-plans are parsed. Next is compiling the execution graph. Sequential runs one coding agent at a time in dependency order — more reliable, and the
+  way this skill is written. Parallel compiles the graph into waves and spawns every unblocked sub-plan in a wave at once, on the same branch and working tree (no
+  worktrees). Concurrent implementing agents have produced worse results and can collide on files. Independent nodes can run together even if `plan-split` was sequential,
+  because `blocked_by` already encodes the graph. Is parallel execution permitted?
+- **options** (recommended first):
+  1. **label:** `No, sequential (Recommended)`
+     **description:** Compile a single ordered list and spawn one coding agent at a time, waiting for each to finish before starting the next. When several plans are
+     unblocked, run them in `sequence` order, never together. This is the current skill. Pick this unless you have a concrete reason to fan out.
+  2. **label:** `Yes, run in parallel`
+     **description:** Compile the graph into waves — each wave is every pending or partial sub-plan whose blockers are already complete — and spawn every sub-plan in a
+     wave at the same time. The next wave starts only after every agent in the current wave has returned. Real `blocked_by` edges are still honored. Shared groundwork
+     and change-audit stay sequential because of those edges.
+
+Treat any answer that is not an explicit yes as **No**.
+
+**If No:** do not read `~/.config/opencode/skills/planning-commons/parallel.md`. Continue from Step 2 exactly as written. Do not mention parallel execution again.
+
+**If Yes:** read `~/.config/opencode/skills/planning-commons/parallel.md` now, and apply the **plan-execute** section. Then continue from Step 2, applying those overrides.
 
 ---
 

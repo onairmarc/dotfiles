@@ -7,6 +7,7 @@ allowed-tools:
     - Edit
     - Write
     - AskUserQuestion
+    - TodoWrite
     - Glob
     - Grep
     - Agent
@@ -48,6 +49,11 @@ Read and follow `~/.config/opencode/skills/delivery-constraints/SKILL.md`. The r
 currently checked-out branch — or on a new branch created off main when a branch check shows main is checked out — and must be verified with the repository's own test
 tooling. Lens G holds the remaining work against these. Restructuring leftover horizontal phases into vertical slices is a reconciliation, not a scope change — it does
 not alter what "done" means and does not need user approval, though a restructure that drops or adds outcomes does.
+
+## Task tracking
+
+Read and follow `~/.config/opencode/skills/planning-commons/task-tracking.md`. Seed the list from the **plan-resync** starter before Step 0, and keep it current through
+every step.
 
 ## Step 0 — Resolve the plan file
 

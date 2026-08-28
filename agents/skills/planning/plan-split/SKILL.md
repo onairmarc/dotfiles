@@ -1,12 +1,13 @@
 ---
 name: plan-split
-description: Split a single fleshed-out implementation plan into sequentially ordered sub-plan files written alongside it in the same directory, with dependency (blockers/blocks) headers on each sub-plan. Sub-plans are always executed one at a time by plan-execute, so splits should optimize for clean sequential handoff, not concurrency. Invoke when asked to break a plan into phases or stages.
+description: Split a single fleshed-out implementation plan into sub-plan files written alongside it in the same directory, with dependency (blockers/blocks) headers on each sub-plan. Asks up front whether parallel execution is permitted (default no). Sequential (the default) optimizes for clean one-at-a-time handoff; parallel adjusts the split so independent slices can run together. Invoke when asked to break a plan into phases or stages.
 disable-model-invocation: true
 argument-hint: [ path to the source plan file ]
 allowed-tools:
     - Read
     - Write
     - AskUserQuestion
+    - TodoWrite
     - Glob
     - Bash(ls *)
     - Bash(dirname *)
@@ -31,6 +32,39 @@ Read and follow `~/.config/opencode/skills/delivery-constraints/SKILL.md`. Two c
 - **Every sub-plan inherits the branch and testing rules.** All sub-plans land in place on the currently checked-out branch — or, when a branch check shows main is
   checked out, on a new branch created off main by the first sub-plan to run — and each verifies itself with the repository's own test tooling. Reproduce both rules in
   every sub-plan (see Step 3).
+
+## Task tracking
+
+Read and follow `~/.config/opencode/skills/planning-commons/task-tracking.md`. Seed the list from the **plan-split** starter before Step 0a, and keep it current through
+every step.
+
+---
+
+## Step 0a — Ask whether parallel execution is permitted
+
+Before resolving the plan file, use `AskUserQuestion` with exactly one question:
+
+- **header:** `Parallel execution`
+- **question:** Independent sub-plans can run one at a time (sequential) or together (parallel). Sequential is more reliable: each coding agent finishes and its tests
+  pass before the next starts, so later work never collides with in-flight edits. Parallel is faster when slices do not share files, but concurrent agents on the same
+  branch have produced worse results and can overwrite each other. This choice only changes how the split is cut — `plan-execute` asks again before it runs anything. Is
+  parallel execution permitted?
+- **options** (recommended first):
+  1. **label:** `No, sequential (Recommended)`
+     **description:** Keep the current split. Every sub-plan runs one at a time in dependency order. Independent slices still get distinct sequence numbers and run
+     back-to-back, never at the same time. `plan-execute` will spawn one coding agent, wait for it, then spawn the next. Pick this unless you have a concrete reason to
+     fan out.
+  2. **label:** `Yes, allow parallel`
+     **description:** Cut the split so independent vertical slices are not chained to each other. Real dependencies stay (shared groundwork first, change-audit last,
+     anything that truly blocks). Slices that do not share files and do not depend on each other have no `blocked_by` edge between them, so `plan-execute` can spawn them
+     together if you also confirm parallel there. Accuracy still beats speed: when independence is unclear, keep a blocker.
+
+Treat any answer that is not an explicit yes as **No**.
+
+**If No:** do not read `~/.config/opencode/skills/planning-commons/parallel.md`. Continue from Step 0 exactly as written. Do not mention parallel execution again.
+
+**If Yes:** read `~/.config/opencode/skills/planning-commons/parallel.md` now, and apply the **plan-split** section. Then continue from Step 0, applying those overrides
+when you reach Step 1.
 
 ---
 
