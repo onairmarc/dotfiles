@@ -341,8 +341,8 @@ function main(argv: string[]): void {
 
         const skillErrors = populateSkillsTargets(skillsSource, privateSkillsSource, privateDir, "Global mode", skillTargets);
         linkFile(join(repoRoot, "agents", "AGENTS.md"), join(homeDir(), ".config", "opencode", "AGENTS.md"), "Global mode");
-        linkFile(join(repoRoot, "opencode", "opencode.json"), join(homeDir(), ".config", "opencode", "opencode.json"), "Global mode");
-        linkFile(join(repoRoot, "opencode", "tui.json"), join(homeDir(), ".config", "opencode", "tui.json"), "Global mode");
+        linkFile(join(repoRoot, "opencode", "opencode.jsonc"), join(homeDir(), ".config", "opencode", "opencode.jsonc"), "Global mode");
+        linkFile(join(repoRoot, "opencode", "tui.jsonc"), join(homeDir(), ".config", "opencode", "tui.jsonc"), "Global mode");
 
         if (claudeMode) {
             linkFile(join(repoRoot, "agents", "AGENTS.md"), join(homeDir(), ".claude", "CLAUDE.md"), "Global mode");
