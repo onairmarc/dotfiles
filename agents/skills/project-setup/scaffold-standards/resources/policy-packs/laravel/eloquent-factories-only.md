@@ -28,6 +28,17 @@ the attribute it actually cares about.
   subject of the test.
 - Do not create wrapper helpers around factory calls. Shared test *logic* follows the test-helper-class rule; test *data* comes from factories.
 - A test asserts against values it set explicitly, never against a factory's incidental default.
+- Default a child-model FK to a closure that reuses an existing tenant row and only builds a parent when none exists. For a `BelongsToTenant` model the trait's global
+  scope already tenant-constrains the query, so the closure is `fn (): mixed => Model::query()->value("id") ?? Model::factory()` — a manual `->where("tenant_id", ...)`
+  on that model is forbidden. Do not memoize the reused id with `once()` or a static: `RefreshDatabase` rolls the row back and the memoized id goes stale. Explicit
+  overrides on `create([...])` / `make([...])` still win. Do not apply `value("id")` reuse to both FKs of a pair factory with a uniqueness or self-pair guard — derive the
+  dependent FK from the same parent, or pass both FKs at the call site.
+- Do not call `Hash::make` on every password (or equivalent secret) factory create. Memoize one bcrypt string per worker process on a static property
+  (`self::$password ??= Hash::make("password")`). The `hashed` cast stores a bcrypt string as-is, so this does not double-hash. A low `BCRYPT_ROUNDS` pin in phpunit.xml
+  does not replace this memo.
+- Do not call `Model::factory()->create()` or `createOne()` inside `definition()`. That writes discarded rows while building the attribute array. Return factory instances
+  or closures; let `Factory::expandAttributes` persist nested parents only when the FK was not passed in.
+- Use `CarbonImmutable::now()`, never `now()` or mutable `Carbon` ([CarbonImmutable Only](./carbon-immutable-only.md)).
 - {{GEN:state where factories live given {{MODULE_LAYOUT}} — the root `database/factories/` tree and any per-module factory trees — and, for a module-scoped factory, the
   fully-qualified class name to put in `#[UseFactory(...)]` plus how that factory namespace is registered/autoloaded. Detect and confirm.}}
 
@@ -73,6 +84,16 @@ test('admin can view billing', function () {
 
     actingAs($admin)->get('/billing')->assertOk();
 });
+```
+
+```php
+// Bad — a new parent per child, and a create() while building the definition
+"reporter_id" => User::factory(),
+"ticket_id" => Ticket::factory()->createOne()->id,
+
+// Good — reuse a tenant row; nested factory only when none exists; no create() in definition()
+"reporter_id" => fn (): mixed => User::query()->value("id") ?? User::factory(),
+"ticket_id" => fn (): mixed => Ticket::query()->value("id") ?? Ticket::factory(),
 ```
 
 > Severity for plan review: **BLOCK**.

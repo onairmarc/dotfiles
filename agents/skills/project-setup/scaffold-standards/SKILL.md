@@ -75,11 +75,12 @@ bodies from scratch.
    it, and fold the template's missing sections in without discarding the user's content). Never blind-overwrite an existing doc.
 5. **Read the existing docs layout** if the project already has a `docs/` tree — reuse its conventions (sidebar frontmatter style, existing standards filenames) rather
    than fighting them. Treat an existing `CLAUDE.md` as an alias of `AGENTS.md`: if the repo has `CLAUDE.md` but no `AGENTS.md`, read it as the already-answered
-   agent-guidance input and confirm with the user whether to keep writing `CLAUDE.md` or migrate to `AGENTS.md` (default: migrate, leaving a one-line `CLAUDE.md` pointer).
+   agent-guidance input and confirm with the user whether to keep writing `CLAUDE.md` or migrate to `AGENTS.md` (default: migrate, leaving a one-line `CLAUDE.md`
+   pointer).
 6. **Discover sub-projects.** Detect the module/package/project units this repo ships so each can get its own `AGENTS.md` + `README.md`. Discovery is stack-shaped:
 
    | Stack signal                          | Sub-project unit                                                                            |
-   |---------------------------------------|--------------------------------------------------------------------------------------------|
+         |---------------------------------------|--------------------------------------------------------------------------------------------|
    | `app_modules/*` or `modules/*` dirs   | Each directory with a `composer.json`.                                                      |
    | `*.sln` / multiple `*.csproj`         | Each `*.csproj` (skip `bin/`, `obj/`, and test projects unless the user wants them).        |
    | root `package.json` `workspaces`      | Each workspace, or every `packages/*/package.json`.                                         |
@@ -130,26 +131,26 @@ Copied from `<skill_dir>/resources/docs/standards/policies/` for every project:
 
 `code-style` · `static-analysis` · `formatter-authority` · `naming-and-casing` · `simplicity-first` · `no-magic-values` ·
 `strong-typing` · `data-transfer-objects` · `configuration-access` · `typed-config-objects` · `structured-logging` ·
-`error-handling` · `input-validation` · `testing` · `test-data-factories` · `test-helper-classes` · `documentation` ·
-`dependencies` · `dependency-licensing` · `version-control`
+`error-handling` · `input-validation` · `testing` · `test-suite-performance` · `test-data-factories` · `test-helper-classes` ·
+`documentation` · `dependencies` · `dependency-licensing` · `version-control`
 
 ### Tier 2 — conditional policies (written only when the concern exists)
 
 Same directory; each has a gate. Detect the gate, then confirm with the user — a policy for a concern the project does not have is noise, and a missing policy for a
 concern it does have is a gap.
 
-| Policy                               | Gate                                                                              |
-|--------------------------------------|-----------------------------------------------------------------------------------|
-| `data-access.md`                     | The project reads or writes a database or other persistent store.                 |
-| `schema-migrations.md`               | The project owns a schema and has migration tooling.                              |
-| `module-isolation.md`                | `{{MODULE_LAYOUT}}` has more than one module/package.                             |
-| `background-jobs.md`                 | The project dispatches queued or scheduled background work.                       |
-| `concurrency-guards.md`              | The project has concurrent writers to the same entity (workers, replicas).        |
+| Policy                               | Gate                                                                                                                                                                 |
+|--------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `data-access.md`                     | The project reads or writes a database or other persistent store.                                                                                                    |
+| `schema-migrations.md`               | The project owns a schema and has migration tooling.                                                                                                                 |
+| `module-isolation.md`                | `{{MODULE_LAYOUT}}` has more than one module/package.                                                                                                                |
+| `background-jobs.md`                 | The project dispatches queued or scheduled background work.                                                                                                          |
+| `concurrency-guards.md`              | The project has concurrent writers to the same entity (workers, replicas).                                                                                           |
 | `cache-key-naming.md`                | The project uses a cache or distributed lock (`Cache`, Redis, or equivalent). Forced on when `concurrency-guards.md` (or a pack file that supersedes it) is written. |
-| `immutable-value-types.md`           | `{{PRIMARY_LANGUAGE}}` has a mutable/immutable split worth mandating.             |
-| `frontend-component-testing.md`      | The project ships a UI component layer with a component test runner.              |
-| `type-sealing.md`                    | `{{PRIMARY_LANGUAGE}}` has sealing keywords AND the user wants the default fixed. |
-| `authorization-identifier-naming.md` | The project has named permissions/roles as identifiers.                           |
+| `immutable-value-types.md`           | `{{PRIMARY_LANGUAGE}}` has a mutable/immutable split worth mandating.                                                                                                |
+| `frontend-component-testing.md`      | The project ships a UI component layer with a component test runner.                                                                                                 |
+| `type-sealing.md`                    | `{{PRIMARY_LANGUAGE}}` has sealing keywords AND the user wants the default fixed.                                                                                    |
+| `authorization-identifier-naming.md` | The project has named permissions/roles as identifiers.                                                                                                              |
 
 ### Tier 3 — framework policy packs
 
@@ -168,8 +169,8 @@ Packs live at `<skill_dir>/resources/policy-packs/<framework>/`, each with an `_
    to drop the reference. Also rewrite **inbound** links: a surviving core policy that links to a superseded one is repointed at the pack file that replaced it, per the
    manifest's inbound-link list.
 6. Supersession swaps a mechanism, not a rule's weight or its scope. A pack policy must carry the **same severity** as the core policy it supersedes, and must restate
-   **every rule** that core policy owned — the core file is never written, so an omitted rule is lost from the project. If the manifest violates either invariant, fix
-   the manifest rather than writing the mismatch.
+   **every rule** that core policy owned — the core file is never written, so an omitted rule is lost from the project. If the manifest violates either invariant, fix the
+   manifest rather than writing the mismatch.
 
 **Where a rule belongs.** Keep a policy agnostic whenever the rule survives being stated in terms of "the project's data-access layer" or "the project's validation
 surface" — then let a `{{GEN:…}}` block name the mechanism. Move it into a pack only when stating it agnostically would blunt it. Anything narrower still — a rule true
@@ -190,24 +191,24 @@ The templates carry two kinds of token, both of which MUST be gone from the outp
 Interview the user with `AskUserQuestion` to settle everything detection and agent knowledge cannot. Lead every option with what you detected so the user usually just
 confirms. Batch into a small number of questions (the tool allows up to 4 per call). Resolve at least the following `{{VALUE}}` tokens:
 
-| Value token                | Resolve by                                                                 |
-|----------------------------|----------------------------------------------------------------------------|
-| `{{PROJECT_NAME}}`         | Repo directory name → confirm with user.                                   |
-| `{{PROJECT_TAGLINE}}`      | Ask (one-sentence description of the project).                             |
-| `{{PRIMARY_LANGUAGE}}`     | Detect from manifests → confirm.                                           |
-| `{{STACK}}`                | Detect runtime / framework(s) → confirm.                                   |
-| `{{TEST_FRAMEWORK}}`       | Detect → confirm.                                                          |
-| `{{TEST_COMMAND}}`         | Detect from scripts / CI → confirm (never guess a command; ask if absent). |
-| `{{BUILD_COMMAND}}`        | Detect → confirm (ask if absent).                                          |
-| `{{STATIC_ANALYSIS_COMMAND}}` | Detect → confirm (ask if absent). The **analyzer** run — PHPStan/Psalm, `tsc --noEmit`, mypy, `go vet`. Reports defects only a human or agent can fix; never rewrites files. Agents are **required** to run this. |
-| `{{FORMAT_COMMAND}}`       | Detect the **formatter / style linter** → confirm (ask if absent). Pint, Biome, Prettier, php-cs-fixer, an ESLint autofix run, plus any codemod or import sorter. Covers every mode of those tools. Agents are **forbidden** to run this. |
-| `{{STATIC_ANALYSIS_TOOL}}` | Detect from tooling config → confirm.                                      |
-| `{{LOG_LIBRARY}}`          | Detect from dependencies → confirm.                                        |
-| `{{LOG_SINK}}`             | Ask (production log aggregation sink).                                     |
-| `{{MODULE_LAYOUT}}`        | Detect top-level layout → confirm and describe.                            |
-| `{{DEFAULT_BRANCH}}`       | Detect via `git symbolic-ref` → default `main`.                            |
-| `{{DOCS_PATH}}`            | Default `docs/standards` (confirmed in Pre-flight).                        |
-| `{{PLANNING_PATH}}`        | Default `docs/_planning` (confirmed in Pre-flight).                        |
+| Value token                   | Resolve by                                                                                                                                                                                                                                |
+|-------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `{{PROJECT_NAME}}`            | Repo directory name → confirm with user.                                                                                                                                                                                                  |
+| `{{PROJECT_TAGLINE}}`         | Ask (one-sentence description of the project).                                                                                                                                                                                            |
+| `{{PRIMARY_LANGUAGE}}`        | Detect from manifests → confirm.                                                                                                                                                                                                          |
+| `{{STACK}}`                   | Detect runtime / framework(s) → confirm.                                                                                                                                                                                                  |
+| `{{TEST_FRAMEWORK}}`          | Detect → confirm.                                                                                                                                                                                                                         |
+| `{{TEST_COMMAND}}`            | Detect from scripts / CI → confirm (never guess a command; ask if absent).                                                                                                                                                                |
+| `{{BUILD_COMMAND}}`           | Detect → confirm (ask if absent).                                                                                                                                                                                                         |
+| `{{STATIC_ANALYSIS_COMMAND}}` | Detect → confirm (ask if absent). The **analyzer** run — PHPStan/Psalm, `tsc --noEmit`, mypy, `go vet`. Reports defects only a human or agent can fix; never rewrites files. Agents are **required** to run this.                         |
+| `{{FORMAT_COMMAND}}`          | Detect the **formatter / style linter** → confirm (ask if absent). Pint, Biome, Prettier, php-cs-fixer, an ESLint autofix run, plus any codemod or import sorter. Covers every mode of those tools. Agents are **forbidden** to run this. |
+| `{{STATIC_ANALYSIS_TOOL}}`    | Detect from tooling config → confirm.                                                                                                                                                                                                     |
+| `{{LOG_LIBRARY}}`             | Detect from dependencies → confirm.                                                                                                                                                                                                       |
+| `{{LOG_SINK}}`                | Ask (production log aggregation sink).                                                                                                                                                                                                    |
+| `{{MODULE_LAYOUT}}`           | Detect top-level layout → confirm and describe.                                                                                                                                                                                           |
+| `{{DEFAULT_BRANCH}}`          | Detect via `git symbolic-ref` → default `main`.                                                                                                                                                                                           |
+| `{{DOCS_PATH}}`               | Default `docs/standards` (confirmed in Pre-flight).                                                                                                                                                                                       |
+| `{{PLANNING_PATH}}`           | Default `docs/_planning` (confirmed in Pre-flight).                                                                                                                                                                                       |
 
 Resolve `{{STATIC_ANALYSIS_COMMAND}}` and `{{FORMAT_COMMAND}}` to different tools and never emit a combined "lint" command. When a single `lint` script in
 `package.json`/`composer.json` runs both, split it: the analyzer half becomes `{{STATIC_ANALYSIS_COMMAND}}`, the style half becomes `{{FORMAT_COMMAND}}`, and the written
@@ -239,11 +240,11 @@ table:
 **Policy files carry a severity.** Every policy file ends with `> Severity for plan review: **BLOCK**.` or `**WARN**.`
 The templates ship a default; change it only when the user says the project treats that rule differently, and change the index row to match in the same edit.
 
-**One rule is not negotiable per project.** `formatter-authority.md` ships the fixed stance that **CI owns formatting and style linting entirely, and a coding agent
-never runs those tools in any mode, `--check` and `--dry-run` included**. Do not interview the user about who runs the formatter, do not soften the rule, do not add a
-read-only carve-out for it, and do not drop it below BLOCK. Resolve `{{FORMAT_COMMAND}}` to this project's real formatter/style-linter command and leave the stance as
-written. The mirror rule also holds: `static-analysis.md` **requires** the agent to run `{{STATIC_ANALYSIS_COMMAND}}`, and that must not be softened either. Keep the two
-straight — conflating them is the failure mode this pair of policies exists to prevent.
+**One rule is not negotiable per project.** `formatter-authority.md` ships the fixed stance that **CI owns formatting and style linting entirely, and a coding agent never
+runs those tools in any mode, `--check` and `--dry-run` included**. Do not interview the user about who runs the formatter, do not soften the rule, do not add a read-only
+carve-out for it, and do not drop it below BLOCK. Resolve `{{FORMAT_COMMAND}}` to this project's real formatter/style-linter command and leave the stance as written. The
+mirror rule also holds: `static-analysis.md` **requires** the agent to run `{{STATIC_ANALYSIS_COMMAND}}`, and that must not be softened either. Keep the two straight —
+conflating them is the failure mode this pair of policies exists to prevent.
 
 **Project-specific policies.** Rules unique to this repository come out of the interview, not a template. Author each as its own file in `policies/` in the same shape
 (statement, rationale, rules, example, severity) and give it an index row. Do not append them as sections inside another policy file.
@@ -286,8 +287,8 @@ survives** in a written file.
 - `{{MODULE_NAME}}` — the module's name.
 - `{{ROOT_RELATIVE}}` — the relative path from the module directory back to the repo root (e.g. `../..` for `app_modules/billing/`), so the "supplements the root
   AGENTS.md" link resolves.
-- `{{GEN:…}}` blocks — author from the module's manifest and top-level tree. A skeleton lists the module's top-level directories with a one-line role each and states plainly
-  when no invariants have been captured yet; it never leaves a placeholder. Honor the per-file collision decision from Pre-flight (skip / overwrite / merge).
+- `{{GEN:…}}` blocks — author from the module's manifest and top-level tree. A skeleton lists the module's top-level directories with a one-line role each and states
+  plainly when no invariants have been captured yet; it never leaves a placeholder. Honor the per-file collision decision from Pre-flight (skip / overwrite / merge).
 
 A skeleton with correct headers, a resolved role, working cross-links, and an honest "no invariants captured yet" line is a real deliverable — better than an invented
 body that drifts from the code.
@@ -311,8 +312,8 @@ the root `README.md` Architecture section. Every `{{ROOT_RELATIVE}}/AGENTS.md` l
 After every file is written and wired, re-read the whole generated surface and pass it through five lenses. This is an **iterate-until-clean** loop, not a one-shot
 checklist — each round drives concrete edits, then re-runs every lens.
 
-- **Lens A — Completeness.** Every discovered module has paired `AGENTS.md` + `README.md` (skeleton at minimum). Every policy that landed has a `policies.md` index row and,
-  where load-bearing, an `AGENTS.md` rules bullet. Every sibling standards artifact promised in the templates exists and is non-empty.
+- **Lens A — Completeness.** Every discovered module has paired `AGENTS.md` + `README.md` (skeleton at minimum). Every policy that landed has a `policies.md` index row
+  and, where load-bearing, an `AGENTS.md` rules bullet. Every sibling standards artifact promised in the templates exists and is non-empty.
 - **Lens B — Specificity.** Every policy carries a concrete `BLOCK`/`WARN` footer, and its statement is true of *this* project and false of some other project of the same
   stack. Generic platitudes are tightened or removed.
 - **Lens C — Stack-fit.** Every invoked command, tool name, file extension, and config path matches the detected stack — no `.csproj` in a Laravel doc, no `composer.json`
@@ -323,8 +324,8 @@ checklist — each round drives concrete edits, then re-runs every lens.
   exist. If `{{NORTHSTAR}}` is set, no policy contradicts a northstar principle — flag any that does.
 
 When a lens surfaces issues, present them via `AskUserQuestion` (at most 4 questions per call, ranked BLOCK-equivalents → stack-fit errors → ambiguity → completeness,
-tightly-related issues consolidated). Write the fixes to disk **before** the next question, re-read the changed files, and re-run all five lenses. Repeat until a full pass
-finds nothing. Issues the agent can resolve itself (a broken link, a missing index row, a misspelled module name) are fixed directly without a question.
+tightly-related issues consolidated). Write the fixes to disk **before** the next question, re-read the changed files, and re-run all five lenses. Repeat until a full
+pass finds nothing. Issues the agent can resolve itself (a broken link, a missing index row, a misspelled module name) are fixed directly without a question.
 
 ---
 

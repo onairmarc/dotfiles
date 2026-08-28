@@ -50,12 +50,13 @@ published-surface working list; drop the clause entirely if that policy was not 
 
 ## Testing and documentation
 
-| Policy                                                   | Summary                                                                                   | Severity |
-|----------------------------------------------------------|-------------------------------------------------------------------------------------------|----------|
-| [Testing](./policies/testing.md)                         | Every behavioral change ships {{TEST_FRAMEWORK}} coverage; assert intention, not wording. | BLOCK    |
-| [Test Data Factories](./policies/test-data-factories.md) | Test data comes from the shared factory/builder surface, not bespoke per-file helpers.    | BLOCK    |
-| [Test Helper Classes](./policies/test-helper-classes.md) | Shared test logic lives on named helper types, never as file-level globals.               | BLOCK    |
-| [Documentation](./policies/documentation.md)             | Every change ships the doc and glossary updates that keep the standards accurate.         | BLOCK    |
+| Policy                                                         | Summary                                                                                                                                                      | Severity |
+|----------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
+| [Testing](./policies/testing.md)                               | Every behavioral change ships {{TEST_FRAMEWORK}} coverage; assert intention, not wording.                                                                    | BLOCK    |
+| [Test suite performance](./policies/test-suite-performance.md) | Do not put per-test cost back: seed once per worker, fake at the suite binding, reuse factory parents, keep pure-logic tests off the database-reset harness. | BLOCK    |
+| [Test Data Factories](./policies/test-data-factories.md)       | Test data comes from the shared factory/builder surface, not bespoke per-file helpers.                                                                       | BLOCK    |
+| [Test Helper Classes](./policies/test-helper-classes.md)       | Shared test logic lives on named helper types, never as file-level globals.                                                                                  | BLOCK    |
+| [Documentation](./policies/documentation.md)                   | Every change ships the doc and glossary updates that keep the standards accurate.                                                                            | BLOCK    |
 
 ## Project workflow
 

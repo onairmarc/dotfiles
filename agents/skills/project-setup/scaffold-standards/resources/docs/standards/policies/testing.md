@@ -15,9 +15,12 @@ regresses. Bug fixes start with a failing test because that is the only proof th
 - Assert what the system promises, not how the implementation phrases it. One test, one behavior — a single failing assertion should name the broken behavior without a
   debugger.
 - Fix pre-existing failures you encounter; the build blocks on them regardless of who introduced them.
+- Do not put per-test cost back into the suite. Follow [Test suite performance](./test-suite-performance.md) when adding tests, factories, suite-level fakes, or runner
+  pins.
 - {{GEN:where tests live given {{MODULE_LAYOUT}}, the test-file naming convention for {{TEST_FRAMEWORK}}, how to run a scoped subset, the project's coverage expectation,
   and any shared fixture an author must know about (a global test context, a seeded tenant/account, a container the suite boots). Detect from the repo; ask the user for
-  the coverage bar and the fixture semantics if they cannot be detected.}}
+  the coverage bar and the fixture semantics if they cannot be detected. Name the runner's collected paths so an uncollected file is not added. If `pest-conventions.md`
+  was written, point at it for Pest `test()` / `describe()` / dataset rules.}}
 
 **Example:**
 

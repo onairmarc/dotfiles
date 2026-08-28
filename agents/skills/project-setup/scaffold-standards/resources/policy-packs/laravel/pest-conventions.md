@@ -10,7 +10,9 @@ and isolation assumptions than the ones CI enforces.
 
 - `test('does the thing', fn () => ...)` — not `it(...)`. PHPUnit-style test classes are not added to new code.
 - Group related cases with `describe('subject', function () { ... })`.
-- Use Pest datasets (`->with([...])`) for repeated-input cases rather than copy-pasted bodies.
+- Use Pest datasets (`->with([...])`) for repeated-input cases rather than copy-pasted bodies. A near-duplicate test that pays a full HTTP or Livewire boot belongs in one
+  dataset-driven test. Merge or delete a source test only when every assertion it currently makes survives in the destination. Keep tests separate when the fixture or
+  behavior is actually different. See [Test suite performance](./test-suite-performance.md).
 - Prefer intention-revealing assertions (`assertForbidden()`, `assertNotFound()`) over raw status codes.
 - Create tests with `php artisan make:test --pest <name>` and move the file into the correct tests tree before committing.
 - {{GEN:state the exact suite invocation this project standardizes on — including any flag such as `--parallel` that must always be present, the scoped-subset form, and
