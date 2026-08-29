@@ -9,8 +9,7 @@ confidence. Documentation drift is a defect, not a chore.
 
 **Rules:**
 
-- Public surface — exported functions, types, modules — carries a doc comment stating what it does and any non-obvious contract. Skip the obvious; document the
-  surprising.
+- Comments are not documentation. Design rationale and how a subsystem works live in docs, not next to the code. See [Code Comments](./code-comments.md).
 - When a change alters documented behavior, update the doc in the same change. A stale doc is worse than none.
 - Touching a module means visiting that module's own docs and correcting anything the change makes false.
 - A new policy goes in `{{DOCS_PATH}}/policies/` as its own file, with a row added to [`policies.md`](../policies.md) — the index is the single routing table.

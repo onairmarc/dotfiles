@@ -35,6 +35,7 @@ hub methods, and invariants before making changes.
 | Working on...                              | Read                                                                                           |
 |--------------------------------------------|------------------------------------------------------------------------------------------------|
 | Coding standards — the policy index        | [`{{DOCS_PATH}}/policies.md`]({{DOCS_PATH}}/policies.md)                                       |
+| Writing or editing code comments           | [`{{DOCS_PATH}}/policies/code-comments.md`]({{DOCS_PATH}}/policies/code-comments.md)           |
 | Logging — what to emit, and how to read it | [`{{DOCS_PATH}}/policies/structured-logging.md`]({{DOCS_PATH}}/policies/structured-logging.md) |
 | Project terminology and acronyms           | [`{{DOCS_PATH}}/glossary.md`]({{DOCS_PATH}}/glossary.md)                                       |
 

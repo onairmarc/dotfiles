@@ -25,6 +25,7 @@ published-surface working list; drop the clause entirely if that policy was not 
 | Policy                                                   | Summary                                                                                               | Severity |
 |----------------------------------------------------------|-------------------------------------------------------------------------------------------------------|----------|
 | [Code Style](./policies/code-style.md)                   | {{GEN:one-line summary of the code-style policy naming the project's formatter and its config file.}} | BLOCK    |
+| [Code Comments](./policies/code-comments.md)             | Comments explain why something odd is the way it is, never what the code does.                        | BLOCK    |
 | [Static Analysis](./policies/static-analysis.md)         | `{{STATIC_ANALYSIS_TOOL}}` runs clean; fix findings at the root cause, never suppress them.           | BLOCK    |
 | [Formatter Authority](./policies/formatter-authority.md) | CI owns formatting and style linting; agents never run `{{FORMAT_COMMAND}}`, `--check` included.      | BLOCK    |
 | [Naming and Casing](./policies/naming-and-casing.md)     | {{GEN:one-line summary of the language's casing rules as fixed by this project.}}                     | BLOCK    |

@@ -80,7 +80,7 @@ bodies from scratch.
 6. **Discover sub-projects.** Detect the module/package/project units this repo ships so each can get its own `AGENTS.md` + `README.md`. Discovery is stack-shaped:
 
    | Stack signal                          | Sub-project unit                                                                            |
-         |---------------------------------------|--------------------------------------------------------------------------------------------|
+            |---------------------------------------|--------------------------------------------------------------------------------------------|
    | `app_modules/*` or `modules/*` dirs   | Each directory with a `composer.json`.                                                      |
    | `*.sln` / multiple `*.csproj`         | Each `*.csproj` (skip `bin/`, `obj/`, and test projects unless the user wants them).        |
    | root `package.json` `workspaces`      | Each workspace, or every `packages/*/package.json`.                                         |
@@ -129,10 +129,28 @@ The set of policy files a project gets is not fixed. Decide it in three tiers, i
 
 Copied from `<skill_dir>/resources/docs/standards/policies/` for every project:
 
-`code-style` · `static-analysis` · `formatter-authority` · `naming-and-casing` · `simplicity-first` · `no-magic-values` ·
-`strong-typing` · `data-transfer-objects` · `configuration-access` · `typed-config-objects` · `structured-logging` ·
-`error-handling` · `input-validation` · `testing` · `test-suite-performance` · `test-data-factories` · `test-helper-classes` ·
-`documentation` · `dependencies` · `dependency-licensing` · `version-control`
+- `code-style`
+- `code-comments`
+- `static-analysis`
+- `formatter-authority`
+- `naming-and-casing`
+- `simplicity-first`
+- `no-magic-values`
+- `strong-typing`
+- `data-transfer-objects`
+- `configuration-access`
+- `typed-config-objects`
+- `structured-logging`
+- `error-handling`
+- `input-validation`
+- `testing`
+- `test-suite-performance`
+- `test-data-factories`
+- `test-helper-classes`
+- `documentation`
+- `dependencies`
+- `dependency-licensing`
+- `version-control`
 
 ### Tier 2 — conditional policies (written only when the concern exists)
 
