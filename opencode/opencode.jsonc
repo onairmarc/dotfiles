@@ -58,7 +58,11 @@
     // OpenCode Quota: tuiCommandDisplay chooses whether native TUI command output appears in the session transcript or a local popup dialog.
     // OpenCode Quota: loads the server plugin for slash commands and quota checks.
     "plugin": [
-        "@slkiser/opencode-quota@latest"
+      "@slkiser/opencode-quota@latest"
+    ],
+    "enabled_providers": [
+      "openai",
+      "xai"
     ],
     "provider": {
       // Detected copilot authentication; opencode-quota added this global provider declaration.
