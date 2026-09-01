@@ -1,19 +1,6 @@
 ---
 name: code-review
 description: Language-agnostic code review comparing current branch to main. Checks for breaking changes, code quality, test coverage, and framework-specific patterns. Outputs AI agent prompts by default; use `--full` for a complete actionable report with per-file grouping, two severity tiers, and inline diffs. Use `--lang <ext>` to filter to a specific file extension.
-argument-hint: "[--lang <ext>] [--full]"
-disable-model-invocation: true
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash(git branch --show-current)
-  - Bash(git rev-parse --git-dir)
-  - Bash(git diff --name-only *)
-  - Bash(git diff origin/main...HEAD *)
-  - Bash(git diff *)
-  - Bash(git log *)
-  - Bash(test -f *)
 ---
 
 # Code Review

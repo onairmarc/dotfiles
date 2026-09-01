@@ -1,14 +1,6 @@
 ---
 name: feature-planning
 description: Interactively create a new feature plan for any repository. Uses a pm-review discovery brief, the codebase, and project conventions to answer as much as possible itself, then asks the user only the residual unknowns via question (confirming its premise when it has none). Drafts a plan following discovered conventions, the northstar vision, and general design principles, then applies plan-review lenses to produce an agent-ready plan written to the repo's planning directory.
-argument-hint: "[ feature name or description (optional) ] [ --output=<dir> ]"
-allowed-tools:
-    - Read
-    - Edit
-    - Write
-    - question
-    - Glob
-    - Grep
 ---
 
 # Feature Planning

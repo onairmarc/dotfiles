@@ -1,20 +1,6 @@
 ---
 name: react-optimization
 description: Audits a React application or project path for performance issues (render waterfalls, oversized bundles, unnecessary re-renders, derived state in effects, missing virtualization, blocking scripts, undeduplicated client fetches), using vercel-react-best-practices as the rule source — or inertia-best-practices when that skill is present and the project is Inertia — then delegates to the feature-planning skill to produce a self-contained, phased, agent-ready optimization plan. Does NOT execute optimizations. A single failing test in the plan's Phase 0 baseline gate is a hard stop.
-argument-hint: "<project-path> [additional context]"
-allowed-tools:
-    - Read
-    - Grep
-    - Glob
-    - Bash(test -f *)
-    - Bash(test -d *)
-    - Bash(find * -name "*.tsx" -type f)
-    - Bash(find * -name "*.jsx" -type f)
-    - Bash(find * -name "*.ts" -type f)
-    - Bash(find * -name "*.js" -type f)
-    - Bash(cat *)
-    - Skill(feature-planning)
-    - question
 ---
 
 # React Optimization Skill

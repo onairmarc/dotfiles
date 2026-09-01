@@ -1,6 +1,5 @@
 ---
 name: change-audit
-author: Marc Beinder
 description: "Change-scoped audit: validates, dedupes, ranks, and implements fixes for code changed on the current branch"
 ---
 

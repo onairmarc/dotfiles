@@ -1,20 +1,6 @@
 ---
 name: plan-review
 description: Analyze an implementation plan file for ambiguity, contradictions, or missing information, then interactively fill gaps and write the enriched plan back to disk. Invoke when asked to review, improve, or stress-test an implementation plan before handing it to an agent.
-argument-hint: [ path to the plan file ]
-allowed-tools:
-    - Read
-    - Edit
-    - Write
-    - question
-    - todowrite
-    - Glob
-    - Grep
-    - task
-    - Bash(test -f *)
-    - Bash(cat *)
-    - Bash(find * -name "*.csproj" -type f)
-    - Bash(find * -name "package.json" -type f)
 ---
 
 # Plan Review

@@ -1,17 +1,6 @@
 ---
 name: filament-service-conversion
 description: Audits a Filament directory (resources, pages, actions, relation managers, custom fields) for business logic that belongs in service classes, maps each extraction to a target service with exact method signatures and frozen UI surfaces, then delegates to the feature-planning skill to produce a self-contained, phased, agent-ready extraction plan. Does NOT execute the extraction. A single failing test in the plan's Phase 0 baseline gate is a hard stop.
-argument-hint: "<filament-path> [additional context]"
-allowed-tools:
-    - Read
-    - Grep
-    - Glob
-    - Bash(test -f *)
-    - Bash(test -d *)
-    - Bash(find * -name "*.php" -type f)
-    - Skill(feature-planning)
-    - Skill(file-operations)
-    - question
 ---
 
 # Filament → Service Class Conversion Skill

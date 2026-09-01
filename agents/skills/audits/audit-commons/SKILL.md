@@ -1,6 +1,5 @@
 ---
 name: audit-commons
-author: Marc Beinder
 description: >-
   Canonical shared references for the audit skills — subsystem inventory format, worker review brief and output schema, and
   validation/synthesis passes. Read the relevant file at the start of any audit skill that inventories subsystems, dispatches review

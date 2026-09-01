@@ -1,8 +1,6 @@
 ---
 name: cache-lock-guide
 description: Apply this skill when implementing concurrency guards, mutex patterns, idempotency checks, or duplicate-operation prevention in a Laravel application — such as preventing double-submissions, race conditions on model state transitions, or any situation where lockForUpdate() might otherwise be used.
-disable-model-invocation: false
-allowed-tools: [ ]
 ---
 
 ## Cache Lock Rule

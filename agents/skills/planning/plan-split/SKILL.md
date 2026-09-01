@@ -1,17 +1,6 @@
 ---
 name: plan-split
 description: Split a single fleshed-out implementation plan into sub-plan files written alongside it in the same directory, with dependency (blockers/blocks) headers on each sub-plan. Asks up front whether parallel execution is permitted (default no). Sequential (the default) optimizes for clean one-at-a-time handoff; parallel adjusts the split so independent slices can run together. Invoke when asked to break a plan into phases or stages.
-disable-model-invocation: true
-argument-hint: [ path to the source plan file ]
-allowed-tools:
-    - Read
-    - Write
-    - question
-    - todowrite
-    - Glob
-    - Bash(ls *)
-    - Bash(dirname *)
-    - Bash(test -f *)
 ---
 
 # Plan Split

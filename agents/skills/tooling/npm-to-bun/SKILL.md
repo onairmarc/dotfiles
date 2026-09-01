@@ -1,8 +1,6 @@
 ---
 name: npm-to-bun
 description: Converts a repository from npm (or yarn) to bun as the package manager. Audits all affected files, applies changes, runs bun install, and verifies the build still works. Does NOT change build tool configuration beyond what is required to invoke the existing build tooling via bun.
-disable-model-invocation: true
-argument-hint: [ root-path ]
 ---
 
 You are converting a JavaScript/TypeScript repository from npm (or yarn) to bun as its package manager. Your job is narrowly scoped: swap the package manager, not the

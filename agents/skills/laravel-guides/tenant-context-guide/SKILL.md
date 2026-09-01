@@ -1,8 +1,6 @@
 ---
 name: tenant-context-guide
 description: Apply this skill when writing or reviewing any code that sets or switches tenant context in a Laravel application  — including command loops iterating over multi-tenant records, or any call to TenantContext::applyById or Context::forget(TenantContext::ID).
-disable-model-invocation: false
-allowed-tools: [ ]
 ---
 
 ## How Tenant Context Works

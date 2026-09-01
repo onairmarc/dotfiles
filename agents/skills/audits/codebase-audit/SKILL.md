@@ -1,6 +1,5 @@
 ---
 name: codebase-audit
-author: Aaron Francis
 description: "Codebase auditing: it validates, dedupes, and ranks audit results"
 ---
 

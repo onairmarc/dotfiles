@@ -1,16 +1,6 @@
 ---
 name: plan-execute
 description: Agent orchestrator that executes all sub-plans produced by plan-split. Reads the dependency graph from sub-plan files. Reconfirms whether parallel execution is permitted (default no) before compiling the graph. Sequential (the default) spawns one coding sub-agent at a time; parallel spawns ready sub-agents together per the graph. Invoke when asked to execute, run, or implement a set of split plans.
-argument-hint: [ path to directory containing sub-plan files ]
-allowed-tools:
-    - Read
-    - Write
-    - Bash(ls *)
-    - Bash(find *)
-    - Bash(grep *)
-    - task
-    - question
-    - todowrite
 ---
 
 # Plan Execute

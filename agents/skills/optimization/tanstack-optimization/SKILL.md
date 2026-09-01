@@ -1,21 +1,6 @@
 ---
 name: tanstack-optimization
 description: Audits a TanStack React path for library-specific performance issues (QueryClient recreated per render, missing staleTime, fetch-in-useEffect, N useQuery in a loop, unstable table columns/data, unbounded rows without virtualization, router created in render, whole-form store subscriptions), then runs react-optimization --audit-only on the same path and delegates to the feature-planning skill to produce a self-contained, phased, agent-ready optimization plan. Does NOT execute optimizations. A single failing test in the plan's Phase 0 baseline gate is a hard stop.
-argument-hint: "<project-path> [additional context]"
-allowed-tools:
-    - Read
-    - Grep
-    - Glob
-    - Bash(test -f *)
-    - Bash(test -d *)
-    - Bash(find * -name "*.tsx" -type f)
-    - Bash(find * -name "*.jsx" -type f)
-    - Bash(find * -name "*.ts" -type f)
-    - Bash(find * -name "*.js" -type f)
-    - Bash(cat *)
-    - Skill(feature-planning)
-    - Skill(react-optimization)
-    - question
 ---
 
 # TanStack Optimization Skill

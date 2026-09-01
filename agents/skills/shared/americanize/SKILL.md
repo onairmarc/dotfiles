@@ -1,14 +1,6 @@
 ---
 name: americanize
 description: Converts British English spelling to American English in a file or directory. Scans text files for common British variants and rewrites them in-place. Accepts a file path or directory path as $ARGUMENTS.
-argument-hint: "<file-or-directory-path>"
-disable-model-invocation: true
-allowed-tools:
-    - Read
-    - Edit
-    - Glob
-    - Grep
-    - Bash(find *)
 ---
 
 # Americanize

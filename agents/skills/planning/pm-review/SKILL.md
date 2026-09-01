@@ -1,23 +1,6 @@
 ---
 name: pm-review
 description: "Language-agnostic product-manager brain for a repository. Reads a committed per-repo (or per-module) pm-review.md knowledge base — product, personas, domains, invariants, glossary, constraints/non-goals, success metrics, custom lenses, severity calibration, and ship bar — then runs in one of two modes. DISCOVERY mode (default): given a feature idea or problem, applies the PM's deep domain knowledge to surface impacted domains, invariants at risk, affected personas, edge cases, success metrics, risks, and open questions, and writes a discovery brief for the feature-planning skill to consume. REVIEW mode (--review): reviews the current branch's diff against main through the same knowledge base. If no config exists, it bootstraps one interactively first. Use during planning discovery, or when asked for a PM review, product review, or a product manager's take on an idea or change."
-argument-hint: "[<feature idea>] [--review] [--lang <ext>] [--module <name>]"
-disable-model-invocation: true
-allowed-tools:
-    - Read
-    - Write
-    - Grep
-    - Glob
-    - question
-    - Bash(git branch --show-current)
-    - Bash(git rev-parse --git-dir)
-    - Bash(git diff main...HEAD *)
-    - Bash(git diff main..HEAD *)
-    - Bash(git log main..HEAD *)
-    - Bash(git diff --stat *)
-    - Bash(git diff --name-only *)
-    - Bash(gh pr view:*)
-    - Bash(gh pr diff:*)
 ---
 
 # PM Review

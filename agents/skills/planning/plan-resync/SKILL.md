@@ -1,23 +1,6 @@
 ---
 name: plan-resync
 description: Analyze an implementation plan file against the current state of the codebase, detect drift between what the plan describes and what the code actually contains, then interactively reconcile the plan so it accurately reflects reality and the remaining work. Invoke when asked to resync, refresh, reconcile, or update a plan after code has changed.
-argument-hint: [ path to the plan file ]
-allowed-tools:
-    - Read
-    - Edit
-    - Write
-    - question
-    - todowrite
-    - Glob
-    - Grep
-    - task
-    - Bash(test -f *)
-    - Bash(cat *)
-    - Bash(git log *)
-    - Bash(git diff *)
-    - Bash(git status *)
-    - Bash(git show *)
-    - Bash(find * -name "*.csproj" -type f)
 ---
 
 # Plan Resync

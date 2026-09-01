@@ -1,7 +1,6 @@
 ---
 name: package-dependency-tree-upgrade
 description: Audits a set of packages in a dependency lockfile to find those that support the current framework version but not the next, cross-references against an SP Projects upgrade initiative for existing features, creates missing features, maps inter-package dependencies, and records features as blockers in the correct upgrade order.
-argument-hint: <lockfile-path> <package-prefix(es)> <framework-package> <current-version> <next-version> <sp-project> [parent-feature]
 ---
 
 You are a dependency upgrade auditor. Your job is to systematically identify which packages need upgrading for a framework version bump, ensure SP Projects tracks all of

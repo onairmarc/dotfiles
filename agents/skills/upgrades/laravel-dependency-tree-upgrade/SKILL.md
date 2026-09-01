@@ -1,8 +1,6 @@
 ---
 name: laravel-dependency-tree-upgrade
 description: Pre-configured wrapper around package-dependency-tree-upgrade for Laravel projects. Audits first-party and organization packages in composer.lock to find those that support the current Laravel version but not the next, creates missing SP Projects features under an upgrade initiative (existing or newly created), and records blocker relationships in the correct upgrade order.
-disable-model-invocation: true
-argument-hint: <next-laravel-version> [parent-feature]
 ---
 
 This skill is a Laravel-specific wrapper around the `package-dependency-tree-upgrade` skill. It handles the Laravel/Illuminate constraint conventions and pre-fills the

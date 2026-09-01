@@ -1,15 +1,6 @@
 ---
 name: northstar
 description: Interactively create or update the northstar.md product vision document for a repository. Gathers vision, users, scope, deployment model, guiding principles (with BLOCK/WARN checks), and sanctioned feature tracking via question. Pulls existing features from SP Projects (via SP Projects MCP) when available, then writes northstar.md to the repo's durable product-docs directory (docs/product/).
-disable-model-invocation: true
-argument-hint: [ optional: path to existing northstar.md to update ]
-allowed-tools:
-    - Read
-    - Edit
-    - Write
-    - question
-    - Glob
-    - Grep
 ---
 
 # Northstar

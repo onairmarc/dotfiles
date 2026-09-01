@@ -1,16 +1,6 @@
 ---
 name: cs-optimization
 description: Audits a C# application or project path for performance issues — both syntactic (sync I/O on calling thread, LINQ inefficiency, excessive allocations, missing cancellation, improper async/await, memory leaks, inefficient collections, blocking thread pool) and semantic/data-flow (per-row DB commits, per-call DbContext/options rebuild, missing keyed indexes, DbContext-pooling and transaction-retry hazards, idempotent re-syncs lacking skip-if-clean, double broadcasts, unbounded fan-out) discovered by tracing hot paths through their callees, base classes, DI registrations, and notification handlers — then delegates to the feature-planning skill to produce a self-contained, phased, agent-ready optimization plan. Does NOT execute optimizations. A single failing test in the plan's Phase 0 baseline gate is a hard stop.
-argument-hint: "<project-path> [additional context]"
-allowed-tools:
-    - Read
-    - Grep
-    - Glob
-    - Bash(test -f *)
-    - Bash(find * -name "*.cs" -type f)
-    - Bash(cat *)
-    - Skill(feature-planning)
-    - question
 ---
 
 # C# Optimization Skill

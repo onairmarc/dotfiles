@@ -1,21 +1,6 @@
 ---
 name: code-review-cs
 description: C#/.NET code review extending the base code-review skill. Checks for breaking changes, code quality, test coverage, and ASP.NET Core / Entity Framework patterns. Outputs AI agent prompts by default; use `--full` for a complete actionable report with per-file grouping, two severity tiers, and inline diffs.
-argument-hint: "[--full]"
-disable-model-invocation: true
-allowed-tools:
-    - Read
-    - Grep
-    - Glob
-    - Bash(git branch --show-current)
-    - Bash(git rev-parse --git-dir)
-    - Bash(git diff --name-only *)
-    - Bash(git diff origin/main...HEAD *)
-    - Bash(git diff *)
-    - Bash(git log *)
-    - Bash(test -f *)
-    - Bash(dotnet build *)
-    - Bash(dotnet test *)
 ---
 
 # C# Code Review (extends code-review)
