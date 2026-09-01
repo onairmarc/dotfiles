@@ -11,7 +11,7 @@ allowed-tools:
     - Bash(cat *)
     - Skill(feature-planning)
     - Skill(no-db-constraints)
-    - AskUserQuestion
+    - question
 ---
 
 # Laravel Optimization Skill
@@ -188,7 +188,7 @@ Also evaluate **DTO / Data Object signals** (≥2 → lower confidence):
 Record confidence level (`standard`, `lower — possible configuration class`, or `lower — possible DTO / data object`)
 alongside each finding. A class may trigger both lower-confidence signals; record both labels.
 
-For **all** flagged singleton findings (regardless of confidence), use `AskUserQuestion` **before** passing findings to feature-planning to ask the developer whether the
+For **all** flagged singleton findings (regardless of confidence), use `question` **before** passing findings to feature-planning to ask the developer whether the
 preferred fix is `app()->singleton()` or `app()->scoped()` binding in a service provider.
 
 ---
@@ -279,7 +279,7 @@ programmatically — do not ask the user to retype it):
       `->with('relation:id,col,...')`). These are not approved optimization patterns. Full models must always be loaded.
 > 11. Self-managing singletons (`protected static $instance` + `isset` guard in `::make()` defined in the class itself)
       → register in an existing or new Service Provider's `register()` method using the binding type confirmed via
-      `AskUserQuestion` (`app()->singleton()` or `app()->scoped()`), then replace callsites with constructor/method injection. The plan step must identify the target
+      `question` (`app()->singleton()` or `app()->scoped()`), then replace callsites with constructor/method injection. The plan step must identify the target
       Service Provider by name. Configuration-class findings (lower confidence) must include a note that the change may be intentional and require developer review before
       proceeding. **Never flag** classes using `HasMake` trait, implementing `IDisposable`, extending an `Illuminate\`/`Laravel\`
       base class, extending `Spatie\LaravelData\Data` or `Spatie\DataTransferObject\DataTransferObject`, declared

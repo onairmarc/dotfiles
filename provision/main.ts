@@ -194,6 +194,20 @@ if (RUN_CONFIGURATORS) {
         if (!platform.matches(entry)) continue;
         const name = entry.name || "unknown";
         if (stateMod.hasRun(state, "configurators_run", name)) {
+            if (name === "opencode") {
+                log.info(name, "synchronizing configuration and skills…");
+                try {
+                    entry.run();
+                    log.ok(name, "synchronized");
+                    counts.configs_run += 1;
+                } catch (err) {
+                    recordFailure(name, errMsg(err));
+                    counts.configs_failed += 1;
+                }
+
+                continue;
+            }
+
             log.ok(name, "already configured — skipping");
             counts.configs_skipped += 1;
             continue;

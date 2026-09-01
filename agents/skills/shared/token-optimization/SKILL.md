@@ -7,8 +7,8 @@ allowed-tools:
   - Read
   - Edit
   - Grep
-  - Agent
-  - AskUserQuestion
+  - task
+  - question
   - Bash(test -f *)
 ---
 
@@ -43,7 +43,7 @@ Read `$TARGET` in full. Extract:
 - `model` — from frontmatter `model:` field (note if absent)
 - `allowed-tools` — full list from frontmatter
 - `body` — everything after the frontmatter closing `---`
-- `type` — classify as `orchestrator` (spawns `Agent`), `regular` (no agent spawning), or `mixed`
+- `type` — classify as `orchestrator` (launches sub-agents with `task`), `regular` (no sub-agent launches), or `mixed`
 
 Store all extracted data in memory. Do not re-read the file after this step.
 
@@ -126,34 +126,36 @@ any execution begins.
 Flag if: a numbered "pre-execution check" or "status check" step runs serially in the orchestrator for every item in a collection, reading files and accumulating results
 in the orchestrator's context.
 
-Recommendation: delegate pre-execution scanning to a single `Explore` sub-agent, or make the step opt-in (skip by default on first run; enable explicitly for re-runs). If
+Recommendation: use `task` to launch a single `explore` sub-agent for pre-execution scanning, or make the step opt-in (skip by default on first run; enable explicitly
+for re-runs). If
 the check is retained, parallelize it — spawn one sub-agent per item rather than scanning serially in the orchestrator.
 
 ---
 
 **B3 — Sub-agent model not matched to the work**
 
-Look for: `Agent` or `Explore` spawns that pin a named model (a vendor id, or names like opus / sonnet / haiku), or that give no guidance on model choice.
+Look for: `task` calls that launch sub-agents and pin a named model (a vendor id, or names like opus / sonnet / haiku), or that give no guidance on model choice.
 
 Flag if: an orchestrator spawns sub-agents without telling the caller to pick a model that fits the work, or it names a specific model.
 
-Recommendation: on each `Agent` call, pick a model that fits the work. Prefer using fewer tokens while still doing the job well. Do not name a vendor model.
+Recommendation: on each `task` call, pick a model that fits the work. Prefer using fewer tokens while still doing the job well. Do not name a vendor model.
 
 ---
 
 ### Lens C — False parallelism semantics (Medium impact)
 
-**C1 — Early result inspection in bundled Agent calls**
+**C1 — Early result inspection in parallel task calls**
 
-Look for: instructions to inspect or act on individual sub-agent results "as soon as" or "immediately when" they return, within a single `Agent` tool call that bundles
-multiple agents.
+Look for: instructions to inspect or act on individual sub-agent results "as soon as" or "immediately when" they return, while parallel `task` calls launch multiple
+sub-agents in the same turn.
 
-Flag if: the skill claims the orchestrator can detect failure mid-wave and stop remaining agents before all complete — but all agents are submitted in one `Agent` call.
+Flag if: the skill claims the orchestrator can detect failure mid-wave and stop remaining agents before all complete — but parallel `task` calls already launched all
+agents.
 
 Evidence pattern: "as soon as any agent in the wave returns", "inspect its result before waiting for remaining agents", "immediately stop spawning".
 
-Recommendation: remove or correct this claim. With a single `Agent` tool call, the orchestrator receives results only after all bundled agents complete. Failure detection
-happens post-wave, not mid-wave. Update the skill to reflect this: inspect all results after the wave, then act.
+Recommendation: remove or correct this claim. When parallel `task` calls launch a wave, the orchestrator receives results only after all launched sub-agents complete.
+Failure detection happens post-wave, not mid-wave. Update the skill to reflect this: inspect all results after the wave, then act.
 
 ---
 
@@ -164,8 +166,8 @@ other.
 
 Flag if: a skill iterates over N items and reads/greps each one serially with no mention of parallelism.
 
-Recommendation: if N > 3 and items are independent, spawn parallel sub-agents (one per item) or use a single
-`Explore` sub-agent to handle the full sweep in one pass.
+Recommendation: if N > 3 and items are independent, launch parallel sub-agents (one per item) with `task`, or use `task` to launch a single `explore` sub-agent.
+Have it handle the full sweep in one pass.
 
 ---
 
@@ -235,8 +237,8 @@ Recommendation: prefix all Glob and find patterns with the user-supplied scope v
 
 **E4 — Named or oversized model for the work**
 
-Look for: a named model in frontmatter or body (a vendor id, or names like opus / sonnet / haiku), or `Agent` /
-`Explore` spawns with no guidance on model choice.
+Look for: a named model in frontmatter or body (a vendor id, or names like opus / sonnet / haiku), or `task` calls that launch sub-agents with no guidance on model
+choice.
 
 Flag if: the skill names a specific model, or it spawns sub-agents without saying to pick a model that fits the work.
 
@@ -244,14 +246,14 @@ Recommendation: remove named-model pins. Pick a model that fits the work. Prefer
 
 ---
 
-**E5 — Unnecessary AskUserQuestion for inferable inputs**
+**E5 — Unnecessary question for inferable inputs**
 
-Look for: `AskUserQuestion` calls that ask for information already derivable from `$ARGUMENTS`, the codebase structure, or a preceding step's output.
+Look for: `question` calls that ask for information already derivable from `$ARGUMENTS`, the codebase structure, or a preceding step's output.
 
 Flag if: the skill asks the user for a value (e.g., project type, module name, test root) that could be determined by reading a known file (e.g., `composer.json`,
 `package.json`, `.csproj`) or by applying a documented inference rule already present in the skill.
 
-Recommendation: replace interactive prompts with deterministic inference steps. Only use `AskUserQuestion`
+Recommendation: replace interactive prompts with deterministic inference steps. Only use `question`
 when the answer is genuinely ambiguous and cannot be resolved from available signals. State the inference rule explicitly so the agent can apply it without asking.
 
 ---
@@ -292,7 +294,7 @@ lenses, verify each claim against current documentation.
 |------|-----------------------------------------------------------------------------------------------------|
 | A1   | Sub-agents can receive a file path in their prompt and read it themselves via `Read`                |
 | B1   | All sub-agent output accumulates in the orchestrator's context window                               |
-| C1   | A single `Agent` tool call bundles all agents — orchestrator receives no results until all complete |
+| C1   | Parallel `task` calls launch all sub-agents before the orchestrator receives results                |
 
 **Only run this step if at least one finding from lenses A1, B1, or C1 was recorded in Step 2.**
 Skip entirely if none of those lenses triggered.
@@ -379,7 +381,7 @@ Then stop — do not proceed to Step 4.
 
 ## Step 4 — Ask the user whether to apply recommendations
 
-After presenting the report, use `AskUserQuestion` to ask:
+After presenting the report, use `question` to ask:
 
 ---
 
@@ -415,7 +417,7 @@ For each confirmed finding, in severity order (high → medium → low):
    `[A1] applied — replaced verbatim template with file path reference`).
 
 If a fix requires judgement about exact wording (e.g. a new structured result block must be written from scratch), draft the new text, show it to the user via
-`AskUserQuestion`, and only apply after approval.
+`question`, and only apply after approval.
 
 After all edits are applied, output a one-line summary:
 

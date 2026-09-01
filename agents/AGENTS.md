@@ -70,9 +70,9 @@ these failures either way. Never comment that a failure is "pre-existing" or bla
 
 Never disable static analysis rules, suppress warnings, skip tests, or mark tests as pending to make CI pass. Always fix the underlying root cause.
 
-# AskUserQuestion Verbosity
+# Question tool verbosity
 
-The `AskUserQuestion` tool must provide enough information for the user to make a fully informed decision without needing to ask follow-up questions.
+The `question` tool must provide enough information for the user to make a fully informed decision without needing to ask follow-up questions.
 
 - **Question text**: state the full context — what is being decided, why it matters, and any constraint or tradeoff that affects the choice. A single clause is rarely
   enough.
@@ -83,7 +83,7 @@ The `AskUserQuestion` tool must provide enough information for the user to make 
 
 ## Recommended option
 
-Every `AskUserQuestion` call **must** include exactly one recommended option. The recommended option:
+Every `question` call **must** include exactly one recommended option. The recommended option:
 
 - Is the **first** option in the `options` array.
 - Has `" (Recommended)"` appended to its `label`.
@@ -100,8 +100,13 @@ Pick the recommendation by evaluating the candidates against these criteria, in 
 
 If two options tie on these criteria, recommend the one that is easier to reverse. Never recommend an option you would not implement yourself.
 
-This rule overrides any active terseness/compression mode (including caveman). AskUserQuestion content is treated like code, commits, and security warnings — always
+This rule overrides any active terseness/compression mode (including caveman). Question content is treated like code, commits, and security warnings — always
 written in full prose regardless of conversational style.
+
+## OpenCode tool names
+
+Use OpenCode tool names in all skill instructions: `question`, `todowrite`, `task`, `read`, `glob`, `grep`, `edit`, `apply_patch`, and `webfetch`. Do not use
+Claude Code names such as `AskUserQuestion`, `TodoWrite`, `Agent`, `Explore`, or `WebFetch`.
 
 # Skill Discovery
 
@@ -116,9 +121,9 @@ skill as nonexistent when it is missing from **both** the repository and the use
 # Writing Style
 
 Writing style rules — plain-language word choice, sentence structure, capitalization, punctuation, banned words, and audience adaptation — live in the `writing-style`
-skill at `~/.config/opencode/skills/shared/writing-style/SKILL.md`. Read that file before writing any prose.
+skill at `~/.config/opencode/skills/writing-style/SKILL.md`. Load that skill before writing prose.
 
 # File Operation Rules
 
 File operation rules — including which tools to use, the ban on manipulating files via Bash, and when to delete a file — live in the
-`file-operations` skill at `~/.config/opencode/skills/shared/file-operations/SKILL.md`. Read that file before performing any file operation.
+`file-operations` skill at `~/.config/opencode/skills/file-operations/SKILL.md`. Load that skill before performing file operations.

@@ -6,8 +6,8 @@ argument-hint: [ path to the source plan file ]
 allowed-tools:
     - Read
     - Write
-    - AskUserQuestion
-    - TodoWrite
+    - question
+    - todowrite
     - Glob
     - Bash(ls *)
     - Bash(dirname *)
@@ -42,7 +42,7 @@ every step.
 
 ## Step 0a — Ask whether parallel execution is permitted
 
-Before resolving the plan file, use `AskUserQuestion` with exactly one question:
+Before resolving the plan file, use `question` with exactly one question:
 
 - **header:** `Parallel execution`
 - **question:** Independent sub-plans can run one at a time (sequential) or together (parallel). Sequential is more reliable: each coding agent finishes and its tests
@@ -72,7 +72,7 @@ when you reach Step 1.
 
 If `$ARGUMENTS` contains a file path, use it as the source plan file.
 
-Otherwise, use `AskUserQuestion` to ask the user:
+Otherwise, use `question` to ask the user:
 
 > **Which plan file should I split?**
 > Please provide the path to the master plan file (e.g. `docs/plans/feature.md`).
@@ -126,7 +126,7 @@ read, or a package install) may become sub-plan `01`. Keep it as small as possib
 slice. Anything that *can* live inside the first slice must.
 
 **Change-audit as final sub-plan:** the last sub-plan before plan-directory cleanup must be a change-audit pass. This sub-plan invokes the `change-audit` skill
-(`~/.config/opencode/skills/audits/change-audit/SKILL.md`) to audit every file changed on the branch for materially useful simplifications and implement accepted fixes.
+(`~/.config/opencode/skills/change-audit/SKILL.md`) to audit every file changed on the branch for materially useful simplifications and implement accepted fixes.
 It is blocked by all preceding sub-plans and blocks nothing (except the plan-deletion step, which is not a sub-plan). Its steps are: run `/change-audit`, confirm all
 tests pass after fixes are applied. If the master plan already contains a change-audit step, extract it into this final sub-plan; if it does not, add one.
 
@@ -154,7 +154,7 @@ For each sub-plan, determine:
 
 ## Step 2 — Confirm the proposed split with the user
 
-Before writing any files, present the proposed split to the user via `AskUserQuestion`:
+Before writing any files, present the proposed split to the user via `question`:
 
 ---
 

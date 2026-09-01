@@ -6,11 +6,11 @@ allowed-tools:
     - Read
     - Edit
     - Write
-    - AskUserQuestion
-    - TodoWrite
+    - question
+    - todowrite
     - Glob
     - Grep
-    - Agent
+    - task
     - Bash(test -f *)
     - Bash(cat *)
     - Bash(git log *)
@@ -59,7 +59,7 @@ every step.
 
 If `$ARGUMENTS` contains a file path, use it.
 
-Otherwise, use `AskUserQuestion` to ask the user for the path:
+Otherwise, use `question` to ask the user for the path:
 
 > **Which plan file should I resync?**
 > Please provide the path to the plan file (e.g. `docs/plans/my-feature.md`).
@@ -76,8 +76,9 @@ Before analyzing drift, ground yourself in the current state of the relevant cod
 
 1. **Identify every concrete reference in the plan** — file paths, class names, function names, route names, migration names, config keys, env vars, package names,
    table/column names, command names, job names, etc.
-2. **Delegate verification to a single `Explore` sub-agent.** Pick a model that fits the work — prefer using fewer tokens while still doing the job well. Pass the
-   resolved plan path and the full reference list. Instruct it to return a compact table: `reference | status (exists | missing | renamed | signature-changed) |
+2. **Use `task` to launch a single `explore` sub-agent for verification.** Pick a model that fits the work — prefer using fewer tokens while still doing the job well.
+   Pass the resolved plan path and the full reference list. Instruct it to return a compact table:
+   `reference | status (exists | missing | renamed | signature-changed) |
    current location | note`. Also ask it to surface newly added neighbors of plan-targeted files, refactors that moved logic elsewhere, and deletions of things the plan
    assumed would still be there. The sub-agent must use
    `Grep -C 3` for context where surrounding lines are enough to confirm a match, and escalate to `Read` only when grep context is insufficient.
@@ -182,20 +183,20 @@ If the plan is already fully in sync with the codebase, tell the user so and sto
 
 ---
 
-## Step 4 — Ask questions via AskUserQuestion (repeat until done)
+## Step 4 — Ask questions via question (repeat until done)
 
 Run the interactive review loop in `~/.config/opencode/skills/planning-commons/review-loop.md`, with these resync specifics:
 
 - Label each round **Plan resync: round N** — N drift points to reconcile.
 - Prefer the loop's **compact one-line variant** for findings — `**[Lens]** "quoted plan text" — current: path:LINE — Q: <closed-ended question>` — using a multi-line
   block only when a finding needs a code snippet or multi-field context.
-- Only judgment calls and scope questions (Step 3) go to `AskUserQuestion`; **apply mechanical updates and confirmed reconciliations directly to the plan** without
+- Only judgment calls and scope questions (Step 3) go to `question`; **apply mechanical updates and confirmed reconciliations directly to the plan** without
   asking. When writing answers back, mark fully implemented items as done (with a short note citing the implementing file (s)/commit), rewrite stale references to the
   current code, replace invalidated assumptions with the current factual state, add steps/context for newly relevant code, re-annotate dependencies to real ordering
   constraints, and express any new implementation work as a code example (see the **Code examples** guideline below).
 
 Re-read and re-run the lenses against the codebase after each round — new drift may surface once obvious issues are fixed — and always write to disk before the next
-`AskUserQuestion` call. When no drift remains, proceed to Step 5.
+`question` call. When no drift remains, proceed to Step 5.
 
 ---
 

@@ -46,7 +46,7 @@ If `parent-feature` was provided as an argument, resolve it to a feature in the 
 Otherwise, fetch the project's features with `mcp__sp_projects__getFeatures` and look for an existing umbrella feature that may already track this upgrade (e.g. a feature
 whose name contains "Upgrade", the framework name, or the target version).
 
-Use the `AskUserQuestion` tool to present the candidates and ask the user which feature to group under. Format each option as `{name} ({status})` (e.g.
+Use the `question` tool to present the candidates and ask the user which feature to group under. Format each option as `{name} ({status})` (e.g.
 `Upgrade to Laravel 13 (Planned)`). Include a `new` option at the end. Example prompt:
 
 > "Should I group the package-upgrade features under an existing initiative, or create a new one?
@@ -62,7 +62,7 @@ Use the `AskUserQuestion` tool to present the candidates and ask the user which 
 
 **If the user replies `new` (or there are no existing features to offer):**
 
-Use the `AskUserQuestion` tool to ask:
+Use the `question` tool to ask:
 
 > "What should the new umbrella feature be titled?"
 

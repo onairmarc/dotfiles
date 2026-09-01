@@ -21,7 +21,7 @@ authoritative source of those checks; do not invent checks it does not state. Wh
 
 ---
 
-## AskUserQuestion — batching and ranking
+## Question — batching and ranking
 
 - **At most 4 questions per call.** The tool accepts no more.
 - **Rank by blast radius** when more than 4 findings need user input, and ask the top 4 first: standards/policy and delivery-constraint blockers → contradictions →
@@ -73,4 +73,4 @@ After each round of answers:
 3. **Run every lens again** on the updated content — resolving obvious issues often surfaces new ones.
 4. If findings remain, compile the next round and repeat. If none remain, proceed to the skill's final-confirmation step.
 
-**Always write the updated file to disk before calling `AskUserQuestion` again.** After every round the file must be a standalone, self-contained document.
+**Always write the updated file to disk before calling `question` again.** After every round the file must be a standalone, self-contained document.

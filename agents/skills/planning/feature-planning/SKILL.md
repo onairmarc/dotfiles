@@ -1,12 +1,12 @@
 ---
 name: feature-planning
-description: Interactively create a new feature plan for any repository. Uses a pm-review discovery brief, the codebase, and project conventions to answer as much as possible itself, then asks the user only the residual unknowns via AskUserQuestion (confirming its premise when it has none). Drafts a plan following discovered conventions, the northstar vision, and general design principles, then applies plan-review lenses to produce an agent-ready plan written to the repo's planning directory.
+description: Interactively create a new feature plan for any repository. Uses a pm-review discovery brief, the codebase, and project conventions to answer as much as possible itself, then asks the user only the residual unknowns via question (confirming its premise when it has none). Drafts a plan following discovered conventions, the northstar vision, and general design principles, then applies plan-review lenses to produce an agent-ready plan written to the repo's planning directory.
 argument-hint: "[ feature name or description (optional) ] [ --output=<dir> ]"
 allowed-tools:
     - Read
     - Edit
     - Write
-    - AskUserQuestion
+    - question
     - Glob
     - Grep
 ---
@@ -119,7 +119,7 @@ every available source, then asking the user **only** about what none of those s
     - If `$DISCOVERY_BRIEF` is set, read it as the authoritative product-side starting point: seed the plan's Goal, scope, and affected components from its Summary,
       Recommended scope, and Impacted domains; carry its Invariants at risk, Edge cases, and Risks & constraints forward as hard requirements; treat its Vision fit as the
       settled reconciliation with the northstar. Do not re-litigate what the brief already decided.
-    - Otherwise, use `$ARGUMENTS` if it contains a clear description; if not, ask the user with `AskUserQuestion`:
+    - Otherwise, use `$ARGUMENTS` if it contains a clear description; if not, ask the user with `question`:
       *"What feature are you planning? Describe it in a sentence or two — the problem it solves and the part of the system involved."*
 
 2. **Answer as much as you can yourself, from the brief + the code + the conventions.** For each area below, first try to determine the answer by reading the brief and
@@ -132,12 +132,12 @@ every available source, then asking the user **only** about what none of those s
     - **Existing code**: what this replaces, extends, or must stay compatible with.
 
 3. **Ask only the residual unknowns.** Put the questions the combined sources could not answer to the user via
-   `AskUserQuestion` — focused, short-answer, highest-impact first, batched per the AskUserQuestion rules in `~/.config/opencode/skills/planning-commons/review-loop.md`.
+   `question` — focused, short-answer, highest-impact first, batched per the question rules in `~/.config/opencode/skills/planning-commons/review-loop.md`.
    Do not ask anything the brief, the code, or the conventions already answer.
 
 4. **If you have no questions, do not silently proceed — confirm the premise first.** Reaching zero questions is a claim that the brief, the code, and the conventions
    fully determine the plan. State that claim explicitly to the user with
-   `AskUserQuestion`: name **what led you to have no questions** — e.g. "the discovery brief resolves scope and edge cases, the code shows the extension point in `X`, and
+   `question`: name **what led you to have no questions** — e.g. "the discovery brief resolves scope and edge cases, the code shows the extension point in `X`, and
    convention `Y` fixes the rest" — and present the premise you are about to plan from (intended scope, affected components, key decisions). Give the user a clear path to
    **confirm** or **correct** it.
     - If the user confirms, proceed to Step 1 and write the plan.
@@ -228,7 +228,7 @@ Hold the plan against `~/.config/opencode/skills/delivery-constraints/SKILL.md`.
 
 ---
 
-## Step 3 — Iterate via AskUserQuestion
+## Step 3 — Iterate via question
 
 Group your findings into labeled question blocks — each quoting the plan text, stating what is missing or conflicting, and asking one focused short-answer question — then
 run the interactive review loop in `~/.config/opencode/skills/planning-commons/review-loop.md`: batch at most 4 questions per call ranked by blast radius, write every

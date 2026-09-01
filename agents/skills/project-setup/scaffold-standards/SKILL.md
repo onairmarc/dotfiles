@@ -9,7 +9,7 @@ allowed-tools:
     - Glob
     - Grep
     - Bash
-    - AskUserQuestion
+    - question
 ---
 
 # Scaffold Standards Skill
@@ -24,7 +24,7 @@ markers** — nothing is left for the human to fill in later. The skill closes e
 1. **Detection** — read it from the repo (manifests, CI, tooling config).
 2. **Agent knowledge** — author it from what is idiomatic for the detected language/stack (e.g. the concrete casing rules for the language, the standard test-file
    location, the conventional error model), then confirm the generated block with the user before writing.
-3. **Interview** — ask the user via `AskUserQuestion` for anything neither detection nor agent knowledge can settle (project name, tagline, production log sink,
+3. **Interview** — ask the user via `question` for anything neither detection nor agent knowledge can settle (project name, tagline, production log sink,
    project-specific rules).
 
 If a section would otherwise be empty, the skill drives a question to fill it — it never emits a placeholder or a TODO.
@@ -177,7 +177,7 @@ Packs live at `<skill_dir>/resources/policy-packs/<framework>/`, each with an `_
 
 1. Check each pack's gate against the detected stack. Today the skill ships a **`laravel`** pack (gate: `composer.json` requires `laravel/framework` **or** any
    `illuminate/*` package — the second half catches Laravel packages, which depend on the components rather than on the framework).
-2. If a pack gates in, **confirm it with the user via `AskUserQuestion` before adopting it.** A pack is never applied silently, and the user may decline it and keep the
+2. If a pack gates in, **confirm it with the user via `question` before adopting it.** A pack is never applied silently, and the user may decline it and keep the
    agnostic core policies instead.
 3. For each row in the manifest, evaluate that policy's own gate. Copy in only the ones that match.
 4. Honor the manifest's `Supersedes` column: when a pack policy is written, the core policy it supersedes is **not**
@@ -206,7 +206,7 @@ The templates carry two kinds of token, both of which MUST be gone from the outp
   `{{GEN:concrete casing rules for the language}}`). These are where the language-specific substance is written. Author the block, then confirm it with the user before it
   is written to disk.
 
-Interview the user with `AskUserQuestion` to settle everything detection and agent knowledge cannot. Lead every option with what you detected so the user usually just
+Interview the user with `question` to settle everything detection and agent knowledge cannot. Lead every option with what you detected so the user usually just
 confirms. Batch into a small number of questions (the tool allows up to 4 per call). Resolve at least the following `{{VALUE}}` tokens:
 
 | Value token                   | Resolve by                                                                                                                                                                                                                                |
@@ -311,8 +311,8 @@ survives** in a written file.
 A skeleton with correct headers, a resolved role, working cross-links, and an honest "no invariants captured yet" line is a real deliverable — better than an invented
 body that drifts from the code.
 
-**Deep-dive the top few.** After the skeletons land, ask the user via `AskUserQuestion` which 3–5 modules to fully populate now (recommend the ones they emphasized in the
-Interview Phase). For each selected module, run one consolidated `AskUserQuestion`:
+**Deep-dive the top few.** After the skeletons land, ask the user via `question` which 3–5 modules to fully populate now (recommend the ones they emphasized in the
+Interview Phase). For each selected module, run one consolidated `question`:
 
 > **`<module>` deep-dive.** (1) The 5–10 most important files or directories and each one's role. (2) Any invariants, gotchas, or boot-order constraints an agent must
 > respect. (3) Run/test commands specific to this module, if they differ from the root commands.
@@ -341,7 +341,7 @@ checklist — each round drives concrete edits, then re-runs every lens.
 - **Lens E — Consistency.** Project and module names are spelled identically across every file; docs/planning paths agree everywhere; anchor links point at headings that
   exist. If `{{NORTHSTAR}}` is set, no policy contradicts a northstar principle — flag any that does.
 
-When a lens surfaces issues, present them via `AskUserQuestion` (at most 4 questions per call, ranked BLOCK-equivalents → stack-fit errors → ambiguity → completeness,
+When a lens surfaces issues, present them via `question` (at most 4 questions per call, ranked BLOCK-equivalents → stack-fit errors → ambiguity → completeness,
 tightly-related issues consolidated). Write the fixes to disk **before** the next question, re-read the changed files, and re-run all five lenses. Repeat until a full
 pass finds nothing. Issues the agent can resolve itself (a broken link, a missing index row, a misspelled module name) are fixed directly without a question.
 

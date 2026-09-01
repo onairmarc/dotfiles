@@ -11,7 +11,7 @@ allowed-tools:
     - Bash(ls *)
     - Bash(find *)
     - Bash(find -L *)
-    - AskUserQuestion
+    - question
 ---
 
 # Project Skill Config
@@ -204,7 +204,7 @@ If there are no new skills to disable AND no reevaluation candidates, say so and
 
 ## Step 6 — Ask for confirmation
 
-Use `AskUserQuestion` with up to two questions in one call — one for new disables (if any), one for reevaluation changes (if any). Omit a question if its section had no
+Use `question` with up to two questions in one call — one for new disables (if any), one for reevaluation changes (if any). Omit a question if its section had no
 candidates.
 
 **Question 1 — New disables** (only if Step 3 produced new skills to disable):

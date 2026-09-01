@@ -89,7 +89,7 @@ If tools are found, ask the user for permission before running them:
 - For each static analyzer found: "Found `<tool>`. Run static analysis on changed files?"
 - For each test runner found: "Found `<tool>`. Run tests for changed files?"
 
-Use the AskUserQuestion tool. If denied, continue with manual review only.
+Use the question tool. If denied, continue with manual review only.
 
 ---
 

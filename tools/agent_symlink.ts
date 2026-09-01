@@ -6,7 +6,7 @@
 // (`linkPath`) is a symlink whose referent is the file or directory in this
 // repo. Writes through the link mutate the repo file. Never copy, never
 // hard-link, and never create a Windows junction.
-import {lstatSync, mkdirSync, readFileSync, readdirSync, readlinkSync, rmSync, symlinkSync} from "node:fs";
+import {lstatSync, mkdirSync, readFileSync, readdirSync, readlinkSync, renameSync, rmSync, symlinkSync, unlinkSync} from "node:fs";
 import {dirname, isAbsolute, join, relative} from "node:path";
 
 function exists(path: string): boolean {
@@ -234,6 +234,43 @@ function linkWriteThrough(referent: string, linkPath: string, label: string): vo
     logInfo(`  Created write-through symlink: ${linkPath} -> ${referent}`);
 }
 
+function linkGlobalFile(referent: string, linkPath: string, label: string): void {
+    if (!exists(resolveReferent(referent, linkPath))) {
+        logWarn(`Source does not exist, skipping: ${referent}`);
+
+        return;
+    }
+
+    mkdirSync(dirname(linkPath), {recursive: true});
+    if (alreadyWriteThrough(linkPath, referent)) {
+        logInfo(`${label}: ${linkPath} already write-through -> ${referent}`);
+
+        return;
+    }
+
+    if (exists(linkPath)) {
+        const stat = lstatSync(linkPath);
+        if (stat.isSymbolicLink()) {
+            unlinkSync(linkPath);
+        } else if (stat.isFile()) {
+            logInfo(`${label}: backing up existing ${linkPath} to ${linkPath}.bak`);
+            renameSync(linkPath, linkPath + ".bak");
+        }
+    }
+
+    createWriteThroughLink(referent, linkPath);
+    logInfo(`${label}: ${linkPath} -> ${referent}`);
+}
+
+function privateSkillsSource(privateDir: string): string {
+    const agentsSkills = join(privateDir, "agents", "skills");
+    if (isDir(agentsSkills)) {
+        return agentsSkills;
+    }
+
+    return join(privateDir, ".agents", "skills");
+}
+
 let debugMode = false;
 
 function logDebug(msg: string): void {
@@ -324,6 +361,40 @@ function finishSync(skillErrors: string[]): void {
     logInfo("Sync complete!");
 }
 
+export function syncGlobalOpencode(): void {
+    const dotfilesRoot = dirname(import.meta.dir);
+    const skillsSource = join(dotfilesRoot, "agents", "skills");
+    if (!isDir(skillsSource)) {
+        throw new Error(`Source directory does not exist: ${skillsSource}`);
+    }
+
+    const privateDir = process.env.DF_PRIVATE_DIRECTORY
+        || join(homeDir(), "Documents", "GitHub", "dotfiles-private");
+    const privateSkills = privateSkillsSource(privateDir);
+    const configDir = join(homeDir(), ".config", "opencode");
+    const skillErrors = populateSkillsTargets(
+        skillsSource,
+        privateSkills,
+        privateDir,
+        "Global mode",
+        [join(configDir, "skills")],
+    );
+
+    if (skillErrors.length > 0) {
+        throw new Error(`${skillErrors.length} skill(s) have invalid SKILL.md frontmatter`);
+    }
+
+    const pluginsSource = join(dotfilesRoot, "opencode", "plugins");
+    linkGlobalFile(join(dotfilesRoot, "agents", "AGENTS.md"), join(configDir, "AGENTS.md"), "Global mode");
+    linkGlobalFile(join(dotfilesRoot, "opencode", "opencode.jsonc"), join(configDir, "opencode.jsonc"), "Global mode");
+    linkGlobalFile(join(dotfilesRoot, "opencode", "tui.jsonc"), join(configDir, "tui.jsonc"), "Global mode");
+    for (const file of findFiles(pluginsSource)) {
+        linkGlobalFile(file, join(configDir, relative(pluginsSource, file)), "Global mode");
+    }
+
+    logInfo("Sync complete!");
+}
+
 function main(argv: string[]): void {
     let globalMode = false;
     let claudeMode = false;
@@ -379,38 +450,23 @@ function main(argv: string[]): void {
     }
 
     if (globalMode) {
-        const skillsSource = join(repoRoot, "agents", "skills");
-        if (!isDir(skillsSource)) {
-            logError(`Source directory does not exist: ${skillsSource}`);
-            process.exit(1);
-        }
-
-        const privateDir = process.env.DF_PRIVATE_DIRECTORY
-            || join(homeDir(), "Documents", "GitHub", "dotfiles-private");
-
-        const privateSkillsSource = join(privateDir, "agents", "skills");
-        const skillTargets = [join(homeDir(), ".config", "opencode", "skills")];
+        syncGlobalOpencode();
 
         if (claudeMode) {
-            mkdirSync(join(homeDir(), ".claude"), {recursive: true});
-            skillTargets.push(join(homeDir(), ".claude", "skills"));
-        }
-
-        const skillErrors = populateSkillsTargets(skillsSource, privateSkillsSource, privateDir, "Global mode", skillTargets);
-        const configDir = join(homeDir(), ".config", "opencode");
-        const pluginsSource = join(repoRoot, "opencode", "plugins");
-        linkWriteThrough(join(repoRoot, "agents", "AGENTS.md"), join(configDir, "AGENTS.md"), "Global mode");
-        linkWriteThrough(join(repoRoot, "opencode", "opencode.jsonc"), join(configDir, "opencode.jsonc"), "Global mode");
-        linkWriteThrough(join(repoRoot, "opencode", "tui.jsonc"), join(configDir, "tui.jsonc"), "Global mode");
-        for (const file of findFiles(pluginsSource)) {
-            linkWriteThrough(file, join(configDir, relative(pluginsSource, file)), "Global mode");
-        }
-
-        if (claudeMode) {
+            const skillsSource = join(repoRoot, "agents", "skills");
+            const privateDir = process.env.DF_PRIVATE_DIRECTORY
+                || join(homeDir(), "Documents", "GitHub", "dotfiles-private");
+            const privateSkills = privateSkillsSource(privateDir);
+            const skillErrors = populateSkillsTargets(
+                skillsSource,
+                privateSkills,
+                privateDir,
+                "Claude global mode",
+                [join(homeDir(), ".claude", "skills")],
+            );
             linkWriteThrough(join(repoRoot, "agents", "AGENTS.md"), join(homeDir(), ".claude", "CLAUDE.md"), "Global mode");
+            finishSync(skillErrors);
         }
-
-        finishSync(skillErrors);
 
         return;
     }

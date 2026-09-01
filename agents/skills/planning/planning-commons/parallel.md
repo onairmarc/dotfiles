@@ -112,12 +112,12 @@ wave has returned.
 
 #### 3a — Spawn the wave
 
-Write `.agent-instructions.md` once before the first spawn (same content as `plan-execute` `SKILL.md`). On each `Agent` call, pick a model that fits the work — prefer
+Write `.agent-instructions.md` once before the first spawn (same content as `plan-execute` `SKILL.md`). On each `task` call, pick a model that fits the work — prefer
 using fewer tokens while still doing the job well.
 
-- Wave of one: spawn one `general-purpose` sub-agent, wait, evaluate (same as sequential Step 3a).
-- Wave of several: make one `Agent` tool call per sub-plan **in the same turn**, then wait for all of them. Use Template A or B from `plan-execute` `SKILL.md` per the
-  sub-plan's Step 1b status. Each prompt stays self-contained (file path, not file content).
+- Wave of one: use `task` to launch one `general` sub-agent, wait, evaluate (same as sequential Step 3a).
+- Wave of several: make one `task` call per sub-plan **in the same turn** to launch `general` sub-agents, then wait for all of them.
+  Use Template A or B from `plan-execute` `SKILL.md` per the sub-plan's Step 1b status. Each prompt stays self-contained (file path, not file content).
 
 #### 3b — Wait for the whole wave
 
@@ -128,7 +128,7 @@ Do not start the next wave, and do not spawn anything outside this wave, until e
 Inspect every returned result using the same failure classes as `plan-execute` `SKILL.md`.
 
 - All succeeded: mark each sub-plan complete and start the next wave.
-- Any failed: do not start the next wave. Report every failure (same verbose block per file as `plan-execute` `SKILL.md`). Use `AskUserQuestion` once, listing each failed
+- Any failed: do not start the next wave. Report every failure (same verbose block per file as `plan-execute` `SKILL.md`). Use `question` once, listing each failed
   file, with the same three options (retry / skip / abort). Retry re-spawns only the failed members with the retry template — successful members of the wave stay done.
   Skip marks the failed members skipped, warns that downstream plans may be affected, and continues to the next wave. Abort stops all orchestration.
 

@@ -12,7 +12,7 @@ allowed-tools:
     - Bash(cat *)
     - Skill(feature-planning)
     - Skill(cs-optimization)
-    - AskUserQuestion
+    - question
 ---
 
 # Avalonia Optimization Skill

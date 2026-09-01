@@ -29,8 +29,8 @@ If no valid source paths survive, use the most specific directory the plan targe
 
 ## 5c — Invoke `{{OPTIMIZATION_SKILL}}`
 
-Spawn an `Agent` sub-agent for each unique top-level `{{PATH_NOUN}}` path extracted in 5b. On each `Agent` call, pick a model that fits the work — prefer using fewer
-tokens while still doing the job well. Use this prompt (fill in the bracketed values):
+Use `task` to launch an `explore` sub-agent for each unique top-level `{{PATH_NOUN}}` path extracted in 5b. On each `task` call, pick a model that fits the work.
+Prefer using fewer tokens while still doing the job well. Use this prompt (fill in the bracketed values):
 
 ```
 Run the {{OPTIMIZATION_SKILL}} skill on `<{{PATH_NOUN}}-path>`.
@@ -39,8 +39,8 @@ Do NOT invoke feature-planning or write to any plan file.
 Return your full structured audit findings so the caller can incorporate them into the reviewed plan.
 ```
 
-Pass the `{{PATH_NOUN}}` directory, not an individual file. If the plan spans multiple unrelated `{{PATH_NOUN}}` directories, spawn one Agent per directory — do not
-combine unrelated paths into a single invocation. Collect all sub-agent results before proceeding to 5d.
+Pass the `{{PATH_NOUN}}` directory, not an individual file. If the plan spans multiple unrelated `{{PATH_NOUN}}` directories, use `task` to launch one `explore`
+sub-agent per directory — do not combine unrelated paths into a single invocation. Collect all sub-agent results before proceeding to 5d.
 
 ## 5d — Incorporate findings into the reviewed plan
 
@@ -58,7 +58,7 @@ have been enriching and incorporate the performance findings directly into it �
 3. {{EXTRA_STEPS}}
 4. Write the updated plan back to disk with `Edit` (or `Write` if a full rewrite is cleaner).
 5. Re-read the updated plan and confirm no new ambiguities were introduced by the additions. If any were, resolve them as much as you can on your own and use the
-   `AskUserQuestion` tool for any that you cannot.
+   `question` tool for any that you cannot.
 
 If `{{OPTIMIZATION_SKILL}}` found **no issues**, add a single note at the bottom of the plan:
 

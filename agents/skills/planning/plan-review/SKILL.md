@@ -6,11 +6,11 @@ allowed-tools:
     - Read
     - Edit
     - Write
-    - AskUserQuestion
-    - TodoWrite
+    - question
+    - todowrite
     - Glob
     - Grep
-    - Agent
+    - task
     - Bash(test -f *)
     - Bash(cat *)
     - Bash(find * -name "*.csproj" -type f)
@@ -41,7 +41,7 @@ every step.
 
 If `$ARGUMENTS` contains a file path, use it.
 
-Otherwise, use `AskUserQuestion` to ask the user for the path:
+Otherwise, use `question` to ask the user for the path:
 
 > **Which plan file should I review?**
 > Please provide the path to the plan file (e.g. `docs/plans/my-feature.md`).
@@ -157,7 +157,7 @@ If the plan is already complete and unambiguous, tell the user so and stop.
 
 ---
 
-## Step 3 — Ask questions via AskUserQuestion (repeat until done)
+## Step 3 — Ask questions via question (repeat until done)
 
 Group your findings into labeled question blocks — each quoting the plan text that triggered it and asking one focused, short-answer question — and run the interactive
 review loop in `~/.config/opencode/skills/planning-commons/review-loop.md`: batch at most 4 questions per call ranked by blast radius, write every answer back into the

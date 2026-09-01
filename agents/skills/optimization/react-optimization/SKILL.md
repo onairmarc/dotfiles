@@ -14,7 +14,7 @@ allowed-tools:
     - Bash(find * -name "*.js" -type f)
     - Bash(cat *)
     - Skill(feature-planning)
-    - AskUserQuestion
+    - question
 ---
 
 # React Optimization Skill

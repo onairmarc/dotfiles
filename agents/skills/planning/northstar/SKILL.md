@@ -1,13 +1,13 @@
 ---
 name: northstar
-description: Interactively create or update the northstar.md product vision document for a repository. Gathers vision, users, scope, deployment model, guiding principles (with BLOCK/WARN checks), and sanctioned feature tracking via AskUserQuestion. Pulls existing features from SP Projects (via SP Projects MCP) when available, then writes northstar.md to the repo's durable product-docs directory (docs/product/).
+description: Interactively create or update the northstar.md product vision document for a repository. Gathers vision, users, scope, deployment model, guiding principles (with BLOCK/WARN checks), and sanctioned feature tracking via question. Pulls existing features from SP Projects (via SP Projects MCP) when available, then writes northstar.md to the repo's durable product-docs directory (docs/product/).
 disable-model-invocation: true
 argument-hint: [ optional: path to existing northstar.md to update ]
 allowed-tools:
     - Read
     - Edit
     - Write
-    - AskUserQuestion
+    - question
     - Glob
     - Grep
 ---
@@ -38,7 +38,7 @@ Before gathering any input, orient yourself:
 
 2. **Check for existing northstar** — resolve `$NORTHSTAR_PATH` per the `$NORTHSTAR` ladder in `~/.config/opencode/skills/planning-commons/paths.md` (durable home first,
    legacy locations after). If `$ARGUMENTS` contains a path to an existing northstar, use that instead. If one exists:
-    - Ask the user via `AskUserQuestion`: **Refine the existing northstar, or start fresh?**
+    - Ask the user via `question`: **Refine the existing northstar, or start fresh?**
         - **Refine**: read the existing file, treat its content as Step 0–4 answers, then jump to Step 5 (Review lenses)
           and surface only what is missing or weak. If it currently lives outside `$PRODUCT_DIR` (a legacy location), write the refined version to
           `$PRODUCT_DIR/northstar.md` in Step 5 and note the move to the user.
@@ -67,7 +67,7 @@ Before gathering any input, orient yourself:
 
 ## Step 0 — Core identity
 
-Ask the following in a **single `AskUserQuestion` call**:
+Ask the following in a **single `question` call**:
 
 1. What is the product or project name?
 2. In one or two sentences: what problem does this product solve, and who does it solve it for?
@@ -79,7 +79,7 @@ Use answers from `AGENTS.md` / `docs/policies.md` if already available — do no
 
 ## Step 1 — Users and deployment
 
-Ask the following in a **single `AskUserQuestion` call**:
+Ask the following in a **single `question` call**:
 
 1. Who are the primary user roles? For each, name the role and one or two activities they perform in the product.
 2. How is the product deployed? (e.g., self-hosted on-premises, SaaS/cloud, CLI tool, desktop app, library/SDK)
@@ -89,7 +89,7 @@ Ask the following in a **single `AskUserQuestion` call**:
 
 ## Step 2 — Scope
 
-Ask the following in a **single `AskUserQuestion` call**:
+Ask the following in a **single `question` call**:
 
 1. What are the major capability domains this product covers? List 4–8 areas (e.g., audio playback, schedule management, content library, diagnostics).
 2. What is **explicitly out of scope** — things adjacent teams or users might expect but this product will never do? Be specific; vague answers are not useful here.
@@ -103,7 +103,7 @@ Ask the following in a **single `AskUserQuestion` call**:
 Guiding principles are the heart of the northstar. The `feature-planning` skill will read each principle and its BLOCK/WARN annotation when reviewing a plan. A principle
 is only useful if it is specific enough to cause a real plan to fail.
 
-Ask in a **single `AskUserQuestion` call**:
+Ask in a **single `question` call**:
 
 > Please describe 3–10 principles that should guide all feature work in this product. For each, provide:
 > - A short name (2–5 words)
@@ -126,7 +126,7 @@ If the user provides fewer than 3 principles, prompt them for at least one more 
 
 ### 4a — Ask which tool (s) the team uses
 
-Ask in a **single `AskUserQuestion` call**:
+Ask in a **single `question` call**:
 
 1. Which tool (s) does the team use to track approved and planned features?
     - `_ideas.md` (a markdown file alongside this northstar)
@@ -161,7 +161,7 @@ Read `$IDEAS_FILE` now and parse its contents into a feature list. Record as `$I
 
 Compose a starting list by merging all collected features (`$SP_FEATURES`, `$IDEAS_FEATURES`). Remove exact duplicates by name.
 
-Ask in a **single `AskUserQuestion` call**:
+Ask in a **single `question` call**:
 
 > Here is the feature list I assembled from [tool (s)]. Please confirm, remove, or add to it — each entry needs a name
 > and one sentence. If a tool was unavailable, list any features I should include that aren't shown.

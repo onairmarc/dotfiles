@@ -10,9 +10,8 @@ allowed-tools:
   - Glob
   - Grep
   - Bash
-  - AskUserQuestion
-  - WebFetch(domain:laravel.com)
-  - WebFetch(domain:*.laravel.com)
+  - question
+  - webfetch
 ---
 
 # Livewire Upgrade Analysis
@@ -89,7 +88,7 @@ Before auditing any code, fetch the official Livewire upgrade guide to ensure th
 https://livewire.laravel.com/docs/4.x/upgrading
 ```
 
-Use `WebFetch` with a prompt such as:
+Use `webfetch` to retrieve the guide, then extract:
 
 > "Extract all breaking changes, renamed methods/properties, removed features, new requirements, and migration steps
 > for upgrading from Livewire 3 to Livewire 4. Be comprehensive."
@@ -176,7 +175,7 @@ Before auditing, orient yourself:
 
 ## Step 0 — Confirm scope with user
 
-Use `AskUserQuestion` to present what you found and confirm scope before auditing:
+Use `question` to present what you found and confirm scope before auditing:
 
 > **Livewire upgrade analysis — scope confirmation**
 >

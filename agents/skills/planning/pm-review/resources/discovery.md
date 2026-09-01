@@ -74,7 +74,7 @@ Apply every lens under `custom_lenses`, asking each question of the idea. Apply 
 ## Step 5 — Resolve Open Questions with the User
 
 Discovery exists to remove ambiguity before planning starts. Where a genuine product decision is needed (scope boundary, persona priority, an invariant vs. the idea, a
-metric trade-off), ask the user with `AskUserQuestion` — at most 4 per call, ranked by how much they change the recommended scope. Do not ask what the knowledge base or
+ metric trade-off), ask the user with `question` — at most 4 per call, ranked by how much they change the recommended scope. Do not ask what the knowledge base or
 the code already answers.
 
 Fold every answer into the brief before writing it. Do not leave answered questions in the "Open questions" section.

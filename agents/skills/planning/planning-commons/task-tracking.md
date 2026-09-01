@@ -1,6 +1,6 @@
 # Task tracking
 
-How `plan-split`, `plan-execute`, `plan-review`, and `plan-resync` use `TodoWrite` so a run cannot quietly skip a step. This file is the single source of truth for the
+How `plan-split`, `plan-execute`, `plan-review`, and `plan-resync` use `todowrite` so a run cannot quietly skip a step. This file is the single source of truth for the
 protocol and the starter lists; each skill points here and names its starter.
 
 Read this file at the start of the skill, **before Step 0** (before Step 0a in `plan-split`). Seed the list from the starter named below, then keep it current through
@@ -10,7 +10,7 @@ every step.
 
 ## Protocol
 
-Call `TodoWrite` with the full `todos` array on every change.
+Call `todowrite` with the full `todos` array on every change.
 
 - **Seed first.** Write the starter list (all `pending`) before doing any other work in the skill.
 - **One `in_progress`.** Mark the current step `in_progress` as you start it. No second item is `in_progress` at the same time.

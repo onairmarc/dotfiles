@@ -1,5 +1,5 @@
 ---
-name: php-code-review
+name: code-review-php
 description: PHP/Laravel code review extending the base code-review skill. Checks for breaking changes, code quality, test coverage, and Laravel patterns. Outputs AI agent prompts by default; use `--full` for a complete actionable report with per-file grouping, two severity tiers, and inline diffs.
 argument-hint: "[--full]"
 disable-model-invocation: true
@@ -71,7 +71,7 @@ If tools are found, ask the user:
 - If PHPStan found: "PHPStan is installed. Run static analysis on changed files?"
 - If Pest/PHPUnit found: "Run test suite to verify coverage?"
 
-Use the AskUserQuestion tool. If denied, continue with manual review only.
+Use `question`. If denied, continue with manual review only.
 
 ---
 

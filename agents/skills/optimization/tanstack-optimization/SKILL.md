@@ -15,7 +15,7 @@ allowed-tools:
     - Bash(cat *)
     - Skill(feature-planning)
     - Skill(react-optimization)
-    - AskUserQuestion
+    - question
 ---
 
 # TanStack Optimization Skill

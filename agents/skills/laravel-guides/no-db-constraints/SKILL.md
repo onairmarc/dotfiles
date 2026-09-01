@@ -10,7 +10,7 @@ allowed-tools:
     - Glob
     - Grep
     - Bash
-    - AskUserQuestion
+    - question
 ---
 
 # No DB Constraints Skill
@@ -89,7 +89,7 @@ Before talking to the user, gather context:
 
 ## Step 0 — Confirm scope with user
 
-Use `AskUserQuestion` to present findings and confirm scope. Ask in a single call:
+Use `question` to present findings and confirm scope. Ask in a single call:
 
 > **Constraint audit — scope confirmation**
 >
@@ -213,7 +213,7 @@ For each table that had a unique constraint removed, find the corresponding Eloq
 - **Complex rule** (multiple columns, cross-table logic, conditional uniqueness) → dedicated `Rule` class, then call it from `boot()`.
 - **Rule reused in multiple models** → dedicated `Rule` class.
 
-Ask the user via `AskUserQuestion` if you are unsure which category applies to a specific rule.
+Ask the user via `question` if you are unsure which category applies to a specific rule.
 
 ### Inline `boot()` pattern
 
@@ -327,7 +327,7 @@ Removed FK constraints do **not** automatically need a code replacement for ever
 | Pure lookup (no cascade needed)   | No code needed — the FK was just a DB safety net           |
 | Data integrity across services    | Service layer check, not model `boot()`                    |
 
-Ask the user via `AskUserQuestion` for any FK whose purpose is unclear before deciding.
+Ask the user via `question` for any FK whose purpose is unclear before deciding.
 
 ---
 

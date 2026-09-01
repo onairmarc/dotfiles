@@ -8,9 +8,9 @@ allowed-tools:
     - Bash(ls *)
     - Bash(find *)
     - Bash(grep *)
-    - Agent
-    - AskUserQuestion
-    - TodoWrite
+    - task
+    - question
+    - todowrite
 ---
 
 # Plan Execute
@@ -41,7 +41,7 @@ every step.
 
 If `$ARGUMENTS` contains a directory path, use it as `$PLAN_DIR`.
 
-Otherwise, use `AskUserQuestion` to ask:
+Otherwise, use `question` to ask:
 
 > **Which directory contains the sub-plan files?**
 > Please provide the path to the directory produced by `/plan-split` (e.g. `docs/_planning/my-feature/`).
@@ -65,9 +65,9 @@ filename lists from its `## Dependencies` section, empty when `none`), and `cont
 
 **Skip this step on a first run.** Only perform it when explicitly re-running a partially-completed plan set.
 
-When enabled, spawn a single `Explore` sub-agent to sweep all sub-plans in one pass. Pick a model that fits the work — prefer using fewer tokens while still doing the job
-well. Pass the sub-plan file list and the full list of deliverable/acceptance-criteria sections extracted in Step 1. The sub-agent should check the codebase for key
-artifacts (files, classes, methods, migrations) for each sub-plan and return a classification:
+When enabled, use `task` to launch a single `explore` sub-agent to sweep all sub-plans in one pass. Pick a model that fits the work — prefer using fewer tokens while
+still doing the job well. Pass the sub-plan file list and every deliverable/acceptance-criteria section extracted in Step 1. The sub-agent should check the codebase for
+key artifacts (files, classes, methods, migrations) for each sub-plan and return a classification:
 
 | Status     | Meaning                                                                                            |
 |------------|----------------------------------------------------------------------------------------------------|
@@ -93,7 +93,7 @@ Pre-execution: N complete (skipped), M partial, P pending
 
 ## Step 1c — Reconfirm whether parallel execution is permitted
 
-Before compiling the execution graph (Step 2), use `AskUserQuestion` with exactly one question:
+Before compiling the execution graph (Step 2), use `question` with exactly one question:
 
 - **header:** `Parallel execution`
 - **question:** The sub-plans are parsed. Next is compiling the execution graph. Sequential runs one coding agent at a time in dependency order — more reliable, and the
@@ -147,8 +147,8 @@ Execute one sub-plan at a time in dependency-respecting order. A plan never star
 
 ### 3a — Spawn sub-agents
 
-Spawn `general-purpose` sub-agents. On each `Agent` call, pick a model that fits the work — prefer using fewer tokens while still doing the job well. Spawn exactly one
-sub-agent at a time. Make a single `Agent` tool call for one sub-plan, wait for it to return, evaluate its result (Step 3c), and only then spawn the next sub-plan.
+Use `task` to launch `general` sub-agents. On each `task` call, pick a model that fits the work — prefer using fewer tokens while still doing the job well.
+Spawn exactly one sub-agent at a time. Make one `task` call for one sub-plan, wait for it to return, evaluate its result (Step 3c), and only then spawn the next sub-plan.
 Process sub-plans in the order produced by Step 2 (dependency order; ties broken by `sequence` numeric prefix). Never run two sub-agents at once.
 
 Each agent prompt must be self-contained. Use the appropriate template based on the sub-plan's status from Step 1b.
@@ -293,7 +293,7 @@ Treat any of the following as an immediate failure:
     What would you like to do?
     ```
 
-3. Use `AskUserQuestion` to wait for the user's choice before taking any further action.
+3. Use `question` to wait for the user's choice before taking any further action.
 4. Act on the user's response:
     - **Retry**: re-spawn the agent using the failure-aware prompt template below — do not send the plain sub-plan prompt again.
     - **Skip**: mark the sub-plan as skipped, warn that downstream plans may be affected, continue to the next sub-plan.
@@ -382,7 +382,7 @@ Documentation-updates steps); the plan must not be committed as a lingering arti
 - **Dependencies are non-negotiable.** Respect `blocked_by` strictly. Do not start a plan before all its blockers are marked complete.
 - **Pass file paths, not content.** Each sub-agent receives the sub-plan file path and reads it via `Read`. Never embed file content verbatim in agent prompts.
 - **Fail loudly and immediately.** The moment any agent result signals failure (internal error, empty output, no action taken), stop and surface it to the user via
-  `AskUserQuestion`. Do not start the next sub-plan, do not silently swallow the error. Consuming tokens while stuck is worse than stopping early.
+  `question`. Do not start the next sub-plan, do not silently swallow the error. Consuming tokens while stuck is worse than stopping early.
 - **`[Tool result missing due to internal error]` = hard failure.** Treat this verbatim string as a fatal agent error. Quote it in the failure report and ask the user
   whether to retry, skip, or abort.
 

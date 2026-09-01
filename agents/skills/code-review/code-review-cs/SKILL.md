@@ -1,5 +1,5 @@
 ---
-name: cs-code-review
+name: code-review-cs
 description: C#/.NET code review extending the base code-review skill. Checks for breaking changes, code quality, test coverage, and ASP.NET Core / Entity Framework patterns. Outputs AI agent prompts by default; use `--full` for a complete actionable report with per-file grouping, two severity tiers, and inline diffs.
 argument-hint: "[--full]"
 disable-model-invocation: true
@@ -79,7 +79,7 @@ If tools are found, ask the user:
 - Always: "`dotnet build` is available. Run build with analyzer warnings on changed projects?"
 - If test projects found: "`dotnet test` is available. Run tests for changed files?"
 
-Use the AskUserQuestion tool. If denied, continue with manual review only.
+Use `question`. If denied, continue with manual review only.
 
 ---
 

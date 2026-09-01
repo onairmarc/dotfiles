@@ -53,7 +53,7 @@ On the inertia track, run this **before** the `data-*` / `props-*` tables. Run i
 
 ## Ask
 
-Use `AskUserQuestion` once per batch (at most 4 questions per call; consolidate). Do not assume a decision.
+Use `question` once per batch (at most 4 questions per call; consolidate). Do not assume a decision.
 
 **Question text** must name the undocumented props (page or `share()`, key, file:line, what the page does with the value), state that API-first is the default, and state
 that an exception has to live in project standards with a reason.
@@ -66,7 +66,7 @@ that an exception has to live in project standards with a reason.
 | `Document as exceptions` | Props stay on Inertia. Record a `props-api-first-exception` finding to write each named exception plus the user's reason into `PROJECT_STANDARDS`. Then apply `data-*` / `props-*` to them. If the user gives no reason, ask for one before recording. |
 | `Decide per page`        | Follow-up questions, one page (or one `share()` surface) at a time, same two outcomes.                                                                                                                                                                 |
 
-**Recommend** with the AskUserQuestion criteria, in order:
+**Recommend** with the question criteria, in order:
 
 1. An API data layer is already installed (`@tanstack/react-query`, the project's API client, or equivalent) → **Migrate to API**. Server state stays in one layer.
 2. No API data layer is installed → **Document as exceptions**. These skills do not add a data library. If the user still picks migrate, record the finding as blocked on

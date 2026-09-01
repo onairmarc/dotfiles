@@ -11,7 +11,7 @@ allowed-tools:
     - Bash(find * -name "*.php" -type f)
     - Skill(feature-planning)
     - Skill(file-operations)
-    - AskUserQuestion
+    - question
 ---
 
 # Filament → Service Class Conversion Skill
@@ -45,7 +45,7 @@ Derive:
 
 - `MODULE_PATH` — the module root containing `FILAMENT_PATH` (usually its parent, e.g. `src/Core` for `src/Core/Filament`).
 - `SERVICES_PATH` — the sibling services directory. Look for an existing `Services/` directory under `MODULE_PATH` (or `app/Services` for a plain app). If none exists,
-  ask the developer via `AskUserQuestion` where extracted services should live before continuing.
+  ask the developer via `question` where extracted services should live before continuing.
 - `MODULE_NAME` — the last meaningful segment of `MODULE_PATH` (if the last segment is `src`, use its parent).
 - `TEST_ROOT` — the test directory covering `MODULE_PATH` (repo-root `tests/`, `application/tests/`, or a package-local `tests/`).
 
@@ -218,7 +218,7 @@ Target: {Services/Foo.php (extend) | Services/Bar/Baz.php (new)}
 ```
 
 If any mapping requires a genuine developer decision (competing standards with no behavior-neutral winner, a seam that cannot be preserved without changing a test's
-intention, an ambiguous domain owner for a shared helper), resolve it via `AskUserQuestion` **before** the handoff — never leave an open question inside the plan.
+ intention, an ambiguous domain owner for a shared helper), resolve it via `question` **before** the handoff — never leave an open question inside the plan.
 
 ---
 

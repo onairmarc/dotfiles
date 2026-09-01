@@ -7,10 +7,10 @@ allowed-tools:
   - Read
   - Edit
   - Write
-  - AskUserQuestion
+  - question
   - Glob
   - Grep
-  - Agent
+  - task
   - Bash(test -f *)
   - Bash(test -d *)
   - Bash(cat *)
@@ -40,7 +40,7 @@ scoping phase with a structured plan-analysis phase that tells you exactly what 
 
 If `$ARGUMENTS` contains a directory path, use it.
 
-Otherwise, use `AskUserQuestion` to ask the user:
+Otherwise, use `question` to ask the user:
 
 > **Which plan directory should I document?**
 > Please provide the path to the directory containing the plan files (e.g. `docs/plans/my-epic`).
@@ -102,7 +102,7 @@ Before writing anything new:
 
 ## Addition: Step 4 — Clarify divergences before writing (if needed)
 
-If verification revealed significant divergences between plans and code, or if scope or output path is unclear, use `AskUserQuestion` to resolve blockers. Format:
+If verification revealed significant divergences between plans and code, or if scope or output path is unclear, use `question` to resolve blockers. Format:
 
 ---
 

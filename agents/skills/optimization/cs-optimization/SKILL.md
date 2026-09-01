@@ -10,7 +10,7 @@ allowed-tools:
     - Bash(find * -name "*.cs" -type f)
     - Bash(cat *)
     - Skill(feature-planning)
-    - AskUserQuestion
+    - question
 ---
 
 # C# Optimization Skill

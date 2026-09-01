@@ -8,7 +8,7 @@ allowed-tools:
     - Write
     - Grep
     - Glob
-    - AskUserQuestion
+    - question
     - Bash(git branch --show-current)
     - Bash(git rev-parse --git-dir)
     - Bash(git diff main...HEAD *)
@@ -46,7 +46,7 @@ Scan `$ARGUMENTS`:
 - If it contains `--review` → **MODE = review**. Verify a git repo and a non-`main` branch (`git rev-parse --git-dir`,
   `git branch --show-current`); if not in a repo or sitting on `main`, tell the user there is nothing to review and stop.
 - Otherwise → **MODE = discovery**. The remaining non-flag text of `$ARGUMENTS` is the feature idea / problem statement. If it is empty, ask the user for the idea (one or
-  two sentences) with `AskUserQuestion` before continuing.
+  two sentences) with `question` before continuing.
 
 `--lang <ext>` and `--module <name>` may accompany either mode. Strip all flags from `$ARGUMENTS` before using the remainder as the feature idea.
 
@@ -85,7 +85,7 @@ Never reason about product impact from guessed context. If the needed knowledge 
 
 1. **Gather signal from the repo** to propose real defaults — read `README.md`, `AGENTS.md`, package manifests (`composer.json`, `package.json`, `*.csproj`,
    `pyproject.toml`, `go.mod`, etc.), and top-level domain/model directory names. Trace enough to form a genuine inference; do not fabricate.
-2. **Interview the user with `AskUserQuestion`**, pre-filling every option with your inference so the user mostly confirms. Cover, at minimum: the product one-liner,
+2. **Interview the user with `question`**, pre-filling every option with your inference so the user mostly confirms. Cover, at minimum: the product one-liner,
    primary personas, the business domains that carry product risk, the domain invariants that must never break, the success metrics the product optimizes, known
    constraints / non-goals, the top custom lenses (named question checklists), how `Critical`/`High` severity is calibrated for this product, and the ship bar. Seed the
    glossary from terms you already saw in the repo.

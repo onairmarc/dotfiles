@@ -56,7 +56,7 @@ For each accepted recommendation, in priority order:
 4. Update the audit log with the fix applied status.
 
 If a recommendation cannot be safely implemented without risking regression or requiring a user decision (ambiguous requirements, competing tradeoffs, destructive
-actions), flag it to the user with full context via `AskUserQuestion` instead of implementing.
+actions), flag it to the user with full context via `question` instead of implementing.
 
 # 6. Final verification
 
