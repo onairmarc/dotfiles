@@ -30,9 +30,8 @@ Read and follow `~/.config/opencode/skills/file-operations/SKILL.md`.
 ~/.config/opencode/skills/user-docs/SKILL.md
 ```
 
-Follow every standard, guideline, and verification step defined there. The additions below run **before** you
-begin writing documentation — they replace the ad-hoc scoping phase with a structured plan-analysis phase that
-tells you exactly what to document and where to look.
+Follow every standard, guideline, and verification step defined there. The additions below run **before** you begin writing documentation — they replace the ad-hoc
+scoping phase with a structured plan-analysis phase that tells you exactly what to document and where to look.
 
 ---
 
@@ -49,39 +48,34 @@ Once you have a path:
 
 1. Use `Glob` to find all Markdown files recursively under the directory (pattern: `**/*.md`).
 2. If no Markdown files are found, tell the user and stop.
-3. Read every discovered file with the `Read` tool to gain full context — this includes plan files,
-   sub-plans, design decisions, and any other documentation in the directory.
+3. Read every discovered file with the `Read` tool to gain full context — this includes plan files, sub-plans, design decisions, and any other documentation in the
+   directory.
 
 Also resolve from `$ARGUMENTS` or ask:
 
-- **Docs output path** — where should generated documentation files be written? Default to a `docs/` directory
-  alongside the plan directory if not specified. Confirm with the user if the destination is ambiguous.
-- **Target audience and domain** — who are the end users, and what domain terminology do they use? Skip if
-  inferable from the codebase or plans.
+- **Docs output path** — where should generated documentation files be written? Default to a `docs/` directory alongside the plan directory if not specified. Confirm with
+  the user if the destination is ambiguous.
+- **Target audience and domain** — who are the end users, and what domain terminology do they use? Skip if inferable from the codebase or plans.
 
 ---
 
 ## Addition: Step 1 — Extract user-facing scope from plans
 
-Read all plan files in full. Do not treat plans as factual descriptions of what exists — treat them as a
-navigational guide to user-facing features. Extract:
+Read all plan files in full. Do not treat plans as factual descriptions of what exists — treat them as a navigational guide to user-facing features. Extract:
 
 1. **Feature boundaries** — which workflows, screens, or user-facing capabilities does this epic touch?
-2. **Named UI surfaces** — page names, button labels, field names, menu items, modals, and settings mentioned
-   across all plans.
-3. **Intended user workflows** — the step-by-step flows described in the plans. Useful for understanding the
-   intended experience even when the implementation differs.
+2. **Named UI surfaces** — page names, button labels, field names, menu items, modals, and settings mentioned across all plans.
+3. **Intended user workflows** — the step-by-step flows described in the plans. Useful for understanding the intended experience even when the implementation differs.
 4. **Domain terminology** — application-specific language used to describe concepts to end users.
 
-Keep a running list of every named UI surface and workflow found across all plans. This is your **investigation
-queue** for Step 2.
+Keep a running list of every named UI surface and workflow found across all plans. This is your **investigation queue** for Step 2.
 
 ---
 
 ## Addition: Step 2 — Verify against actual code and build a delta log
 
-For each item in the investigation queue, verify what was actually built using the `user-docs` source
-verification checklist (Feature Existence, UI Labels, Workflows, Terminology).
+For each item in the investigation queue, verify what was actually built using the `user-docs` source verification checklist (Feature Existence, UI Labels, Workflows,
+Terminology).
 
 **Maintain a delta log** as you verify:
 
@@ -89,8 +83,7 @@ verification checklist (Feature Existence, UI Labels, Workflows, Terminology).
 |----------------------|----------------|----------|-------------------------------------------------------|
 | ...                  | ...            | ...      | Added / Removed / Renamed / Changed / Not implemented |
 
-Record every deviation. These deltas are the difference between documenting what was planned and documenting
-what users will actually experience.
+Record every deviation. These deltas are the difference between documenting what was planned and documenting what users will actually experience.
 
 ---
 
@@ -101,22 +94,20 @@ Before writing anything new:
 1. Use `Glob` to find existing end-user documentation files in the project (e.g., `**/*.md` under `docs/`).
 2. Read any that correspond to the features in the plans.
 3. Flag sections that contradict verified UI labels, workflows, or behavior.
-4. If existing documentation is substantially accurate, prefer updating it over replacing it. Only rewrite a
-   file if the majority of its content is wrong or the structure cannot accommodate the needed changes cleanly.
+4. If existing documentation is substantially accurate, prefer updating it over replacing it. Only rewrite a file if the majority of its content is wrong or the structure
+   cannot accommodate the needed changes cleanly.
 
 ---
 
 ## Addition: Step 4 — Clarify divergences before writing (if needed)
 
-If verification revealed significant divergences between plans and code, or if scope or output path is unclear,
-use `AskUserQuestion` to resolve blockers. Format:
+If verification revealed significant divergences between plans and code, or if scope or output path is unclear, use `AskUserQuestion` to resolve blockers. Format:
 
 ---
 
 **Documentation scope confirmation**
 
-Before writing, I found the following divergences between the plans and the implemented code. Please confirm
-how you'd like these handled:
+Before writing, I found the following divergences between the plans and the implemented code. Please confirm how you'd like these handled:
 
 **[Feature / UI Surface]**
 
@@ -135,8 +126,7 @@ Keep questions minimal — only ask when the delta materially affects what to wr
 
 **Code is truth. Plans are context.**
 
-- Every UI label, button name, field name, menu item, and workflow step must match what is verified in the code
-  — not the plan's description.
+- Every UI label, button name, field name, menu item, and workflow step must match what is verified in the code — not the plan's description.
 - If the plan described a user workflow that still matches the implemented flow, document it as written.
 - If a plan feature was not implemented, do not document it.
 - Never document behavior or UI you cannot verify in the code.

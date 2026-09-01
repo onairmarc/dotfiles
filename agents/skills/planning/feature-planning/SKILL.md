@@ -24,9 +24,9 @@ Read and follow `~/.config/opencode/skills/file-operations/SKILL.md`.
 
 ## Delivery Constraints
 
-Read and follow `~/.config/opencode/skills/delivery-constraints/SKILL.md`. Every plan this skill produces must be structured as vertical slices, must assume the work lands in
-place on the currently checked-out branch — or, if that branch is main, on a new branch created off it after an explicit branch check — and must verify itself with the
-repository's own test tooling rather than a bespoke harness. These constraints are enforced by Lens E in Step 2 and must be reproduced in the plan itself so an
+Read and follow `~/.config/opencode/skills/delivery-constraints/SKILL.md`. Every plan this skill produces must be structured as vertical slices, must assume the work
+lands in place on the currently checked-out branch — or, if that branch is main, on a new branch created off it after an explicit branch check — and must verify itself
+with the repository's own test tooling rather than a bespoke harness. These constraints are enforced by Lens E in Step 2 and must be reproduced in the plan itself so an
 implementing agent reading only the plan is bound by them.
 
 ## General Design Principles
@@ -89,16 +89,16 @@ Before gathering requirements, orient yourself to the repository:
    `~/.config/opencode/skills/planning-commons/paths.md`.
 
 3. **Discover project standards & policies (mandatory)** — the plan must not violate a single documented policy, so finding them is not optional. Follow the
-   standards-discovery procedure in `~/.config/opencode/skills/planning-commons/paths.md` and record the extracted rules as `$PROJECT_STANDARDS`, the checklist the plan is held
-   against in Step 2. From those same sources, also identify the project name, tech stack, existing architectural patterns and naming conventions, and any planning or
-   documentation policies, and use that context to inform the plan's language, component references, and step specificity throughout.
+   standards-discovery procedure in `~/.config/opencode/skills/planning-commons/paths.md` and record the extracted rules as `$PROJECT_STANDARDS`, the checklist the plan
+   is held against in Step 2. From those same sources, also identify the project name, tech stack, existing architectural patterns and naming conventions, and any
+   planning or documentation policies, and use that context to inform the plan's language, component references, and step specificity throughout.
 
-4. **Find northstar** — resolve `$NORTHSTAR` per the `$NORTHSTAR` ladder in `~/.config/opencode/skills/planning-commons/paths.md`. If none is found, `$NORTHSTAR = null` and Step 4
-   is skipped silently.
+4. **Find northstar** — resolve `$NORTHSTAR` per the `$NORTHSTAR` ladder in `~/.config/opencode/skills/planning-commons/paths.md`. If none is found, `$NORTHSTAR = null`
+   and Step 4 is skipped silently.
 
 5. **Find a PM discovery brief** — the `pm-review` skill's discovery mode writes a **durable** product-side brief before planning begins. Unlike plans, briefs are
-   permanent documentation and live **outside** `$PLAN_DIR`: resolve `$DISCOVERY_DIR` per the `$DISCOVERY_DIR` ladder in `~/.config/opencode/skills/planning-commons/paths.md`.
-   Look for a brief that matches this feature:
+   permanent documentation and live **outside** `$PLAN_DIR`: resolve `$DISCOVERY_DIR` per the `$DISCOVERY_DIR` ladder in
+   `~/.config/opencode/skills/planning-commons/paths.md`. Look for a brief that matches this feature:
     - If `$ARGUMENTS` names a feature, derive its kebab-case slug and check `$DISCOVERY_DIR/<slug>.md`.
     - Otherwise, glob `$DISCOVERY_DIR/*.md`; if exactly one clearly matches the feature description, use it. If several plausibly match, ask the user which brief (if any)
       this plan is for.
@@ -132,8 +132,8 @@ every available source, then asking the user **only** about what none of those s
     - **Existing code**: what this replaces, extends, or must stay compatible with.
 
 3. **Ask only the residual unknowns.** Put the questions the combined sources could not answer to the user via
-   `AskUserQuestion` — focused, short-answer, highest-impact first, batched per the AskUserQuestion rules in `~/.config/opencode/skills/planning-commons/review-loop.md`. Do not
-   ask anything the brief, the code, or the conventions already answer.
+   `AskUserQuestion` — focused, short-answer, highest-impact first, batched per the AskUserQuestion rules in `~/.config/opencode/skills/planning-commons/review-loop.md`.
+   Do not ask anything the brief, the code, or the conventions already answer.
 
 4. **If you have no questions, do not silently proceed — confirm the premise first.** Reaching zero questions is a claim that the brief, the code, and the conventions
    fully determine the plan. State that claim explicitly to the user with
@@ -150,8 +150,9 @@ every available source, then asking the user **only** about what none of those s
 ## Step 1 — Draft the plan
 
 Using the answers from Step 0 and the context discovered in Pre-flight, draft the plan following the **Master plan structure** in
-`~/.config/opencode/skills/planning-commons/plan-format.md`. Write it to `$PLAN_DIR/<kebab-case-feature-name>/plan.md`, creating the directory if it does not exist. Reproduce that
-doc's `## Delivery constraints` block verbatim into the plan with the project's real test runner command filled in, organize `## Implementation steps` as vertical
+`~/.config/opencode/skills/planning-commons/plan-format.md`. Write it to `$PLAN_DIR/<kebab-case-feature-name>/plan.md`, creating the directory if it does not exist.
+Reproduce that doc's `## Delivery constraints` block verbatim into the plan with the project's real test runner command filled in, organize `## Implementation steps` as
+vertical
 `### Slice N —` sections, and make the final step delete the plan directory. Fill every section from the Pre-flight context and Step 0 answers — leave no placeholder.
 
 ---
@@ -230,8 +231,9 @@ Hold the plan against `~/.config/opencode/skills/delivery-constraints/SKILL.md`.
 ## Step 3 — Iterate via AskUserQuestion
 
 Group your findings into labeled question blocks — each quoting the plan text, stating what is missing or conflicting, and asking one focused short-answer question — then
-run the interactive review loop in `~/.config/opencode/skills/planning-commons/review-loop.md`: batch at most 4 questions per call ranked by blast radius, write every answer into
-the plan immediately, re-read, re-run all lenses, and repeat until no gaps remain. Label each round **Plan review: round N**. When the plan is clean, proceed to Step 4.
+run the interactive review loop in `~/.config/opencode/skills/planning-commons/review-loop.md`: batch at most 4 questions per call ranked by blast radius, write every
+answer into the plan immediately, re-read, re-run all lenses, and repeat until no gaps remain. Label each round **Plan review: round N**. When the plan is clean, proceed
+to Step 4.
 
 ---
 

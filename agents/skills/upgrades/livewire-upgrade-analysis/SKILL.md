@@ -17,9 +17,9 @@ allowed-tools:
 
 # Livewire Upgrade Analysis
 
-You are a senior Laravel engineer specializing in Livewire and Filament. Your job is to audit the repository's custom
-Livewire components **and** custom Filament components (pages, resources, widgets, actions, form components) against
-the Livewire 4 breaking-change catalog, classify every affected file, and produce an **agent-ready upgrade plan**
+You are a senior Laravel engineer specializing in Livewire and Filament. Your job is to audit the repository's custom Livewire components **and** custom Filament
+components (pages, resources, widgets, actions, form components) against the Livewire 4 breaking-change catalog, classify every affected file, and produce an
+**agent-ready upgrade plan**
 using the same structure and quality bar as `feature-planning`.
 
 **Always present findings to the user for confirmation before writing the plan.**
@@ -83,8 +83,7 @@ Use these categories throughout the audit. Each file may hit multiple categories
 
 ## Catalog refresh — Fetch the latest upgrade guide
 
-Before auditing any code, fetch the official Livewire upgrade guide to ensure the breaking-change catalog below
-reflects the current published version:
+Before auditing any code, fetch the official Livewire upgrade guide to ensure the breaking-change catalog below reflects the current published version:
 
 ```
 https://livewire.laravel.com/docs/4.x/upgrading
@@ -95,15 +94,13 @@ Use `WebFetch` with a prompt such as:
 > "Extract all breaking changes, renamed methods/properties, removed features, new requirements, and migration steps
 > for upgrading from Livewire 3 to Livewire 4. Be comprehensive."
 
-Compare the fetched content against the **Breaking-change catalog** section of this skill. For each item in the
-fetched guide that is **not** already covered:
+Compare the fetched content against the **Breaking-change catalog** section of this skill. For each item in the fetched guide that is **not** already covered:
 
 1. Add it to the appropriate severity tier (HIGH / MEDIUM / LOW-JS) with a new category ID (e.g. H6, M5, L5).
 2. Update the "What to look for" column with the concrete pattern to grep for.
 3. Carry the new category IDs forward into Steps 1–3 and the findings table.
 
-If the fetch fails (network unavailable, page unreachable), continue with the embedded catalog and note in the
-final plan header: `"Upgrade guide could not be fetched — catalog may be outdated. Verify against
+If the fetch fails (network unavailable, page unreachable), continue with the embedded catalog and note in the final plan header: `"Upgrade guide could not be fetched — catalog may be outdated. Verify against
 https://livewire.laravel.com/docs/4.x/upgrading before proceeding."`.
 
 ---
@@ -186,7 +183,7 @@ Use `AskUserQuestion` to present what you found and confirm scope before auditin
 > Found:
 > - **Livewire component roots:** [list discovered paths]
 > - **Filament components:** [count by type — e.g. 12 pages, 8 resources, 4 widgets, 3 relation managers]
-    >
+>
 
 - Searched: `app/`, `app_modules/`
 
@@ -207,7 +204,7 @@ For every PHP class file discovered in the Livewire component roots:
 
 1. Read the file.
 2. Check against categories H2, H3, M3, L4 (class-level concerns).
-3. Record findings per file: category ID, affected line(s), current code snippet.
+3. Record findings per file: category ID, affected line (s), current code snippet.
 
 ---
 
@@ -216,19 +213,17 @@ For every PHP class file discovered in the Livewire component roots:
 For every Filament PHP class file discovered in `app/` and `app_modules/`:
 
 1. Read the file.
-2. Check for **direct Livewire API usage** — Filament wraps Livewire internally, but custom code in these files
-   may also call Livewire APIs directly. Check for:
+2. Check for **direct Livewire API usage** — Filament wraps Livewire internally, but custom code in these files may also call Livewire APIs directly. Check for:
     - `$this->stream(...)` — category M3
     - `wire:model` rendered via `->extraAttributes(['wire:model' => ...])` or similar — category H3
     - Any explicit `use Livewire\...` imports other than standard Filament-provided traits
-    - `$this->dispatch()` / `$this->dispatchBrowserEvent()` — note: `dispatchBrowserEvent` was removed in
-      Livewire 3 → check if still present (would indicate leftover Livewire 2 code to clean up first)
+    - `$this->dispatch()` / `$this->dispatchBrowserEvent()` — note: `dispatchBrowserEvent` was removed in Livewire 3 → check if still present (would indicate leftover
+      Livewire 2 code to clean up first)
 3. Check for **Filament-specific Livewire patterns**:
     - Custom `mount()` method using Livewire lifecycle hooks that changed in v4
     - `#[Reactive]` or `#[Locked]` attributes — confirm they are from `Livewire\Attributes\` not a stale import
     - `$this->js(...)` calls — syntax unchanged but verify against catalog refresh
-4. Record findings per file: category ID (use existing IDs where applicable, or prefix `F-` for
-   Filament-specific findings), affected line(s), current code snippet.
+4. Record findings per file: category ID (use existing IDs where applicable, or prefix `F-` for Filament-specific findings), affected line (s), current code snippet.
 
 > **Note:** Standard Filament pages/resources/widgets with no direct Livewire API calls are unlikely to need
 > changes for the Livewire upgrade itself — the Filament package handles the Livewire layer. Only custom
@@ -242,7 +237,7 @@ For every Blade view file discovered:
 
 1. Read the file.
 2. Check against categories H3, H4, H5, M1, M2 (view-level concerns).
-3. Record findings per file: category ID, affected line(s), current code snippet.
+3. Record findings per file: category ID, affected line (s), current code snippet.
 
 ---
 
@@ -490,7 +485,7 @@ Re-read the written plan against all lenses:
 ### Lens A — Completeness
 
 - Every file from the Step 4 findings table appears in at least one implementation step.
-- Every step names the exact file path(s) affected.
+- Every step names the exact file path (s) affected.
 - No step uses vague verbs ("handle", "ensure", "update") without saying *how*.
 
 ### Lens B — Ordering

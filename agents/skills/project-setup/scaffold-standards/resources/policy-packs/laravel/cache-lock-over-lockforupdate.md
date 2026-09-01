@@ -10,8 +10,8 @@ actual write for atomicity; the concurrency guard is a separate layer above it.
 **Rules:**
 
 - Concurrency guards: `Cache::lock("scope:{$id}", $ttlSeconds)->block($waitSeconds, fn () => ...)`.
-- Lock keys are scoped to the entity (`invoice:charge:{$id}`, not `charge`) so unrelated entities do not contend. New
-  keys follow [Cache Key Naming](./cache-key-naming.md).
+- Lock keys are scoped to the entity (`invoice:charge:{$id}`, not `charge`) so unrelated entities do not contend. New keys
+  follow [Cache Key Naming](./cache-key-naming.md).
 - Atomic multi-row writes that must succeed-or-rollback together are wrapped in `DB::transaction(...)` — the right tool for atomicity, not for concurrency.
 - Do not combine `lockForUpdate()` with `Cache::lock()` on the same critical section; pick one, almost always the cache lock.
 - Never hold a lock across an unbounded external call; keep the TTL above the call's own timeout and make the work idempotent regardless.

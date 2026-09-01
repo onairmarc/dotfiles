@@ -4,22 +4,21 @@ description: Apply this skill when removing database-level foreign key constrain
 disable-model-invocation: true
 argument-hint: "<path-or-scope> [additional context]"
 allowed-tools:
-  - Read
-  - Edit
-  - Write
-  - Glob
-  - Grep
-  - Bash
-  - AskUserQuestion
+    - Read
+    - Edit
+    - Write
+    - Glob
+    - Grep
+    - Bash
+    - AskUserQuestion
 ---
 
 # No DB Constraints Skill
 
-You are a senior Laravel engineer. Your job is to remove database-level foreign key constraints and unique constraints
-from a Laravel project and replace them with equivalent application-level enforcement.
+You are a senior Laravel engineer. Your job is to remove database-level foreign key constraints and unique constraints from a Laravel project and replace them with
+equivalent application-level enforcement.
 
-**Core principle:** The database is a dumb store. Referential integrity and uniqueness are business rules — they belong
-in the application, not the schema.
+**Core principle:** The database is a dumb store. Referential integrity and uniqueness are business rules — they belong in the application, not the schema.
 
 ## File Operation Rules
 
@@ -33,20 +32,18 @@ Read and follow `~/.config/opencode/skills/file-operations/SKILL.md`.
    `->constrained()`, and `FOREIGN KEY` references from migrations.
 2. **No database-level unique constraints.** Remove all `->unique()`, `$table->unique([...])`, and `UNIQUE KEY`
    declarations from migrations.
-3. **Indexes are fine.** A plain `->index()` or `$table->index([...])` is not a constraint — it is a performance
-   tool. Keep them. Add them where they make sense (e.g., columns used in `WHERE`, `JOIN`, or `ORDER BY` that
-   previously had a unique index can become a plain index).
-4. **Never edit an existing migration to drop a constraint** when that migration has already run in production.
-   Instead, create a **new** migration with `dropForeign()` / `dropUnique()` / `dropIndex()` + `->index()` where
-   appropriate.
-5. **Plan files are different.** A plan file describes future work that has not yet been executed. Edit plan files
-   directly — do not create migrations for constraints that the plan was about to create but never did.
-6. **Uniqueness checks live in the model's `boot()` method** using Eloquent lifecycle hooks (`creating`, `updating`).
-   Place the check as close as possible to where the business rule is enforced.
-7. **Uniqueness checks must be fast.** Use `->exists()` — never `->count() > 0`. The check excludes the current
-   model instance (self) by filtering out its primary key when `$model->exists` is true.
-8. **For complex or reused uniqueness rules**, create a dedicated `Rule` class in the appropriate `Rules/` directory
-   that models can reference. Simple one-off rules stay inline in `boot()`.
+3. **Indexes are fine.** A plain `->index()` or `$table->index([...])` is not a constraint — it is a performance tool. Keep them. Add them where they make sense (e.g.,
+   columns used in `WHERE`, `JOIN`, or `ORDER BY` that previously had a unique index can become a plain index).
+4. **Never edit an existing migration to drop a constraint** when that migration has already run in production. Instead, create a **new** migration with `dropForeign()` /
+   `dropUnique()` / `dropIndex()` + `->index()` where appropriate.
+5. **Plan files are different.** A plan file describes future work that has not yet been executed. Edit plan files directly — do not create migrations for constraints
+   that the plan was about to create but never did.
+6. **Uniqueness checks live in the model's `boot()` method** using Eloquent lifecycle hooks (`creating`, `updating`). Place the check as close as possible to where the
+   business rule is enforced.
+7. **Uniqueness checks must be fast.** Use `->exists()` — never `->count() > 0`. The check excludes the current model instance (self) by filtering out its primary key
+   when `$model->exists` is true.
+8. **For complex or reused uniqueness rules**, create a dedicated `Rule` class in the appropriate `Rules/` directory that models can reference. Simple one-off rules stay
+   inline in `boot()`.
 
 ---
 
@@ -78,8 +75,8 @@ Before talking to the user, gather context:
 | Unique in plan text                 | `unique\(\)` or `UNIQUE` in `.md` files                              |
 | FK in plan text                     | `foreign\(\)` or `->constrained\(\)` or `FOREIGN KEY` in `.md` files |
 
-4. **For each migration violation**, determine if the migration has likely already run in production by checking
-   whether a newer migration exists dated after it. Ask the user if unsure.
+4. **For each migration violation**, determine if the migration has likely already run in production by checking whether a newer migration exists dated after it. Ask the
+   user if unsure.
 
 5. **Find the Eloquent model** for each migration table containing a violation. Search for a model class whose
    `$table` property or class name maps to the table.
@@ -110,12 +107,11 @@ Use `AskUserQuestion` to present findings and confirm scope. Ask in a single cal
 > Before I proceed, a few questions:
 >
 > 1. Are there **additional files or directories** I should include or exclude?
-> 2. For the migrations listed above — are any of these **not yet run in production**? If so, I can edit them
-     > directly instead of creating drop migrations. *(List which ones if any.)*
-> 3. For uniqueness rules: are there any that need to be **reused across multiple models** or that involve
-     > **complex cross-field logic**? Those become dedicated `Rule` classes. *(Describe them if so.)*
-> 4. Are there any **existing application-level checks** already in place that I should be aware of to avoid
-     > duplicating?
+> 2. For the migrations listed above — are any of these **not yet run in production**? If so, I can edit them directly instead of creating drop migrations. *(List which
+     ones if any.)*
+> 3. For uniqueness rules: are there any that need to be **reused across multiple models** or that involve **complex cross-field logic**? Those become dedicated `Rule`
+     classes. *(Describe them if so.)*
+> 4. Are there any **existing application-level checks** already in place that I should be aware of to avoid duplicating?
 
 Adjust scope and approach based on the user's answers before proceeding.
 
@@ -127,18 +123,16 @@ For each plan file containing constraint violations:
 
 1. Read the file.
 2. Find every reference to:
-    - `->unique()` — replace with `->index()` if uniqueness on that column makes sense for query performance,
-      otherwise remove entirely.
-    - `->foreign()`, `->constrained()`, `foreignId()->constrained()`, `FOREIGN KEY` — remove the constraint
-      declaration. If the column itself (e.g. `->foreignId('user_id')`) is being added, keep the column but
-      change to `->unsignedBigInteger('user_id')` (or keep `->foreignId()` but without `->constrained()`).
+    - `->unique()` — replace with `->index()` if uniqueness on that column makes sense for query performance, otherwise remove entirely.
+    - `->foreign()`, `->constrained()`, `foreignId()->constrained()`, `FOREIGN KEY` — remove the constraint declaration. If the column itself (e.g.
+      `->foreignId('user_id')`) is being added, keep the column but change to `->unsignedBigInteger('user_id')` (or keep `->foreignId()` but without `->constrained()`).
     - `$table->unique([...])` — replace with `$table->index([...])` if indexing makes sense, otherwise remove.
 3. For every removed unique constraint, add a note in the plan that uniqueness will be enforced in the model's
    `boot()` method.
 4. For every removed FK constraint, add a note that referential integrity will be enforced in the model's
    `boot()` method or service layer.
-5. If the plan step creates a migration, update the migration step to not include constraints. Add a new
-   implementation step for adding the `boot()` logic to the appropriate model.
+5. If the plan step creates a migration, update the migration step to not include constraints. Add a new implementation step for adding the `boot()` logic to the
+   appropriate model.
 6. Edit the plan file directly using `Edit`. Do not create a new file.
 
 ---
@@ -161,12 +155,10 @@ The migration must:
 - Drop each FK constraint with `$table->dropForeign(['column_name'])`.
 - Drop each unique constraint with `$table->dropUnique(['column_name'])` or
   `$table->dropUnique('{table}_{column}_unique')`.
-- After dropping a unique constraint, add `$table->index(['column_name'])` **only if** a plain index on that
-  column would benefit query performance (i.e., the column is used in lookups or joins). If the unique
-  constraint was the only reason for the index and the column is not queried by value, omit the plain index.
-- After dropping a FK constraint on a column (e.g. `user_id`), add `$table->index(['user_id'])` **unless** a
-  plain index already exists on that column. FK columns are almost always used in joins — default to adding
-  the plain index and only omit if you can confirm the column is never queried.
+- After dropping a unique constraint, add `$table->index(['column_name'])` **only if** a plain index on that column would benefit query performance (i.e., the column is
+  used in lookups or joins). If the unique constraint was the only reason for the index and the column is not queried by value, omit the plain index.
+- After dropping a FK constraint on a column (e.g. `user_id`), add `$table->index(['user_id'])` **unless** a plain index already exists on that column. FK columns are
+  almost always used in joins — default to adding the plain index and only omit if you can confirm the column is never queried.
 - Provide a `down()` method that restores the dropped constraints (for local rollback safety).
 
 **Example — drop FK and unique, keep plain indexes:**
@@ -213,14 +205,12 @@ For each migration confirmed by the user as **not yet run in production**:
 
 ## Step 4 — Add application-level uniqueness enforcement to models
 
-For each table that had a unique constraint removed, find the corresponding Eloquent model and add enforcement
-in its `boot()` method.
+For each table that had a unique constraint removed, find the corresponding Eloquent model and add enforcement in its `boot()` method.
 
 ### Determining where the check goes
 
 - **Simple, single-model rule** → inline in `boot()` using `creating` and `updating` hooks.
-- **Complex rule** (multiple columns, cross-table logic, conditional uniqueness) → dedicated `Rule` class, then
-  call it from `boot()`.
+- **Complex rule** (multiple columns, cross-table logic, conditional uniqueness) → dedicated `Rule` class, then call it from `boot()`.
 - **Rule reused in multiple models** → dedicated `Rule` class.
 
 Ask the user via `AskUserQuestion` if you are unsure which category applies to a specific rule.
@@ -255,12 +245,10 @@ protected static function boot(): void
 **Rules for the inline check:**
 
 - Use `->exists()`, never `->count() > 0`.
-- In `updating`: always exclude self by `->where('id', '!=', $model->id)` (or the model's primary key if
-  different from `id`).
+- In `updating`: always exclude self by `->where('id', '!=', $model->id)` (or the model's primary key if different from `id`).
 - In `creating`: no self-exclusion needed.
-- Throw `\Illuminate\Validation\ValidationException::withMessages(['field' => 'message'])`. This renders as
-  HTTP 422 and is caught by Laravel's exception handler — it surfaces as a validation error to the caller,
-  not a 500. Only deviate if the project has an established alternative; check nearby model code first.
+- Throw `\Illuminate\Validation\ValidationException::withMessages(['field' => 'message'])`. This renders as HTTP 422 and is caught by Laravel's exception handler — it
+  surfaces as a validation error to the caller, not a 500. Only deviate if the project has an established alternative; check nearby model code first.
 - If the model already has a `boot()` method, **add** the hooks to it — do not replace it.
 
 ### Composite unique constraint (multi-column)
@@ -382,8 +370,7 @@ Then ask:
 
 - **Never add unique indexes** — if the user's instinct is "I need uniqueness on this column," redirect to `boot()`.
 - **Never edit an already-run migration** — create a new one.
-- **Never remove an index wholesale without considering performance** — replace unique indexes with plain indexes
-  when the column is used in queries.
+- **Never remove an index wholesale without considering performance** — replace unique indexes with plain indexes when the column is used in queries.
 - **`->exists()` only** — `->count()` is banned for existence checks.
 - **Self-exclusion in `updating`** — always. Forgetting this breaks updates on every existing record.
 - **Check existing `boot()` first** — do not overwrite it.

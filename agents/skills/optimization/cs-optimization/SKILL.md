@@ -15,9 +15,8 @@ allowed-tools:
 
 # C# Optimization Skill
 
-You are an expert C# performance engineer. Your job is to **audit** a project path, discover performance issues, and
-then invoke the **feature-planning skill** to produce a self-contained, agent-ready optimization plan. You do not
-execute any optimization code yourself.
+You are an expert C# performance engineer. Your job is to **audit** a project path, discover performance issues, and then invoke the **feature-planning skill** to produce
+a self-contained, agent-ready optimization plan. You do not execute any optimization code yourself.
 
 **Input:** `$ARGUMENTS` — the project path to audit (e.g. `src/MyApp`, `src/MyApp.Core`, `src/Services`).
 
@@ -31,14 +30,12 @@ Parse `$ARGUMENTS`. Extract:
   ```
   Error: PROJECT_PATH is required. Usage: /cs-optimization <path/to/project> [additional context]
   ```
-- `EXTRA_CONTEXT` — everything after the first positional argument (optional). Free-form text the caller provides about
-  known issues, architectural decisions, or constraints the automated audit may not discover (e.g. "the ConfigService is
-  a singleton loaded on every request", "the report export is known to be slow for large datasets"). Preserve it
-  verbatim.
+- `EXTRA_CONTEXT` — everything after the first positional argument (optional). Free-form text the caller provides about known issues, architectural decisions, or
+  constraints the automated audit may not discover (e.g. "the ConfigService is a singleton loaded on every request", "the report export is known to be slow for large
+  datasets"). Preserve it verbatim.
 - `AUDIT_ONLY` — set to `true` if `EXTRA_CONTEXT` contains the flag `--audit-only`. When set, **stop after Step 3**
-  and emit the findings summary. Do **not** invoke feature-planning. This mode is used when cs-optimization is called
-  as a sub-audit from another optimization skill (e.g. avalonia-optimization) that will handle the feature-planning
-  handoff itself.
+  and emit the findings summary. Do **not** invoke feature-planning. This mode is used when cs-optimization is called as a sub-audit from another optimization skill (e.g.
+  avalonia-optimization) that will handle the feature-planning handoff itself.
 
 Derive `PROJECT_NAME` from the last meaningful path segment (if last segment is `src`, use its parent).
 
@@ -46,7 +43,7 @@ Derive `PROJECT_NAME` from the last meaningful path segment (if last segment is 
 
 ## Step 1 — Detect project type
 
-Read the `.csproj` file(s) in `PROJECT_PATH`. Classify the project:
+Read the `.csproj` file (s) in `PROJECT_PATH`. Classify the project:
 
 | Signal                                                                              | Classification               |
 |-------------------------------------------------------------------------------------|------------------------------|
@@ -82,30 +79,29 @@ If classification is ambiguous, state your best guess and the reason, then conti
 
 ## Step 1.5 — Discover project standards & policies (mandatory)
 
-Skip this step when `AUDIT_ONLY` is `true` — the calling skill (e.g. avalonia-optimization) discovers standards and owns the feature-planning handoff. Otherwise
-locate where this project documents its coding standards, conventions, and policies. The optimization plan must not violate a single one, and the audit itself
-must not flag a pattern the standards actually mandate.
+Skip this step when `AUDIT_ONLY` is `true` — the calling skill (e.g. avalonia-optimization) discovers standards and owns the feature-planning handoff. Otherwise locate
+where this project documents its coding standards, conventions, and policies. The optimization plan must not violate a single one, and the audit itself must not flag a
+pattern the standards actually mandate.
 
 1. Read the repo-root `README.md` and `AGENTS.md` (and any per-project `AGENTS.md` / `README.md` for `PROJECT_PATH`) and follow every link they make to
    standards/policy/convention documents (e.g. `docs/standards/`, `docs/policies.md`, `CONTRIBUTING.md`, a `standards/` directory).
 2. If neither file names a standards location, search with `Grep`/`Glob`: `docs/standards/`, `docs/policies*.md`, `docs/conventions*.md`, `CONTRIBUTING.md`,
    `.editorconfig`, `.editorconfig`-driven analyzers, `Directory.Build.props`, `*.ruleset`, `.globalconfig`, and any file whose name contains `standard`,
    `policy`, or `convention`.
-3. When the location was not explicitly declared, confirm with the developer which document(s) you believe are the project's standards before relying on them; if
-   you find none, say so explicitly.
+3. When the location was not explicitly declared, confirm with the developer which document (s) you believe are the project's standards before relying on them; if you
+   find none, say so explicitly.
 4. Read them in full and record the concrete rules as `PROJECT_STANDARDS`. Pass this to feature-planning in Step 4 so every optimization step is held against it.
 
 ---
 
 ## Step 2 — Audit the project
 
-Systematically search `PROJECT_PATH` for every problem category below. For each hit, **read the actual file to confirm
-line numbers before recording**. Never approximate.
+Systematically search `PROJECT_PATH` for every problem category below. For each hit, **read the actual file to confirm line numbers before recording**. Never approximate.
 
 Record each finding as:
 
 - **Category**
-- **Class::Method()** (or class name)
+- **Class::Method ()** (or class name)
 - **File path** (exact, relative to repo root)
 - **Line range**
 - **One-sentence description of the specific problem**
@@ -311,8 +307,8 @@ If `AUDIT_ONLY` is `true`, stop here. Emit the Step 3 findings summary and retur
 
 ---
 
-Hand off to the **feature-planning skill** with the full audit summary as context. Use the following as the feature
-description passed to feature-planning (feed it programmatically — do not ask the user to retype it):
+Hand off to the **feature-planning skill** with the full audit summary as context. Use the following as the feature description passed to feature-planning (feed it
+programmatically — do not ask the user to retype it):
 
 ---
 
@@ -328,17 +324,14 @@ description passed to feature-planning (feed it programmatically — do not ask 
 > **Phase 0 — Baseline test coverage (mandatory, non-negotiable)**
 > - Run existing test suite filtered to this project. Record all passing tests.
 > - If any pre-existing failures exist, stop — they must be fixed before optimization work begins.
-> - For every issue in "Issues addressed" with no existing test pinning current behavior, write an xUnit or NUnit
-    > baseline test.
+> - For every issue in "Issues addressed" with no existing test pinning current behavior, write an xUnit or NUnit baseline test.
 > - Baseline tests must assert current (pre-optimization) behavior, not desired behavior.
 > - Commit baseline tests separately before Phase 1: `test({project}): baseline tests before optimization`
 > - Re-run suite. All tests including new baselines must pass before proceeding.
 >
 > **Phase 1 — Optimizations (one numbered step per issue)**
-> - Each step: names file and method, shows exact before/after code snippet, includes a grep/search command to verify no
-    > other callers are broken.
-> - After every individual step: run the test suite. A single failing test = that step is a failure. Revert and fix
-    > before continuing to the next step.
+> - Each step: names file and method, shows exact before/after code snippet, includes a grep/search command to verify no other callers are broken.
+> - After every individual step: run the test suite. A single failing test = that step is a failure. Revert and fix before continuing to the next step.
 > - One PR per phase.
 >
 > **Hard constraints to embed in the plan:**
@@ -355,34 +348,30 @@ description passed to feature-planning (feed it programmatically — do not ask 
 > 11. Every `IDisposable` `new`-ed in a method must be wrapped in `using`. No exceptions.
 > 12. `string` concatenation in a loop → always replace with `StringBuilder`. No exceptions.
 > 13. `ContainsKey` + `dictionary[key]` → always replace with `TryGetValue`. No exceptions.
-> 14. `lock (this)` or `lock` on a public field → always replace with a `private readonly object _lock = new()`. No
-      exceptions.
-> 15. Captive dependencies (scoped/transient injected into singleton) → fix the registration lifetime; do not change the
-      > consuming class unless the fix requires it. The plan step must name the DI registration file and the exact
-      > `AddSingleton`/`AddScoped`/`AddTransient` call to change.
-> 16. Never recommend switching to manual memory management, unsafe code, or `stackalloc` unless the audit explicitly
-      > found a hot-path allocation in a profiler-confirmed bottleneck.
-> 17. Never recommend partial model selects or projection-only queries as a blanket optimization — only flag if the
-      > projected result is the only consumer and the full model is provably unused.
-> 18. Per-row `SaveChanges` inside a loop → batch to one context + one `SaveChanges` per logical group, preserving the
-      > loop's existing per-iteration `try/catch` isolation boundary. No exceptions.
-> 19. `Database.Migrate()` / schema operations must never run on a pooled (`AddDbContextPool`) context → resolve a
-      > factory-owned / non-pooled context for the migration path. No exceptions.
-> 20. Idempotent re-syncs must skip-if-clean → no DB write and no broadcast when the source row is unchanged from the
-      > current state. No exceptions.
-> 21. A single change persists/broadcasts **once** → if a direct write already broadcasts, do not also publish a
-      > notification whose handler re-broadcasts the same change. The plan step must name both the write call and the
-      > handler, and confirm no other subscriber needs the notification.
+> 14. `lock (this)` or `lock` on a public field → always replace with a `private readonly object _lock = new()`. No exceptions.
+> 15. Captive dependencies (scoped/transient injected into singleton) → fix the registration lifetime; do not change the consuming class unless the fix requires it. The
+      plan step must name the DI registration file and the exact `AddSingleton`/`AddScoped`/`AddTransient` call to change.
+> 16. Never recommend switching to manual memory management, unsafe code, or `stackalloc` unless the audit explicitly found a hot-path allocation in a profiler-confirmed
+      bottleneck.
+> 17. Never recommend partial model selects or projection-only queries as a blanket optimization — only flag if the projected result is the only consumer and the full
+      model is provably unused.
+> 18. Per-row `SaveChanges` inside a loop → batch to one context + one `SaveChanges` per logical group, preserving the loop's existing per-iteration `try/catch` isolation
+      boundary. No exceptions.
+> 19. `Database.Migrate()` / schema operations must never run on a pooled (`AddDbContextPool`) context → resolve a factory-owned / non-pooled context for the migration
+      path. No exceptions.
+> 20. Idempotent re-syncs must skip-if-clean → no DB write and no broadcast when the source row is unchanged from the current state. No exceptions.
+> 21. A single change persists/broadcasts **once** → if a direct write already broadcasts, do not also publish a notification whose handler re-broadcasts the same change.
+      The plan step must name both the write call and the handler, and confirm no other subscriber needs the notification.
 > 22. Before preserving `EnableRetryOnFailure`, verify every user-initiated `BeginTransaction[Async]` is wrapped in
-      > `CreateExecutionStrategy().ExecuteAsync(...)`; never pair a retrying execution strategy with a raw `BeginTransaction`.
+      `CreateExecutionStrategy().ExecuteAsync(...)`; never pair a retrying execution strategy with a raw `BeginTransaction`.
 > 23. Unbounded `Task.WhenAll(items.Select(async …))` over I/O or DB work → cap with `Parallel.ForEachAsync` +
-      > `MaxDegreeOfParallelism`, add a per-call timeout, and add ±jitter to any fixed timer interval. No exceptions.
-> 24. A synchronously-completing hot-path method returning `Task<T>` → return `ValueTask<T>` only when the call sites
-      > await-once and do not store the result; do not introduce `ValueTask` where a result is awaited multiple times.
+      `MaxDegreeOfParallelism`, add a per-call timeout, and add ±jitter to any fixed timer interval. No exceptions.
+> 24. A synchronously-completing hot-path method returning `Task<T>` → return `ValueTask<T>` only when the call sites await-once and do not store the result; do not
+      introduce `ValueTask` where a result is awaited multiple times.
 >
-> 25. Every optimization step must comply with the project's documented standards and policies (see below). No fix may violate a naming, structure, testing,
-      > logging, dependency, or formatting policy. Where an optimization would conflict with a policy, honor the policy and note the constraint on the step; if
-      > the two genuinely cannot be reconciled, flag it for developer review rather than shipping the violation.
+> 25. Every optimization step must comply with the project's documented standards and policies (see below). No fix may violate a naming, structure, testing, logging,
+      dependency, or formatting policy. Where an optimization would conflict with a policy, honor the policy and note the constraint on the step; if the two genuinely
+      cannot be reconciled, flag it for developer review rather than shipping the violation.
 >
 > **Out of scope:** New infrastructure dependencies, database schema changes, files outside `{PROJECT_PATH}`.
 >
@@ -400,5 +389,5 @@ description passed to feature-planning (feed it programmatically — do not ask 
 
 ---
 
-The feature-planning skill handles the rest: discovers the planning directory, drafts the plan, applies review lenses,
-iterates with the user, and writes the final agent-ready plan to disk.
+The feature-planning skill handles the rest: discovers the planning directory, drafts the plan, applies review lenses, iterates with the user, and writes the final
+agent-ready plan to disk.

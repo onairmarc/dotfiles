@@ -3,15 +3,15 @@ name: project-skill-config
 description: Detects user-level skills that do not apply to the current repository and disables them in the repo's .claude/settings.json via skillOverrides. Discovers skills dynamically at invocation, analyzes the repo's tech stack, reasons about relevance, and asks for confirmation before writing.
 disable-model-invocation: true
 allowed-tools:
-  - Read
-  - Edit
-  - Write
-  - Glob
-  - Grep
-  - Bash(ls *)
-  - Bash(find *)
-  - Bash(find -L *)
-  - AskUserQuestion
+    - Read
+    - Edit
+    - Write
+    - Glob
+    - Grep
+    - Bash(ls *)
+    - Bash(find *)
+    - Bash(find -L *)
+    - AskUserQuestion
 ---
 
 # Project Skill Config
@@ -27,31 +27,24 @@ Set these variables for use throughout the skill:
 - `$REPO_ROOT` — current working directory (the repository root)
 - `$REPO_SETTINGS` — `$REPO_ROOT/.claude/settings.json`
 - `$USER_SKILLS_DIR` — `~/.config/opencode/skills`
-- `$PLUGIN_CACHE_DIR` — `~/.claude/plugins/cache`
 
 ---
 
 ## Step 1 — Discover user-level skills
 
-The skills directory may be a symlink to a centrally managed location. Use `find -L` (follows symlinks) rather than
-Glob for all skill discovery — Glob does not traverse symlinked directories.
+The skills directory may be a symlink to a centrally managed location. Use `find -L` (follows symlinks) rather than Glob for all skill discovery — Glob does not traverse
+symlinked directories.
 
-Run in parallel:
+Run:
 
-1. **Local skills:** Run `find -L ~/.config/opencode/skills -name SKILL.md -maxdepth 2`. For each path returned, read its
-   YAML frontmatter to extract `name` and `description`. Record as `{ name, description, source: "local", path }`.
+1. **Local skills:** Run `find -L ~/.config/opencode/skills -name SKILL.md -maxdepth 2`. For each path returned, read its YAML frontmatter to extract `name` and
+   `description`. Record as `{ name, description, source: "local", path }`.
 
-2. **Plugin skills:** Run `find -L ~/.claude/plugins/cache -name SKILL.md -maxdepth 6`. For each path returned,
-   read its YAML frontmatter to extract `name` and `description`. Plugin skills are namespaced — extract the plugin
-   name from the path (the directory segment immediately after `cache/`) and record as
-   `{ name: "<plugin>:<name>", description, source: "plugin:<plugin>", path }`.
-
-Merge both lists into `$ALL_SKILLS`. Deduplicate by name (prefer local over plugin if duplicate names exist).
+Record the resulting list as `$ALL_SKILLS`.
 
 Skills that are purely meta-infrastructure (e.g., `file-operations`, `update-config`, `keybindings-help`,
-`fewer-permission-prompts`, `simplify`, `loop`, `schedule`, `init`, `review`) are **always applicable** to any repo —
-exclude them from the candidate list for disabling. Do not disable skills that help AI Agents operate; only disable
-skills that target a specific language, framework, or platform that this repo doesn't use.
+`fewer-permission-prompts`, `simplify`, `loop`, `schedule`, `init`, `review`) are **always applicable** to any repo — exclude them from the candidate list for disabling.
+Do not disable skills that help AI Agents operate; only disable skills that target a specific language, framework, or platform that this repo doesn't use.
 
 ---
 
@@ -92,11 +85,10 @@ Check for `Dockerfile`, `.gitlab-ci.yml`, `.github/workflows/*.yml`. Note build 
 
 ### 2d — Read AGENTS.md and CLAUDE.md if present
 
-Read `$REPO_ROOT/AGENTS.md`, `$REPO_ROOT/CLAUDE.md` or `$REPO_ROOT/.claude/CLAUDE.md` if either exists. Extract any tech
-stack statements (e.g., "This is a Laravel 11 application", "Built with .NET 8 and Avalonia").
+Read `$REPO_ROOT/AGENTS.md`, `$REPO_ROOT/CLAUDE.md` or `$REPO_ROOT/.claude/CLAUDE.md` if either exists. Extract any tech stack statements (e.g., "This is a Laravel 11
+application", "Built with .NET 8 and Avalonia").
 
-Summarize what you found as `$STACK` — a brief description like "PHP / Laravel 11 / Livewire" or ".NET 8 / C# /
-Avalonia" or "TypeScript / Next.js / Bun".
+Summarize what you found as `$STACK` — a brief description like "PHP / Laravel 11 / Livewire" or ".NET 8 / C# / Avalonia" or "TypeScript / Next.js / Bun".
 
 ---
 
@@ -108,8 +100,7 @@ For each skill in `$ALL_SKILLS` (excluding the always-applicable ones from Step 
 A skill is **irrelevant** if:
 
 - Its `description` targets a specific language, framework, or platform that is NOT present in `$STACK`.
-- A reasonable developer looking at the skill description and the repo's tech stack would immediately conclude the skill
-  has no use in this repo.
+- A reasonable developer looking at the skill description and the repo's tech stack would immediately conclude the skill has no use in this repo.
 
 A skill is **applicable** (do NOT disable) if:
 
@@ -138,26 +129,24 @@ Extract the existing `skillOverrides` object (may be absent). Identify:
 
 ## Step 4b — Reevaluate existing overrides for drift
 
-This step checks whether previously configured overrides are still correct. Two things can change over time that
-make a prior override stale: the repo's tech stack (e.g., a PHP dependency added, C# removed) or the skill itself
-(e.g., its description was updated and it now covers a technology this repo uses, or it was narrowed and no longer
+This step checks whether previously configured overrides are still correct. Two things can change over time that make a prior override stale: the repo's tech stack (e.g.,
+a PHP dependency added, C# removed) or the skill itself (e.g., its description was updated and it now covers a technology this repo uses, or it was narrowed and no longer
 applies).
 
-For each skill in the existing `skillOverrides`, cross-reference against the current skill description (already
-read in Step 1 — use that data, do not re-read) and `$STACK`:
+For each skill in the existing `skillOverrides`, cross-reference against the current skill description (already read in Step 1 — use that data, do not re-read) and
+`$STACK`:
 
-- **Currently `"off"`:** Reason about whether `$STACK` now includes the technology this skill currently targets
-  (based on its current description). If yes — either the stack grew or the skill's scope changed to match it —
-  flag as a candidate to **re-enable**. Note which changed: stack, skill description, or both.
-- **Currently `"on"`:** Reason about whether `$STACK` still includes the technology this skill currently targets.
-  If no, flag as a candidate to **disable**. Note which changed: stack, skill description, or both.
+- **Currently `"off"`:** Reason about whether `$STACK` now includes the technology this skill currently targets (based on its current description). If yes — either the
+  stack grew or the skill's scope changed to match it — flag as a candidate to **re-enable**. Note which changed: stack, skill description, or both.
+- **Currently `"on"`:** Reason about whether `$STACK` still includes the technology this skill currently targets. If no, flag as a candidate to **disable**. Note which
+  changed: stack, skill description, or both.
 
 Record each candidate as `{ name, current: "on"|"off", recommended: "on"|"off", reason, what_changed }`.
 
 Do NOT flag a skill for change unless the evidence clearly supports it. Ambiguity means no recommendation.
 
-If the skill from `$ALL_SKILLS` has no matching entry (skill was removed from the user's skills dir entirely),
-note it separately as a stale override — the skill no longer exists and the override can be cleaned up.
+If the skill from `$ALL_SKILLS` has no matching entry (skill was removed from the user's skills dir entirely), note it separately as a stale override — the skill no
+longer exists and the override can be cleaned up.
 
 If no existing overrides warrant a change, skip the reevaluation section of the report entirely.
 
@@ -215,8 +204,8 @@ If there are no new skills to disable AND no reevaluation candidates, say so and
 
 ## Step 6 — Ask for confirmation
 
-Use `AskUserQuestion` with up to two questions in one call — one for new disables (if any), one for reevaluation
-changes (if any). Omit a question if its section had no candidates.
+Use `AskUserQuestion` with up to two questions in one call — one for new disables (if any), one for reevaluation changes (if any). Omit a question if its section had no
+candidates.
 
 **Question 1 — New disables** (only if Step 3 produced new skills to disable):
 
@@ -293,5 +282,4 @@ Reevaluation changes (N): <skill: off→on>, <skill: on→off>, <skill: removed 
 - Never disable skills explicitly set to `"on"` in existing settings.
 - Never modify user-level skill files or global `~/.claude/settings.json`.
 - One repo, one invocation — this skill operates only on `$REPO_ROOT`.
-- If the detected stack is ambiguous (e.g., a mono-repo with multiple languages), err on the side of keeping skills
-  enabled. Disable only where the evidence is clear.
+- If the detected stack is ambiguous (e.g., a mono-repo with multiple languages), err on the side of keeping skills enabled. Disable only where the evidence is clear.

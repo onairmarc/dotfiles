@@ -1,7 +1,7 @@
 # Subsystem Inventory Format
 
-Canonical structure for the subsystem inventory and the coordinator's scratchpad. Both audit skills use this format so findings are
-comparable across whole-repo and change-scoped audits.
+Canonical structure for the subsystem inventory and the coordinator's scratchpad. Both audit skills use this format so findings are comparable across whole-repo and
+change-scoped audits.
 
 ---
 
@@ -17,13 +17,13 @@ Give each subsystem:
 
 ### Status values
 
-| Status       | Meaning                                                                 |
-|--------------|-------------------------------------------------------------------------|
-| queued       | Identified but not yet reviewed.                                        |
-| in review    | A worker is currently inspecting this subsystem.                        |
-| recommend    | Review complete; at least one recommendation accepted.                  |
-| fix applied  | Recommendation implemented (change-audit only; codebase-audit is read-only). |
-| skip         | Review complete; nothing met the materiality threshold.                 |
+| Status      | Meaning                                                                      |
+|-------------|------------------------------------------------------------------------------|
+| queued      | Identified but not yet reviewed.                                             |
+| in review   | A worker is currently inspecting this subsystem.                             |
+| recommend   | Review complete; at least one recommendation accepted.                       |
+| fix applied | Recommendation implemented (change-audit only; codebase-audit is read-only). |
+| skip        | Review complete; nothing met the materiality threshold.                      |
 
 ---
 

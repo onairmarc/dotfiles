@@ -108,7 +108,7 @@ violate a single one, and the audit itself must not flag a pattern the standards
    `CONTRIBUTING.md`, a `standards/` directory).
 2. If neither file names a standards location, search with `Grep`/`Glob`: `docs/standards/`, `docs/policies*.md`,
    `docs/conventions*.md`, `CONTRIBUTING.md`, `.editorconfig`, `eslint.config.*`, `.prettierrc*`, and any file whose name contains `standard`, `policy`, or `convention`.
-3. When the location was not explicitly declared, confirm with the developer which document(s) you believe are the project's standards before relying on them; if you
+3. When the location was not explicitly declared, confirm with the developer which document (s) you believe are the project's standards before relying on them; if you
    find none, say so explicitly.
 4. Read them in full and record the concrete rules as `PROJECT_STANDARDS`. Pass this to feature-planning in Step 4 so every optimization step is held against it.
 
@@ -123,7 +123,7 @@ before prescribing a fix — APIs move between major versions (`cacheTime` → `
 Record each finding as:
 
 - **Category** (Query / Table / Router / Form / Virtual)
-- **Component::hook()** or module name
+- **Component::hook ()** or module name
 - **File path** (exact, relative to repo root)
 - **Line range**
 - **One-sentence description of the specific problem**
@@ -136,9 +136,8 @@ Record each finding as:
 
 ### Coexistence rules (Inertia + Query, Router + Query)
 
-On an Inertia host, follow [`../react-optimization/resources/inertia-api-first.md`](../react-optimization/resources/inertia-api-first.md) for every Inertia
-prop. `react-optimization --audit-only` (Step 3.5) owns the undocumented-prop ask — do not ask again. If that run produced no inventory,
-run the file here before Step 4.
+On an Inertia host, follow [`../react-optimization/resources/inertia-api-first.md`](../react-optimization/resources/inertia-api-first.md) for every Inertia prop.
+`react-optimization --audit-only` (Step 3.5) owns the undocumented-prop ask — do not ask again. If that run produced no inventory, run the file here before Step 4.
 
 - After bootstrap, server interactions go through the project's API data layer (`useQuery` and its query functions).
 - Keep a `useQuery` that hits a client-only REST/JSON endpoint on Query.
@@ -278,8 +277,8 @@ Merge the react-optimization findings into the TanStack audit summary from Step 
 - Add the react-optimization issue counts to the "Issues found" totals. Carry the Inertia inventory line into the merged summary.
 - If a React finding and a TanStack finding cite the same file and overlapping line range, **keep the TanStack finding** (it is the more specific prescription) and drop
   the React one. Typical overlap: `fetch` in `useEffect`
-  (React says SWR/`useQuery`; TanStack says `useQuery`). Keep `props-api-first` and `props-api-first-exception` even when the range
-  overlaps — those are the inventory decisions, not a generic React rule.
+  (React says SWR/`useQuery`; TanStack says `useQuery`). Keep `props-api-first` and `props-api-first-exception` even when the range overlaps — those are the inventory
+  decisions, not a generic React rule.
 - If react-optimization found zero issues across all categories, note: `General React audit: no issues found.`
 
 The combined summary (TanStack findings + React findings) is what gets passed to feature-planning in Step 4.
@@ -330,8 +329,8 @@ programmatically — do not ask the user to retype it):
 > 5. No new infrastructure (no new data library, no SSR mode, no replacement of Inertia with TanStack Router or the reverse). Do not add a TanStack library that is not
      already installed to "fix" a finding — if Table rows are unbounded and Virtual is not installed, paginate or window with what the project already has, or record a
      developer decision before adding `@tanstack/react-virtual`.
-> 6. Do not touch files outside `{PROJECT_PATH}` except test files for code inside it, on an Inertia host the specific Laravel
-     controller files a merged React finding named, and the standards file a `props-api-first-exception` finding names.
+> 6. Do not touch files outside `{PROJECT_PATH}` except test files for code inside it, on an Inertia host the specific Laravel controller files a merged React finding
+     named, and the standards file a `props-api-first-exception` finding names.
 > 7. `new QueryClient()` during render → module-level singleton or `useState(() => new QueryClient())`. No exceptions.
 > 8. `fetch`/`axios` in `useEffect` for server state → `useQuery` (Query must already be installed to be in this audit). No exceptions.
 > 9. `queryKey` must include every value the `queryFn` reads. No exceptions.
@@ -340,8 +339,8 @@ programmatically — do not ask the user to retype it):
 > 12. `table.getRowModel().rows.map` of an unbounded collection → paginate or virtualize. No exceptions.
 > 13. `createRouter` / `new Router` during render → module scope. No exceptions.
 > 14. Whole-form `useStore(form.store)` on a multi-field form → a selector for the slice the component reads. No exceptions.
-> 15. Honor the Inertia-prop inventory: bootstrap and documented exceptions stay Inertia props; migrate decisions load through the
-      project's Query data layer. Keep `@inertiajs/react` `useForm` on Inertia. Keep a client-only `useQuery` on Query.
+> 15. Honor the Inertia-prop inventory: bootstrap and documented exceptions stay Inertia props; migrate decisions load through the project's Query data layer. Keep
+      `@inertiajs/react` `useForm` on Inertia. Keep a client-only `useQuery` on Query.
 > 16. Confirm every prescribed API against the installed `@tanstack/*` major version before writing the snippet.
 > 17. Honor every hard constraint from react-optimization's plan template for the merged General React findings (inline components, `.sort(` on React data, independent
       `await`s, numeric `&&` JSX, barrel imports, lazy heavy chunks, no Next APIs on Inertia / no Inertia APIs on Next).

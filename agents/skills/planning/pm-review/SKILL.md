@@ -157,7 +157,8 @@ The `domains` one-liners in the index let discovery mode route an idea to the ri
 The knowledge base captures the product's *domain*; the **northstar** captures the product's *vision* — its in-scope capabilities, explicit out-of-scope list, guiding
 principles (each annotated BLOCK or WARN), and sanctioned feature set. Both modes hold their reasoning against it, so load it here once.
 
-Resolve `$PLAN_DIR` and the `$NORTHSTAR` ladder per `~/.config/opencode/skills/planning-commons/paths.md`. Read the resolved northstar in full. If none exists, `$NORTHSTAR = null`
+Resolve `$PLAN_DIR` and the `$NORTHSTAR` ladder per `~/.config/opencode/skills/planning-commons/paths.md`. Read the resolved northstar in full. If none exists,
+`$NORTHSTAR = null`
 — the mode files skip every northstar check silently rather than inventing vision constraints.
 
 ### Keep the northstar and the knowledge base in sync

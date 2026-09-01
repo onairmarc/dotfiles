@@ -1,8 +1,8 @@
 # C# Optimization Pass
 
-This pass audits general .NET patterns: async/await, LINQ, memory allocation, DI lifetimes, concurrency, and exception handling. It applies
-to **all** C# projects, including Avalonia ones — the Avalonia pass covers UI-specific patterns that this pass does not. Detection is done
-by the caller (any `.csproj` that did not match the Avalonia check), so there is no `5a` step here.
+This pass audits general .NET patterns: async/await, LINQ, memory allocation, DI lifetimes, concurrency, and exception handling. It applies to **all** C# projects,
+including Avalonia ones — the Avalonia pass covers UI-specific patterns that this pass does not. Detection is done by the caller (any `.csproj` that did not match the
+Avalonia check), so there is no `5a` step here.
 
 ## 5b–5d — Run the common procedure
 

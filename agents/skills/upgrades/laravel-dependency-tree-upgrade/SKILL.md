@@ -5,9 +5,8 @@ disable-model-invocation: true
 argument-hint: <next-laravel-version> [parent-feature]
 ---
 
-This skill is a Laravel-specific wrapper around the `package-dependency-tree-upgrade` skill. It handles the
-Laravel/Illuminate constraint conventions and pre-fills the framework package details so you only need to supply the
-target version and (optionally) the SP Projects upgrade initiative.
+This skill is a Laravel-specific wrapper around the `package-dependency-tree-upgrade` skill. It handles the Laravel/Illuminate constraint conventions and pre-fills the
+framework package details so you only need to supply the target version and (optionally) the SP Projects upgrade initiative.
 
 ---
 
@@ -36,19 +35,17 @@ find . -name "composer.lock" -not -path "*/vendor/*" -maxdepth 3
 ### 2. Identify package prefixes to audit
 
 Read `composer.json` and note the vendor namespaces used for first-party and organization packages (e.g. `acme/`,
-`myorg/`). These are the packages your team owns and must upgrade — third-party packages from Packagist are maintained
-externally.
+`myorg/`). These are the packages your team owns and must upgrade — third-party packages from Packagist are maintained externally.
 
 ### 3. Determine the current Laravel major version
 
-Read `composer.json` and extract the constraint on `laravel/framework`. The current major version is the highest version
-currently supported (e.g. `^11|^12` → current is `12`).
+Read `composer.json` and extract the constraint on `laravel/framework`. The current major version is the highest version currently supported (e.g. `^11|^12` → current is
+`12`).
 
 ### 4. Resolve the SP Projects project
 
-Call `mcp__sp_projects__getProjects` to list your projects and match the one for this repo (infer the name from the
-repo or `APP_NAME` in `.env` if unsure). Store the project name or ID to pass as `sp-project`. If the SP Projects MCP is
-unavailable, `package-dependency-tree-upgrade` falls back to a manual report.
+Call `mcp__sp_projects__getProjects` to list your projects and match the one for this repo (infer the name from the repo or `APP_NAME` in `.env` if unsure). Store the
+project name or ID to pass as `sp-project`. If the SP Projects MCP is unavailable, `package-dependency-tree-upgrade` falls back to a manual report.
 
 ---
 
@@ -61,13 +58,12 @@ Some packages constrain `laravel/framework` directly; others only constrain indi
 
 - A package that constrains `illuminate/support: ^11|^12` is equally blocked as one constraining
   `laravel/framework: ^11|^12`
-- A package that constrains any `illuminate/*` sub-package to `^{next-version}` is already compatible for that
-  sub-package — verify all constrained sub-packages before marking it compatible
+- A package that constrains any `illuminate/*` sub-package to `^{next-version}` is already compatible for that sub-package — verify all constrained sub-packages before
+  marking it compatible
 
 ### Packages that often need no feature
 
-- Packages with no `laravel/framework` or `illuminate/*` constraints at all — they are framework-agnostic and do not
-  block the upgrade
+- Packages with no `laravel/framework` or `illuminate/*` constraints at all — they are framework-agnostic and do not block the upgrade
 - Packages that already declare `^{next-version}` support — verify by checking the lockfile before skipping
 
 ---
@@ -82,11 +78,10 @@ Once you have gathered the above context, run the full `package-dependency-tree-
 - **current-version:** determined from `composer.json`
 - **next-version:** `$ARGUMENTS[0]`
 - **sp-project:** the SP Projects project name or ID resolved via `mcp__sp_projects__getProjects`
-- **parent-feature:** `$ARGUMENTS[1]` if provided — otherwise omit and let `package-dependency-tree-upgrade` Step 0
-  handle initiative discovery or creation
+- **parent-feature:** `$ARGUMENTS[1]` if provided — otherwise omit and let `package-dependency-tree-upgrade` Step 0 handle initiative discovery or creation
 
-Follow all confirmation steps from `package-dependency-tree-upgrade` — present findings before creating features, and
-present the dependency graph before recording blocker relationships.
+Follow all confirmation steps from `package-dependency-tree-upgrade` — present findings before creating features, and present the dependency graph before recording
+blocker relationships.
 
 ---
 

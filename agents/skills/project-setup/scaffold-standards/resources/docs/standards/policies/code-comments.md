@@ -3,13 +3,13 @@
 Comments explain why something odd is the way it is. They are not documentation, and they do not narrate what the code does.
 
 A later editor reads the names, types, and control flow. If those already say what happens, a comment is noise — and a long class essay is a second docs tree that drifts.
-Architecture, design rationale, and how a subsystem works live in docs (see [Documentation](./documentation.md)). A comment stays only when removing it would make a future
-editor do the wrong thing.
+Architecture, design rationale, and how a subsystem works live in docs (see [Documentation](./documentation.md)). A comment stays only when removing it would make a
+future editor do the wrong thing.
 
 **Rules:**
 
-- Keep a comment only when the next reader would do the wrong thing without it: a framework quirk, a race, a sentinel, a typed lie, or a constraint the next line does
-  not show.
+- Keep a comment only when the next reader would do the wrong thing without it: a framework quirk, a race, a sentinel, a typed lie, or a constraint the next line does not
+  show.
 - Comments explain why, never what. If the names and types already say it, delete the comment.
 - Do not use comments as documentation. If unique knowledge lives only in a comment, port it to the right doc first, then delete or trim the comment.
 - Do not restate the method, class, or property name in a doc comment.

@@ -9,11 +9,9 @@ The coordinator's post-review passes. Applies identically to both whole-repo and
 
 The coordinator must independently verify every finding against the current repository before accepting it.
 
-Reject, narrow, or demote recommendations that are vague, duplicate another finding, misunderstand intentional semantics, or merely
-relocate complexity.
+Reject, narrow, or demote recommendations that are vague, duplicate another finding, misunderstand intentional semantics, or merely relocate complexity.
 
-Record skips as completed coverage. Deduplicate overlapping findings and assign each accepted recommendation to one authoritative
-subsystem.
+Record skips as completed coverage. Deduplicate overlapping findings and assign each accepted recommendation to one authoritative subsystem.
 
 Continue opening bounded review batches until every inventory row is complete.
 
@@ -29,8 +27,7 @@ Before finalizing (or, for change-audit, before implementing), run fresh indepen
 - schema completeness;
 - dependency-aware priority ranking.
 
-If the coverage pass finds a real omission, add an explicit subsystem row and audit it. Do not hide it by broadening a previously completed
-boundary.
+If the coverage pass finds a real omission, add an explicit subsystem row and audit it. Do not hide it by broadening a previously completed boundary.
 
-Rank the final recommendations by concrete impact, confidence, implementation effort, blast radius, and prerequisites. Identify the best
-implementation order (or, for codebase-audit, the best first implementation slices).
+Rank the final recommendations by concrete impact, confidence, implementation effort, blast radius, and prerequisites. Identify the best implementation order (or, for
+codebase-audit, the best first implementation slices).

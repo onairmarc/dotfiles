@@ -4,22 +4,22 @@ description: PHP/Laravel code review extending the base code-review skill. Check
 argument-hint: "[--full]"
 disable-model-invocation: true
 allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash(git branch --show-current)
-  - Bash(git rev-parse --git-dir)
-  - Bash(git diff --name-only *)
-  - Bash(git diff origin/main...HEAD *)
-  - Bash(git diff *)
-  - Bash(git log *)
-  - Bash(test -f *)
-  - Bash(vendor/bin/phpstan *)
-  - Bash(application/vendor/bin/phpstan *)
-  - Bash(vendor/bin/pest *)
-  - Bash(application/vendor/bin/pest *)
-  - Bash(vendor/bin/phpunit *)
-  - Bash(application/vendor/bin/phpunit *)
+    - Read
+    - Grep
+    - Glob
+    - Bash(git branch --show-current)
+    - Bash(git rev-parse --git-dir)
+    - Bash(git diff --name-only *)
+    - Bash(git diff origin/main...HEAD *)
+    - Bash(git diff *)
+    - Bash(git log *)
+    - Bash(test -f *)
+    - Bash(vendor/bin/phpstan *)
+    - Bash(application/vendor/bin/phpstan *)
+    - Bash(vendor/bin/pest *)
+    - Bash(application/vendor/bin/pest *)
+    - Bash(vendor/bin/phpunit *)
+    - Bash(application/vendor/bin/phpunit *)
 ---
 
 # PHP Code Review (extends code-review)
@@ -32,8 +32,8 @@ This skill extends the base `code-review` skill with PHP/Laravel-specific rules.
 ~/.config/opencode/skills/code-review/SKILL.md
 ```
 
-Follow every step defined there, applying the overrides below in the matching steps. Where a section is
-marked **Extension point** in the base skill, replace it entirely with the PHP-specific version below.
+Follow every step defined there, applying the overrides below in the matching steps. Where a section is marked **Extension point** in the base skill, replace it entirely
+with the PHP-specific version below.
 
 ## Override: Step 2 — File Filter
 
@@ -186,8 +186,8 @@ vendor/bin/phpstan analyse path/to/File1.php path/to/File2.php --error-format=js
 vendor/bin/phpstan analyse --error-format=json
 ```
 
-Parse the JSON output. Classify each PHPStan finding as Actionable or Nitpick and add it to your findings
-collection. Clearly note whether an issue came from a changed file or the broader codebase.
+Parse the JSON output. Classify each PHPStan finding as Actionable or Nitpick and add it to your findings collection. Clearly note whether an issue came from a changed
+file or the broader codebase.
 
 ---
 

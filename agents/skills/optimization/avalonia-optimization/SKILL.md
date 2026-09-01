@@ -17,9 +17,8 @@ allowed-tools:
 
 # Avalonia Optimization Skill
 
-You are an expert Avalonia UI performance engineer. Your job is to **audit** a project path, discover performance
-issues, and then invoke the **feature-planning skill** to produce a self-contained, agent-ready optimization plan. You
-do not execute any optimization code yourself.
+You are an expert Avalonia UI performance engineer. Your job is to **audit** a project path, discover performance issues, and then invoke the **feature-planning skill**
+to produce a self-contained, agent-ready optimization plan. You do not execute any optimization code yourself.
 
 **Input:** `$ARGUMENTS` — the project path to audit (e.g. `src/MyApp`, `src/MyApp.Desktop`, `src/Views`).
 
@@ -33,9 +32,9 @@ Parse `$ARGUMENTS`. Extract:
   ```
   Error: PROJECT_PATH is required. Usage: /avalonia-optimization <path/to/project> [additional context]
   ```
-- `EXTRA_CONTEXT` — everything after the first positional argument (optional). Free-form text the caller provides about
-  known issues, architectural decisions, or constraints the automated audit may not discover (e.g. "the MainViewModel is
-  a singleton shared across windows", "the DataGrid always loads the full dataset on startup"). Preserve it verbatim.
+- `EXTRA_CONTEXT` — everything after the first positional argument (optional). Free-form text the caller provides about known issues, architectural decisions, or
+  constraints the automated audit may not discover (e.g. "the MainViewModel is a singleton shared across windows", "the DataGrid always loads the full dataset on
+  startup"). Preserve it verbatim.
 
 Derive `PROJECT_NAME` from the last meaningful path segment (if last segment is `src`, use its parent).
 
@@ -43,7 +42,7 @@ Derive `PROJECT_NAME` from the last meaningful path segment (if last segment is 
 
 ## Step 1 — Detect project type
 
-Read the `.csproj` file(s) in `PROJECT_PATH`. Classify the project:
+Read the `.csproj` file (s) in `PROJECT_PATH`. Classify the project:
 
 | Signal                                                                      | Classification             |
 |-----------------------------------------------------------------------------|----------------------------|
@@ -77,29 +76,28 @@ If classification is ambiguous, state your best guess and the reason, then conti
 
 ## Step 1.5 — Discover project standards & policies (mandatory)
 
-Locate where this project documents its coding standards, conventions, and policies. The optimization plan must not violate a single one, and the audit itself
-must not flag a pattern the standards actually mandate. This skill owns the feature-planning handoff (including the merged C# findings), so it must discover
-standards even though it calls cs-optimization in `--audit-only` mode.
+Locate where this project documents its coding standards, conventions, and policies. The optimization plan must not violate a single one, and the audit itself must not
+flag a pattern the standards actually mandate. This skill owns the feature-planning handoff (including the merged C# findings), so it must discover standards even though
+it calls cs-optimization in `--audit-only` mode.
 
 1. Read the repo-root `README.md` and `AGENTS.md` (and any per-project `AGENTS.md` / `README.md` for `PROJECT_PATH`) and follow every link they make to
    standards/policy/convention documents (e.g. `docs/standards/`, `docs/policies.md`, `CONTRIBUTING.md`, a `standards/` directory).
 2. If neither file names a standards location, search with `Grep`/`Glob`: `docs/standards/`, `docs/policies*.md`, `docs/conventions*.md`, `CONTRIBUTING.md`,
    `.editorconfig`, `Directory.Build.props`, `*.ruleset`, `.globalconfig`, and any file whose name contains `standard`, `policy`, or `convention`.
-3. When the location was not explicitly declared, confirm with the developer which document(s) you believe are the project's standards before relying on them; if
-   you find none, say so explicitly.
+3. When the location was not explicitly declared, confirm with the developer which document (s) you believe are the project's standards before relying on them; if you
+   find none, say so explicitly.
 4. Read them in full and record the concrete rules as `PROJECT_STANDARDS`. Pass this to feature-planning in Step 4 so every optimization step is held against it.
 
 ---
 
 ## Step 2 — Audit the project
 
-Systematically search `PROJECT_PATH` for every problem category below. For each hit, **read the actual file to confirm
-line numbers before recording**. Never approximate.
+Systematically search `PROJECT_PATH` for every problem category below. For each hit, **read the actual file to confirm line numbers before recording**. Never approximate.
 
 Record each finding as:
 
 - **Category**
-- **Class::Method()** (or class name)
+- **Class::Method ()** (or class name)
 - **File path** (exact, relative to repo root)
 - **Line range**
 - **One-sentence description of the specific problem**
@@ -217,14 +215,12 @@ After compiling Avalonia-specific findings, run the general C# audit on the same
 Skill(cs-optimization): {PROJECT_PATH} --audit-only [EXTRA_CONTEXT]
 ```
 
-The `--audit-only` flag causes cs-optimization to stop after its Step 3 — it emits a findings summary and does
-**not** invoke feature-planning. Capture that summary.
+The `--audit-only` flag causes cs-optimization to stop after its Step 3 — it emits a findings summary and does **not** invoke feature-planning. Capture that summary.
 
 Merge the cs-optimization findings into the Avalonia audit summary from Step 3:
 
-- Append a new section `**General C# (.NET)**` to the findings summary containing the cs-optimization categories
-  (Async/Threading, Memory allocation, LINQ/Collections, I/O & Resources, Caching, Concurrency, Exception
-  handling, DI & Lifetimes).
+- Append a new section `**General C# (.NET)**` to the findings summary containing the cs-optimization categories (Async/Threading, Memory allocation, LINQ/Collections,
+  I/O & Resources, Caching, Concurrency, Exception handling, DI & Lifetimes).
 - Add the cs-optimization issue counts to the "Issues found" totals.
 - If cs-optimization found zero issues across all categories, note: `General C# audit: no issues found.`
 
@@ -234,8 +230,8 @@ The combined summary (Avalonia findings + C# findings) is what gets passed to fe
 
 ## Step 4 — Invoke feature-planning
 
-Hand off to the **feature-planning skill** with the full audit summary as context. Use the following as the feature
-description passed to feature-planning (feed it programmatically — do not ask the user to retype it):
+Hand off to the **feature-planning skill** with the full audit summary as context. Use the following as the feature description passed to feature-planning (feed it
+programmatically — do not ask the user to retype it):
 
 ---
 
@@ -251,17 +247,14 @@ description passed to feature-planning (feed it programmatically — do not ask 
 > **Phase 0 — Baseline test coverage (mandatory, non-negotiable)**
 > - Run existing test suite filtered to this project. Record all passing tests.
 > - If any pre-existing failures exist, stop — they must be fixed before optimization work begins.
-> - For every issue in "Issues addressed" with no existing test pinning current behavior, write an xUnit or NUnit
-    > baseline test.
+> - For every issue in "Issues addressed" with no existing test pinning current behavior, write an xUnit or NUnit baseline test.
 > - Baseline tests must assert current (pre-optimization) behavior, not desired behavior.
 > - Commit baseline tests separately before Phase 1: `test({project}): baseline tests before optimization`
 > - Re-run suite. All tests including new baselines must pass before proceeding.
 >
 > **Phase 1 — Optimizations (one numbered step per issue)**
-> - Each step: names file and method, shows exact before/after code snippet, includes a grep/search command to verify no
-    > other callers are broken.
-> - After every individual step: run the test suite. A single failing test = that step is a failure. Revert and fix
-    > before continuing to the next step.
+> - Each step: names file and method, shows exact before/after code snippet, includes a grep/search command to verify no other callers are broken.
+> - After every individual step: run the test suite. A single failing test = that step is a failure. Revert and fix before continuing to the next step.
 > - One PR per phase.
 >
 > **Hard constraints to embed in the plan:**
@@ -274,21 +267,17 @@ description passed to feature-planning (feed it programmatically — do not ask 
 > 7. `Task.Result` / `.Wait()` on the UI thread → always replace with `await`. No exceptions.
 > 8. `async void` outside event handlers → always replace with `async Task`. No exceptions.
 > 9. `ObservableCollection` replaced wholesale → always replace with `Clear()` + range add or diff update.
-> 10. Never recommend changing data binding `Mode` to `OneTime` as a performance shortcut — data must stay live unless
-      > the data genuinely never changes after load.
-> 11. `ItemsControl`/`ListBox`/`DataGrid` with unbounded items must use `VirtualizingStackPanel` or the platform
-      > virtualization API. Always. No exceptions.
+> 10. Never recommend changing data binding `Mode` to `OneTime` as a performance shortcut — data must stay live unless the data genuinely never changes after load.
+> 11. `ItemsControl`/`ListBox`/`DataGrid` with unbounded items must use `VirtualizingStackPanel` or the platform virtualization API. Always. No exceptions.
 > 12. Event handler `+=` subscriptions in short-lived controls must have a corresponding `-=` in `Dispose` or an
-      > `Unloaded` handler. Use `WeakEventManager` or `WeakReference` when the publisher outlives the subscriber.
-> 13. `DispatcherTimer` created in a ViewModel or control must be stopped in `Dispose` or `Unloaded`. The plan step must
-      > show the exact disposal site.
+      `Unloaded` handler. Use `WeakEventManager` or `WeakReference` when the publisher outlives the subscriber.
+> 13. `DispatcherTimer` created in a ViewModel or control must be stopped in `Dispose` or `Unloaded`. The plan step must show the exact disposal site.
 > 14. CPU-bound work longer than ~16ms must be offloaded via `Task.Run`. The plan step must show the `await Task.Run`
-      > wrapping and the UI-thread marshal for any resulting property updates.
+      wrapping and the UI-thread marshal for any resulting property updates.
 > 15. `DynamicResource` bindings on resources that never change at runtime must be converted to `StaticResource`.
->
-> 16. Every optimization step must comply with the project's documented standards and policies (see below). No fix may violate a naming, structure, testing,
-      > logging, dependency, or formatting policy. Where an optimization would conflict with a policy, honor the policy and note the constraint on the step; if
-      > the two genuinely cannot be reconciled, flag it for developer review rather than shipping the violation.
+> 16. Every optimization step must comply with the project's documented standards and policies (see below). No fix may violate a naming, structure, testing, logging,
+      dependency, or formatting policy. Where an optimization would conflict with a policy, honor the policy and note the constraint on the step; if the two genuinely
+      cannot be reconciled, flag it for developer review rather than shipping the violation.
 >
 > **Out of scope:** Native interop rewrites, platform-specific rendering pipeline changes, new build tooling,
 > files outside `{PROJECT_PATH}`.
@@ -307,5 +296,5 @@ description passed to feature-planning (feed it programmatically — do not ask 
 
 ---
 
-The feature-planning skill handles the rest: discovers the planning directory, drafts the plan, applies review lenses,
-iterates with the user, and writes the final agent-ready plan to disk.
+The feature-planning skill handles the rest: discovers the planning directory, drafts the plan, applies review lenses, iterates with the user, and writes the final
+agent-ready plan to disk.

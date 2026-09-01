@@ -23,6 +23,6 @@ deploy target, and any framework-specific runtime a newcomer must recognize. One
 
 ## Process and conventions
 
-- **ADR** — Architecture Decision Record. A durable, numbered Markdown document that captures a significant architectural decision: the question asked, the options weighed,
-  the decision made, and its consequences. Unlike a `{{PLANNING_PATH}}/` plan (throwaway scaffolding), an ADR is permanent. Project-wide ADRs live at
+- **ADR** — Architecture Decision Record. A durable, numbered Markdown document that captures a significant architectural decision: the question asked, the options
+  weighed, the decision made, and its consequences. Unlike a `{{PLANNING_PATH}}/` plan (throwaway scaffolding), an ADR is permanent. Project-wide ADRs live at
   `{{DOCS_PATH}}/decisions/NNNN-<slug>.md`; module-scoped ADRs live in that module's own `docs/decisions/`. See the Documentation policy.

@@ -14,12 +14,12 @@ review).
 The policies below are **mandatory reading for every task**, regardless of whether the agent believes them relevant. Load and apply them before selecting any
 task-specific policies from the tables further down. These override the "load only what your change touches" guidance in the next section — they always apply.
 
-| Policy                                             | Why it is mandatory                                                              |
-|----------------------------------------------------|----------------------------------------------------------------------------------|
-| [Code Comments](./policies/code-comments.md)       | Every code edit either writes, keeps, or removes comments.                       |
-| [Code Style](./policies/code-style.md)             | Every code edit produces styled output that must match the project's formatter.  |
-| [Simplicity First](./policies/simplicity-first.md) | Every design decision must justify complexity before adding it.                  |
-| [Version Control](./policies/version-control.md)   | Every task ends in a branch and commit that must follow the repository's rules.  |
+| Policy                                             | Why it is mandatory                                                             |
+|----------------------------------------------------|---------------------------------------------------------------------------------|
+| [Code Comments](./policies/code-comments.md)       | Every code edit either writes, keeps, or removes comments.                      |
+| [Code Style](./policies/code-style.md)             | Every code edit produces styled output that must match the project's formatter. |
+| [Simplicity First](./policies/simplicity-first.md) | Every design decision must justify complexity before adding it.                 |
+| [Version Control](./policies/version-control.md)   | Every task ends in a branch and commit that must follow the repository's rules. |
 
 ## How to use this index
 

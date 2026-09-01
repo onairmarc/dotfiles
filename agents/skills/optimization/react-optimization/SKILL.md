@@ -97,7 +97,7 @@ pattern the standards actually mandate.
    `CONTRIBUTING.md`, a `standards/` directory).
 2. If neither file names a standards location, search with `Grep`/`Glob`: `docs/standards/`, `docs/policies*.md`,
    `docs/conventions*.md`, `CONTRIBUTING.md`, `.editorconfig`, `eslint.config.*`, `.prettierrc*`, and any file whose name contains `standard`, `policy`, or `convention`.
-3. When the location was not explicitly declared, confirm with the developer which document(s) you believe are the project's standards before relying on them; if you
+3. When the location was not explicitly declared, confirm with the developer which document (s) you believe are the project's standards before relying on them; if you
    find none, say so explicitly.
 4. Read them in full and record the concrete rules as `PROJECT_STANDARDS`. Pass this to feature-planning in Step 4 so every optimization step is held against it.
 
@@ -110,12 +110,11 @@ found when its `SKILL.md` exists.
 
 Search **each** name independently (`inertia-best-practices` and `vercel-react-best-practices`). First hit wins per name, in this order:
 
-1. Current repo: `.agents/skills/**/{name}/SKILL.md`, `.claude/skills/{name}/SKILL.md`, `skills/{name}/SKILL.md`
+1. Current repo: `.agents/skills/**/{name}/SKILL.md`, `skills/{name}/SKILL.md`
 2. Sibling checkouts of this repo (the inertia skill is often a **private** fork next to this repo):
    `{repo-parent}/*/.agents/skills/{name}/SKILL.md` and `{repo-parent}/*/agents/skills/{name}/SKILL.md` (e.g.
    `../dotfiles-private/agents/skills/inertia-best-practices/SKILL.md`)
-3. User-level, following symlinks: `find -L ~/.config/opencode/skills ~/.claude/plugins ~/.grok/skills ~/.grok/bundled/skills -name SKILL.md` and keep any path whose parent
-   directory is `{name}`
+3. User-level, following symlinks: `find -L ~/.config/opencode/skills -name SKILL.md` and keep any path whose parent directory is `{name}`
 
 Use `Bash(test -f *)` / `Glob` / `find -L`. Do not assume a skill is missing because it is absent from this repository.
 
@@ -160,7 +159,7 @@ Record each finding as:
 
 - **Category**
 - **Rule slug** (from the selected skill)
-- **Component::hook()** or `Class::method()` (or module name)
+- **Component::hook ()** or `Class::method()` (or module name)
 - **File path** (exact, relative to repo root)
 - **Line range**
 - **One-sentence description of the specific problem**
@@ -268,8 +267,8 @@ On the vercel track in Next.js, the prescribed split is `next/dynamic`. On Vite 
 
 ### Inertia track — Data waterfalls (`data-*`)
 
-Search PHP controllers that `Inertia::render` a page under `PROJECT_PATH`, and the matching page components. Skip any prop the
-API-first inventory classified as **migrate**.
+Search PHP controllers that `Inertia::render` a page under `PROJECT_PATH`, and the matching page components. Skip any prop the API-first inventory classified as
+**migrate**.
 
 | Problem                                         | How to detect                                                                                 | Rule slug                  |
 |-------------------------------------------------|-----------------------------------------------------------------------------------------------|----------------------------|
@@ -371,8 +370,8 @@ Inertia inventory: {B} bootstrap, {E} exceptions, {U} undocumented (decided)
 ```
 
 Use the category names that the selected track actually produced (e.g. `**Data waterfalls**` on the inertia track,
-`**Eliminating waterfalls**` on the vercel track). Omit any category with zero findings. On a non-inertia track, omit the Inertia props
-category and the inventory line; on the inertia track, keep the inventory line even when that category is empty.
+`**Eliminating waterfalls**` on the vercel track). Omit any category with zero findings. On a non-inertia track, omit the Inertia props category and the inventory line;
+on the inertia track, keep the inventory line even when that category is empty.
 
 ---
 
@@ -418,8 +417,8 @@ programmatically — do not ask the user to retype it):
 > 3. Phase 0 is non-negotiable. No Phase 1 step ships without green baseline tests.
 > 4. A single test failure after any Phase 1 step = hard stop. Revert, fix, re-run.
 > 5. No new infrastructure (no new SSR mode, no new data library, no RSC migration, no new bundler).
-> 6. Do not touch files outside `{PROJECT_PATH}` except test files for code inside it, on the inertia track the specific Laravel
-     controller / share-middleware files the finding named, and the standards file a `props-api-first-exception` finding names.
+> 6. Do not touch files outside `{PROJECT_PATH}` except test files for code inside it, on the inertia track the specific Laravel controller / share-middleware files the
+     finding named, and the standards file a `props-api-first-exception` finding names.
 > 7. A component defined inside another component → always extract to module scope and pass props. No exceptions.
 > 8. `.sort(` on props, state, or query data → `toSorted()` or a copied array. No exceptions.
 > 9. Sequential `await` of independent operations → `Promise.all` (or start-the-promise-early). No exceptions.
@@ -430,16 +429,15 @@ programmatically — do not ask the user to retype it):
       `next/dynamic` (Next.js only). Never recommend `next/dynamic` outside Next.js. Never recommend `next/script`, Server Actions, `React.cache`, or `after()` on the
       inertia track.
 > 13. On the inertia track: in-app `<a href>` / `window.location` → Inertia `<Link>` / `router`. Hand-rolled
-      `fetch` forms → `useForm`. Full `router.reload()` for one widget → `only: [...]`. Honor the Inertia-prop inventory: bootstrap
-      and documented exceptions stay props; migrate decisions load through the project's API data layer. Keep client-only API reads on
-      that layer.
+      `fetch` forms → `useForm`. Full `router.reload()` for one widget → `only: [...]`. Honor the Inertia-prop inventory: bootstrap and documented exceptions stay props;
+      migrate decisions load through the project's API data layer. Keep client-only API reads on that layer.
 > 14. On the vercel/Next track: do not recommend `Inertia::defer`, `useForm` from `@inertiajs/react`, or Vite
       `import.meta.glob` page resolution.
 > 15. Do not prescribe React Compiler as the fix unless the project already has it enabled; if it is enabled, skip manual `memo`/`useMemo` findings the compiler already
       covers.
 > 16. `fetch`/`axios` in `useEffect` for server state → the project's existing data primitive (`useQuery` if
-      `@tanstack/react-query` is installed, otherwise SWR on the vercel track). Inertia visit/`useForm` stay the primitive for in-app
-      navigation and forms, not for loading page data the inventory sent to the API data layer.
+      `@tanstack/react-query` is installed, otherwise SWR on the vercel track). Inertia visit/`useForm` stay the primitive for in-app navigation and forms, not for
+      loading page data the inventory sent to the API data layer.
 >
 > 17. Every optimization step must comply with the project's documented standards and policies (see below). No fix may violate a naming, structure, testing, logging,
       dependency, or formatting policy. Where an optimization would conflict with a policy, honor the policy and note the constraint on the step; if the two genuinely

@@ -80,7 +80,7 @@ bodies from scratch.
 6. **Discover sub-projects.** Detect the module/package/project units this repo ships so each can get its own `AGENTS.md` + `README.md`. Discovery is stack-shaped:
 
    | Stack signal                          | Sub-project unit                                                                            |
-            |---------------------------------------|--------------------------------------------------------------------------------------------|
+                  |---------------------------------------|--------------------------------------------------------------------------------------------|
    | `app_modules/*` or `modules/*` dirs   | Each directory with a `composer.json`.                                                      |
    | `*.sln` / multiple `*.csproj`         | Each `*.csproj` (skip `bin/`, `obj/`, and test projects unless the user wants them).        |
    | root `package.json` `workspaces`      | Each workspace, or every `packages/*/package.json`.                                         |

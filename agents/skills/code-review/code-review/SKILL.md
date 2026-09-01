@@ -22,9 +22,8 @@ Perform a comprehensive code review of changes in the current branch compared to
 
 ## Your Task
 
-You are a senior developer conducting a thorough code review. Your goal is to identify breaking changes, code
-quality issues, missing tests, and framework-specific problems. Be strict about breaking changes but constructive
-with recommendations.
+You are a senior developer conducting a thorough code review. Your goal is to identify breaking changes, code quality issues, missing tests, and framework-specific
+problems. Be strict about breaking changes but constructive with recommendations.
 
 ## Review Process
 
@@ -76,8 +75,8 @@ If no files match, inform the user and exit gracefully.
 
 > **Extension point** — language-specific skills override this step with concrete tool paths.
 
-For each language detected among the changed files, check for common linters, static analyzers, and test
-runners using `test -f <path>`. Record any found tools for use in Steps 6 and 7.
+For each language detected among the changed files, check for common linters, static analyzers, and test runners using `test -f <path>`. Record any found tools for use in
+Steps 6 and 7.
 
 If no tools are found, proceed with manual review only.
 
@@ -96,8 +95,7 @@ Use the AskUserQuestion tool. If denied, continue with manual review only.
 
 ### 5. Analyze Each Changed File
 
-For each changed file, collect findings using the structure below. This powers both the full report and the
-AI agent prompts.
+For each changed file, collect findings using the structure below. This powers both the full report and the AI agent prompts.
 
 #### Get File Diff
 
@@ -111,12 +109,11 @@ Classify every finding into exactly one tier:
 
 **Actionable** — blocking; must be fixed before merge:
 
-- Breaking changes: method/function signature changes, removed public API, interface contract changes,
-  constructor signature changes, added abstract/required methods, visibility changes (public → private)
-- Security issues: injection vulnerabilities (SQL, command, template, etc.), XSS (unescaped output),
-  hardcoded credentials or secrets, missing authentication/authorization checks
-- Framework BC breaks: data-loss migrations, removed routes or API endpoints, changed event/job payload
-  structure, removed config keys
+- Breaking changes: method/function signature changes, removed public API, interface contract changes, constructor signature changes, added abstract/required methods,
+  visibility changes (public → private)
+- Security issues: injection vulnerabilities (SQL, command, template, etc.), XSS (unescaped output), hardcoded credentials or secrets, missing
+  authentication/authorization checks
+- Framework BC breaks: data-loss migrations, removed routes or API endpoints, changed event/job payload structure, removed config keys
 
 **Nitpick** — non-blocking; should be improved:
 
@@ -126,8 +123,7 @@ Classify every finding into exactly one tier:
 - Outdated or conflicting comments/docblocks
 - Framework-specific pattern issues (see Step 5D)
 - Missing test coverage for new or modified files
-- Cognitive complexity (functions > 50 lines, nesting > 4 levels) — only check manually if a static
-  analyzer was not run or did not flag it
+- Cognitive complexity (functions > 50 lines, nesting > 4 levels) — only check manually if a static analyzer was not run or did not flag it
 - Duplicated code (always check regardless of static analysis)
 - Silent failures (empty catch/rescue blocks), uncaught exceptions, missing input validation
 
@@ -239,8 +235,7 @@ Check for common anti-patterns relevant to the detected framework/stack:
 - Patterns that complicate testing or maintenance (e.g. hidden side effects in constructors, global state)
 - Patterns discouraged by the framework's own documentation
 
-Flag as **Nitpick** unless the pattern causes a direct correctness or security issue, in which case flag
-as **Actionable**.
+Flag as **Nitpick** unless the pattern causes a direct correctness or security issue, in which case flag as **Actionable**.
 
 #### E. Test Coverage Analysis
 
@@ -270,9 +265,8 @@ For each changed file, check if a corresponding test file exists. Common convent
 
 > **Extension point** — language-specific skills override this with concrete commands.
 
-If the user approved static analysis execution, run the analyzer on all changed files. Parse the output and
-classify each finding as Actionable or Nitpick, then add to your findings collection. Clearly note whether
-an issue came from a changed file or the broader codebase.
+If the user approved static analysis execution, run the analyzer on all changed files. Parse the output and classify each finding as Actionable or Nitpick, then add to
+your findings collection. Clearly note whether an issue came from a changed file or the broader codebase.
 
 If no static analyzer is installed, skip this step.
 
@@ -282,8 +276,7 @@ If no static analyzer is installed, skip this step.
 
 > **Extension point** — language-specific skills override this with concrete commands.
 
-If the user approved test execution, run only the test files corresponding to the changed source files —
-NOT the entire test suite.
+If the user approved test execution, run only the test files corresponding to the changed source files — NOT the entire test suite.
 
 If no test files exist for the changed code, skip execution and add a Nitpick finding per file.
 
@@ -291,8 +284,7 @@ If no test files exist for the changed code, skip execution and add a Nitpick fi
 
 ### 8. Generate Report
 
-By now you have a complete collection of finding objects from Step 5 (and optionally Steps 6–7).
-Branch on MODE:
+By now you have a complete collection of finding objects from Step 5 (and optionally Steps 6–7). Branch on MODE:
 
 ---
 
@@ -356,8 +348,7 @@ Present the following markdown report:
 + new code
 ```
 
-🤖 Prompt for AI Agents
-Verify each finding against the current code and only fix it if needed.
+🤖 Prompt for AI Agents Verify each finding against the current code and only fix it if needed.
 
 In `@path/to/File` around lines 39-55, [self-contained instruction].
 
@@ -376,8 +367,7 @@ In `@path/to/File` around lines 39-55, [self-contained instruction].
 + new code
 ```
 
-🤖 Prompt for AI Agents
-In `@path/to/File` around lines 73-75, [self-contained instruction].
+🤖 Prompt for AI Agents In `@path/to/File` around lines 73-75, [self-contained instruction].
 
 ---
 

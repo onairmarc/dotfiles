@@ -108,7 +108,7 @@ written in full prose regardless of conversational style.
 Do not assume a skill does not exist just because it is absent from this repository. Skills can be installed at two levels:
 
 1. **Repository-level skills** — installed within this repository.
-2. **User-level skills** — installed on the machine for the current user (e.g., under `~/.config/opencode/skills/` and via installed plugins).
+2. **User-level skills** — installed on the machine for the current user under `~/.config/opencode/skills/`.
 
 When looking for a skill, check both levels. If a skill is not present in the repository, check the user-level skills before concluding it is unavailable. Only treat a
 skill as nonexistent when it is missing from **both** the repository and the user-level skills.
@@ -116,9 +116,9 @@ skill as nonexistent when it is missing from **both** the repository and the use
 # Writing Style
 
 Writing style rules — plain-language word choice, sentence structure, capitalization, punctuation, banned words, and audience adaptation — live in the `writing-style`
-skill: [`agents/skills/shared/writing-style/SKILL.md`](skills/shared/writing-style/SKILL.md). Read that file before writing any prose.
+skill at `~/.config/opencode/skills/shared/writing-style/SKILL.md`. Read that file before writing any prose.
 
 # File Operation Rules
 
 File operation rules — including which tools to use, the ban on manipulating files via Bash, and when to delete a file — live in the
-`file-operations` skill: [`agents/skills/shared/file-operations/SKILL.md`](skills/shared/file-operations/SKILL.md). Read that file before performing any file operation.
+`file-operations` skill at `~/.config/opencode/skills/shared/file-operations/SKILL.md`. Read that file before performing any file operation.

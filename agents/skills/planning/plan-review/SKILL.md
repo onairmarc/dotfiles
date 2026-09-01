@@ -28,9 +28,9 @@ Read and follow `~/.config/opencode/skills/file-operations/SKILL.md`.
 
 ## Delivery Constraints
 
-Read and follow `~/.config/opencode/skills/delivery-constraints/SKILL.md`. A plan is not agent-ready unless it is structured as vertical slices, assumes the work lands in place on
-the currently checked-out branch — or on a new branch created off main when a branch check shows main is checked out — and verifies itself with the repository's own test
-tooling. Lens E holds the plan against these, and any violation is repaired in the plan file — including restructuring horizontal phases into vertical slices.
+Read and follow `~/.config/opencode/skills/delivery-constraints/SKILL.md`. A plan is not agent-ready unless it is structured as vertical slices, assumes the work lands in
+place on the currently checked-out branch — or on a new branch created off main when a branch check shows main is checked out — and verifies itself with the repository's
+own test tooling. Lens E holds the plan against these, and any violation is repaired in the plan file — including restructuring horizontal phases into vertical slices.
 
 ## Task tracking
 
@@ -55,8 +55,8 @@ Store the resolved path — you will write back to it after every round of quest
 ## Step 0.5 — Discover project standards & policies (mandatory)
 
 Before analyzing the plan, locate where this project documents its coding standards, conventions, and policies — a plan is not agent-ready if it violates a single one.
-Follow the standards-discovery procedure in `~/.config/opencode/skills/planning-commons/paths.md` and record the extracted rules as `$PROJECT_STANDARDS` — the checklist Lens 0
-holds the plan against.
+Follow the standards-discovery procedure in `~/.config/opencode/skills/planning-commons/paths.md` and record the extracted rules as `$PROJECT_STANDARDS` — the checklist
+Lens 0 holds the plan against.
 
 ---
 
@@ -160,10 +160,10 @@ If the plan is already complete and unambiguous, tell the user so and stop.
 ## Step 3 — Ask questions via AskUserQuestion (repeat until done)
 
 Group your findings into labeled question blocks — each quoting the plan text that triggered it and asking one focused, short-answer question — and run the interactive
-review loop in `~/.config/opencode/skills/planning-commons/review-loop.md`: batch at most 4 questions per call ranked by blast radius, write every answer back into the plan
-immediately (as a code example when it describes *how* to implement — see the **Code examples** guideline below), re-read, re-run the lenses, and repeat until no findings
-remain. Label each round **Plan review: round N**. Every standards/policy and delivery-constraint finding is a blocker and is asked before ambiguity or scope. When no
-findings remain, proceed to Step 4.
+review loop in `~/.config/opencode/skills/planning-commons/review-loop.md`: batch at most 4 questions per call ranked by blast radius, write every answer back into the
+plan immediately (as a code example when it describes *how* to implement — see the **Code examples** guideline below), re-read, re-run the lenses, and repeat until no
+findings remain. Label each round **Plan review: round N**. Every standards/policy and delivery-constraint finding is a blocker and is asked before ambiguity or scope.
+When no findings remain, proceed to Step 4.
 
 ---
 

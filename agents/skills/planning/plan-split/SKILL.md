@@ -50,14 +50,14 @@ Before resolving the plan file, use `AskUserQuestion` with exactly one question:
   branch have produced worse results and can overwrite each other. This choice only changes how the split is cut — `plan-execute` asks again before it runs anything. Is
   parallel execution permitted?
 - **options** (recommended first):
-  1. **label:** `No, sequential (Recommended)`
-     **description:** Keep the current split. Every sub-plan runs one at a time in dependency order. Independent slices still get distinct sequence numbers and run
-     back-to-back, never at the same time. `plan-execute` will spawn one coding agent, wait for it, then spawn the next. Pick this unless you have a concrete reason to
-     fan out.
-  2. **label:** `Yes, allow parallel`
-     **description:** Cut the split so independent vertical slices are not chained to each other. Real dependencies stay (shared groundwork first, change-audit last,
-     anything that truly blocks). Slices that do not share files and do not depend on each other have no `blocked_by` edge between them, so `plan-execute` can spawn them
-     together if you also confirm parallel there. Accuracy still beats speed: when independence is unclear, keep a blocker.
+    1. **label:** `No, sequential (Recommended)`
+       **description:** Keep the current split. Every sub-plan runs one at a time in dependency order. Independent slices still get distinct sequence numbers and run
+       back-to-back, never at the same time. `plan-execute` will spawn one coding agent, wait for it, then spawn the next. Pick this unless you have a concrete reason to
+       fan out.
+    2. **label:** `Yes, allow parallel`
+       **description:** Cut the split so independent vertical slices are not chained to each other. Real dependencies stay (shared groundwork first, change-audit last,
+       anything that truly blocks). Slices that do not share files and do not depend on each other have no `blocked_by` edge between them, so `plan-execute` can spawn
+       them together if you also confirm parallel there. Accuracy still beats speed: when independence is unclear, keep a blocker.
 
 Treat any answer that is not an explicit yes as **No**.
 
@@ -126,9 +126,9 @@ read, or a package install) may become sub-plan `01`. Keep it as small as possib
 slice. Anything that *can* live inside the first slice must.
 
 **Change-audit as final sub-plan:** the last sub-plan before plan-directory cleanup must be a change-audit pass. This sub-plan invokes the `change-audit` skill
-(`~/.config/opencode/skills/audits/change-audit/SKILL.md`) to audit every file changed on the branch for materially useful simplifications and implement accepted fixes. It is
-blocked by all preceding sub-plans and blocks nothing (except the plan-deletion step, which is not a sub-plan). Its steps are: run `/change-audit`, confirm all tests
-pass after fixes are applied. If the master plan already contains a change-audit step, extract it into this final sub-plan; if it does not, add one.
+(`~/.config/opencode/skills/audits/change-audit/SKILL.md`) to audit every file changed on the branch for materially useful simplifications and implement accepted fixes.
+It is blocked by all preceding sub-plans and blocks nothing (except the plan-deletion step, which is not a sub-plan). Its steps are: run `/change-audit`, confirm all
+tests pass after fixes are applied. If the master plan already contains a change-audit step, extract it into this final sub-plan; if it does not, add one.
 
 ### Producing the split
 

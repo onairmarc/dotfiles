@@ -5,17 +5,15 @@ disable-model-invocation: true
 argument-hint: [ root-path ]
 ---
 
-You are converting a JavaScript/TypeScript repository from npm (or yarn) to bun as its package manager. Your job is
-narrowly scoped: swap the package manager, not the build tooling. Vite configs, tsconfig files, and other build tool
-configuration stay untouched unless they contain `npm`/`npx`/`yarn` invocations that must be updated to keep the build
-working.
+You are converting a JavaScript/TypeScript repository from npm (or yarn) to bun as its package manager. Your job is narrowly scoped: swap the package manager, not the
+build tooling. Vite configs, tsconfig files, and other build tool configuration stay untouched unless they contain `npm`/`npx`/`yarn` invocations that must be updated to
+keep the build working.
 
 ---
 
 ## Inputs
 
-If `$ARGUMENTS` is provided, treat it as the root path of the repository to convert and set `$ROOT` to that path.
-Otherwise set `$ROOT` to the current working directory.
+If `$ARGUMENTS` is provided, treat it as the root path of the repository to convert and set `$ROOT` to that path. Otherwise set `$ROOT` to the current working directory.
 
 ---
 
@@ -35,10 +33,8 @@ Run these discovery steps in parallel:
     - `$ROOT/**/*.yml` and `$ROOT/**/*.yaml` (CI files — discovered but not modified; see Step 1e)
     - `$ROOT/**/CLAUDE.md`, `$ROOT/**/AGENTS.md`, `$ROOT/**/README.md`
     - Any TypeScript/JavaScript source files under `$ROOT` that call `execa`, `spawn`, or `exec` with `"npm"`,
-      `"npx"`, `"yarn"`, `"node"` (when used to run a `.js` file that could be run with `bun`), or `"tsx"` as the
-      executable
-4. Check if `$ROOT/.gitlab-ci.yml` or files under `$ROOT/.gitlab/ci/` exist — note them in the summary but do not
-   modify them.
+      `"npx"`, `"yarn"`, `"node"` (when used to run a `.js` file that could be run with `bun`), or `"tsx"` as the executable
+4. Check if `$ROOT/.gitlab-ci.yml` or files under `$ROOT/.gitlab/ci/` exist — note them in the summary but do not modify them.
 
 Present a summary of what was found before proceeding.
 
@@ -70,8 +66,8 @@ For each `package.json` found:
 If `@types/bun` is absent from `devDependencies` AND the repo contains TypeScript source files, add it:
 `"@types/bun": "latest"`.
 
-For `exports` fields: if there are `"import"` or `"require"` keys pointing to built `dist/` output, and the repo also
-has a `"bun"` export condition, leave it. If the repo is a library that ships source directly (not a dist), add a
+For `exports` fields: if there are `"import"` or `"require"` keys pointing to built `dist/` output, and the repo also has a `"bun"` export condition, leave it. If the
+repo is a library that ships source directly (not a dist), add a
 `"bun"` export condition pointing to the source entry alongside `"import"`.
 
 ### 1b — Lock files
@@ -96,17 +92,15 @@ Add `.bun/` if not already present.
 
 ### 1d — .npmrc
 
-Bun reads `.npmrc` natively for scoped registry configuration and `_authToken` entries. In most cases no changes are
-needed.
+Bun reads `.npmrc` natively for scoped registry configuration and `_authToken` entries. In most cases no changes are needed.
 
-Exception: if `.npmrc` contains an `_authToken` entry that looks like a literal secret (not an environment variable
-reference), flag it in the Step 4 report for the user to review. No file edit needed unless the file contains
-commented-out `npm config set` commands — remove those comments.
+Exception: if `.npmrc` contains an `_authToken` entry that looks like a literal secret (not an environment variable reference), flag it in the Step 4 report for the user
+to review. No file edit needed unless the file contains commented-out `npm config set` commands — remove those comments.
 
 ### 1e — CI files
 
-Do NOT modify any CI files (`.gitlab-ci.yml`, files under `.gitlab/ci/`). CI configuration is managed separately —
-the user will drop in pre-converted CI scripts themselves.
+Do NOT modify any CI files (`.gitlab-ci.yml`, files under `.gitlab/ci/`). CI configuration is managed separately — the user will drop in pre-converted CI scripts
+themselves.
 
 ### 1f — Shell scripts (`.sh` files)
 
@@ -156,8 +150,7 @@ If the install fails:
 
 - Read the error output carefully.
 - If a package is incompatible with bun, note it for the user but do not change the dependency itself.
-- If it is an auth error for a private registry, remind the user to set the `BUN_AUTH_TOKEN` environment variable or
-  verify `.npmrc` credentials.
+- If it is an auth error for a private registry, remind the user to set the `BUN_AUTH_TOKEN` environment variable or verify `.npmrc` credentials.
 
 ---
 
@@ -169,8 +162,7 @@ If the build succeeds, report success.
 
 If the build fails:
 
-- Read the error. Determine if it is caused by the npm→bun change (e.g. a `tsx` invocation that was missed) or a
-  pre-existing issue.
+- Read the error. Determine if it is caused by the npm→bun change (e.g. a `tsx` invocation that was missed) or a pre-existing issue.
 - Fix any issues caused by the migration and re-run.
 - If the failure is unrelated to the migration, report it to the user without attempting to fix it.
 
@@ -189,8 +181,8 @@ Summarize:
 
 ## Scope boundaries — do NOT change these
 
-- `vite.config.*`, `tsconfig.json`, `biome.json`, `eslint.config.*`, `rollup.config.*`, `webpack.config.*` — leave
-  untouched unless they contain literal `npm`/`npx`/`yarn` subprocess calls.
+- `vite.config.*`, `tsconfig.json`, `biome.json`, `eslint.config.*`, `rollup.config.*`, `webpack.config.*` — leave untouched unless they contain literal `npm`/`npx`/
+  `yarn` subprocess calls.
 - Application source code not related to invoking the package manager.
 - All CI files (`.gitlab-ci.yml`, `.gitlab/ci/**`) — managed separately by the user.
 - `package.json` dependency versions — do not bump versions as part of this migration.
@@ -201,8 +193,6 @@ Summarize:
 
 ## Important guidelines
 
-- **One concern at a time.** This skill migrates the package manager only. If you notice unrelated improvements, note
-  them in the final report instead of applying them.
+- **One concern at a time.** This skill migrates the package manager only. If you notice unrelated improvements, note them in the final report instead of applying them.
 - **Parallel edits.** Apply independent file changes in parallel tool calls.
-- **Never guess registry URLs or tokens.** If auth configuration is unclear, flag it in the report rather than
-  inventing values.
+- **Never guess registry URLs or tokens.** If auth configuration is unclear, flag it in the report rather than inventing values.

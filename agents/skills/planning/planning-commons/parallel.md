@@ -43,7 +43,8 @@ Two sub-plans are **independent** (no edge between them) only when all of these 
 Independence is a positive claim — name why they don't depend.
 
 Sequence numbers stay two-digit and unique (`01`, `02`, …). Assign them in a stable reading order: shared groundwork first, then independent slices, change-audit last. A
-higher number does **not** mean "run after the lower number" unless `blocked_by` says so. Two slices that both depend only on `01` get distinct sequence numbers and **no**
+higher number does **not** mean "run after the lower number" unless `blocked_by` says so. Two slices that both depend only on `01` get distinct sequence numbers and
+**no**
 edge between them, so `plan-execute` can spawn them together.
 
 Splitting independent slices **is** useful in this mode when they can run together. Still do not split atomic work (a migration and its seeder, a single-line config

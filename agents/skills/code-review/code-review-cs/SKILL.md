@@ -4,18 +4,18 @@ description: C#/.NET code review extending the base code-review skill. Checks fo
 argument-hint: "[--full]"
 disable-model-invocation: true
 allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash(git branch --show-current)
-  - Bash(git rev-parse --git-dir)
-  - Bash(git diff --name-only *)
-  - Bash(git diff origin/main...HEAD *)
-  - Bash(git diff *)
-  - Bash(git log *)
-  - Bash(test -f *)
-  - Bash(dotnet build *)
-  - Bash(dotnet test *)
+    - Read
+    - Grep
+    - Glob
+    - Bash(git branch --show-current)
+    - Bash(git rev-parse --git-dir)
+    - Bash(git diff --name-only *)
+    - Bash(git diff origin/main...HEAD *)
+    - Bash(git diff *)
+    - Bash(git log *)
+    - Bash(test -f *)
+    - Bash(dotnet build *)
+    - Bash(dotnet test *)
 ---
 
 # C# Code Review (extends code-review)
@@ -28,8 +28,8 @@ This skill extends the base `code-review` skill with C#/.NET-specific rules.
 ~/.config/opencode/skills/code-review/SKILL.md
 ```
 
-Follow every step defined there, applying the overrides below in the matching steps. Where a section is
-marked **Extension point** in the base skill, replace it entirely with the C#-specific version below.
+Follow every step defined there, applying the overrides below in the matching steps. Where a section is marked **Extension point** in the base skill, replace it entirely
+with the C#-specific version below.
 
 ---
 
@@ -68,8 +68,7 @@ Use Glob to find test projects in the repository:
 **/*Test.csproj
 ```
 
-If any test projects are found, record `dotnet test` as available. Always record `dotnet build` as
-available (assume .NET SDK is installed).
+If any test projects are found, record `dotnet test` as available. Always record `dotnet build` as available (assume .NET SDK is installed).
 
 ---
 
@@ -135,8 +134,7 @@ Detect the project type from config files (check for `*.csproj` referencing `Mic
 **ASP.NET Core:**
 
 - `async void` controller actions or middleware (unhandled exceptions crash the process)
-- Blocking async code with `.Result`, `.Wait()`, or `GetAwaiter().GetResult()` on the
-  request path (thread-pool starvation)
+- Blocking async code with `.Result`, `.Wait()`, or `GetAwaiter().GetResult()` on the request path (thread-pool starvation)
 - Returning `IEnumerable<T>` from API actions instead of `IActionResult` / `ActionResult<T>`
   (loses content negotiation and status code control)
 - Missing `[Authorize]` or authorization checks on endpoints that handle sensitive data
@@ -144,10 +142,9 @@ Detect the project type from config files (check for `*.csproj` referencing `Mic
 
 **Dependency Injection:**
 
-- Captive dependency: a `Singleton` service injecting a `Scoped` or `Transient` service
-  (Scoped services are disposed after the request; the Singleton will hold a stale reference)
-- Resolving services directly from `IServiceProvider` in application code instead of
-  constructor injection (service locator anti-pattern)
+- Captive dependency: a `Singleton` service injecting a `Scoped` or `Transient` service (Scoped services are disposed after the request; the Singleton will hold a stale
+  reference)
+- Resolving services directly from `IServiceProvider` in application code instead of constructor injection (service locator anti-pattern)
 - Registering concrete types instead of interfaces (breaks testability)
 - Heavy work in service constructors (delays startup, complicates testing)
 
@@ -155,14 +152,12 @@ Detect the project type from config files (check for `*.csproj` referencing `Mic
 
 - `async void` methods outside event handlers (exceptions are unobservable)
 - Missing `CancellationToken` propagation through the call chain
-- `Task.Run` on the request path wrapping synchronous blocking code instead of making it
-  truly async
+- `Task.Run` on the request path wrapping synchronous blocking code instead of making it truly async
 - `ConfigureAwait(false)` missing in library code (can cause deadlocks in certain sync contexts)
 
 **Nullable Reference Types:**
 
-- Null-forgiving operator (`!`) used to suppress warnings without a comment explaining why
-  it is safe
+- Null-forgiving operator (`!`) used to suppress warnings without a comment explaining why it is safe
 - Nullable `string?` parameters without null guards at public API boundaries
 - `#nullable disable` pragmas introduced without justification
 
@@ -225,9 +220,8 @@ Or for a solution:
 dotnet build MyApp.sln --no-incremental -warnaserror:false 2>&1
 ```
 
-Parse the output. Classify each compiler warning / Roslyn analyzer finding as Actionable or
-Nitpick and add it to your findings collection. Clearly note whether an issue came from a changed
-file or the broader codebase.
+Parse the output. Classify each compiler warning / Roslyn analyzer finding as Actionable or Nitpick and add it to your findings collection. Clearly note whether an issue
+came from a changed file or the broader codebase.
 
 - **CS8600–CS8629** (nullable warnings): Nitpick unless it masks a real null-dereference risk
 - **CS0618** (obsolete API): Nitpick
@@ -238,11 +232,9 @@ file or the broader codebase.
 
 ## Override: Step 7 — Run Tests (If Approved)
 
-If user approved test execution, run only the test project(s) that cover the changed C# files —
-NOT the entire solution.
+If user approved test execution, run only the test project (s) that cover the changed C# files — NOT the entire solution.
 
-**Identify relevant test project(s)** by matching changed source paths to test project folders
-found in Step 3.
+**Identify relevant test project (s)** by matching changed source paths to test project folders found in Step 3.
 
 ```bash
 dotnet test tests/MyProject.Tests/MyProject.Tests.csproj --no-build 2>&1
@@ -260,10 +252,8 @@ If no test files exist for the changed code, skip execution and add a Nitpick fi
 
 ## Additional Edge Cases (C#-specific)
 
-- **Auto-generated files**: Skip `.g.cs`, `*.Designer.cs`, and `*.generated.cs` files entirely —
-  do not report findings on machine-generated code
-- **Partial classes**: When a `partial class` is split across multiple files, read all parts
-  before drawing conclusions about completeness
+- **Auto-generated files**: Skip `.g.cs`, `*.Designer.cs`, and `*.generated.cs` files entirely — do not report findings on machine-generated code
+- **Partial classes**: When a `partial class` is split across multiple files, read all parts before drawing conclusions about completeness
 - **No C# files changed**: Inform user gracefully and exit
 
 ---

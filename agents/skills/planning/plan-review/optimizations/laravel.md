@@ -22,5 +22,4 @@ Follow `~/.config/opencode/skills/plan-review/optimizations/_common.md` with the
 - `{{FIX_EXAMPLES}}` = add eager loading, wrap in `Cache::remember`, use `->exists()` instead of `->count() > 0`
 - `{{AUDIT_LABEL}}` = `Laravel performance audit`
 - `{{EXTRA_STEPS}}` = If `laravel-optimization` found DB constraint violations, add a step instructing the agent to run
-  `/no-db-constraints <migration-file-path>` for each affected migration — placed before any step that seeds or queries the constrained
-  table.
+  `/no-db-constraints <migration-file-path>` for each affected migration — placed before any step that seeds or queries the constrained table.

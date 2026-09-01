@@ -3,8 +3,7 @@
 ## 5a — Confirm TanStack
 
 You have already detected at least one `@tanstack/react-query`, `@tanstack/react-table`, `@tanstack/react-router`,
-`@tanstack/react-form`, or `@tanstack/react-virtual` (or the matching `*-core`) dependency in a `package.json`. No
-further detection needed — continue.
+`@tanstack/react-form`, or `@tanstack/react-virtual` (or the matching `*-core`) dependency in a `package.json`. No further detection needed — continue.
 
 ## 5b–5d — Run the common procedure
 
@@ -18,5 +17,4 @@ Follow `~/.config/opencode/skills/plan-review/optimizations/_common.md` with the
 - `{{AUDIT_LABEL}}` = `TanStack performance audit`
 - `{{EXTRA_STEPS}}` = (no stack-specific steps)
 
-The TanStack pass internally calls `react-optimization --audit-only` and merges both sets of findings, so do not also
-run `react.md` when this pass matched.
+The TanStack pass internally calls `react-optimization --audit-only` and merges both sets of findings, so do not also run `react.md` when this pass matched.

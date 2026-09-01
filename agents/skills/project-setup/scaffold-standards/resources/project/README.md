@@ -14,5 +14,5 @@ list every component an agent must know.}}
 
 ## Running / Testing
 
-{{GEN:the run/test commands specific to this module when they differ from the root `{{TEST_COMMAND}}`. If they do not differ, state that the root commands apply and omit a
-separate command block.}}
+{{GEN:the run/test commands specific to this module when they differ from the root `{{TEST_COMMAND}}`. If they do not differ, state that the root commands apply and omit
+a separate command block.}}

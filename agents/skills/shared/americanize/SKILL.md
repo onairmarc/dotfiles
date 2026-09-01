@@ -21,8 +21,7 @@ Read and follow `~/.config/opencode/skills/file-operations/SKILL.md`.
 
 ## Your Task
 
-Scan the target path for British English spelling variants and replace them with American English equivalents.
-Edit files in-place. Report a summary of what changed.
+Scan the target path for British English spelling variants and replace them with American English equivalents. Edit files in-place. Report a summary of what changed.
 
 ## Steps
 
@@ -36,8 +35,7 @@ The path may be absolute or relative. Treat it as-is.
 
 **If the target is a single file:** scan that file only.
 
-**If the target is a directory:** use Glob to collect all text files recursively. Skip binary files and these
-paths regardless of content:
+**If the target is a directory:** use Glob to collect all text files recursively. Skip binary files and these paths regardless of content:
 
 - `*.png`, `*.jpg`, `*.jpeg`, `*.gif`, `*.webp`, `*.svg`, `*.ico`
 - `*.pdf`, `*.zip`, `*.tar`, `*.gz`, `*.woff`, `*.woff2`, `*.ttf`, `*.eot`
@@ -46,11 +44,10 @@ paths regardless of content:
 
 ### 3. Scan and Replace
 
-For each collected file, use Grep to check if any British spellings are present before reading.
-Only read and edit files that have at least one match.
+For each collected file, use Grep to check if any British spellings are present before reading. Only read and edit files that have at least one match.
 
-Apply **all** substitutions from the reference table below. Replacements are **case-sensitive and
-case-preserving**: match the casing pattern of the found word and apply the same pattern to the replacement.
+Apply **all** substitutions from the reference table below. Replacements are **case-sensitive and case-preserving**: match the casing pattern of the found word and apply
+the same pattern to the replacement.
 
 Casing patterns to handle for each substitution:
 
@@ -61,13 +58,12 @@ Casing patterns to handle for each substitution:
 | `WORD`     | `WORD`       |
 
 Do NOT alter words inside URLs, import paths, package names, or version strings (e.g. `node_modules`,
-`colour-js`, `en-GB` locale identifiers). Use judgment — if changing the spelling would break a reference to
-an external identifier, skip it.
+`colour-js`, `en-GB` locale identifiers). Use judgment — if changing the spelling would break a reference to an external identifier, skip it.
 
 ### 4. British → American Reference Table
 
-Apply every substitution in this table. This list is not exhaustive — use it as a seed. If you encounter an
-obvious British variant not listed here, apply the correct American spelling.
+Apply every substitution in this table. This list is not exhaustive — use it as a seed. If you encounter an obvious British variant not listed here, apply the correct
+American spelling.
 
 #### -our → -or
 
@@ -332,8 +328,8 @@ obvious British variant not listed here, apply the correct American spelling.
 
 ### 5. Apply Edits
 
-Use the Edit tool to make replacements. Prefer a single Edit call per file when possible. If a file has many
-scattered replacements, make multiple Edit calls — one per unique replacement site to avoid conflicts.
+Use the Edit tool to make replacements. Prefer a single Edit call per file when possible. If a file has many scattered replacements, make multiple Edit calls — one per
+unique replacement site to avoid conflicts.
 
 Never alter:
 

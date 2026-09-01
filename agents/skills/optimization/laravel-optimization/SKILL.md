@@ -16,9 +16,8 @@ allowed-tools:
 
 # Laravel Optimization Skill
 
-You are an expert Laravel performance engineer. Your job is to **audit** a module path, discover performance issues, and
-then invoke the **feature-planning skill** to produce a self-contained, agent-ready optimization plan. You do not
-execute any optimization code yourself.
+You are an expert Laravel performance engineer. Your job is to **audit** a module path, discover performance issues, and then invoke the **feature-planning skill** to
+produce a self-contained, agent-ready optimization plan. You do not execute any optimization code yourself.
 
 **Input:** `$ARGUMENTS` — the module path to audit (e.g. `app_modules/WebCMS/src`, `app/Services`,
 `packages/my-package/src`).
@@ -33,10 +32,9 @@ Parse `$ARGUMENTS`. Extract:
   ```
   Error: MODULE_PATH is required. Usage: /laravel-optimization <path/to/module> [additional context]
   ```
-- `EXTRA_CONTEXT` — everything after the first positional argument (optional). Free-form text the caller provides about
-  known issues, architectural decisions, or constraints the automated audit may not discover (e.g. "the Settings model
-  is loaded on every request via a middleware", "observers in this module are known to fire during seeding"). Preserve
-  it verbatim.
+- `EXTRA_CONTEXT` — everything after the first positional argument (optional). Free-form text the caller provides about known issues, architectural decisions, or
+  constraints the automated audit may not discover (e.g. "the Settings model is loaded on every request via a middleware", "observers in this module are known to fire
+  during seeding"). Preserve it verbatim.
 
 Derive `MODULE_NAME` from the last meaningful path segment (if last segment is `src`, use its parent).
 
@@ -78,28 +76,27 @@ If classification is ambiguous, state your best guess and the reason, then conti
 
 ## Step 1.5 — Discover project standards & policies (mandatory)
 
-Locate where this project documents its coding standards, conventions, and policies. The optimization plan must not violate a single one, and the audit itself
-must not flag a pattern the standards actually mandate.
+Locate where this project documents its coding standards, conventions, and policies. The optimization plan must not violate a single one, and the audit itself must not
+flag a pattern the standards actually mandate.
 
 1. Read the repo-root `README.md` and `AGENTS.md` (and any per-module `AGENTS.md` / `README.md` for `MODULE_PATH`) and follow every link they make to
    standards/policy/convention documents (e.g. `docs/standards/`, `docs/policies.md`, `CONTRIBUTING.md`, a `standards/` directory).
 2. If neither file names a standards location, search with `Grep`/`Glob`: `docs/standards/`, `docs/policies*.md`, `docs/conventions*.md`, `CONTRIBUTING.md`,
    `.editorconfig`, `pint.json`, `phpcs.xml`, `.php-cs-fixer*`, and any file whose name contains `standard`, `policy`, or `convention`.
-3. When the location was not explicitly declared, confirm with the developer which document(s) you believe are the project's standards before relying on them; if
-   you find none, say so explicitly.
+3. When the location was not explicitly declared, confirm with the developer which document (s) you believe are the project's standards before relying on them; if you
+   find none, say so explicitly.
 4. Read them in full and record the concrete rules as `PROJECT_STANDARDS`. Pass this to feature-planning in Step 4 so every optimization step is held against it.
 
 ---
 
 ## Step 2 — Audit the module
 
-Systematically search `MODULE_PATH` for every problem category below. For each hit, **read the actual file to confirm
-line numbers before recording**. Never approximate.
+Systematically search `MODULE_PATH` for every problem category below. For each hit, **read the actual file to confirm line numbers before recording**. Never approximate.
 
 Record each finding as:
 
 - **Category**
-- **Class::method()** (or class name)
+- **Class::method ()** (or class name)
 - **File path** (exact, relative to repo root)
 - **Line range**
 - **One-sentence description of the specific problem**
@@ -141,8 +138,8 @@ Scan all migrations under `database/migrations/` (not scoped to `MODULE_PATH` �
 | Unique constraint via `->unique()` | `->unique\(`        |
 | Table-level unique                 | `\$table->unique\(` |
 
-Record each hit as: migration file path, table name, constraint type (FK / unique), column(s). These are
-handled by `Skill(no-db-constraints)` in Step 3.5 — do **not** include them in the feature-planning handoff.
+Record each hit as: migration file path, table name, constraint type (FK / unique), column (s). These are handled by `Skill(no-db-constraints)` in Step 3.5 — do **not**
+include them in the feature-planning handoff.
 
 ### Routing
 
@@ -184,17 +181,15 @@ Also evaluate **DTO / Data Object signals** (≥2 → lower confidence):
 
 1. Class name ends in `Data`, `DTO`, `Dto`, `Payload`, or `ValueObject`
 2. All non-static public properties are `readonly` (PHP 8.1+)
-3. Public methods limited to `from()`, `fromArray()`, `toArray()`, `all()`, `except()`, `only()` — no I/O or side
-   effects
+3. Public methods limited to `from()`, `fromArray()`, `toArray()`, `all()`, `except()`, `only()` — no I/O or side effects
 4. Class body contains a `#[MapInputName]`, `#[Computed]`, `#[Hidden]`, or other Spatie Data attribute
 5. Constructor only assigns properties — no service calls, no dependency wiring via `new`
 
 Record confidence level (`standard`, `lower — possible configuration class`, or `lower — possible DTO / data object`)
 alongside each finding. A class may trigger both lower-confidence signals; record both labels.
 
-For **all** flagged singleton findings (regardless of confidence), use `AskUserQuestion` **before** passing findings to
-feature-planning to ask the developer whether the preferred fix is `app()->singleton()` or `app()->scoped()` binding in
-a service provider.
+For **all** flagged singleton findings (regardless of confidence), use `AskUserQuestion` **before** passing findings to feature-planning to ask the developer whether the
+preferred fix is `app()->singleton()` or `app()->scoped()` binding in a service provider.
 
 ---
 
@@ -243,8 +238,8 @@ Omit any category with zero findings.
 
 ## Step 4 — Invoke feature-planning
 
-Hand off to the **feature-planning skill** with the full audit summary as context. Use the following as the feature
-description passed to feature-planning (feed it programmatically — do not ask the user to retype it):
+Hand off to the **feature-planning skill** with the full audit summary as context. Use the following as the feature description passed to feature-planning (feed it
+programmatically — do not ask the user to retype it):
 
 ---
 
@@ -260,17 +255,14 @@ description passed to feature-planning (feed it programmatically — do not ask 
 > **Phase 0 — Baseline test coverage (mandatory, non-negotiable)**
 > - Run existing test suite filtered to this module. Record all passing tests.
 > - If any pre-existing failures exist, stop — they must be fixed before optimization work begins.
-> - For every issue in "Issues addressed" with no existing test pinning current behavior, write a PestPHP baseline test
-    using `describe()` and `test()` (not `it()`).
+> - For every issue in "Issues addressed" with no existing test pinning current behavior, write a PestPHP baseline test using `describe()` and `test()` (not `it()`).
 > - Baseline tests must assert current (pre-optimization) behavior, not desired behavior.
 > - Commit baseline tests separately before Phase 1: `test({module}): baseline tests before optimization`
 > - Re-run suite. All tests including new baselines must pass before proceeding.
 >
 > **Phase 1 — Optimizations (one numbered step per issue)**
-> - Each step: names file and method, shows exact before/after code snippet, includes a grep/search command to verify no
-    other callers are broken.
-> - After every individual step: run the test suite. A single failing test = that step is a failure. Revert and fix
-    before continuing to the next step.
+> - Each step: names file and method, shows exact before/after code snippet, includes a grep/search command to verify no other callers are broken.
+> - After every individual step: run the test suite. A single failing test = that step is a failure. Revert and fix before continuing to the next step.
 > - One PR per phase.
 >
 > **Hard constraints to embed in the plan:**
@@ -287,23 +279,20 @@ description passed to feature-planning (feed it programmatically — do not ask 
       `->with('relation:id,col,...')`). These are not approved optimization patterns. Full models must always be loaded.
 > 11. Self-managing singletons (`protected static $instance` + `isset` guard in `::make()` defined in the class itself)
       → register in an existing or new Service Provider's `register()` method using the binding type confirmed via
-      `AskUserQuestion` (`app()->singleton()` or `app()->scoped()`), then replace callsites with constructor/method
-      injection. The plan step must identify the target Service Provider by name. Configuration-class findings (lower
-      confidence) must include a note that the change may be intentional and require developer review before proceeding.
-      **Never flag** classes using `HasMake` trait, implementing `IDisposable`, extending an `Illuminate\`/`Laravel\`
+      `AskUserQuestion` (`app()->singleton()` or `app()->scoped()`), then replace callsites with constructor/method injection. The plan step must identify the target
+      Service Provider by name. Configuration-class findings (lower confidence) must include a note that the change may be intentional and require developer review before
+      proceeding. **Never flag** classes using `HasMake` trait, implementing `IDisposable`, extending an `Illuminate\`/`Laravel\`
       base class, extending `Spatie\LaravelData\Data` or `Spatie\DataTransferObject\DataTransferObject`, declared
-      `readonly class`, or where `::make()` is not defined in the class itself. DTO/Data Object findings (lower
-      confidence) must include a note that the static property may be a local cache (e.g. memoised computation), not
-      shared service state, and require developer review before proceeding.
+      `readonly class`, or where `::make()` is not defined in the class itself. DTO/Data Object findings (lower confidence) must include a note that the static property
+      may be a local cache (e.g. memoised computation), not shared service state, and require developer review before proceeding.
 >
-> 12. For every DB constraint violation (FK or unique) found in migrations: include a dedicated plan step that
-      > instructs the implementing agent to run `/no-db-constraints <migration-file-path>`. Do not describe how
-      > to drop constraints manually — the skill handles the full remediation (drop migration, model boot() check,
-      > plain index where needed). List the exact migration file paths as the argument.
+> 12. For every DB constraint violation (FK or unique) found in migrations: include a dedicated plan step that instructs the implementing agent to run
+      `/no-db-constraints <migration-file-path>`. Do not describe how to drop constraints manually — the skill handles the full remediation (drop migration, model boot ()
+      check, plain index where needed). List the exact migration file paths as the argument.
 >
-> 13. Every optimization step must comply with the project's documented standards and policies (see below). No fix may violate a naming, structure, testing,
-      > logging, dependency, migration/DB, or formatting policy. Where an optimization would conflict with a policy, honor the policy and note the constraint on
-      > the step; if the two genuinely cannot be reconciled, flag it for developer review rather than shipping the violation.
+> 13. Every optimization step must comply with the project's documented standards and policies (see below). No fix may violate a naming, structure, testing, logging,
+      dependency, migration/DB, or formatting policy. Where an optimization would conflict with a policy, honor the policy and note the constraint on the step; if the two
+      genuinely cannot be reconciled, flag it for developer review rather than shipping the violation.
 >
 > **Out of scope:** Redis, SSR, Vite, new infrastructure dependencies, files outside `{MODULE_PATH}`.
 >
@@ -321,5 +310,5 @@ description passed to feature-planning (feed it programmatically — do not ask 
 
 ---
 
-The feature-planning skill handles the rest: discovers the planning directory, drafts the plan, applies review lenses,
-iterates with the user, and writes the final agent-ready plan to disk.
+The feature-planning skill handles the rest: discovers the planning directory, drafts the plan, applies review lenses, iterates with the user, and writes the final
+agent-ready plan to disk.

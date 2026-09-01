@@ -101,19 +101,20 @@ Before compiling the execution graph (Step 2), use `AskUserQuestion` with exactl
   worktrees). Concurrent implementing agents have produced worse results and can collide on files. Independent nodes can run together even if `plan-split` was sequential,
   because `blocked_by` already encodes the graph. Is parallel execution permitted?
 - **options** (recommended first):
-  1. **label:** `No, sequential (Recommended)`
-     **description:** Compile a single ordered list and spawn one coding agent at a time, waiting for each to finish before starting the next. When several plans are
-     unblocked, run them in `sequence` order, never together. This is the current skill. Pick this unless you have a concrete reason to fan out.
-  2. **label:** `Yes, run in parallel`
-     **description:** Compile the graph into waves — each wave is every pending or partial sub-plan whose blockers are already complete — and spawn every sub-plan in a
-     wave at the same time. The next wave starts only after every agent in the current wave has returned. Real `blocked_by` edges are still honored. Shared groundwork
-     and change-audit stay sequential because of those edges.
+    1. **label:** `No, sequential (Recommended)`
+       **description:** Compile a single ordered list and spawn one coding agent at a time, waiting for each to finish before starting the next. When several plans are
+       unblocked, run them in `sequence` order, never together. This is the current skill. Pick this unless you have a concrete reason to fan out.
+    2. **label:** `Yes, run in parallel`
+       **description:** Compile the graph into waves — each wave is every pending or partial sub-plan whose blockers are already complete — and spawn every sub-plan in a
+       wave at the same time. The next wave starts only after every agent in the current wave has returned. Real `blocked_by` edges are still honored. Shared groundwork
+       and change-audit stay sequential because of those edges.
 
 Treat any answer that is not an explicit yes as **No**.
 
 **If No:** do not read `~/.config/opencode/skills/planning-commons/parallel.md`. Continue from Step 2 exactly as written. Do not mention parallel execution again.
 
-**If Yes:** read `~/.config/opencode/skills/planning-commons/parallel.md` now, and apply the **plan-execute** section. Then continue from Step 2, applying those overrides.
+**If Yes:** read `~/.config/opencode/skills/planning-commons/parallel.md` now, and apply the **plan-execute** section. Then continue from Step 2, applying those
+overrides.
 
 ---
 
