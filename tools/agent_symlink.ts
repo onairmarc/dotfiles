@@ -385,9 +385,13 @@ export function syncGlobalOpencode(): void {
     }
 
     const pluginsSource = join(dotfilesRoot, "opencode", "plugins");
+    const agentsSource = join(dotfilesRoot, "opencode", "agents");
     linkGlobalFile(join(dotfilesRoot, "agents", "AGENTS.md"), join(configDir, "AGENTS.md"), "Global mode");
     linkGlobalFile(join(dotfilesRoot, "opencode", "opencode.jsonc"), join(configDir, "opencode.jsonc"), "Global mode");
     linkGlobalFile(join(dotfilesRoot, "opencode", "tui.jsonc"), join(configDir, "tui.jsonc"), "Global mode");
+    for (const file of findFiles(agentsSource)) {
+        linkGlobalFile(file, join(configDir, "agents", relative(agentsSource, file)), "Global mode");
+    }
     for (const file of findFiles(pluginsSource)) {
         linkGlobalFile(file, join(configDir, relative(pluginsSource, file)), "Global mode");
     }
