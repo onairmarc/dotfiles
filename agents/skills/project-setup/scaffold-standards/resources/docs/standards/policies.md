@@ -21,6 +21,10 @@ task-specific policies from the tables further down. These override the "load on
 | [Simplicity First](./policies/simplicity-first.md) | Every design decision must justify complexity before adding it.                 |
 | [Version Control](./policies/version-control.md)   | Every task ends in a branch and commit that must follow the repository's rules. |
 
+{{GEN:append one row for each additional cross-cutting policy the user selected as mandatory during the interview. Only include policies scaffolded in this run and
+similar in scope to the four fixed policies, such as Static Analysis, Formatter Authority, Naming and Casing, Strong Typing, Testing, Documentation, or Dependency Licensing.
+Do not include conditional, domain-specific, or framework-pack policies in this selection. If the user selected none, remove this block without adding a replacement.}}
+
 ## How to use this index
 
 Find the row that matches what you are about to change, open that one policy file, and read it before writing code. You do not need to load every policy — load the ones

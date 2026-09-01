@@ -55,6 +55,15 @@ everything that rule needs.
 **Severity.** Every policy is tagged `BLOCK` (a plan that violates it must not proceed without an explicit override) or
 `WARN` (the planner surfaces the conflict for human review). The tag appears both in the index row and in the policy file's footer line, and the two must agree.
 
+**Mandatory policy section.** The generated `policies.md` must include a `Mandatory policies (always read)` section before the task-specific policy tables. It always lists
+`code-comments`, `code-style`, `simplicity-first`, and `version-control`, with links and reasons for reading each policy. Add a policy to this section only when it is a
+generic requirement of every project scaffolded by this skill, not because it is required by one target repository.
+
+After policy selection, ask whether any other written policies with the same cross-cutting scope should also be mandatory. Present only policies scaffolded in the current
+run that are similar to the fixed four, such as `static-analysis`, `formatter-authority`, `naming-and-casing`, `strong-typing`, `testing`, `documentation`, and
+`dependency-licensing`. Do not ask about conditional, domain-specific, or framework-pack policies. Let the user select zero or more candidates, and append the selected
+policies to the mandatory section with their real index links and reasons. Do not silently promote any additional policy.
+
 The templates live at `<skill_dir>/resources/`, mirroring the destination layout, plus
 `<skill_dir>/resources/policy-packs/` for framework-specific policy sets (see **Policy Set Selection** below). The skill copies from there — it does not generate document
 bodies from scratch.
@@ -227,6 +236,11 @@ confirms. Batch into a small number of questions (the tool allows up to 4 per ca
 | `{{DEFAULT_BRANCH}}`          | Detect via `git symbolic-ref` → default `main`.                                                                                                                                                                                           |
 | `{{DOCS_PATH}}`               | Default `docs/standards` (confirmed in Pre-flight).                                                                                                                                                                                       |
 | `{{PLANNING_PATH}}`           | Default `docs/_planning` (confirmed in Pre-flight).                                                                                                                                                                                       |
+
+After the policy set is known, use `AskUserQuestion` for the additional mandatory-policy decision described above. Include only candidates that were actually written in
+this run. Use one multi-select question when available: the first option must be `Keep only the four fixed policies (Recommended)`, and the remaining options must be the
+additional candidates. Tell the user to select the first option alone to keep the default, or one or more candidate options to promote them. Do not imply that any candidate
+is mandatory by default.
 
 Resolve `{{STATIC_ANALYSIS_COMMAND}}` and `{{FORMAT_COMMAND}}` to different tools and never emit a combined "lint" command. When a single `lint` script in
 `package.json`/`composer.json` runs both, split it: the analyzer half becomes `{{STATIC_ANALYSIS_COMMAND}}`, the style half becomes `{{FORMAT_COMMAND}}`, and the written
