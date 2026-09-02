@@ -14,15 +14,16 @@ review).
 The policies below are **mandatory reading for every task**, regardless of whether the agent believes them relevant. Load and apply them before selecting any
 task-specific policies from the tables further down. These override the "load only what your change touches" guidance in the next section — they always apply.
 
-| Policy                                             | Why it is mandatory                                                             |
-|----------------------------------------------------|---------------------------------------------------------------------------------|
-| [Code Comments](./policies/code-comments.md)       | Every code edit either writes, keeps, or removes comments.                      |
-| [Code Style](./policies/code-style.md)             | Every code edit produces styled output that must match the project's formatter. |
-| [Simplicity First](./policies/simplicity-first.md) | Every design decision must justify complexity before adding it.                 |
-| [Version Control](./policies/version-control.md)   | Every task ends in a branch and commit that must follow the repository's rules. |
+| Policy                                             | Why it is mandatory                                                               |
+|----------------------------------------------------|-----------------------------------------------------------------------------------|
+| [Code Comments](./policies/code-comments.md)       | Every code edit either writes, keeps, or removes comments.                        |
+| [Code Style](./policies/code-style.md)             | Every code edit produces styled output that must match the project's formatter.   |
+| [Simplicity First](./policies/simplicity-first.md) | Every design decision must justify complexity before adding it.                   |
+| [Version Control](./policies/version-control.md)   | Every task ends in a branch and commit that must follow the repository's rules.   |
+| [Documentation](./policies/documentation.md)       | Every task must keep agent guidance, technical docs, and project terms accurate. |
 
 {{GEN:append one row for each additional cross-cutting policy the user selected as mandatory during the interview. Only include policies scaffolded in this run and
-similar in scope to the four fixed policies, such as Static Analysis, Formatter Authority, Naming and Casing, Strong Typing, Testing, Documentation, or Dependency Licensing.
+similar in scope to the five fixed policies, such as Static Analysis, Formatter Authority, Naming and Casing, Strong Typing, Testing, or Dependency Licensing.
 Do not include conditional, domain-specific, or framework-pack policies in this selection. If the user selected none, remove this block without adding a replacement.}}
 
 ## How to use this index
