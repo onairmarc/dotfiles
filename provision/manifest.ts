@@ -192,6 +192,11 @@ const manifest: Manifest = {
             mac: {kind: "cmd", argv: ["bunx", "@slkiser/opencode-quota", "init"]},
             win: {kind: "cmd", argv: ["bunx", "@slkiser/opencode-quota", "init"]},
         },
+        // Laravel Language Server through Herd (mac-only).
+        {
+            name: "laravel-lsp",
+            mac: {kind: "cmd", argv: ["bun", "provision/scripts/laravel_lsp.ts"]},
+        },
         // Grok CLI (xAI).
         // mac: curl install.sh | bash. SHELL is cleared so the installer does not
         // rewrite ~/.zshrc / ~/.bashrc (PATH/completions live in shell/92_grok.plugin.zsh).
