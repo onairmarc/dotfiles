@@ -12,6 +12,11 @@ self-contained unit of work.
 
 Read and follow `~/.config/opencode/skills/file-operations/SKILL.md`.
 
+## Plan-file deletion authority
+
+Read and follow `~/.config/opencode/skills/planning-commons/plan-file-deletion.md`. Every emitted sub-plan must reproduce its coding-sub-agent rule verbatim
+(see Step 3).
+
 ## Delivery Constraints
 
 Read and follow `~/.config/opencode/skills/delivery-constraints/SKILL.md`. Two consequences govern this skill:
@@ -167,10 +172,9 @@ Apply any corrections and re-present if changes were requested. Repeat until the
 
 Once the user approves, write each sub-plan following the **Sub-plan structure**, **Content-extraction rules**, and **Dependency contract** in
 `~/.config/opencode/skills/planning-commons/plan-format.md`. In brief: filename `<sequence>-<slug>.md` written alongside the source plan; a `## Dependencies` header with
-mirror-image
-`**Blocked by:**` / `**Blocks:**` filename lists; the `## Delivery constraints` block reproduced verbatim with the project's real runner command filled in (mandatory,
-never a pointer); every sub-plan self-contained, with steps copied verbatim from the master plan and the applicable subset of `$PROJECT_STANDARDS` carried into each
-sub-plan's Context. Write all files before proceeding to Step 4.
+mirror-image `**Blocked by:**` / `**Blocks:**` filename lists; the `## Delivery constraints` and `## Plan-file deletion` blocks reproduced verbatim (mandatory, never
+pointers); every sub-plan self-contained, with steps copied verbatim from the master plan and the applicable subset of `$PROJECT_STANDARDS` carried into each sub-plan's
+Context. Write all files before proceeding to Step 4.
 
 ---
 

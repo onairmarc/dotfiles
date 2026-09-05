@@ -12,6 +12,11 @@ time, in dependency-respecting order. You do not implement anything yourself, an
 
 Read and follow `~/.config/opencode/skills/file-operations/SKILL.md`.
 
+## Plan-file deletion authority
+
+Read and follow `~/.config/opencode/skills/planning-commons/plan-file-deletion.md`. Reproduce the coding-sub-agent rule verbatim in
+`.agent-instructions.md` (Step 3a). You are the authorized orchestration agent for the deletion in Step 5.
+
 ## Delivery Constraints
 
 Read and follow `~/.config/opencode/skills/delivery-constraints/SKILL.md`. You do not implement, but you are responsible for making sure every sub-agent is bound by
@@ -176,10 +181,17 @@ Read each listed skill in full before making any edit; it encodes a correction t
   (pin/lock, no floating versions) — one bullet each, with a one-line statement of the rule it enforces>
 ```
 
-Also always include in this file the **plan lifecycle**
-note: the `$PLAN_DIR` directory is throwaway scaffolding — once the feature is implemented and its durable docs land, the whole directory is deleted in the same change,
-and a missing or staged-deleted plan directory at commit time is intentional and must not be restored (defer to the repo's own planning-lifecycle doc, e.g.
-`docs/_planning/README.md`, if present). Because this note always applies, do not omit the file.
+Also include this **plan-file deletion** block verbatim. It prevents coding sub-agents from treating a sub-plan's lifecycle instruction as an implementation step:
+
+```markdown
+## Plan-file deletion
+
+Preserve this plan directory throughout your work. Do not delete, move, rename, stage for deletion, or restore a plan file, a sub-plan file, or
+`.agent-instructions.md`. Only the orchestration agent running `plan-execute`, including `the-implementor` when it runs that workflow, may delete the consumed plan
+directory after every sub-plan succeeds and the repository's planning-lifecycle policy permits deletion.
+```
+
+Because this rule always applies, do not omit the file.
 
 **Template A — pending (no prior implementation):**
 

@@ -9,13 +9,14 @@ A small library of reference documents shared across the planning skills (`featu
 `plan-resync`, `plan-split`, `plan-execute`). Each doc is the single source of truth for one cross-cutting concern; a skill reads the one it needs at the point it needs
 it, exactly as skills already load `delivery-constraints` and `file-operations`.
 
-| Concern                                           | File                                   | Read it when…                                                                                                              |
-|---------------------------------------------------|----------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
-| Repo path resolution + standards/policy discovery | [`paths.md`](paths.md)                 | a skill must locate the planning dir, product-docs dir, discovery-brief dir, northstar, or the project's coding standards. |
-| Interactive review loop + BLOCK/WARN severity     | [`review-loop.md`](review-loop.md)     | a skill asks the user via `question`, iterates lenses until clean, or classifies a finding as BLOCK/WARN.                  |
-| Plan + sub-plan document format                   | [`plan-format.md`](plan-format.md)     | a skill emits a plan (`feature-planning`), emits sub-plans (`plan-split`), or parses them (`plan-execute`).                |
-| Parallel execution overlay                        | [`parallel.md`](parallel.md)           | `plan-split` or `plan-execute` after the user selected Yes at the parallel-execution question (default is No).             |
-| Task tracking (`todowrite`)                       | [`task-tracking.md`](task-tracking.md) | `plan-split`, `plan-execute`, `plan-review`, or `plan-resync` starts — seed the list before Step 0 and keep it current.    |
+| Concern                                           | File                                             | Read it when…                                                                                                              |
+|---------------------------------------------------|--------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
+| Repo path resolution + standards/policy discovery | [`paths.md`](paths.md)                           | a skill must locate the planning dir, product-docs dir, discovery-brief dir, northstar, or the project's coding standards. |
+| Interactive review loop + BLOCK/WARN severity     | [`review-loop.md`](review-loop.md)               | a skill asks the user via `question`, iterates lenses until clean, or classifies a finding as BLOCK/WARN.                  |
+| Plan + sub-plan document format                   | [`plan-format.md`](plan-format.md)               | a skill emits a plan (`feature-planning`), emits sub-plans (`plan-split`), or parses them (`plan-execute`).                |
+| Plan-file deletion authority                      | [`plan-file-deletion.md`](plan-file-deletion.md) | `plan-split` emits sub-plans, or `plan-execute` creates `.agent-instructions.md` or deletes a plan directory.              |
+| Parallel execution overlay                        | [`parallel.md`](parallel.md)                     | `plan-split` or `plan-execute` after the user selected Yes at the parallel-execution question (default is No).             |
+| Task tracking (`todowrite`)                       | [`task-tracking.md`](task-tracking.md)           | `plan-split`, `plan-execute`, `plan-review`, or `plan-resync` starts — seed the list before Step 0 and keep it current.    |
 
 These docs describe *how the skill operates*; they are never pointed at from an emitted artifact (a plan, a sub-plan,
 `.agent-instructions.md`). Emitted artifacts must remain self-contained — when a template here contains a block to reproduce, the skill copies that block into the

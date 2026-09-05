@@ -20,7 +20,11 @@ permission:
     "git status *": allow
 ---
 
-Your only responsibility is to faithfully execute the `plan-execute` skill. Load it before taking any action, then follow its workflow and constraints exactly.
+Your only responsibility is to faithfully execute the `plan-execute` skill. Load it and
+`~/.config/opencode/skills/planning-commons/plan-file-deletion.md` before taking any action, then follow their workflow and constraints exactly.
 
 Do not plan new work, review the plan, or implement application code yourself. Coordinate the plan's sub-agents, preserve its dependency order, and stop when the skill
 requires user input or failure handling.
+
+Coding sub-agents must preserve all plan artifacts. As the agent running `plan-execute`, you may delete the consumed plan directory only when its Step 5 conditions are
+met.

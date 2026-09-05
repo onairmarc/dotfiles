@@ -88,9 +88,9 @@ This step runs after all behavioral slices are complete and all tests pass, but 
 audit all changed files on this branch for data-structure, state-representation, and control-flow simplifications, and implement the accepted fixes. All tests must pass
 after fixes are applied."
 
-The **final step** of every plan must delete this plan directory, because plans are throwaway scaffolding (see `## Plan lifecycle`). State it explicitly, e.g.: "Delete
-the `<$PLAN_DIR>/<feature>/` plan directory — the feature is implemented and its durable docs now live in their real home; the plan must not be committed as a lingering
-artifact."
+The **final step** of every plan must hand plan-directory deletion to the orchestration agent running `plan-execute`, because plans are throwaway scaffolding (see
+`## Plan lifecycle`). State it explicitly, e.g.: "After every sub-plan succeeds, the `plan-execute` orchestration agent deletes the `<$PLAN_DIR>/<feature>/` plan
+directory — the feature is implemented and its durable docs now live in their real home; the plan must not be committed as a lingering artifact."
 
 ## Configuration
 
@@ -128,10 +128,10 @@ docs or code at this plan file — the plan is deleted once implemented.
 
 ## Plan lifecycle
 
-This plan is **throwaway scaffolding**, not durable documentation. Once the implementation and its durable docs land, the entire
-`<$PLAN_DIR>/<feature>/` directory (this `plan.md` and any split sub-plans) is deleted in the same change — a missing or staged-deleted plan directory at commit time is
-intentional and must not be restored. The final implementation step above performs that deletion. If the repository documents its own planning lifecycle (e.g.
-`docs/_planning/README.md`), that document governs.
+This plan is **throwaway scaffolding**, not durable documentation. Once every sub-plan succeeds and its durable docs land, the `plan-execute` orchestration agent deletes
+the entire `<$PLAN_DIR>/<feature>/` directory (this `plan.md` and any split sub-plans) in the same change. Coding sub-agents preserve all plan artifacts; they do not
+delete, move, rename, stage for deletion, or restore them. A missing or staged-deleted plan directory at commit time is intentional and must not be restored. If the
+repository documents its own planning lifecycle (e.g. `docs/_planning/README.md`), that document governs.
 ```
 
 ---
@@ -165,6 +165,14 @@ live inside the first behavioral slice.>
 
 ---
 
+## Plan-file deletion
+
+Preserve this plan directory throughout your work. Do not delete, move, rename, stage for deletion, or restore a plan file, a sub-plan file, or
+`.agent-instructions.md`. Only the orchestration agent running `plan-execute`, including `the-implementor` when it runs that workflow, may delete the consumed plan
+directory after every sub-plan succeeds and the repository's planning-lifecycle policy permits deletion.
+
+---
+
 ## Steps
 
 <The ordered implementation steps from the master plan that belong to this sub-plan. Keep them verbatim or lightly edited to stand alone — do not summarize or lose
@@ -186,6 +194,8 @@ criteria; if the master plan has none, derive them from the steps.>
   context (schema decisions, API contracts, naming conventions) in every sub-plan that needs it — never "see plan 01 for details".
 - **Project standards & policies carry into every sub-plan.** Reproduce the subset of `$PROJECT_STANDARDS` (see [`paths.md`](paths.md))
   that applies to each sub-plan's work in that sub-plan's Context — do not point back to the master plan.
+- **Plan-file deletion.** Reproduce the `## Plan-file deletion` block verbatim in every sub-plan. Coding sub-agents must preserve all plan artifacts; only the
+  `plan-execute` orchestration agent can delete the consumed directory.
 
 ---
 

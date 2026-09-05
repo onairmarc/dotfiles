@@ -144,8 +144,8 @@ every available source, then asking the user **only** about what none of those s
 Using the answers from Step 0 and the context discovered in Pre-flight, draft the plan following the **Master plan structure** in
 `~/.config/opencode/skills/planning-commons/plan-format.md`. Write it to `$PLAN_DIR/<kebab-case-feature-name>/plan.md`, creating the directory if it does not exist.
 Reproduce that doc's `## Delivery constraints` block verbatim into the plan with the project's real test runner command filled in, organize `## Implementation steps` as
-vertical
-`### Slice N —` sections, and make the final step delete the plan directory. Fill every section from the Pre-flight context and Step 0 answers — leave no placeholder.
+vertical `### Slice N —` sections, and make the final step assign plan-directory deletion to the `plan-execute` orchestration agent. Fill every section from the
+Pre-flight context and Step 0 answers — leave no placeholder.
 
 ---
 
