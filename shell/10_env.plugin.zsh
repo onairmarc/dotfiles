@@ -79,3 +79,6 @@ export ZSH_COLORIZE_STYLE="colorful"
 
 # Xdebug
 export XDEBUG_MODE="coverage"
+
+# OpenCode
+export OPENCODE_CONFIG="$DF_ROOT_DIRECTORY/opencode/opencode.jsonc"
