@@ -40,6 +40,17 @@
             "gh release create *": "deny"
         }
     },
+    "agent": {
+        "general": {
+            "model": "openai/gpt-5.6-luna"
+        },
+        "explore": {
+            "model": "openai/gpt-5.6-luna"
+        },
+        "scout": {
+            "model": "openai/gpt-5.6-luna"
+        }
+    },
     "mcp": {
         "sentry": {
             "type": "remote",
