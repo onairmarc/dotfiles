@@ -168,7 +168,7 @@ live inside the first behavioral slice.>
 ## Plan-file deletion
 
 Preserve this plan directory throughout your work. Do not delete, move, rename, stage for deletion, or restore a plan file, a sub-plan file, or
-`.agent-instructions.md`. Only the orchestration agent running `plan-execute`, including `the-implementor` when it runs that workflow, may delete the consumed plan
+`.agent-instructions.md`. Only the orchestration agent running `plan-execute`, including `orchestrator` when it runs that workflow, may delete the consumed plan
 directory after every sub-plan succeeds and the repository's planning-lifecycle policy permits deletion.
 
 ---
@@ -210,7 +210,7 @@ This is the exact, machine-readable contract binding the two skills. Both sides 
 - **Mirror invariant.** `blocked_by` and `blocks` are mirror images: if `02` is blocked by `01`, then `01` must list `02` in its `blocks`. Plans with no dependencies get
   `none` for both. Do not invent dependencies the master plan does not imply.
 - **Identity fields `plan-execute` reads per file:** `file` (filename), `sequence` (the numeric prefix), `title` (the H1 heading),
-  `blocked_by`, `blocks`, and the full file content (passed verbatim to the sub-agent).
+  `blocked_by`, `blocks`, and the full file content for orchestration context.
 - **Ordering.** `plan-execute` topologically sorts the graph and runs sub-plans **one at a time** in `sequence` (numeric-prefix) order — never concurrently. A cycle is a
   hard error. Two sub-plans that both depend only on `01` still get distinct sequence numbers and run back-to-back, never simultaneously.
 

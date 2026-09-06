@@ -112,11 +112,11 @@ wave has returned.
 
 #### 3a — Spawn the wave
 
-Write `.agent-instructions.md` once before the first spawn (same content as `plan-execute` `SKILL.md`). On each `task` call, pick a model that fits the work — prefer
-using fewer tokens while still doing the job well.
+Write `.agent-instructions.md` once before the first spawn (same content as `plan-execute` `SKILL.md`). Launch the hidden `implementor` subagent; its agent definition
+owns the coding model and implementation-specific context.
 
-- Wave of one: use `task` to launch one `general` sub-agent, wait, evaluate (same as sequential Step 3a).
-- Wave of several: make one `task` call per sub-plan **in the same turn** to launch `general` sub-agents, then wait for all of them.
+- Wave of one: use `task` to launch one `implementor` subagent, wait, evaluate (same as sequential Step 3a).
+- Wave of several: make one `task` call per sub-plan **in the same turn** to launch `implementor` subagents, then wait for all of them.
   Use Template A or B from `plan-execute` `SKILL.md` per the sub-plan's Step 1b status. Each prompt stays self-contained (file path, not file content).
 
 #### 3b — Wait for the whole wave

@@ -51,7 +51,7 @@ Parse the sub-plans per the **Dependency contract** in `~/.config/opencode/skill
 
 List all `*.md` files in `$PLAN_DIR`. **Exclude `plan.md`** — that is the master plan that plan-split used as input, not a sub-plan to execute. For each remaining file,
 read it in full and record the contract's fields: `file` (filename), `sequence` (numeric prefix), `title` (H1 heading), `blocked_by` and `blocks` (the comma-separated
-filename lists from its `## Dependencies` section, empty when `none`), and `content` (the full file, passed verbatim to the sub-agent). Build an in-memory dependency map:
+filename lists from its `## Dependencies` section, empty when `none`), and `content` (the full file for orchestration context). Build an in-memory dependency map:
 `plan → set of plans it is waiting on`.
 
 ---
@@ -142,7 +142,7 @@ Execute one sub-plan at a time in dependency-respecting order. A plan never star
 
 ### 3a — Spawn sub-agents
 
-Use `task` to launch `general` sub-agents. On each `task` call, pick a model that fits the work — prefer using fewer tokens while still doing the job well.
+Use `task` to launch the hidden `implementor` subagent. Its agent definition owns the coding model and implementation-specific context.
 Spawn exactly one sub-agent at a time. Make one `task` call for one sub-plan, wait for it to return, evaluate its result (Step 3c), and only then spawn the next sub-plan.
 Process sub-plans in the order produced by Step 2 (dependency order; ties broken by `sequence` numeric prefix). Never run two sub-agents at once.
 
@@ -187,7 +187,7 @@ Also include this **plan-file deletion** block verbatim. It prevents coding sub-
 ## Plan-file deletion
 
 Preserve this plan directory throughout your work. Do not delete, move, rename, stage for deletion, or restore a plan file, a sub-plan file, or
-`.agent-instructions.md`. Only the orchestration agent running `plan-execute`, including `the-implementor` when it runs that workflow, may delete the consumed plan
+`.agent-instructions.md`. Only the orchestration agent running `plan-execute`, including `orchestrator` when it runs that workflow, may delete the consumed plan
 directory after every sub-plan succeeds and the repository's planning-lifecycle policy permits deletion.
 ```
 

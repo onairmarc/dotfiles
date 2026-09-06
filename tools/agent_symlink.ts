@@ -386,9 +386,14 @@ export function syncGlobalOpencode(): void {
 
     const pluginsSource = join(dotfilesRoot, "opencode", "plugins");
     const agentsSource = join(dotfilesRoot, "opencode", "agents");
+    const legacyImplementorLink = join(configDir, "agents", "the-implementor.md");
     linkGlobalFile(join(dotfilesRoot, "agents", "AGENTS.md"), join(configDir, "AGENTS.md"), "Global mode");
     linkGlobalFile(join(dotfilesRoot, "opencode", "opencode.jsonc"), join(configDir, "opencode.jsonc"), "Global mode");
     linkGlobalFile(join(dotfilesRoot, "opencode", "tui.jsonc"), join(configDir, "tui.jsonc"), "Global mode");
+    if (alreadyWriteThrough(legacyImplementorLink, join(agentsSource, "the-implementor.md"))) {
+        unlinkSync(legacyImplementorLink);
+        logInfo(`Global mode: removed renamed agent link ${legacyImplementorLink}`);
+    }
     for (const file of findFiles(agentsSource)) {
         linkGlobalFile(file, join(configDir, "agents", relative(agentsSource, file)), "Global mode");
     }
