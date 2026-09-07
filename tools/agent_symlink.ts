@@ -385,6 +385,7 @@ export function syncGlobalOpencode(): void {
     }
 
     const pluginsSource = join(dotfilesRoot, "opencode", "plugins");
+    const commandsSource = join(dotfilesRoot, "opencode", "commands");
     const agentsSource = join(dotfilesRoot, "opencode", "agents");
     const legacyImplementorLink = join(configDir, "agents", "the-implementor.md");
     linkGlobalFile(join(dotfilesRoot, "agents", "AGENTS.md"), join(configDir, "AGENTS.md"), "Global mode");
@@ -394,11 +395,33 @@ export function syncGlobalOpencode(): void {
         unlinkSync(legacyImplementorLink);
         logInfo(`Global mode: removed renamed agent link ${legacyImplementorLink}`);
     }
+    for (const removedAgent of ["implementor.md", "orchestrator.md"]) {
+        const link = join(configDir, "agents", removedAgent);
+        if (alreadyWriteThrough(link, join(agentsSource, removedAgent))) {
+            unlinkSync(link);
+            logInfo(`Global mode: removed retired agent link ${link}`);
+        }
+    }
+    for (const retiredCommand of ["feature-planning.md", "plan-execute.md", "plan-resync.md", "plan-review.md", "plan-split.md"]) {
+        const link = join(configDir, "commands", retiredCommand);
+        if (alreadyWriteThrough(link, join(commandsSource, retiredCommand))) {
+            unlinkSync(link);
+            logInfo(`Global mode: removed retired command link ${link}`);
+        }
+    }
+    const legacyRouterLink = join(configDir, "skill-command-router.ts");
+    if (alreadyWriteThrough(legacyRouterLink, join(pluginsSource, "skill-command-router.ts"))) {
+        unlinkSync(legacyRouterLink);
+        logInfo(`Global mode: removed misplaced plugin link ${legacyRouterLink}`);
+    }
     for (const file of findFiles(agentsSource)) {
         linkGlobalFile(file, join(configDir, "agents", relative(agentsSource, file)), "Global mode");
     }
     for (const file of findFiles(pluginsSource)) {
-        linkGlobalFile(file, join(configDir, relative(pluginsSource, file)), "Global mode");
+        const target = file.endsWith(".ts") || file.endsWith(".js")
+            ? join(configDir, "plugins", relative(pluginsSource, file))
+            : join(configDir, relative(pluginsSource, file));
+        linkGlobalFile(file, target, "Global mode");
     }
 
     logInfo("Sync complete!");

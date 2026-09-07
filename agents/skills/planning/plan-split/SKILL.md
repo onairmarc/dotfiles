@@ -1,6 +1,6 @@
 ---
 name: plan-split
-description: Split a single fleshed-out implementation plan into sub-plan files written alongside it in the same directory, with dependency (blockers/blocks) headers on each sub-plan. Asks up front whether parallel execution is permitted (default no). Sequential (the default) optimizes for clean one-at-a-time handoff; parallel adjusts the split so independent slices can run together. Invoke when asked to break a plan into phases or stages.
+description: Split a single fleshed-out implementation plan into dependency-ordered sub-plan files written alongside it in the same directory. Use when asked to break a plan into phases or stages.
 ---
 
 # Plan Split
@@ -14,7 +14,7 @@ Read and follow `~/.config/opencode/skills/file-operations/SKILL.md`.
 
 ## Plan-file deletion authority
 
-Read and follow `~/.config/opencode/skills/planning-commons/plan-file-deletion.md`. Every emitted sub-plan must reproduce its coding-sub-agent rule verbatim
+Read and follow `~/.config/opencode/skills/planning-commons/plan-file-deletion.md`. Every emitted sub-plan must reproduce its plan-file deletion rule verbatim
 (see Step 3).
 
 ## Delivery Constraints
@@ -29,36 +29,8 @@ Read and follow `~/.config/opencode/skills/delivery-constraints/SKILL.md`. Two c
 
 ## Task tracking
 
-Read and follow `~/.config/opencode/skills/planning-commons/task-tracking.md`. Seed the list from the **plan-split** starter before Step 0a, and keep it current through
+Read and follow `~/.config/opencode/skills/planning-commons/task-tracking.md`. Seed the list from the **plan-split** starter before Step 0, and keep it current through
 every step.
-
----
-
-## Step 0a — Ask whether parallel execution is permitted
-
-Before resolving the plan file, use `question` with exactly one question:
-
-- **header:** `Parallel execution`
-- **question:** Independent sub-plans can run one at a time (sequential) or together (parallel). Sequential is more reliable: each coding agent finishes and its tests
-  pass before the next starts, so later work never collides with in-flight edits. Parallel is faster when slices do not share files, but concurrent agents on the same
-  branch have produced worse results and can overwrite each other. This choice only changes how the split is cut — `plan-execute` asks again before it runs anything. Is
-  parallel execution permitted?
-- **options** (recommended first):
-    1. **label:** `No, sequential (Recommended)`
-       **description:** Keep the current split. Every sub-plan runs one at a time in dependency order. Independent slices still get distinct sequence numbers and run
-       back-to-back, never at the same time. `plan-execute` will spawn one coding agent, wait for it, then spawn the next. Pick this unless you have a concrete reason to
-       fan out.
-    2. **label:** `Yes, allow parallel`
-       **description:** Cut the split so independent vertical slices are not chained to each other. Real dependencies stay (shared groundwork first, change-audit last,
-       anything that truly blocks). Slices that do not share files and do not depend on each other have no `blocked_by` edge between them, so `plan-execute` can spawn
-       them together if you also confirm parallel there. Accuracy still beats speed: when independence is unclear, keep a blocker.
-
-Treat any answer that is not an explicit yes as **No**.
-
-**If No:** do not read `~/.config/opencode/skills/planning-commons/parallel.md`. Continue from Step 0 exactly as written. Do not mention parallel execution again.
-
-**If Yes:** read `~/.config/opencode/skills/planning-commons/parallel.md` now, and apply the **plan-split** section. Then continue from Step 0, applying those overrides
-when you reach Step 1.
 
 ---
 
@@ -102,9 +74,6 @@ doubt, split finer rather than coarser: more, smaller phases let the test suite 
 A natural test gate between phases is one of the strongest signals that a split boundary is correct. If a candidate sub-plan ends in a state where tests cannot
 meaningfully run (e.g. it leaves the codebase mid-refactor or half-migrated), either move the boundary or merge it with the next sub-plan so the seam falls on a testable
 state.
-
-**"Parallel" never refers to agents.** The only parallelism allowed is inside the test runner itself (e.g. `vendor/bin/pest --parallel`, `phpunit --parallel`, Jest
-workers). Coding sub-agents always run one at a time.
 
 ### What NOT to split
 

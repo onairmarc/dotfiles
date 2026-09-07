@@ -3,8 +3,7 @@
 How `plan-split`, `plan-execute`, `plan-review`, and `plan-resync` use `todowrite` so a run cannot quietly skip a step. This file is the single source of truth for the
 protocol and the starter lists; each skill points here and names its starter.
 
-Read this file at the start of the skill, **before Step 0** (before Step 0a in `plan-split`). Seed the list from the starter named below, then keep it current through
-every step.
+Read this file at the start of the skill, before Step 0. Seed the list from the starter named below, then keep it current through every step.
 
 ---
 
@@ -32,7 +31,6 @@ Seed before Step 0a:
 
 | content                                     | priority |
 |---------------------------------------------|----------|
-| Ask whether parallel execution is permitted | high     |
 | Resolve the plan file                       | high     |
 | Analyze and decompose the plan              | high     |
 | Confirm the proposed split                  | high     |
@@ -52,16 +50,13 @@ Seed before Step 0:
 |---------------------------------------------------|----------|
 | Resolve the sub-plans directory                   | high     |
 | Discover and parse sub-plan files                 | high     |
-| Check what is already implemented                 | medium   |
-| Reconfirm whether parallel execution is permitted | high     |
 | Build the execution order                         | high     |
 | Execute the sub-plans                             | high     |
 | Output the final report                           | medium   |
 | Delete the consumed plan directory                | medium   |
 
-Cancel **Check what is already implemented** on a first run (the skill skips it). After Step 2, replace **Execute the sub-plans** with one item per sub-plan in execution
-order (include `(partial)` in the content when Step 1b said so). An item is complete when that sub-agent returned success. Cancel a sub-plan item when the user chooses
-skip; on abort, cancel every remaining sub-plan item. Cancel **Delete the consumed plan directory** when the skill withholds deletion (any failure or skip-as-incomplete).
+After Step 2, replace **Execute the sub-plans** with one item per sub-plan in execution order. An item is complete when its acceptance criteria and scoped verification
+pass. Cancel **Delete the consumed plan directory** when the skill withholds deletion because a sub-plan did not succeed.
 
 ---
 

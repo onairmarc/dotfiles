@@ -65,7 +65,7 @@ Before analyzing drift, ground yourself in the current state of the relevant cod
    current location | note`. Also ask it to surface newly added neighbors of plan-targeted files, refactors that moved logic elsewhere, and deletions of things the plan
    assumed would still be there. The sub-agent must use
    `Grep -C 3` for context where surrounding lines are enough to confirm a match, and escalate to `Read` only when grep context is insufficient.
-3. **Check git history for context** when useful (run in orchestrator, not sub-agent):
+3. **Check git history for context** when useful:
     - `git log --oneline -- <path>` to see recent activity on a referenced file
     - `git log --since=...` if the plan has a date stamp
     - `git diff` only when narrowing a specific suspected change

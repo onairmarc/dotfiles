@@ -1,5 +1,6 @@
 {
     "devDependencies": {
+        "@opencode-ai/plugin": "^1.18.29",
         "@types/bun": "^1.4.0",
         "tsfmt": "0.3.0-beta3"
     }
