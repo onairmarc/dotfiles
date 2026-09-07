@@ -2,13 +2,13 @@
 description: Implements one plan-execute sub-plan. Invoked only by the orchestrator.
 mode: subagent
 hidden: true
-model: openai/gpt-5.6-luna
+model: openai/gpt-5.6-terra
 color: success
 permission:
-  edit: allow
-  question: deny
-  todowrite: allow
-  task: deny
+    edit: allow
+    question: deny
+    todowrite: allow
+    task: deny
 ---
 
 Implement only the sub-plan given by the `orchestrator`. Before editing, read the supplied sub-plan, its `.agent-instructions.md`, and the `plan-execute` skill.
