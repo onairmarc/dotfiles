@@ -4,7 +4,8 @@ Do not put per-test cost back into the Pest suite. Seed shared fixtures once per
 factory parents, and keep pure-PHP tests off `RefreshDatabase`.
 
 A test that re-runs a large Artisan seed, bcrypts a fresh password, boots Filament for a model assertion, or creates hundreds of rows with `->create()` in a loop pays
-that cost on every worker, on every run, including CI. The fixtures, fakes, and phpunit.xml pins that cut that cost are the contract — not optional tuning. See
+that cost on every worker, on every run, including CI. Run the suite in parallel when the project's test command supports it. The fixtures, fakes, and phpunit.xml pins
+that cut that cost are the contract — not optional tuning. See
 [Testing](./testing.md) for how the suite runs, [Pest Conventions](./pest-conventions.md) for `test()` / datasets,
 and [Eloquent Factories Only](./eloquent-factories-only.md)
 for parent reuse and password-hash memoization.
@@ -35,9 +36,9 @@ for parent reuse and password-hash memoization.
   see [Eloquent Factories Only](./eloquent-factories-only.md).
 - Near-duplicate tests that each boot HTTP or Livewire belong in one dataset-driven test — see [Pest Conventions](./pest-conventions.md). Merge only when every assertion
   in the source survives in the destination.
-- {{GEN:name this project's `$seeder` class (or say the project has none yet and `$seeder` is the required hook for anything added), the `tests/Pest.php` fake bindings
-  and how a test opts back in, the phpunit.xml testsuites and `<env>` pins, and any test-only cache paths under `bootstrap/cache/`. Detect from `tests/TestCase.php`,
-  `tests/Pest.php`, and `phpunit.xml`; confirm with the user.}}
+- {{GEN:name this project's parallel test command, `$seeder` class (or say the project has none yet and `$seeder` is the required hook for anything added), the
+  `tests/Pest.php` fake bindings and how a test opts back in, the phpunit.xml testsuite discovery globs and `<env>` pins, and any test-only cache paths under
+  `bootstrap/cache/`. Detect from `tests/TestCase.php`, `tests/Pest.php`, `phpunit.xml`, package scripts, and CI; confirm with the user.}}
 
 **Example:**
 

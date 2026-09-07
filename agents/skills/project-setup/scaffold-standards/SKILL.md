@@ -22,16 +22,18 @@ If a section would otherwise be empty, the skill drives a question to fill it �
 
 What it scaffolds (the **full surface**):
 
-| Artifact             | Destination (default)        | Purpose                                                                |
-|----------------------|------------------------------|------------------------------------------------------------------------|
-| `policies.md`        | `docs/standards/policies.md` | The **index** of policies — one routing table, no policy bodies.       |
-| `policies/*.md`      | `docs/standards/policies/`   | One file per policy: statement, rationale, rules, example, severity.   |
-| `glossary.md`        | `docs/standards/glossary.md` | Project-specific terms and acronyms.                                   |
-| planning `README.md` | `docs/_planning/README.md`   | Plan lifecycle — plans are throwaway scaffolding, docs land elsewhere. |
-| root `AGENTS.md`     | `AGENTS.md`                  | AI-agent guidance and reference-file index.                            |
-| root `README.md`     | `README.md`                  | Human-facing project overview.                                         |
-| module `AGENTS.md`   | `<module>/AGENTS.md`         | Per-sub-project agent guidance — role, key files, invariants.          |
-| module `README.md`   | `<module>/README.md`         | Per-sub-project human overview — purpose, structure, run/test.         |
+| Artifact              | Destination (default)                | Purpose                                                                |
+|-----------------------|--------------------------------------|------------------------------------------------------------------------|
+| `policies.md`         | `docs/standards/policies.md`         | The **index** of policies — one routing table, no policy bodies.       |
+| `policies/*.md`       | `docs/standards/policies/`           | One file per policy: statement, rationale, rules, example, severity.   |
+| `glossary.md`         | `docs/standards/glossary.md`         | Project-specific terms and acronyms.                                   |
+| `technology-stack.md` | `docs/standards/technology-stack.md` | Canonical human-readable runtime, framework, and tooling versions.     |
+| decisions `README.md` | `docs/standards/decisions/README.md` | ADR purpose, naming, and durable record format.                        |
+| planning `README.md`  | `docs/_planning/README.md`           | Plan lifecycle — plans are throwaway scaffolding, docs land elsewhere. |
+| root `AGENTS.md`      | `AGENTS.md`                          | AI-agent guidance and reference-file index.                            |
+| root `README.md`      | `README.md`                          | Human-facing project overview.                                         |
+| module `AGENTS.md`    | `<module>/AGENTS.md`                 | Per-sub-project agent guidance — role, key files, invariants.          |
+| module `README.md`    | `<module>/README.md`                 | Per-sub-project human overview — purpose, structure, run/test.         |
 
 **One policy, one file.** `policies.md` is an index and nothing more: a reader (human or agent) opens only the one or two policy files their change touches instead of
 loading the whole rule set. Every policy file carries the same shape — a one-sentence statement, a rationale paragraph that says *why* the rule earns its cost, a
@@ -46,7 +48,8 @@ everything that rule needs.
 **Severity.** Every policy is tagged `BLOCK` (a plan that violates it must not proceed without an explicit override) or
 `WARN` (the planner surfaces the conflict for human review). The tag appears both in the index row and in the policy file's footer line, and the two must agree.
 
-**Mandatory policy section.** The generated `policies.md` must include a `Mandatory policies (always read)` section before the task-specific policy tables. It always lists
+**Mandatory policy section.** The generated `policies.md` must include a `Mandatory policies (always read)` section before the task-specific policy tables. It always
+lists
 `code-comments`, `code-style`, `simplicity-first`, `version-control`, and `documentation`, with links and reasons for reading each policy. Add a policy to this section
 only when it is a generic requirement of every project scaffolded by this skill, not because it is required by one target repository.
 
@@ -80,7 +83,7 @@ bodies from scratch.
 6. **Discover sub-projects.** Detect the module/package/project units this repo ships so each can get its own `AGENTS.md` + `README.md`. Discovery is stack-shaped:
 
    | Stack signal                          | Sub-project unit                                                                            |
-                  |---------------------------------------|--------------------------------------------------------------------------------------------|
+                        |---------------------------------------|--------------------------------------------------------------------------------------------|
    | `app_modules/*` or `modules/*` dirs   | Each directory with a `composer.json`.                                                      |
    | `*.sln` / multiple `*.csproj`         | Each `*.csproj` (skip `bin/`, `obj/`, and test projects unless the user wants them).        |
    | root `package.json` `workspaces`      | Each workspace, or every `packages/*/package.json`.                                         |
@@ -115,7 +118,8 @@ Run a fast, shallow scan of the target root to pre-fill interview answers. Do no
   `<skill_dir>/resources/policy-packs/*/_pack.md`). Check for the framework's **component** packages too, not just its meta-package: a library or in-repo package pulls in
   the pieces it needs (`illuminate/support` rather than `laravel/framework`) and would otherwise miss a pack that applies to it.
 - **Concern signatures** — evidence that a *conditional* policy applies: a migrations directory, a queue/worker dependency, a cache/lock API (`Cache`, Redis), a frontend
-  build config, an authorization/permission package.
+  build config, an authorization/permission package. For React/Inertia packs, inspect `package.json` for `react`, an `@inertiajs/*` adapter, TanStack Query, and a
+  server-contract type generator.
 
 Record what you detected; every detected value becomes a **pre-filled default** in the interview, not a silent assumption.
 
@@ -175,8 +179,9 @@ concern it does have is a gap.
 Packs live at `<skill_dir>/resources/policy-packs/<framework>/`, each with an `_pack.md` manifest. Read
 [`resources/policy-packs/README.md`](resources/policy-packs/README.md) before using one. The flow:
 
-1. Check each pack's gate against the detected stack. Today the skill ships a **`laravel`** pack (gate: `composer.json` requires `laravel/framework` **or** any
-   `illuminate/*` package — the second half catches Laravel packages, which depend on the components rather than on the framework).
+1. Check every pack's gate against the detected stack. The shipped **`laravel`** pack gates on `composer.json` requiring `laravel/framework` or an `illuminate/*`
+   package. The shipped **`react-inertia`** pack gates on `package.json` requiring `react` and an Inertia client adapter. Read each matching manifest for its policy
+   gates.
 2. If a pack gates in, **confirm it with the user via `question` before adopting it.** A pack is never applied silently, and the user may decline it and keep the
    agnostic core policies instead.
 3. For each row in the manifest, evaluate that policy's own gate. Copy in only the ones that match.
@@ -230,7 +235,8 @@ confirms. Batch into a small number of questions (the tool allows up to 4 per ca
 
 After the policy set is known, use `question` for the additional mandatory-policy decision described above. Include only candidates that were actually written in
 this run. Use one multi-select question when available: the first option must be `Keep only the five fixed policies (Recommended)`, and the remaining options must be the
-additional candidates. Tell the user to select the first option alone to keep the default, or one or more candidate options to promote them. Do not imply that any candidate
+additional candidates. Tell the user to select the first option alone to keep the default, or one or more candidate options to promote them. Do not imply that any
+candidate
 is mandatory by default.
 
 Resolve `{{STATIC_ANALYSIS_COMMAND}}` and `{{FORMAT_COMMAND}}` to different tools and never emit a combined "lint" command. When a single `lint` script in
@@ -272,6 +278,9 @@ conflating them is the failure mode this pair of policies exists to prevent.
 **Project-specific policies.** Rules unique to this repository come out of the interview, not a template. Author each as its own file in `policies/` in the same shape
 (statement, rationale, rules, example, severity) and give it an index row. Do not append them as sections inside another policy file.
 
+**Project-specific standards.** Fill `technology-stack.md` from the manifests and lockfiles, then make version-bearing docs link to it rather than restating a version.
+Write `decisions/README.md` without an ADR until the project has a significant accepted decision; do not invent one during scaffolding.
+
 **Before writing each file, scan it for any remaining `{{` or the string `TODO`.** If either is present, the file is not ready — resolve it (loop back to
 detection/knowledge/interview) before writing. A written file with a leftover token is a skill failure.
 
@@ -289,8 +298,8 @@ After the files land, make them cohere:
 2. **Policy-to-policy links.** Open every written policy file and confirm each `./<name>.md` link points at a file that was actually written. A link to a skipped policy
    is either fixed by writing that policy or by removing the reference — never left dangling.
 3. **AGENTS.md reference index.** Ensure the root `AGENTS.md` "Reference Files" table links to every standards doc that was actually written (skip rows for artifacts the
-   user chose to skip), and that it routes to `policies.md` as the policy index rather than listing individual policies.
-4. **README.md "Further Documentation".** Ensure the root `README.md` points at `AGENTS.md` and the standards directory.
+   user chose to skip), routes to `policies.md` as the policy index rather than listing individual policies, and links to `technology-stack.md` and `decisions/README.md`.
+4. **README.md "Further Documentation".** Ensure the root `README.md` points at `AGENTS.md`, the standards directory, and the technology stack reference.
 5. **Planning lifecycle pointer.** Ensure `AGENTS.md` carries the "before touching a plan, read the planning README"
    pointer, matching the planning `README.md` that was written.
 6. **Cross-doc links and anchors.** `policies.md` should link to `glossary.md`. Verify the in-file anchors resolve in the two policies that bundle a full reference:
@@ -336,7 +345,8 @@ After every file is written and wired, re-read the whole generated surface and p
 checklist — each round drives concrete edits, then re-runs every lens.
 
 - **Lens A — Completeness.** Every discovered module has paired `AGENTS.md` + `README.md` (skeleton at minimum). Every policy that landed has a `policies.md` index row
-  and, where load-bearing, an `AGENTS.md` rules bullet. Every sibling standards artifact promised in the templates exists and is non-empty.
+  and, where load-bearing, an `AGENTS.md` rules bullet. Every sibling standards artifact promised in the templates exists and is non-empty, including technology-stack and
+  the ADR guide.
 - **Lens B — Specificity.** Every policy carries a concrete `BLOCK`/`WARN` footer, and its statement is true of *this* project and false of some other project of the same
   stack. Generic platitudes are tightened or removed.
 - **Lens C — Stack-fit.** Every invoked command, tool name, file extension, and config path matches the detected stack — no `.csproj` in a Laravel doc, no `composer.json`

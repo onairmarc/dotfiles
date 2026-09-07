@@ -35,17 +35,19 @@ hub methods, and invariants before making changes.
 | Working on...                              | Read                                                                                           |
 |--------------------------------------------|------------------------------------------------------------------------------------------------|
 | Coding standards — the policy index        | [`{{DOCS_PATH}}/policies.md`]({{DOCS_PATH}}/policies.md)                                       |
+| Runtime, framework, and tool versions      | [`{{DOCS_PATH}}/technology-stack.md`]({{DOCS_PATH}}/technology-stack.md)                       |
+| Recording an architectural decision        | [`{{DOCS_PATH}}/decisions/README.md`]({{DOCS_PATH}}/decisions/README.md)                       |
 | Writing or editing code comments           | [`{{DOCS_PATH}}/policies/code-comments.md`]({{DOCS_PATH}}/policies/code-comments.md)           |
 | Logging — what to emit, and how to read it | [`{{DOCS_PATH}}/policies/structured-logging.md`]({{DOCS_PATH}}/policies/structured-logging.md) |
 | Project terminology and acronyms           | [`{{DOCS_PATH}}/glossary.md`]({{DOCS_PATH}}/glossary.md)                                       |
 
 {{GEN:add a row for Testing that points at `testing.md` and `test-suite-performance.md` (always written; if the Laravel pack superseded `test-suite-performance.md`, the
 pack file is the one on disk under the same name). Add a row for `module-isolation.md` ("Cross-module reach, published surface") only if that Tier 2 policy was actually
-written. Add a row for `cache-key-naming.md` ("Cache keys / lock keys") only if that Tier 2 policy was written. Add a row for `authorization-identifier-naming.md`
-("Permission / role identifier naming") only if that Tier 2 policy was written. Then add one row per repo-level skill found under the project's skills directory — the
-note above promises this table lists them, so an existing skill that is missing here makes that promise false; give each row the domain it covers and a link to its
-`SKILL.md`. Then add a row for any other area-specific doc this project has. Do NOT list a doc or skill that does not exist. If the project has no skills directory, add
-no skill rows.}}
+written. Add a row for `cache-key-naming.md` ("Cache keys / lock keys") only if that Tier 2 policy was written. Add a Frontend row for each written frontend policy,
+including component testing, React domain-state composition, and Inertia wire contracts. Add a row for `authorization-identifier-naming.md` ("Permission / role
+identifier naming") only if that Tier 2 policy was written. Then add one row per repo-level skill found under the project's skills directory — the note above promises
+this table lists them, so an existing skill that is missing here makes that promise false; give each row the domain it covers and a link to its `SKILL.md`. Then add a row
+for any other area-specific doc this project has. Do NOT list a doc or skill that does not exist. If the project has no skills directory, add no skill rows.}}
 
 ## Project Overview
 
@@ -96,6 +98,7 @@ The load-bearing rules an agent must not violate:
 
 {{GEN:add the bullet "**Do not put per-test cost back into the suite**" linking to `test-suite-performance.md` (always written). If `module-isolation.md` was written, add
 the bullet "**Every cross-module read and write goes through a service method on the owning module** — never query or mutate another module's models directly, even for a
-single call site" linking to it. Then add one bullet for each other BLOCK-severity policy that was written whose rule an agent could plausibly violate without noticing —
+single call site" linking to it. If `react-domain-state-composition.md` was written, add a bullet that server-backed React records have canonical query keys and ID-only
+collections. Then add one bullet for each other BLOCK-severity policy that was written whose rule an agent could plausibly violate without noticing —
 especially the project-specific policies authored during the interview. Link each bullet to its policy file under {{DOCS_PATH}}/policies/. Omit any that are already
 covered above.}}

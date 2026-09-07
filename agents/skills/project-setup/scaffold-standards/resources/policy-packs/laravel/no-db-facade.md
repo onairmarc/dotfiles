@@ -9,11 +9,13 @@ bypassing anything, so it stays available and is the correct tool for an atomic 
 
 **Rules:**
 
-- No `DB::table`, `DB::select`, `DB::insert`, `DB::update`, `DB::delete`, or `DB::statement` in application or module code.
+- No `DB::table`, `DB::select`, `DB::insert`, `DB::update`, `DB::delete`, `DB::statement`, `DB::scalar`, `DB::cursor`, or `DB()` helper in application or module code.
 - `DB::transaction(fn () => ...)` is permitted and is the correct wrapper for an atomic multi-row write. See
   [Cache Lock over `lockForUpdate`](./cache-lock-over-lockforupdate.md) for why it is not a concurrency guard.
 - Bulk operations use Eloquent's own bulk paths (`Model::query()->upsert(...)`, `->insert(...)`, chunked writes), not the facade.
-- Migrations and seeders may use the schema builder as normal; that is not application data access.
+- Use `belongsToMany` operations or a dedicated Pivot/Eloquent model for pivot rows, never `DB::table('..._pivot')`.
+- A table without a model needs a model; the `DB` facade is not an escape hatch.
+- Schema migrations use the Schema builder. Data migrations use Eloquent, never a `DB` call in a migration.
 
 **Example:**
 

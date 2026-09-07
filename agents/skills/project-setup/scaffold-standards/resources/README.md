@@ -70,5 +70,7 @@ Reports defects to fix. Run it before calling a change done — see
   [`{{DOCS_PATH}}/policies/`]({{DOCS_PATH}}/policies/).
 - [`{{DOCS_PATH}}/policies/structured-logging.md`]({{DOCS_PATH}}/policies/structured-logging.md) — the full logging contract, write side and read side.
 - [`{{DOCS_PATH}}/glossary.md`]({{DOCS_PATH}}/glossary.md) — project terminology.
+- [`{{DOCS_PATH}}/technology-stack.md`]({{DOCS_PATH}}/technology-stack.md) — canonical runtime, framework, and tooling versions.
+- [`{{DOCS_PATH}}/decisions/README.md`]({{DOCS_PATH}}/decisions/README.md) — durable architecture-decision records.
 - [`{{PLANNING_PATH}}/README.md`]({{PLANNING_PATH}}/README.md) — plan lifecycle. {{GEN:add a bullet for `module-isolation.md` ("module boundaries and the
   published-surface working list") only if that Tier 2 policy was written; omit it otherwise.}}

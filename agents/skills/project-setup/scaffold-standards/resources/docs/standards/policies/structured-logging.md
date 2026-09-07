@@ -121,8 +121,8 @@ keys: request_id/trace_id, user_id, error; plus domain keys the user names such 
 ### What belongs elsewhere
 
 - Runtime **metrics** (throughput, latency, cache hit rate) belong in the metrics/APM system, not the log sink.
-- One-off **data backfills** belong in the project's operations/migration runner, not in log-and-hope code.
-- {{GEN:name the project's metrics/APM tool and its operations/backfill runner so the boundary is unambiguous. Ask the user if not detectable.}}
+- One-off **data backfills** belong in the project's migration or framework-native backfill mechanism, not in log-and-hope code.
+- {{GEN:name the project's metrics/APM tool and its migration or framework-native backfill mechanism so the boundary is unambiguous. Ask the user if not detectable.}}
 
 ---
 

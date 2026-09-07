@@ -9,29 +9,30 @@ directory or no HTTP surface gates those rows out on their own.
 Policies in this pack state Laravel-specific mechanisms that the language-agnostic core templates deliberately leave open. Adopt the pack only after confirming it with
 the user; adopt each individual policy only when its own gate matches.
 
-| Policy file                        | Severity | Index category                       | Individual gate                                                | Supersedes core policy      |
-|------------------------------------|----------|--------------------------------------|----------------------------------------------------------------|-----------------------------|
-| `no-raw-sql.md`                    | BLOCK    | Data, configuration, transfer shapes | Always (with pack)                                             | `data-access.md`            |
-| `no-db-facade.md`                  | BLOCK    | Data, configuration, transfer shapes | Always (with pack)                                             | —                           |
-| `laravel-migrations.md`            | WARN     | Data, configuration, transfer shapes | `database/migrations/` exists                                  | `schema-migrations.md`      |
-| `no-foreign-key-constraints.md`    | BLOCK    | Data, configuration, transfer shapes | User confirms the project enforces relations in Eloquent only  | —                           |
-| `eloquent-vs-dto.md`               | WARN     | Data, configuration, transfer shapes | Always (with pack)                                             | `data-transfer-objects.md`  |
-| `dto-class-properties.md`          | WARN     | Data, configuration, transfer shapes | `spatie/laravel-data` required                                 | —                           |
-| `dto-magical-creation.md`          | WARN     | Data, configuration, transfer shapes | `spatie/laravel-data` required                                 | —                           |
-| `typed-config-classes.md`          | BLOCK    | Data, configuration, transfer shapes | Always (with pack)                                             | `typed-config-objects.md`   |
-| `carbon-immutable-only.md`         | WARN     | Code style, structure, language      | Always (with pack)                                             | `immutable-value-types.md`  |
-| `illuminate-over-stdlib.md`        | WARN     | Code style, structure, language      | Always (with pack)                                             | —                           |
-| `no-final-or-readonly.md`          | WARN     | Code style, structure, language      | User confirms the open-by-default stance                       | `type-sealing.md`           |
-| `ambient-log-context.md`           | WARN     | Logging, errors, validation          | Always (with pack)                                             | —                           |
-| `form-request-validation.md`       | WARN     | Logging, errors, validation          | Project exposes HTTP endpoints                                 | `input-validation.md`       |
-| `queue-jobs.md`                    | WARN     | Concurrency and background work      | Project dispatches queued jobs or registers event listeners    | `background-jobs.md`        |
-| `cache-lock-over-lockforupdate.md` | WARN     | Concurrency and background work      | Project dispatches queued jobs or has concurrent writers       | `concurrency-guards.md`     |
-| `pest-conventions.md`              | BLOCK    | Testing and documentation            | `pestphp/pest` required                                        | —                           |
-| `test-suite-performance.md`        | BLOCK    | Testing and documentation            | Always (with pack)                                             | `test-suite-performance.md` |
-| `eloquent-factories-only.md`       | BLOCK    | Testing and documentation            | Always (with pack)                                             | `test-data-factories.md`    |
-| `filament-panel-rbac.md`           | BLOCK    | Authorization and panels             | `filament/filament` required                                   | —                           |
-| `livewire-wire-typing.md`          | BLOCK    | Frontend                             | `livewire/livewire` required                                   | —                           |
-| `module-monorepo-workflow.md`      | BLOCK    | Modules and boundaries               | `composer.json` declares path repositories for in-repo modules | —                           |
+| Policy file                          | Severity | Index category                       | Individual gate                                                | Supersedes core policy      |
+|--------------------------------------|----------|--------------------------------------|----------------------------------------------------------------|-----------------------------|
+| `no-raw-sql.md`                      | BLOCK    | Data, configuration, transfer shapes | Always (with pack)                                             | `data-access.md`            |
+| `no-db-facade.md`                    | BLOCK    | Data, configuration, transfer shapes | Always (with pack)                                             | —                           |
+| `laravel-migrations.md`              | WARN     | Data, configuration, transfer shapes | `database/migrations/` exists                                  | `schema-migrations.md`      |
+| `no-foreign-key-constraints.md`      | BLOCK    | Data, configuration, transfer shapes | User confirms the project enforces relations in Eloquent only  | —                           |
+| `eloquent-vs-dto.md`                 | WARN     | Data, configuration, transfer shapes | Always (with pack)                                             | `data-transfer-objects.md`  |
+| `dto-class-properties.md`            | WARN     | Data, configuration, transfer shapes | `spatie/laravel-data` required                                 | —                           |
+| `dto-magical-creation.md`            | WARN     | Data, configuration, transfer shapes | `spatie/laravel-data` required                                 | —                           |
+| `typed-config-classes.md`            | BLOCK    | Data, configuration, transfer shapes | Always (with pack)                                             | `typed-config-objects.md`   |
+| `carbon-immutable-only.md`           | WARN     | Code style, structure, language      | Always (with pack)                                             | `immutable-value-types.md`  |
+| `illuminate-over-stdlib.md`          | WARN     | Code style, structure, language      | Always (with pack)                                             | —                           |
+| `no-agent-final.md`                  | WARN     | Code style, structure, language      | Always (with pack)                                             | `type-sealing.md`           |
+| `ambient-log-context.md`             | WARN     | Logging, errors, validation          | Always (with pack)                                             | —                           |
+| `form-request-validation.md`         | WARN     | Logging, errors, validation          | Project exposes HTTP endpoints                                 | `input-validation.md`       |
+| `queue-jobs.md`                      | WARN     | Concurrency and background work      | Project dispatches queued jobs or registers event listeners    | `background-jobs.md`        |
+| `cache-lock-over-lockforupdate.md`   | WARN     | Concurrency and background work      | Project dispatches queued jobs or has concurrent writers       | `concurrency-guards.md`     |
+| `pest-conventions.md`                | BLOCK    | Testing and documentation            | `pestphp/pest` required                                        | —                           |
+| `test-suite-performance.md`          | BLOCK    | Testing and documentation            | Always (with pack)                                             | `test-suite-performance.md` |
+| `eloquent-factories-only.md`         | BLOCK    | Testing and documentation            | Always (with pack)                                             | `test-data-factories.md`    |
+| `filament-panel-rbac.md`             | BLOCK    | Authorization and panels             | `filament/filament` required                                   | —                           |
+| `livewire-wire-typing.md`            | BLOCK    | Frontend                             | `livewire/livewire` required                                   | —                           |
+| `livewire-public-property-typing.md` | BLOCK    | Frontend                             | `livewire/livewire` required                                   | —                           |
+| `module-monorepo-workflow.md`        | BLOCK    | Modules and boundaries               | `composer.json` declares path repositories for in-repo modules | —                           |
 
 **Notes for the skill:**
 
@@ -63,13 +64,14 @@ the user; adopt each individual policy only when its own gate matches.
     - `queue-jobs.md` → pack `eloquent-vs-dto.md` and pack `ambient-log-context.md`
     - `dto-class-properties.md` → pack `eloquent-vs-dto.md` and pack `dto-magical-creation.md`
     - `dto-magical-creation.md` → pack `dto-class-properties.md` and pack `eloquent-vs-dto.md`
-    - `no-final-or-readonly.md` → pack `typed-config-classes.md`
+    - `no-agent-final.md` → pack `typed-config-classes.md`
     - `illuminate-over-stdlib.md` → core `dependencies.md` (always written) and pack `carbon-immutable-only.md`
     - `ambient-log-context.md` → core `structured-logging.md` (always written)
     - `module-monorepo-workflow.md` → core `documentation.md` and core `dependency-licensing.md` (both always written)
     - `test-suite-performance.md` → pack `eloquent-factories-only.md`, pack `no-db-facade.md`, core `testing.md` (all written with the pack); pack `pest-conventions.md`
       when Pest gated in
     - `pest-conventions.md` → pack `test-suite-performance.md` (always with pack)
+    - `livewire-public-property-typing.md` → core `strong-typing.md` and `no-magic-values.md` (always written)
     - `eloquent-factories-only.md` → pack `carbon-immutable-only.md` (always with pack)
 - **Inbound links into superseded files.** A core policy that *survives* may link to a core policy this pack supersedes, leaving a dangling reference. Rewrite each of
   these to point at the pack file that replaced the target:

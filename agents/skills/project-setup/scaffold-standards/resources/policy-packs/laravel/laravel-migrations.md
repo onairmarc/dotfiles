@@ -1,6 +1,6 @@
 # Migrations
 
-Migrations are reversible and are never re-edited after they merge.
+Migrations are reversible and are never re-edited after they merge. Data migrations use Eloquent.
 
 Editing an already-merged migration is a silent contract change: anyone with a fresh database gets a different schema than anyone who migrated up before the edit, and
 nothing detects the divergence. Laravel's column modification is also subtractive — a `->change()` that omits an attribute drops it — so a partial restatement quietly
@@ -13,9 +13,9 @@ loses a default, a length, or a nullable flag.
 - Never edit a committed migration to change a column type, add a column, or drop one. Write a new migration.
 - When modifying a column, the new migration must restate **all** existing attributes on that column — length, nullable, default, comment — because Laravel drops anything
   omitted.
-- A data backfill is its own migration, separate from the shape change, so either can be re-run or rolled back independently.
+- A data backfill, deduplication, or rescope is its own migration and uses Eloquent, separate from the schema change so each can be reviewed and run independently.
 - {{GEN:state where migrations live for this project given {{MODULE_LAYOUT}} — a single `database/migrations/` tree, or per-module migration directories — detected from
-  the repo.}}
+  the repo. State whether modules own their migration directories and any project-specific Eloquent migration convention.}}
 
 **Example:**
 

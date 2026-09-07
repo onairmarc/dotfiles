@@ -22,7 +22,8 @@ look when a retry misbehaves. The listener stays a thin routing step: it decides
   [Cache Lock over `lockForUpdate`](./cache-lock-over-lockforupdate.md).
 - Do not re-apply ambient context inside `handle()`; it is inherited from the dispatching context — see [Ambient Log Context](./ambient-log-context.md). A job that
   processes several tenants in one run is the exception and must scope the context per iteration.
-- Jobs take DTOs or primitive scalars in their constructor, never a serialized model — see [Eloquent vs DTO](./eloquent-vs-dto.md).
+- Jobs may take an Eloquent model when they stay in the same logical context and the model contributes useful data. Prefer scalar identifiers when a job crosses tenants or
+  the model adds no value beyond its key; use a DTO for a durable external contract — see [Eloquent vs DTO](./eloquent-vs-dto.md).
 - Let failures throw so the retry/backoff machinery engages; do not catch-and-swallow inside `handle()` to force a false success.
 
 **Example:**

@@ -19,7 +19,7 @@ without re-scoping the context leaves the log field stale.
 
 - Read the ambient context before writing a log call. Check the application's middleware, the service providers' `boot()` methods, and any tenancy or correlation package
   for `Context::add(...)`, `Log::withContext(...)`, and `Log::shareContext(...)`.
-- Do not re-pass an ambient field at the call site. If `tenant_id` and `trace_id` are injected at boot, `Log::info('invoice issued', ['invoice_id' => $invoice->id])` is
+- Do not re-pass an ambient field at the call site. If `tenant_id` and `trace_id` are injected at boot, `Log::info('[Billing] invoice issued', ['invoice_id' => $invoice->id])` is
   the complete call — adding `tenant_id` again is noise that will eventually disagree with the canonical value.
 - Pass at the call site only what is specific to *this* event: the record id, the outcome, the counts.
 - **In any loop or command that spans more than one tenant/account, set the context explicitly per iteration.** Use `Context::scope(...)` so the value is restored
