@@ -5,22 +5,32 @@ DOTFILES_REPO="https://github.com/onairmarc/dotfiles.git"
 : "${DF_ROOT_DIRECTORY:=$HOME/Documents/GitHub/dotfiles}"
 export DF_ROOT_DIRECTORY
 
-# Ensure Homebrew is installed
-if ! command -v brew >/dev/null 2>&1; then
-    echo "[*] Homebrew not found. Installing Homebrew..."
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-else
-    echo "[+] Homebrew is already installed."
-fi
+# Homebrew is only used on Apple Silicon Macs. hw.optional.arm64 detects the
+# physical hardware correctly when this script runs under Rosetta.
+if [ "$(sysctl -n hw.optional.arm64 2>/dev/null || true)" = "1" ]; then
+    if ! command -v brew >/dev/null 2>&1; then
+        echo "[*] Homebrew not found. Installing Homebrew..."
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    else
+        echo "[+] Homebrew is already installed."
+    fi
 
-brew update
+    brew update
+else
+    echo "[*] Skipping Homebrew on Intel Mac."
+fi
 
 # Ensure Git is installed
 if command -v git >/dev/null 2>&1; then
     echo "[+] git is already installed."
 else
-    echo "[*] Installing git..."
-    brew install git
+    if [ "$(sysctl -n hw.optional.arm64 2>/dev/null || true)" = "1" ]; then
+        echo "[*] Installing git..."
+        brew install git
+    else
+        echo "[-] git is required on Intel Macs. Install it, then run this script again."
+        exit 1
+    fi
 fi
 
 # Ensure Bun is installed — it is the provisioner runtime (provision/main.ts).

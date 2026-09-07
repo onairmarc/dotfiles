@@ -11,6 +11,8 @@ export type Platform = "mac" | "windows";
 // Resolved platform, set by init().
 let _platform: Platform | null = null;
 
+let _isAppleSilicon: boolean | null = null;
+
 // Allowlist of recognized platform strings → canonical name.
 const PLATFORM_ALIASES: Record<string, Platform> = {
     mac: "mac",
@@ -80,6 +82,20 @@ export function isMac(): boolean {
 /** Return true when running on Windows. */
 export function isWindows(): boolean {
     return current() === "windows";
+}
+
+/** Return true when the physical Mac is Apple Silicon, including under Rosetta. */
+export function isAppleSilicon(): boolean {
+    if (!isMac()) {
+        return false;
+    }
+
+    if (_isAppleSilicon === null) {
+        const result = Bun.spawnSync(["sysctl", "-n", "hw.optional.arm64"], {stdout: "pipe", stderr: "pipe"});
+        _isAppleSilicon = result.exitCode === 0 && result.stdout.toString().trim() === "1";
+    }
+
+    return _isAppleSilicon;
 }
 
 /**

@@ -10,6 +10,7 @@
 // Configurator entries carry an imported run() plus a "platforms" array.
 // Migration entries are imported migration objects, ordered.
 import * as capslock from "./configurators/capslock.ts";
+import * as desktopBackground from "./configurators/desktop_background.ts";
 import * as ghostty from "./configurators/ghostty.ts";
 import * as iterm from "./configurators/iterm.ts";
 import * as opencode from "./configurators/opencode.ts";
@@ -216,6 +217,7 @@ const manifest: Manifest = {
         {name: "iterm", run: iterm.run, platforms: ["mac"]},
         {name: "ghostty", run: ghostty.run, platforms: ["mac"]},
         {name: "capslock", run: capslock.run, platforms: ["mac"]},
+        {name: "desktop_background", run: desktopBackground.run, platforms: ["mac", "win"]},
         {name: "stripe_completion", run: stripeCompletion.run, platforms: ["mac", "win"]},
         {name: "opencode", run: opencode.run, platforms: ["mac", "win"]},
     ],

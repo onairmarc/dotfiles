@@ -107,20 +107,29 @@ if (RUN_TOOLS) {
 
 // Map canonical platform name to the manifest sub-object key.
     const platKey = platform.current() === "windows" ? "win" : "mac";
+    const skipHomebrew = platform.isMac() && !platform.isAppleSilicon();
 
 // Homebrew 6+ requires third-party taps to be explicitly trusted; otherwise
 // brew skips them with "Skipping … because it is not trusted". Trust every
 // already-installed third-party tap before any brew list/install work.
-    if (platKey === "mac") {
+    if (platKey === "mac" && !skipHomebrew) {
         log.info("brew", "trusting third-party taps…");
         backend.brew.trustInstalledTaps();
         log.ok("brew", "third-party taps trusted");
+    } else if (skipHomebrew) {
+        log.info("brew", "skipping Homebrew on Intel Macs");
     }
 
     for (const entry of manifest.tools) {
         const pentry = entry[platKey];
         if (!pentry) continue;
         const name = entry.name || pentry.id || "unknown";
+        if (skipHomebrew && (pentry.backend === "brew" || pentry.backend === "cask")) {
+            log.ok(name, "skipped — Homebrew is disabled on Intel Macs");
+            counts.tools_skipped += 1;
+            continue;
+        }
+
         const id = pentry.id;
         const b = backend.get(pentry.backend);
         const opts = {tap: pentry.tap, app: pentry.app};
@@ -194,8 +203,13 @@ if (RUN_CONFIGURATORS) {
         if (!platform.matches(entry)) continue;
         const name = entry.name || "unknown";
         if (stateMod.hasRun(state, "configurators_run", name)) {
-            if (name === "opencode") {
-                log.info(name, "synchronizing configuration and skills…");
+            const synchronizationMessage = name === "opencode"
+                ? "synchronizing configuration and skills…"
+                : name === "desktop_background"
+                    ? "synchronizing desktop background…"
+                    : null;
+            if (synchronizationMessage) {
+                log.info(name, synchronizationMessage);
                 try {
                     entry.run();
                     log.ok(name, "synchronized");

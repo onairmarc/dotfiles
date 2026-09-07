@@ -41,23 +41,9 @@ All tool installation and configuration is driven by the TypeScript provisioner 
 [Bun](https://bun.sh) with zero third-party dependencies. The entry point is `provision/main.ts`, which
 reads `provision/manifest.ts` and executes each entry:
 
-- **Tools** — installed via Homebrew (macOS) or Chocolatey (Windows).
+- **Tools** — installed via Homebrew on Apple Silicon Macs or Chocolatey on Windows. Homebrew is skipped on Intel Macs.
 - **Configurators** — one-time setup scripts in `provision/configurators/`.
 - **Migrations** — idempotent data-migration scripts in `provision/migrations/`.
-
-### Adding a Tool
-
-Add one entry to the `tools` array in `provision/manifest.ts`:
-
-```ts
-{
-  name: "mytool",
-  mac: { backend: "brew", id: "mytool" },
-  win: { backend: "choco", id: "mytool" },
-},
-```
-
-No script edits are needed anywhere else.
 
 ---
 
@@ -91,7 +77,7 @@ Configurators record their completion in `~/.df_data/state.json`. To force one t
 its key from that file:
 
 ```sh
-# Example: force the ghostty configurator to re-run
+# Example: re-run the ghostty configurator
 # Open ~/.df_data/state.json and delete the "ghostty" key, then re-run:
 bun provision/main.ts mac
 ```
@@ -108,7 +94,7 @@ bun provision/main.ts mac
 | Dependency | Required for              | Notes                                    |
 |------------|---------------------------|------------------------------------------|
 | Bun        | Provisioning              | Not needed for shell startup             |
-| Homebrew   | macOS tool installation   | Installed automatically by `install.sh`  |
+| Homebrew   | Apple Silicon macOS tools | Installed automatically by `install.sh`  |
 | Chocolatey | Windows tool installation | Installed automatically by `install.ps1` |
 | zsh        | Shell plugins (macOS)     | Pre-installed on macOS                   |
 
