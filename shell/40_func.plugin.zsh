@@ -235,12 +235,12 @@ is_linux() {
 
 install() {
   if [ -f "package.json" ]; then
-    npm ci || npm install
+    bun install --frozen-lockfile || bun install
   fi
-  
+
   if [ -f "composer.json" ]; then
     composer install --ignore-platform-reqs
-  fi 
+  fi
 }
 
 loc() {
@@ -274,7 +274,7 @@ pest() {
 
 rebuild() {
   local clean_flag=false
-  
+
   # Check for --clean flag
   for arg in "$@"; do
     if [ "$arg" = "--clean" ]; then
@@ -282,21 +282,21 @@ rebuild() {
       break
     fi
   done
-  
+
   echo -e "${COL_GREEN}Cleaning...${COL_RESET}"
   rmd
-  
+
   if [ "$clean_flag" = true ]; then
     echo -e "${COL_GREEN}Deep cleaning...${COL_RESET}"
     ccc
   fi
-  
+
   echo -e "${COL_GREEN}Installing...${COL_RESET}"
   install
-  
+
   echo -e "${COL_GREEN}Building...${COL_RESET}"
   build
-  
+
   echo -e "${COL_GREEN}Done${COL_RESET}"
 }
 
@@ -357,7 +357,7 @@ sys_env_encrypt() {
       echo -e "${COL_RED}Error: Environment is required.${COL_RESET}"
       return 1
     fi
-  
+
   local environment=$1
 
   # Special local environment handling
@@ -385,7 +385,7 @@ tf_import_repo () {
   local repo_name=$1
   local repo_id=${2:-$1}
   local tf_mode=$(tf_get_mode)
-  
+
   # Decide what to do based on the returned value
   if [ "$tf_mode" = "phpgenesis" ]; then
     # Action A: Do something if mode is phpgenesis
@@ -438,13 +438,13 @@ tf_apply() {
 tfplan_prod () {
   terraform workspace select production
   terraform init --reconfigure
-  terraform plan -out plan -var-file=environments/production.tfvars  
+  terraform plan -out plan -var-file=environments/production.tfvars
 }
 
 tfplan_staging () {
   terraform workspace select staging
   terraform init --reconfigure
-  terraform plan -out plan -var-file=environments/staging.tfvars  
+  terraform plan -out plan -var-file=environments/staging.tfvars
 }
 
 xdb() {

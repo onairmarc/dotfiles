@@ -1,7 +1,7 @@
 #background=dark
 
 alias ..='cd ..'
-alias ccc='npm cache clean --force && composer clear-cache'
+alias ccc='bun pm cache rm && composer clear-cache'
 alias cf='composer format'
 alias cls='clear'
 alias db='build && duster fix'
