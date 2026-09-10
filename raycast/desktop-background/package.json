@@ -1,0 +1,49 @@
+{
+    "$schema": "https://www.raycast.com/schemas/extension.json",
+    "name": "dotfiles-desktop-background",
+    "title": "Dotfiles Backgrounds",
+    "description": "Rotate through local dotfiles desktop backgrounds with keyboard shortcuts.",
+    "icon": "icon.png",
+    "author": "marcbeinder",
+    "platforms": ["macOS"],
+    "categories": ["System"],
+    "private": true,
+    "commands": [
+        {
+            "name": "next-background",
+            "title": "Next Background",
+            "description": "Set the next image in filename order on every desktop, stretched to fill.",
+            "mode": "no-view"
+        },
+        {
+            "name": "previous-background",
+            "title": "Previous Background",
+            "description": "Set the previous image in filename order on every desktop, stretched to fill.",
+            "mode": "no-view"
+        }
+    ],
+    "preferences": [
+        {
+            "name": "backgroundsDirectory",
+            "title": "Backgrounds directory",
+            "description": "Optional override. Defaults to ~/Documents/GitHub/dotfiles/backgrounds.",
+            "type": "directory",
+            "required": false
+        }
+    ],
+    "scripts": {
+        "dev": "ray develop",
+        "build": "ray build -e dist",
+        "typecheck": "tsc --noEmit",
+        "test": "bun test src"
+    },
+    "dependencies": {
+        "@raycast/api": "2.2.1"
+    },
+    "devDependencies": {
+        "@types/bun": "^1.4.0",
+        "@types/node": "^22.0.0",
+        "@types/react": "^19.0.0",
+        "typescript": "^5.9.0"
+    }
+}

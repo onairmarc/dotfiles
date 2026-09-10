@@ -187,3 +187,8 @@ Color is auto-disabled when stdout is not a TTY, when `NO_COLOR` is set, or when
 
 Keymaps and code inspection profiles are stored in `JetBrains/`. The `copy_jetbrains_keymaps.ts` tool
 copies them to the correct JetBrains IDE config directories.
+
+## Raycast backgrounds
+
+The [local Raycast extension](raycast/desktop-background/README.md) adds **Next Background** and **Previous Background** commands for macOS.
+Assign hotkeys to rotate through `backgrounds/`, using the same stretch-to-fill settings as provisioning.
