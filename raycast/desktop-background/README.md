@@ -43,11 +43,11 @@ local installation is what keeps it out of the Raycast Store.
 - Reads the directory on every invocation, so adding or removing images doesn't require a rebuild.
 - Uses filename order and wraps around at either end. The bundled order is `LaravelLambo.jpeg` → `LaravelLego.png` → `LaravelThreeDee.png`.
 - Reads the first desktop's current wallpaper to choose the next image. If it isn't in the directory, Next starts at the first image and Previous at the last.
-- Applies the image to every desktop exposed by System Events and stretches it to fill, using the same commands as the provisioner.
+- Applies the image to each connected screen's current desktop and stretches it to fill, using the same commands as the provisioner.
 - Supports the same file extensions as provisioning: AVIF, BMP, GIF, JPEG, PNG, TIFF, and WebP. macOS must be able to decode the chosen image.
 - Shows a short confirmation or error message. No browser, image picker, or background timer is involved.
 
-The stretch setting uses macOS's `~/Library/Application Support/com.apple.wallpaper/Store/Index.plist` and restarts `WallpaperAgent`, matching provisioning.
+The image and stretch setting are applied together through Apple's `NSWorkspace` API, then read back to verify the change.
 
 ## Development
 
@@ -62,3 +62,6 @@ bun run test
 ```
 
 To check the installed integration, invoke Next through all three images, then Previous. Confirm wraparound, stretch-to-fill, and each connected display.
+
+For a live regression check, run `bun run test:wallpaper`. It applies each bundled image, waits two seconds, and checks that the image and stretch setting persist
+on every connected screen. It restores the original images and scaling afterward. This changes your desktop during the check, so it's separate from `bun run test`.

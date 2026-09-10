@@ -36,7 +36,8 @@
         "build": "ray build -e dist -o dist",
         "install-local": "ray build -e dist --non-interactive",
         "typecheck": "tsc --noEmit",
-        "test": "bun test src"
+        "test": "bun test src",
+        "test:wallpaper": "bun scripts/verify-wallpaper.ts"
     },
     "dependencies": {
         "@raycast/api": "2.2.1"
