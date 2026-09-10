@@ -190,23 +190,7 @@ const manifest: Manifest = {
         {
             name: "laravel-lsp",
             mac: {kind: "cmd", argv: ["bun", "provision/scripts/laravel_lsp.ts"]},
-        },
-        // Grok CLI (xAI).
-        // mac: curl install.sh | bash. SHELL is cleared so the installer does not
-        // rewrite ~/.zshrc / ~/.bashrc (PATH/completions live in shell/92_grok.plugin.zsh).
-        // post: strip any installer block that still got written, and remove bak files.
-        // win: irm install.ps1 | iex (native PowerShell installer; manages User PATH itself).
-        {
-            name: "grok",
-            mac: {
-                kind: "curl",
-                url: "https://x.ai/cli/install.sh",
-                pipe_to: "bash",
-                env: {SHELL: ""},
-                post: cleanupAfterGrokInstall,
-            },
-            win: {kind: "powershell", url: "https://x.ai/cli/install.ps1"},
-        },
+        }
     ],
 // -------------------------------------------------------------------------
 // Configurators
