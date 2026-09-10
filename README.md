@@ -191,4 +191,5 @@ copies them to the correct JetBrains IDE config directories.
 ## Raycast backgrounds
 
 The [local Raycast extension](raycast/desktop-background/README.md) adds **Next Background** and **Previous Background** commands for macOS.
-Assign hotkeys to rotate through `backgrounds/`, using the same stretch-to-fill settings as provisioning.
+`bash install.sh` installs and refreshes it during the scripts phase. Assign hotkeys in Raycast to rotate through `backgrounds/`, using the same stretch-to-fill
+settings as provisioning. To install or update only the extension, run `bun provision/scripts/raycast_backgrounds.ts` from the repository root.

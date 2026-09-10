@@ -33,7 +33,8 @@
     ],
     "scripts": {
         "dev": "ray develop",
-        "build": "ray build -e dist",
+        "build": "ray build -e dist -o dist",
+        "install-local": "ray build -e dist --non-interactive",
         "typecheck": "tsc --noEmit",
         "test": "bun test src"
     },

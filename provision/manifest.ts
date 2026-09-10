@@ -116,6 +116,8 @@ const manifest: Manifest = {
             mac: {backend: "brew", id: "nano"},
             win: {backend: "choco", id: "nano"},
         },
+        // Node.js — required by the local Raycast extension's build tools.
+        {name: "node", mac: {backend: "brew", id: "node"}},
         // Pygments — syntax highlighter (Python, mac-only)
         {name: "pygments", mac: {backend: "brew", id: "pygments"}},
         // Raycast — launcher (mac-only cask)
@@ -166,6 +168,11 @@ const manifest: Manifest = {
 // installed by install.sh / install.ps1 before this manifest ever loads.
 // -------------------------------------------------------------------------
     scripts: [
+        // Build and refresh the local Raycast extension on every macOS setup run.
+        {
+            name: "raycast-backgrounds",
+            mac: {kind: "cmd", argv: ["bun", "provision/scripts/raycast_backgrounds.ts"]},
+        },
         // Oh My Zsh — non-interactive install (RUNZSH/CHSH/KEEP_ZSHRC flags prevent
         // shell change, default-shell modification, and .zshrc overwrite).
         // When $ZSH is set, the upstream installer errors if that directory already
