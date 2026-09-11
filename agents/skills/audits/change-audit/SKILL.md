@@ -8,6 +8,10 @@ then implement the accepted fixes.
 
 You are the coordinator. Continue until every changed subsystem has been reviewed, validated, and fixed where appropriate.
 
+# Report output
+
+Output the audit report in the terminal by default. Write it to disk only when the user explicitly asks for an audit file. Do not ask whether to write the report to disk.
+
 # 0. Determine the change set
 
 Identify the base branch this branch diverged from (typically `main` or `master`). Run:
