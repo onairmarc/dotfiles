@@ -29,18 +29,18 @@ export function run(): void {
     const configLink = configDir + "/config";
     const configSrc = dfRoot + "/ghostty/config";
 
-// 1. Ensure config directory exists.
+    // 1. Ensure config directory exists.
     mkdirSync(configDir, {recursive: true});
 
     const stat = lstatOrNull(configLink);
 
-// 2. If a real regular file exists (not a symlink), back it up.
+    // 2. If a real regular file exists (not a symlink), back it up.
     if (stat && stat.isFile() && !stat.isSymbolicLink()) {
         log.info("ghostty", "backing up existing config to config.bak");
         renameSync(configLink, configDir + "/config.bak");
     }
 
-// 3. Create symlink if not already present.
+    // 3. Create symlink if not already present.
     if (stat && stat.isSymbolicLink()) {
         log.info("ghostty", "config symlink already exists — skipping");
     } else {

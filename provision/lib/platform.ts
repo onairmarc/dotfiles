@@ -8,10 +8,10 @@ import {homedir} from "node:os";
 
 export type Platform = "mac" | "windows";
 
+let _isAppleSilicon: boolean | null = null;
+
 // Resolved platform, set by init().
 let _platform: Platform | null = null;
-
-let _isAppleSilicon: boolean | null = null;
 
 // Allowlist of recognized platform strings → canonical name.
 const PLATFORM_ALIASES: Record<string, Platform> = {
@@ -79,11 +79,6 @@ export function isMac(): boolean {
     return current() === "mac";
 }
 
-/** Return true when running on Windows. */
-export function isWindows(): boolean {
-    return current() === "windows";
-}
-
 /** Return true when the physical Mac is Apple Silicon, including under Rosetta. */
 export function isAppleSilicon(): boolean {
     if (!isMac()) {
@@ -96,6 +91,11 @@ export function isAppleSilicon(): boolean {
     }
 
     return _isAppleSilicon;
+}
+
+/** Return true when running on Windows. */
+export function isWindows(): boolean {
+    return current() === "windows";
 }
 
 /**

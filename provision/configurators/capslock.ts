@@ -91,15 +91,10 @@ function showUsage(): never {
 }
 
 const COL_CYAN = "\x1b[0;36m";
-
 const COL_GREEN = "\x1b[0;32m";
-
 const COL_RESET = "\x1b[0m";
-
 const COL_YELLOW = "\x1b[1;33m";
-
 const HIDUTIL_CLEAR = '{"UserKeyMapping":[]}';
-
 const HIDUTIL_SET =
     '{"UserKeyMapping":[{"HIDKeyboardModifierMappingSrc":0x700000039,"HIDKeyboardModifierMappingDst":0x700000029}]}';
 

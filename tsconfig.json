@@ -1,6 +1,8 @@
 {
     "compilerOptions": {
         "allowImportingTsExtensions": true,
+        "jsx": "preserve",
+        "jsxImportSource": "@opentui/solid",
         "lib": [
             "ESNext"
         ],
@@ -17,6 +19,7 @@
         "verbatimModuleSyntax": true
     },
     "include": [
-        "**/*.ts"
+        "**/*.ts",
+        "opencode/plugins/custom/**/*.tsx"
     ]
 }

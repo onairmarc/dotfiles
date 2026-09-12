@@ -16,7 +16,6 @@ import * as iterm from "./configurators/iterm.ts";
 import * as opencode from "./configurators/opencode.ts";
 import * as stripeCompletion from "./configurators/stripe_completion.ts";
 import type {BackendOpts} from "./lib/backend.ts";
-import {cleanupAfterGrokInstall} from "./lib/grok.ts";
 import type {Migration} from "./lib/migrations.ts";
 import type {ScriptEntry} from "./lib/scripts.ts";
 import setupDfDataDirectory from "./migrations/20250830_124338_setup_df_data_directory.ts";

@@ -6,10 +6,6 @@ import {fileURLToPath} from "node:url";
 import {macBackgroundCommands} from "../../../provision/lib/mac_background.ts";
 import {listImages} from "../src/images.ts";
 
-if (process.platform !== "darwin") {
-    throw new Error("This live wallpaper check requires macOS");
-}
-
 interface Desktop {
     image: string;
     scaling: number | null;
@@ -33,12 +29,16 @@ function snapshot(): Desktop[] {
     return JSON.parse(execFileSync("/usr/bin/osascript", ["-l", "JavaScript", "-e", snapshotScript], {encoding: "utf8"}));
 }
 
-const original = snapshot();
-assert.ok(original.length > 0, "No screens available");
 const directory = fileURLToPath(new URL("../../../backgrounds/", import.meta.url));
 const available = await listImages(directory);
+const original = snapshot();
 const images = [...available.filter((image) => image !== original[0].image), ...available.filter((image) => image === original[0].image)];
 
+if (process.platform !== "darwin") {
+    throw new Error("This live wallpaper check requires macOS");
+}
+
+assert.ok(original.length > 0, "No screens available");
 try {
     for (const image of images) {
         for (const {argv} of macBackgroundCommands(image)) {
@@ -47,12 +47,15 @@ try {
 
         // Catch a successful set followed by WallpaperAgent restoring the old image.
         await Bun.sleep(2000);
+
         const actual = snapshot();
         assert.equal(actual.length, original.length, "Connected screens changed during the test");
+
         for (const desktop of actual) {
             assert.equal(desktop.image, image, "macOS restored a different wallpaper");
             assert.equal(desktop.scaling, 1, "Wallpaper must stretch to fill");
         }
+
         console.log(`PASS ${basename(image)}: image and stretch-to-fill persisted`);
     }
 } finally {

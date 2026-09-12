@@ -24,28 +24,6 @@ function loadIoreg(): void {
     }
 }
 
-function ioregField(key: string): string {
-    loadIoreg();
-
-    const needle = `"${key}"`;
-
-    for (const line of ioregCache.split("\n")) {
-        const trimmed = line.trimStart();
-        const eq = trimmed.indexOf("=");
-        if (eq < 0) {
-            continue;
-        }
-
-        if (trimmed.slice(0, eq).trim() !== needle) {
-            continue;
-        }
-
-        return trimmed.slice(eq + 1).trim();
-    }
-
-    return "";
-}
-
 function ioregSubfield(block: string, key: string): string {
     loadIoreg();
 
@@ -80,27 +58,49 @@ function ioregSubfield(block: string, key: string): string {
     return "";
 }
 
-let pmsetAcCache = "";
+function adapterVoltage(): string {
+    const millivolts = ioregSubfield("AdapterDetails", "AdapterVoltage");
+    return /^\d+$/.test(millivolts) ? (Number(millivolts) / 1000).toFixed(1) : "";
+}
 
-let pmsetCustomCache = "";
+function adapterCurrent(): string {
+    const milliamps = ioregSubfield("AdapterDetails", "Current");
+    return /^\d+$/.test(milliamps) ? (Number(milliamps) / 1000).toFixed(1) : "";
+}
 
-let pmsetThermCache = "";
-
-let pmsetAssertionsCache = "";
-
-let systemProfilerPowerCache = "";
-
-function loadSystemProfilerPower(): void {
-    if (systemProfilerPowerCache === "") {
-        systemProfilerPowerCache = capture(["system_profiler", "SPPowerDataType"]);
+function adapterContract(): string {
+    const voltage = adapterVoltage();
+    const current = adapterCurrent();
+    if (voltage === "" && current === "") {
+        return "?";
     }
+
+    return `${voltage || "?"}V / ${current || "?"}A`;
 }
 
-function systemProfilerPowerField(label: string): string {
-    loadSystemProfilerPower();
-    const match = systemProfilerPowerCache.match(new RegExp(`^\\s*${label}:\\s*(.+)$`, "mi"));
-    return match?.[1].trim() ?? "";
+function ioregField(key: string): string {
+    loadIoreg();
+
+    const needle = `"${key}"`;
+
+    for (const line of ioregCache.split("\n")) {
+        const trimmed = line.trimStart();
+        const eq = trimmed.indexOf("=");
+        if (eq < 0) {
+            continue;
+        }
+
+        if (trimmed.slice(0, eq).trim() !== needle) {
+            continue;
+        }
+
+        return trimmed.slice(eq + 1).trim();
+    }
+
+    return "";
 }
+
+let pmsetAcCache = "";
 
 function loadPmsetAc(): void {
     if (pmsetAcCache !== "") {
@@ -126,79 +126,6 @@ function pmsetAcField(key: string): string {
     return "";
 }
 
-function loadPmsetCustom(): void {
-    if (pmsetCustomCache === "") {
-        pmsetCustomCache = capture(["pmset", "-g", "custom"]);
-    }
-}
-
-function pmsetCustomField(source: string, key: string): string {
-    loadPmsetCustom();
-
-    let inSource = false;
-    for (const raw of pmsetCustomCache.split("\n")) {
-        const line = raw.trim();
-        if (/^[A-Za-z ]+:$/.test(line)) {
-            inSource = line.toLowerCase() === `${source.toLowerCase()}:`;
-            continue;
-        }
-
-        if (!inSource) {
-            continue;
-        }
-
-        const match = line.match(new RegExp(`^${key}\\s+(.+)$`, "i"));
-        if (match) {
-            return match[1];
-        }
-    }
-
-    return "";
-}
-
-function loadPmsetTherm(): void {
-    if (pmsetThermCache === "") {
-        pmsetThermCache = capture(["pmset", "-g", "therm"]);
-    }
-}
-
-function thermalField(key: string): string {
-    loadPmsetTherm();
-    const match = pmsetThermCache.match(new RegExp(`${key}\\s*=\\s*(\\d+)`, "i"));
-    return match?.[1] ?? "";
-}
-
-function thermalWarning(): boolean | null {
-    loadPmsetTherm();
-
-    if (pmsetThermCache === "") {
-        return null;
-    }
-
-    return !(/No thermal warning level has been recorded/i.test(pmsetThermCache)
-        && /No performance warning level has been recorded/i.test(pmsetThermCache));
-}
-
-function loadPmsetAssertions(): void {
-    if (pmsetAssertionsCache === "") {
-        pmsetAssertionsCache = capture(["pmset", "-g", "assertions"]);
-    }
-}
-
-function usbPowerAssertionOwners(): string[] {
-    loadPmsetAssertions();
-
-    const owners = new Set<string>();
-    for (const line of pmsetAssertionsCache.split("\n")) {
-        const match = line.match(/owner=(.+)$/);
-        if (match?.[1]) {
-            owners.add(match[1]);
-        }
-    }
-
-    return [...owners];
-}
-
 function adapterWatts(): string {
     const fromIoreg = ioregSubfield("AdapterDetails", "Watts");
     if (fromIoreg !== "") {
@@ -212,6 +139,19 @@ function adapterDelivering(): boolean {
     const cap = ioregField("ExternalChargeCapable");
     const w = adapterWatts();
     return cap === "Yes" && w !== "" && w !== "0";
+}
+
+function telemetryWatts(key: string): string {
+    const raw = ioregSubfield("PowerTelemetryData", key);
+    if (!/^\d+$/.test(raw)) {
+        return "";
+    }
+
+    return (Number(raw) / 1000).toFixed(1);
+}
+
+function adapterInputWatts(): string {
+    return telemetryWatts("SystemPowerIn");
 }
 
 function adapterManuf(): string {
@@ -228,26 +168,6 @@ function adapterName(): string {
 
 function adapterSerial(): string {
     return ioregSubfield("AdapterDetails", "SerialString");
-}
-
-function adapterVoltage(): string {
-    const millivolts = ioregSubfield("AdapterDetails", "AdapterVoltage");
-    return /^\d+$/.test(millivolts) ? (Number(millivolts) / 1000).toFixed(1) : "";
-}
-
-function adapterCurrent(): string {
-    const milliamps = ioregSubfield("AdapterDetails", "Current");
-    return /^\d+$/.test(milliamps) ? (Number(milliamps) / 1000).toFixed(1) : "";
-}
-
-function adapterContract(): string {
-    const voltage = adapterVoltage();
-    const current = adapterCurrent();
-    if (voltage === "" && current === "") {
-        return "?";
-    }
-
-    return `${voltage || "?"}V / ${current || "?"}A`;
 }
 
 function signed64(raw: string): string {
@@ -279,6 +199,21 @@ function arch(): string {
     return capture(["uname", "-m"]).trim();
 }
 
+let systemProfilerPowerCache = "";
+
+function loadSystemProfilerPower(): void {
+    if (systemProfilerPowerCache === "") {
+        systemProfilerPowerCache = capture(["system_profiler", "SPPowerDataType"]);
+    }
+}
+
+function batteryBelowWarning(): string {
+    loadSystemProfilerPower();
+
+    const match = systemProfilerPowerCache.match(/warning level:\s*(.+)$/mi);
+    return match?.[1].trim() ?? "";
+}
+
 function batteryWatts(): string {
     const ma = amperageMa();
     const mv = ioregField("Voltage");
@@ -289,25 +224,51 @@ function batteryWatts(): string {
     return ((Number(ma) / 1000.0) * (Number(mv) / 1000.0)).toFixed(1);
 }
 
-function telemetryWatts(key: string): string {
-    const raw = ioregSubfield("PowerTelemetryData", key);
-    if (!/^\d+$/.test(raw)) {
+function chargeBar(pct: string, width = 20): string {
+    if (pct === "?" || !/^\d+$/.test(pct)) {
+        return "?".repeat(width);
+    }
+
+    const filled = Math.round(Math.min(100, Math.max(0, Number(pct))) / 100 * width);
+    return "#".repeat(filled) + "-".repeat(width - filled);
+}
+
+function uiPercent(): string {
+    const uiSoc = ioregSubfield("BatteryData", "UISoc");
+    return /^\d+$/.test(uiSoc) ? uiSoc : "";
+}
+
+function roundPct(cur: string, max: string): string {
+    if (cur !== "" && max !== "" && max !== "0") {
+        return String(Math.floor((Number(cur) / Number(max) * 100) + 0.5));
+    }
+
+    return "";
+}
+
+function rawPercent(): string {
+    const stateOfCharge = ioregSubfield("BatteryData", "StateOfCharge");
+    if (/^\d+$/.test(stateOfCharge)) {
+        return stateOfCharge;
+    }
+
+    const fromNamed = roundPct(ioregField("CurrentCapacity"), ioregField("MaxCapacity"));
+    if (fromNamed !== "") {
+        return fromNamed;
+    }
+
+    const fromRaw = roundPct(ioregField("AppleRawCurrentCapacity"), ioregField("AppleRawMaxCapacity"));
+    return fromRaw !== "" ? fromRaw : "?";
+}
+
+function chargeCalibrationDelta(): string {
+    const ui = uiPercent();
+    const raw = rawPercent();
+    if (ui === "" || raw === "?" || !/^\d+$/.test(raw)) {
         return "";
     }
 
-    return (Number(raw) / 1000).toFixed(1);
-}
-
-function adapterInputWatts(): string {
-    return telemetryWatts("SystemPowerIn");
-}
-
-function powerTelemetryWatts(): string {
-    return telemetryWatts("SystemLoad");
-}
-
-function hardwareModel(): string {
-    return capture(["sysctl", "-n", "hw.model"]).trim();
+    return String(Number(ui) - Number(raw));
 }
 
 function externalConnected(): boolean {
@@ -347,12 +308,142 @@ function cmdCharging(): void {
     process.exit(1);
 }
 
-function roundPct(cur: string, max: string): string {
-    if (cur !== "" && max !== "" && max !== "0") {
-        return String(Math.floor((Number(cur) / Number(max) * 100) + 0.5));
+function systemWatts(): string {
+    const aw = adapterInputWatts() || adapterWatts();
+    const bw = batteryWatts();
+    if (!/^\d+(\.\d+)?$/.test(aw) || aw === "0" || bw === "") {
+        return "";
+    }
+
+    return (Number(aw) - Number(bw)).toFixed(1);
+}
+
+let pmsetCustomCache = "";
+
+function loadPmsetCustom(): void {
+    if (pmsetCustomCache === "") {
+        pmsetCustomCache = capture(["pmset", "-g", "custom"]);
+    }
+}
+
+function pmsetCustomField(source: string, key: string): string {
+    loadPmsetCustom();
+
+    let inSource = false;
+
+    for (const raw of pmsetCustomCache.split("\n")) {
+        const line = raw.trim();
+        if (/^[A-Za-z ]+:$/.test(line)) {
+            inSource = line.toLowerCase() === `${source.toLowerCase()}:`;
+            continue;
+        }
+
+        if (!inSource) {
+            continue;
+        }
+
+        const match = line.match(new RegExp(`^${key}\\s+(.+)$`, "i"));
+        if (match) {
+            return match[1];
+        }
     }
 
     return "";
+}
+
+let pmsetThermCache = "";
+
+function loadPmsetTherm(): void {
+    if (pmsetThermCache === "") {
+        pmsetThermCache = capture(["pmset", "-g", "therm"]);
+    }
+}
+
+function thermalField(key: string): string {
+    loadPmsetTherm();
+
+    const match = pmsetThermCache.match(new RegExp(`${key}\\s*=\\s*(\\d+)`, "i"));
+    return match?.[1] ?? "";
+}
+
+let pmsetAssertionsCache = "";
+
+function loadPmsetAssertions(): void {
+    if (pmsetAssertionsCache === "") {
+        pmsetAssertionsCache = capture(["pmset", "-g", "assertions"]);
+    }
+}
+
+function usbPowerAssertionOwners(): string[] {
+    loadPmsetAssertions();
+
+    const owners = new Set<string>();
+
+    for (const line of pmsetAssertionsCache.split("\n")) {
+        const match = line.match(/owner=(.+)$/);
+        if (match?.[1]) {
+            owners.add(match[1]);
+        }
+    }
+
+    return [...owners];
+}
+
+function hardwareModel(): string {
+    return capture(["sysctl", "-n", "hw.model"]).trim();
+}
+
+function thermalWarning(): boolean | null {
+    loadPmsetTherm();
+
+    if (pmsetThermCache === "") {
+        return null;
+    }
+
+    return !(/No thermal warning level has been recorded/i.test(pmsetThermCache)
+        && /No performance warning level has been recorded/i.test(pmsetThermCache));
+}
+
+let cBold = "";
+let cReset = "";
+
+function cmdDiagnose(): void {
+    const aw = adapterWatts();
+    const input = adapterInputWatts();
+    const draw = systemWatts();
+    const charging = isCharging();
+    const lowPowerMode = pmsetCustomField("AC Power", "lowpowermode");
+    const gpuSwitch = pmsetCustomField("AC Power", "gpuswitch");
+    const cpuLimit = thermalField("CPU_Speed_Limit");
+    const usbOwners = usbPowerAssertionOwners();
+    const uiPct = uiPercent();
+    const rawPct = rawPercent();
+    const calibrationDelta = chargeCalibrationDelta();
+
+    process.stdout.write(`model:              ${hardwareModel() || "?"}\n`);
+    process.stdout.write(`plugged in:         ${externalConnected() ? "yes" : "no"}\n`);
+    process.stdout.write(`charging:           ${charging ? "yes" : "no"}\n`);
+    process.stdout.write(`charge estimate:    ${uiPct === "" ? "?" : `${uiPct}% UI`} / ${rawPct}% raw${calibrationDelta === "" ? "" : ` (${calibrationDelta}% calibrated)`}\n`);
+    process.stdout.write(`adapter rating:     ${aw === "" ? "?" : `${aw}W`}\n`);
+    process.stdout.write(`adapter input:      ${input === "" ? "?" : `${input}W`}\n`);
+    process.stdout.write(`system draw:        ${draw === "" ? "?" : `${draw}W (est.)`}\n`);
+    process.stdout.write(`low power mode:     ${lowPowerMode === "" ? "?" : lowPowerMode === "1" ? "on" : "off"}\n`);
+    process.stdout.write(`graphics mode:      ${gpuSwitch === "" ? "?" : gpuSwitch === "0" ? "integrated" : gpuSwitch === "1" ? "discrete" : "automatic"}\n`);
+
+    const thermal = thermalWarning();
+    process.stdout.write(`thermal warning:    ${thermal === null ? "?" : thermal ? "yes" : "no"}\n`);
+    process.stdout.write(`CPU speed limit:    ${cpuLimit === "" ? "?" : `${cpuLimit}%`}\n`);
+    process.stdout.write(`USB power owners:   ${usbOwners.length === 0 ? "none" : usbOwners.join(", ")}\n`);
+
+    if (externalConnected() && !charging && aw !== "" && input !== "" && Number(input) >= Number(aw) - 1) {
+        process.stdout.write(`\n${cBold}Recommendation:${cReset} disconnect the dock and USB devices, then use a higher-wattage adapter directly.\n`);
+    } else if (externalConnected() && !charging) {
+        process.stdout.write(`\n${cBold}Recommendation:${cReset} run '${PROG} why' to inspect the charging block.\n`);
+    }
+
+    if (externalConnected() && !charging && lowPowerMode === "0") {
+        process.stdout.write(`\n${cBold}Recommendation:${cReset} enable AC Low Power Mode with 'sudo pmset -c lowpowermode 1'.\n`);
+    }
 }
 
 function maxCap(): string {
@@ -370,6 +461,13 @@ function healthPct(): string {
 
 function cycles(): string {
     return ioregField("CycleCount");
+}
+
+function systemProfilerPowerField(label: string): string {
+    loadSystemProfilerPower();
+
+    const match = systemProfilerPowerCache.match(new RegExp(`^\\s*${label}:\\s*(.+)$`, "mi"));
+    return match?.[1].trim() ?? "";
 }
 
 function condition(): string {
@@ -393,12 +491,6 @@ function condition(): string {
     }
 
     return "Service Recommended";
-}
-
-function batteryBelowWarning(): string {
-    loadSystemProfilerPower();
-    const match = systemProfilerPowerCache.match(/warning level:\s*(.+)$/mi);
-    return match?.[1].trim() ?? "";
 }
 
 function cmdHealth(): void {
@@ -449,14 +541,8 @@ function loadPmsetBatt(): void {
     pmsetBattCache = capture(["pmset", "-g", "batt"]);
 }
 
-function systemWatts(): string {
-    const aw = adapterInputWatts() || adapterWatts();
-    const bw = batteryWatts();
-    if (!/^\d+(\.\d+)?$/.test(aw) || aw === "0" || bw === "") {
-        return "";
-    }
-
-    return (Number(aw) - Number(bw)).toFixed(1);
+function powerTelemetryWatts(): string {
+    return telemetryWatts("SystemLoad");
 }
 
 function netCharging(): boolean | null {
@@ -476,38 +562,8 @@ function ncpu(): string {
     return capture(["sysctl", "-n", "hw.ncpu"]).trim();
 }
 
-function rawPercent(): string {
-    const stateOfCharge = ioregSubfield("BatteryData", "StateOfCharge");
-    if (/^\d+$/.test(stateOfCharge)) {
-        return stateOfCharge;
-    }
-
-    const fromNamed = roundPct(ioregField("CurrentCapacity"), ioregField("MaxCapacity"));
-    if (fromNamed !== "") {
-        return fromNamed;
-    }
-
-    const fromRaw = roundPct(ioregField("AppleRawCurrentCapacity"), ioregField("AppleRawMaxCapacity"));
-    return fromRaw !== "" ? fromRaw : "?";
-}
-
-function uiPercent(): string {
-    const uiSoc = ioregSubfield("BatteryData", "UISoc");
-    return /^\d+$/.test(uiSoc) ? uiSoc : "";
-}
-
 function percent(): string {
     return uiPercent() || rawPercent();
-}
-
-function chargeCalibrationDelta(): string {
-    const ui = uiPercent();
-    const raw = rawPercent();
-    if (ui === "" || raw === "?" || !/^\d+$/.test(raw)) {
-        return "";
-    }
-
-    return String(Number(ui) - Number(raw));
 }
 
 function tempC(): string {
@@ -548,12 +604,6 @@ function pmsetTimeRemaining(): string {
     return "";
 }
 
-function powerSource(): string {
-    loadPmsetBatt();
-    const match = pmsetBattCache.match(/Now drawing from '([^']+)'/);
-    return match?.[1] ?? "";
-}
-
 function notChargingReason(): string {
     return ioregSubfield("ChargerData", "NotChargingReason");
 }
@@ -588,6 +638,13 @@ function stateLabel(): string {
     }
 
     return "on battery";
+}
+
+function powerSource(): string {
+    loadPmsetBatt();
+
+    const match = pmsetBattCache.match(/Now drawing from '([^']+)'/);
+    return match?.[1] ?? "";
 }
 
 function notChargingReasonHuman(code: string): string {
@@ -696,6 +753,7 @@ function cmdJson(): void {
     process.stdout.write(`"optimized_charging":${jsonStr(optimizedState())},`);
     process.stdout.write(`"ac_low_power_mode":${jsonNum(pmsetCustomField("AC Power", "lowpowermode"))},`);
     process.stdout.write(`"ac_graphics_mode":${jsonNum(pmsetCustomField("AC Power", "gpuswitch"))},`);
+
     const thermal = thermalWarning();
     process.stdout.write(`"thermal_warning":${thermal === null ? "null" : thermal},`);
     process.stdout.write(`"cpu_speed_limit_percent":${jsonNum(thermalField("CPU_Speed_Limit"))},`);
@@ -710,13 +768,7 @@ function cmdPercent(): void {
 }
 
 let cGreen = "";
-
-let cReset = "";
-
 let cYellow = "";
-
-let cBold = "";
-
 let cRed = "";
 
 function cmdPower(): void {
@@ -771,47 +823,16 @@ function cmdPower(): void {
     }
 }
 
-function cmdDiagnose(): void {
-    const aw = adapterWatts();
-    const input = adapterInputWatts();
-    const draw = systemWatts();
-    const charging = isCharging();
-    const lowPowerMode = pmsetCustomField("AC Power", "lowpowermode");
-    const gpuSwitch = pmsetCustomField("AC Power", "gpuswitch");
-    const cpuLimit = thermalField("CPU_Speed_Limit");
-    const usbOwners = usbPowerAssertionOwners();
-    const uiPct = uiPercent();
-    const rawPct = rawPercent();
-    const calibrationDelta = chargeCalibrationDelta();
-
-    process.stdout.write(`model:              ${hardwareModel() || "?"}\n`);
-    process.stdout.write(`plugged in:         ${externalConnected() ? "yes" : "no"}\n`);
-    process.stdout.write(`charging:           ${charging ? "yes" : "no"}\n`);
-    process.stdout.write(`charge estimate:    ${uiPct === "" ? "?" : `${uiPct}% UI`} / ${rawPct}% raw${calibrationDelta === "" ? "" : ` (${calibrationDelta}% calibrated)`}\n`);
-    process.stdout.write(`adapter rating:     ${aw === "" ? "?" : `${aw}W`}\n`);
-    process.stdout.write(`adapter input:      ${input === "" ? "?" : `${input}W`}\n`);
-    process.stdout.write(`system draw:        ${draw === "" ? "?" : `${draw}W (est.)`}\n`);
-    process.stdout.write(`low power mode:     ${lowPowerMode === "" ? "?" : lowPowerMode === "1" ? "on" : "off"}\n`);
-    process.stdout.write(`graphics mode:      ${gpuSwitch === "" ? "?" : gpuSwitch === "0" ? "integrated" : gpuSwitch === "1" ? "discrete" : "automatic"}\n`);
-    const thermal = thermalWarning();
-    process.stdout.write(`thermal warning:    ${thermal === null ? "?" : thermal ? "yes" : "no"}\n`);
-    process.stdout.write(`CPU speed limit:    ${cpuLimit === "" ? "?" : `${cpuLimit}%`}\n`);
-    process.stdout.write(`USB power owners:   ${usbOwners.length === 0 ? "none" : usbOwners.join(", ")}\n`);
-
-    if (externalConnected() && !charging && aw !== "" && input !== "" && Number(input) >= Number(aw) - 1) {
-        process.stdout.write(`\n${cBold}Recommendation:${cReset} disconnect the dock and USB devices, then use a higher-wattage adapter directly.\n`);
-    } else if (externalConnected() && !charging) {
-        process.stdout.write(`\n${cBold}Recommendation:${cReset} run '${PROG} why' to inspect the charging block.\n`);
-    }
-
-    if (externalConnected() && !charging && lowPowerMode === "0") {
-        process.stdout.write(`\n${cBold}Recommendation:${cReset} enable AC Low Power Mode with 'sudo pmset -c lowpowermode 1'.\n`);
-    }
-}
-
 function cmdRaw(): void {
     loadIoreg();
     process.stdout.write(ioregCache.endsWith("\n") ? ioregCache : ioregCache + "\n");
+}
+
+let statusFrame = "";
+let basicStatus = false;
+
+function writeStatus(text: string): void {
+    statusFrame += text;
 }
 
 function iconState(): string {
@@ -846,25 +867,7 @@ function pctColor(p: string): string {
 }
 
 let cCyan = "";
-
-let basicStatus = false;
-
-function chargeBar(pct: string, width = 20): string {
-    if (pct === "?" || !/^\d+$/.test(pct)) {
-        return "?".repeat(width);
-    }
-
-    const filled = Math.round(Math.min(100, Math.max(0, Number(pct))) / 100 * width);
-    return "#".repeat(filled) + "-".repeat(width - filled);
-}
-
 const dashboardWidth = 78;
-
-let statusFrame = "";
-
-function writeStatus(text: string): void {
-    statusFrame += text;
-}
 
 function dashboardBorder(): void {
     writeStatus(`+${"-".repeat(dashboardWidth - 2)}+\n`);
@@ -897,6 +900,18 @@ function dashboardSection(title: string): void {
     writeStatus(`| ${"-".repeat(dashboardWidth - 4)} |\n`);
 }
 
+function stateColor(state: string): string {
+    if (state === "full") {
+        return cGreen;
+    }
+
+    if (state === "charging" || state === "plugged (not charging)") {
+        return cYellow;
+    }
+
+    return cRed;
+}
+
 function currentFlow(): string {
     const ma = amperageMa();
     if (ma === "") {
@@ -915,20 +930,9 @@ function currentFlow(): string {
     return "idle 0mA";
 }
 
-function stateColor(state: string): string {
-    if (state === "full") {
-        return cGreen;
-    }
-
-    if (state === "charging" || state === "plugged (not charging)") {
-        return cYellow;
-    }
-
-    return cRed;
-}
-
 function renderStatus(): string {
     statusFrame = "";
+
     const pct = percent();
     const state = stateLabel();
     let t = pmsetTimeRemaining();
@@ -951,6 +955,7 @@ function renderStatus(): string {
         writeStatus(
             `${iconState()} ${cBold}${pctColor(pct)}${pct}%${cReset}  ${cCyan}${state}${cReset}  time: ${t}  adapter: ${w}  health: ${h}%  cycles: ${cyc}  temp: ${temp}°C\n`,
         );
+
         return statusFrame;
     }
 
@@ -971,6 +976,7 @@ function renderStatus(): string {
     const displayedCharge = uiPct === ""
         ? `${pctColor(pct)}[${chargeBar(pct)}] ${pct}% gauge${cReset}`
         : `${pctColor(pct)}[${chargeBar(pct)}] ${pct}% UI${cReset} (${rawPct}% gauge${calibrationDelta === "" ? "" : `, ${calibrationDelta}% calibrated`})`;
+
     const conditionColor = condition() === "Normal" ? cGreen : cRed;
     const warningColor = warning === "no" ? cGreen : warning === "yes" ? cRed : cDim;
     const flowColor = netCharging() === true ? cGreen : netCharging() === false ? cYellow : cDim;
@@ -994,6 +1000,7 @@ function renderStatus(): string {
     dashboardSection("USB POWER ASSERTION OWNERS");
     dashboardRows(owners.length === 0 ? "None" : `${owners.length} active: ${owners.join(", ")}`);
     dashboardBorder();
+
     return statusFrame;
 }
 
@@ -1036,6 +1043,7 @@ async function cmdWatch(intervalArg: string): Promise<void> {
 
     while (true) {
         const refreshStartedAt = new Date();
+
         ioregCache = "";
         pmsetBattCache = "";
         pmsetAcCache = "";
@@ -1045,7 +1053,6 @@ async function cmdWatch(intervalArg: string): Promise<void> {
         systemProfilerPowerCache = "";
 
         const status = renderStatus();
-
         const now = new Date();
         const hh = String(now.getHours()).padStart(2, "0");
         const mm = String(now.getMinutes()).padStart(2, "0");
@@ -1149,51 +1156,51 @@ async function main(argv: string[]): Promise<void> {
     const sub = args[0] ?? "status";
     switch (sub) {
         case "status":
-            cmdStatus();
-            break;
+        cmdStatus();
+        break;
         case "percent":
-            cmdPercent();
-            break;
+        cmdPercent();
+        break;
         case "charging":
-            cmdCharging();
-            break;
+        cmdCharging();
+        break;
         case "health":
-            cmdHealth();
-            break;
+        cmdHealth();
+        break;
         case "adapter":
-            cmdAdapter();
-            break;
+        cmdAdapter();
+        break;
         case "time":
-            cmdTime();
-            break;
+        cmdTime();
+        break;
         case "temp":
-            cmdTemp();
-            break;
+        cmdTemp();
+        break;
         case "power":
-            cmdPower();
-            break;
+        cmdPower();
+        break;
         case "diagnose":
-            cmdDiagnose();
-            break;
+        cmdDiagnose();
+        break;
         case "why":
-            cmdWhy();
-            break;
+        cmdWhy();
+        break;
         case "raw":
-            cmdRaw();
-            break;
+        cmdRaw();
+        break;
         case "json":
-            cmdJson();
-            break;
+        cmdJson();
+        break;
         case "watch":
-            await cmdWatch(args[1] ?? "5");
-            break;
+        await cmdWatch(args[1] ?? "5");
+        break;
         case "help":
         case "-h":
         case "--help":
-            cmdHelp();
-            break;
+        cmdHelp();
+        break;
         default:
-            die(`unknown subcommand: ${sub} (try '${PROG} help')`);
+        die(`unknown subcommand: ${sub} (try '${PROG} help')`);
     }
 }
 

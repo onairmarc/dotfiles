@@ -19,7 +19,6 @@ function existsDir(path: string): boolean {
 }
 
 const COL_RED = "\x1b[1;31m";
-
 const COL_RESET = "\x1b[0m";
 
 function logError(msg: string): void {

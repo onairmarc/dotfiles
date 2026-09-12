@@ -105,13 +105,13 @@ if (modeArg) {
 if (RUN_TOOLS) {
     log.step("Installing tools");
 
-// Map canonical platform name to the manifest sub-object key.
+    // Map canonical platform name to the manifest sub-object key.
     const platKey = platform.current() === "windows" ? "win" : "mac";
     const skipHomebrew = platform.isMac() && !platform.isAppleSilicon();
 
-// Homebrew 6+ requires third-party taps to be explicitly trusted; otherwise
-// brew skips them with "Skipping … because it is not trusted". Trust every
-// already-installed third-party tap before any brew list/install work.
+    // Homebrew 6+ requires third-party taps to be explicitly trusted; otherwise
+    // brew skips them with "Skipping … because it is not trusted". Trust every
+    // already-installed third-party tap before any brew list/install work.
     if (platKey === "mac" && !skipHomebrew) {
         log.info("brew", "trusting third-party taps…");
         backend.brew.trustInstalledTaps();
@@ -124,6 +124,7 @@ if (RUN_TOOLS) {
         const pentry = entry[platKey];
         if (!pentry) continue;
         const name = entry.name || pentry.id || "unknown";
+
         if (skipHomebrew && (pentry.backend === "brew" || pentry.backend === "cask")) {
             log.ok(name, "skipped — Homebrew is disabled on Intel Macs");
             counts.tools_skipped += 1;
@@ -208,6 +209,7 @@ if (RUN_CONFIGURATORS) {
                 : name === "desktop_background"
                     ? "synchronizing desktop background…"
                     : null;
+
             if (synchronizationMessage) {
                 log.info(name, synchronizationMessage);
                 try {
@@ -257,8 +259,8 @@ if (RUN_MIGRATIONS) {
         counts.migrations_fail = 1;
     }
 
-// Save state after migrations (runPending already saves on each success;
-// this is a belt-and-suspenders final save).
+    // Save state after migrations (runPending already saves on each success;
+    // this is a belt-and-suspenders final save).
     stateMod.save(state);
 }
 

@@ -47,7 +47,6 @@ function resolveFile(path: string): string | null {
 }
 
 const START_MARK = "# >>> grok installer >>>";
-
 const END_MARK = "# <<< grok installer <<<";
 
 function stripGrokBlock(path: string): void {

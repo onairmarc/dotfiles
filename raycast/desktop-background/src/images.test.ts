@@ -4,7 +4,6 @@ import {listImages, selectImage} from "./images.ts";
 
 describe("background rotation", () => {
     const images = ["/images/a.png", "/images/b.jpg", "/images/c.webp"];
-
     test("moves in both directions and wraps at either end", () => {
         expect(selectImage(images, images[0], 1)).toBe(images[1]);
         expect(selectImage(images, images[2], 1)).toBe(images[0]);

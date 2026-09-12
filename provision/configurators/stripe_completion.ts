@@ -26,11 +26,11 @@ export function run(): void {
     const zsh = process.env.ZSH || home + "/.oh-my-zsh";
     const completionFile = home + "/stripe-completion.zsh";
 
-// Stripe writes ./stripe-completion.zsh in the working directory.
+    // Stripe writes ./stripe-completion.zsh in the working directory.
     exec(["stripe", "completion"], {cwd: home});
 
-// Ensure $HOME/.stripe is a directory. If a regular file sits there, remove it
-// first (mirrors the original `[ ! -f "$HOME/.stripe" ]` guard).
+    // Ensure $HOME/.stripe is a directory. If a regular file sits there, remove it
+    // first (mirrors the original `[ ! -f "$HOME/.stripe" ]` guard).
     const stripeDir = home + "/.stripe";
     const stat = lstatOrNull(stripeDir);
     if (stat && stat.isFile() && !stat.isSymbolicLink()) {
@@ -39,8 +39,8 @@ export function run(): void {
 
     mkdirSync(stripeDir, {recursive: true});
 
-// Install into the Oh My Zsh completions directory (best-effort), then archive
-// the generated file under $HOME/.stripe/.
+    // Install into the Oh My Zsh completions directory (best-effort), then archive
+    // the generated file under $HOME/.stripe/.
     const zshCompletions = zsh + "/completions";
     mkdirSync(zshCompletions, {recursive: true});
 

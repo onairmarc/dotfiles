@@ -6,8 +6,39 @@
 // (`linkPath`) is a symlink whose referent is the file or directory in this
 // repo. Writes through the link mutate the repo file. Never copy, never
 // hard-link, and never create a Windows junction.
-import {lstatSync, mkdirSync, readFileSync, readdirSync, readlinkSync, renameSync, rmSync, symlinkSync, unlinkSync} from "node:fs";
+import {lstatSync, mkdirSync, readdirSync, readFileSync, readlinkSync, renameSync, rmSync, symlinkSync, unlinkSync} from "node:fs";
 import {dirname, isAbsolute, join, relative} from "node:path";
+
+function alreadyWriteThrough(linkPath: string, referent: string): boolean {
+    try {
+        return lstatSync(linkPath).isSymbolicLink() && readlinkSync(linkPath) === referent;
+    } catch {
+        return false;
+    }
+}
+
+function resolveReferent(referent: string, linkPath: string): string {
+    if (isAbsolute(referent)) {
+        return referent;
+    }
+
+    return join(dirname(linkPath), referent);
+}
+
+function writeThroughType(referent: string, linkPath: string): "dir" | "file" | undefined {
+    if (process.platform !== "win32") {
+        return undefined;
+    }
+    try {
+        return lstatSync(resolveReferent(referent, linkPath)).isDirectory() ? "dir" : "file";
+    } catch {
+        return "file";
+    }
+}
+
+function createWriteThroughLink(referent: string, linkPath: string): void {
+    symlinkSync(referent, linkPath, writeThroughType(referent, linkPath));
+}
 
 function exists(path: string): boolean {
     try {
@@ -17,6 +48,32 @@ function exists(path: string): boolean {
     } catch {
         return false;
     }
+}
+
+function findFiles(root: string): string[] {
+    const out: string[] = [];
+    const walk = (dir: string): void => {
+        let entries;
+        try {
+            entries = readdirSync(dir, {withFileTypes: true});
+        } catch {
+            return;
+        }
+
+        for (const entry of entries) {
+            const path = join(dir, entry.name);
+
+            if (entry.isDirectory()) {
+                walk(path);
+            } else if (entry.isFile()) {
+                out.push(path);
+            }
+        }
+    };
+
+    walk(root);
+
+    return out;
 }
 
 function findNamedFiles(root: string, name: string): string[] {
@@ -45,7 +102,7 @@ function findNamedFiles(root: string, name: string): string[] {
     return out;
 }
 
-function findFiles(root: string): string[] {
+function findSkillDirs(root: string): string[] {
     const out: string[] = [];
     const walk = (dir: string): void => {
         let entries;
@@ -60,8 +117,8 @@ function findFiles(root: string): string[] {
 
             if (entry.isDirectory()) {
                 walk(path);
-            } else if (entry.isFile()) {
-                out.push(path);
+            } else if (entry.isFile() && entry.name === "SKILL.md") {
+                out.push(dir);
             }
         }
     };
@@ -69,6 +126,89 @@ function findFiles(root: string): string[] {
     walk(root);
 
     return out;
+}
+
+const RED = "\x1b[0;31m";
+const NC = "\x1b[0m";
+
+function logError(msg: string): void {
+    process.stderr.write(`${RED}[ERROR]${NC} ${msg}\n`);
+}
+
+const GREEN = "\x1b[0;32m";
+
+function logInfo(msg: string): void {
+    process.stdout.write(`${GREEN}[INFO]${NC} ${msg}\n`);
+}
+
+function finishSync(skillErrors: string[]): void {
+    if (skillErrors.length > 0) {
+        logError(`${skillErrors.length} skill(s) have invalid SKILL.md frontmatter`);
+        process.exit(1);
+    }
+
+    logInfo("Sync complete!");
+}
+
+function gitTopLevel(cwd: string): string | null {
+    const r = Bun.spawnSync(["git", "rev-parse", "--show-toplevel"], {
+        cwd,
+        stdout: "pipe",
+        stderr: "pipe",
+    });
+
+    if (r.exitCode !== 0) {
+        return null;
+    }
+
+    return r.stdout.toString().trim();
+}
+
+function homeDir(): string {
+    return process.env.HOME || process.env.USERPROFILE || "";
+}
+
+function isDir(path: string): boolean {
+    try {
+        return lstatSync(path).isDirectory();
+    } catch {
+        return false;
+    }
+}
+
+const YELLOW = "\x1b[1;33m";
+
+function logWarn(msg: string): void {
+    process.stdout.write(`${YELLOW}[WARN]${NC} ${msg}\n`);
+}
+
+function linkGlobalFile(referent: string, linkPath: string, label: string): void {
+    if (!exists(resolveReferent(referent, linkPath))) {
+        logWarn(`Source does not exist, skipping: ${referent}`);
+
+        return;
+    }
+
+    mkdirSync(dirname(linkPath), {recursive: true});
+
+    if (alreadyWriteThrough(linkPath, referent)) {
+        logInfo(`${label}: ${linkPath} already write-through -> ${referent}`);
+
+        return;
+    }
+
+    if (exists(linkPath)) {
+        const stat = lstatSync(linkPath);
+        if (stat.isSymbolicLink()) {
+            unlinkSync(linkPath);
+        } else if (stat.isFile()) {
+            logInfo(`${label}: backing up existing ${linkPath} to ${linkPath}.bak`);
+            renameSync(linkPath, linkPath + ".bak");
+        }
+    }
+
+    createWriteThroughLink(referent, linkPath);
+    logInfo(`${label}: ${linkPath} -> ${referent}`);
 }
 
 function skillFrontmatterError(skillDir: string): string | null {
@@ -112,165 +252,6 @@ function skillFrontmatterError(skillDir: string): string | null {
     return null;
 }
 
-function findSkillDirs(root: string): string[] {
-    const out: string[] = [];
-    const walk = (dir: string): void => {
-        let entries;
-        try {
-            entries = readdirSync(dir, {withFileTypes: true});
-        } catch {
-            return;
-        }
-
-        for (const entry of entries) {
-            const path = join(dir, entry.name);
-
-            if (entry.isDirectory()) {
-                walk(path);
-            } else if (entry.isFile() && entry.name === "SKILL.md") {
-                out.push(dir);
-            }
-        }
-    };
-
-    walk(root);
-
-    return out;
-}
-
-function gitTopLevel(cwd: string): string | null {
-    const r = Bun.spawnSync(["git", "rev-parse", "--show-toplevel"], {
-        cwd,
-        stdout: "pipe",
-        stderr: "pipe",
-    });
-
-    if (r.exitCode !== 0) {
-        return null;
-    }
-
-    return r.stdout.toString().trim();
-}
-
-function homeDir(): string {
-    return process.env.HOME || process.env.USERPROFILE || "";
-}
-
-function isDir(path: string): boolean {
-    try {
-        return lstatSync(path).isDirectory();
-    } catch {
-        return false;
-    }
-}
-
-const YELLOW = "\x1b[1;33m";
-
-const NC = "\x1b[0m";
-
-function logWarn(msg: string): void {
-    process.stdout.write(`${YELLOW}[WARN]${NC} ${msg}\n`);
-}
-
-const GREEN = "\x1b[0;32m";
-
-function logInfo(msg: string): void {
-    process.stdout.write(`${GREEN}[INFO]${NC} ${msg}\n`);
-}
-
-function resolveReferent(referent: string, linkPath: string): string {
-    if (isAbsolute(referent)) {
-        return referent;
-    }
-
-    return join(dirname(linkPath), referent);
-}
-
-function writeThroughType(referent: string, linkPath: string): "dir" | "file" | undefined {
-    if (process.platform !== "win32") {
-        return undefined;
-    }
-
-    try {
-        return lstatSync(resolveReferent(referent, linkPath)).isDirectory() ? "dir" : "file";
-    } catch {
-        return "file";
-    }
-}
-
-function alreadyWriteThrough(linkPath: string, referent: string): boolean {
-    try {
-        return lstatSync(linkPath).isSymbolicLink() && readlinkSync(linkPath) === referent;
-    } catch {
-        return false;
-    }
-}
-
-function createWriteThroughLink(referent: string, linkPath: string): void {
-    symlinkSync(referent, linkPath, writeThroughType(referent, linkPath));
-}
-
-function linkWriteThrough(referent: string, linkPath: string, label: string): void {
-    if (!exists(resolveReferent(referent, linkPath))) {
-        logWarn(`Source does not exist, skipping: ${referent}`);
-
-        return;
-    }
-
-    mkdirSync(dirname(linkPath), {recursive: true});
-    if (alreadyWriteThrough(linkPath, referent)) {
-        logInfo(`${label}: ${linkPath} already write-through -> ${referent}`);
-
-        return;
-    }
-
-    logInfo(`${label}: ${linkPath} -> ${referent}`);
-    if (exists(linkPath)) {
-        logInfo(`  Removing existing: ${linkPath}`);
-        rmSync(linkPath, {recursive: true, force: true});
-    }
-
-    createWriteThroughLink(referent, linkPath);
-    logInfo(`  Created write-through symlink: ${linkPath} -> ${referent}`);
-}
-
-function linkGlobalFile(referent: string, linkPath: string, label: string): void {
-    if (!exists(resolveReferent(referent, linkPath))) {
-        logWarn(`Source does not exist, skipping: ${referent}`);
-
-        return;
-    }
-
-    mkdirSync(dirname(linkPath), {recursive: true});
-    if (alreadyWriteThrough(linkPath, referent)) {
-        logInfo(`${label}: ${linkPath} already write-through -> ${referent}`);
-
-        return;
-    }
-
-    if (exists(linkPath)) {
-        const stat = lstatSync(linkPath);
-        if (stat.isSymbolicLink()) {
-            unlinkSync(linkPath);
-        } else if (stat.isFile()) {
-            logInfo(`${label}: backing up existing ${linkPath} to ${linkPath}.bak`);
-            renameSync(linkPath, linkPath + ".bak");
-        }
-    }
-
-    createWriteThroughLink(referent, linkPath);
-    logInfo(`${label}: ${linkPath} -> ${referent}`);
-}
-
-function privateSkillsSource(privateDir: string): string {
-    const agentsSkills = join(privateDir, "agents", "skills");
-    if (isDir(agentsSkills)) {
-        return agentsSkills;
-    }
-
-    return join(privateDir, ".agents", "skills");
-}
-
 let debugMode = false;
 
 function logDebug(msg: string): void {
@@ -308,13 +289,42 @@ function linkSkillsFlat(sourceRoot: string, label: string, targets: string[]): s
     return errors;
 }
 
-const RED = "\x1b[0;31m";
+function linkWriteThrough(referent: string, linkPath: string, label: string): void {
+    if (!exists(resolveReferent(referent, linkPath))) {
+        logWarn(`Source does not exist, skipping: ${referent}`);
 
-function logError(msg: string): void {
-    process.stderr.write(`${RED}[ERROR]${NC} ${msg}\n`);
+        return;
+    }
+
+    mkdirSync(dirname(linkPath), {recursive: true});
+
+    if (alreadyWriteThrough(linkPath, referent)) {
+        logInfo(`${label}: ${linkPath} already write-through -> ${referent}`);
+
+        return;
+    }
+
+    logInfo(`${label}: ${linkPath} -> ${referent}`);
+
+    if (exists(linkPath)) {
+        logInfo(`  Removing existing: ${linkPath}`);
+        rmSync(linkPath, {recursive: true, force: true});
+    }
+
+    createWriteThroughLink(referent, linkPath);
+    logInfo(`  Created write-through symlink: ${linkPath} -> ${referent}`);
 }
 
 const USAGE = "Usage: agent_symlink [--global] [--claude] [-r] [--debug]";
+
+function privateSkillsSource(privateDir: string): string {
+    const agentsSkills = join(privateDir, "agents", "skills");
+    if (isDir(agentsSkills)) {
+        return agentsSkills;
+    }
+
+    return join(privateDir, ".agents", "skills");
+}
 
 function populateSkillsTargets(
     publicSource: string,
@@ -352,15 +362,6 @@ function populateSkillsTargets(
     return linkSkillsFlat(publicSource, "", targets);
 }
 
-function finishSync(skillErrors: string[]): void {
-    if (skillErrors.length > 0) {
-        logError(`${skillErrors.length} skill(s) have invalid SKILL.md frontmatter`);
-        process.exit(1);
-    }
-
-    logInfo("Sync complete!");
-}
-
 export function syncGlobalOpencode(): void {
     const dotfilesRoot = dirname(import.meta.dir);
     const skillsSource = join(dotfilesRoot, "agents", "skills");
@@ -368,8 +369,7 @@ export function syncGlobalOpencode(): void {
         throw new Error(`Source directory does not exist: ${skillsSource}`);
     }
 
-    const privateDir = process.env.DF_PRIVATE_DIRECTORY
-        || join(homeDir(), "Documents", "GitHub", "dotfiles-private");
+    const privateDir = process.env.DF_PRIVATE_DIRECTORY || join(homeDir(), "Documents", "GitHub", "dotfiles-private");
     const privateSkills = privateSkillsSource(privateDir);
     const configDir = join(homeDir(), ".config", "opencode");
     const skillErrors = populateSkillsTargets(
@@ -385,16 +385,20 @@ export function syncGlobalOpencode(): void {
     }
 
     const pluginsSource = join(dotfilesRoot, "opencode", "plugins");
+    const customPluginSource = join(pluginsSource, "custom");
     const commandsSource = join(dotfilesRoot, "opencode", "commands");
     const agentsSource = join(dotfilesRoot, "opencode", "agents");
     const legacyImplementorLink = join(configDir, "agents", "the-implementor.md");
+
     linkGlobalFile(join(dotfilesRoot, "agents", "AGENTS.md"), join(configDir, "AGENTS.md"), "Global mode");
     linkGlobalFile(join(dotfilesRoot, "opencode", "opencode.jsonc"), join(configDir, "opencode.jsonc"), "Global mode");
     linkGlobalFile(join(dotfilesRoot, "opencode", "tui.jsonc"), join(configDir, "tui.jsonc"), "Global mode");
+
     if (alreadyWriteThrough(legacyImplementorLink, join(agentsSource, "the-implementor.md"))) {
         unlinkSync(legacyImplementorLink);
         logInfo(`Global mode: removed renamed agent link ${legacyImplementorLink}`);
     }
+
     for (const removedAgent of ["implementor.md", "orchestrator.md"]) {
         const link = join(configDir, "agents", removedAgent);
         if (alreadyWriteThrough(link, join(agentsSource, removedAgent))) {
@@ -402,6 +406,7 @@ export function syncGlobalOpencode(): void {
             logInfo(`Global mode: removed retired agent link ${link}`);
         }
     }
+
     for (const retiredCommand of ["feature-planning.md", "plan-execute.md", "plan-resync.md", "plan-review.md", "plan-split.md"]) {
         const link = join(configDir, "commands", retiredCommand);
         if (alreadyWriteThrough(link, join(commandsSource, retiredCommand))) {
@@ -409,16 +414,34 @@ export function syncGlobalOpencode(): void {
             logInfo(`Global mode: removed retired command link ${link}`);
         }
     }
+
     const legacyRouterLink = join(configDir, "skill-command-router.ts");
     if (alreadyWriteThrough(legacyRouterLink, join(pluginsSource, "skill-command-router.ts"))) {
         unlinkSync(legacyRouterLink);
         logInfo(`Global mode: removed misplaced plugin link ${legacyRouterLink}`);
     }
+
+    const retiredRouterLink = join(configDir, "plugins", "skill-command-router.ts");
+    if (alreadyWriteThrough(retiredRouterLink, join(pluginsSource, "skill-command-router.ts"))) {
+        unlinkSync(retiredRouterLink);
+        logInfo(`Global mode: removed retired plugin link ${retiredRouterLink}`);
+    }
+
+    for (const file of findFiles(customPluginSource)) {
+        const misplacedCustomPluginLink = join(configDir, relative(pluginsSource, file));
+        if (alreadyWriteThrough(misplacedCustomPluginLink, file)) {
+            unlinkSync(misplacedCustomPluginLink);
+            logInfo(`Global mode: removed misplaced custom plugin link ${misplacedCustomPluginLink}`);
+        }
+    }
+
     for (const file of findFiles(agentsSource)) {
         linkGlobalFile(file, join(configDir, "agents", relative(agentsSource, file)), "Global mode");
     }
+
     for (const file of findFiles(pluginsSource)) {
-        const target = file.endsWith(".ts") || file.endsWith(".js")
+        const customPluginFile = !relative(customPluginSource, file).startsWith("..") && !isAbsolute(relative(customPluginSource, file));
+        const target = customPluginFile || file.endsWith(".ts") || file.endsWith(".js")
             ? join(configDir, "plugins", relative(pluginsSource, file))
             : join(configDir, relative(pluginsSource, file));
         linkGlobalFile(file, target, "Global mode");
@@ -435,22 +458,22 @@ function main(argv: string[]): void {
     for (const arg of argv) {
         switch (arg) {
             case "--global":
-                globalMode = true;
-                break;
+            globalMode = true;
+            break;
             case "--claude":
-                claudeMode = true;
-                break;
+            claudeMode = true;
+            break;
             case "-r":
             case "--recursive":
-                recursiveMode = true;
-                break;
+            recursiveMode = true;
+            break;
             case "--debug":
-                debugMode = true;
-                break;
+            debugMode = true;
+            break;
             default:
-                logError(`Unknown option: ${arg}`);
-                process.stdout.write(`${USAGE}\n`);
-                process.exit(1);
+            logError(`Unknown option: ${arg}`);
+            process.stdout.write(`${USAGE}\n`);
+            process.exit(1);
         }
     }
 
@@ -488,6 +511,7 @@ function main(argv: string[]): void {
             const skillsSource = join(repoRoot, "agents", "skills");
             const privateDir = process.env.DF_PRIVATE_DIRECTORY
                 || join(homeDir(), "Documents", "GitHub", "dotfiles-private");
+
             const privateSkills = privateSkillsSource(privateDir);
             const skillErrors = populateSkillsTargets(
                 skillsSource,
@@ -496,6 +520,7 @@ function main(argv: string[]): void {
                 "Claude global mode",
                 [join(homeDir(), ".claude", "skills")],
             );
+
             linkWriteThrough(join(repoRoot, "agents", "AGENTS.md"), join(homeDir(), ".claude", "CLAUDE.md"), "Global mode");
             finishSync(skillErrors);
         }
@@ -537,6 +562,7 @@ function main(argv: string[]): void {
     }
 
     let skillErrors: string[] = [];
+
     if (!isDir(localSkillsSource)) {
         logWarn(`Skipping skills: source does not exist (${localSkillsSource})`);
     } else {

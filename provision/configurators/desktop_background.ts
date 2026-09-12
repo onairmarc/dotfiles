@@ -10,7 +10,6 @@ import * as platform from "../lib/platform.ts";
 import {powershell, runAssert} from "../lib/shell.ts";
 
 const IMAGE_EXTENSION = /\.(?:avif|bmp|gif|jpe?g|png|tiff?|webp)$/i;
-
 const PREFERRED_IMAGE = "LaravelLego.png";
 
 function selectImage(): string {

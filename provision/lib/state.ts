@@ -126,7 +126,7 @@ export function load(): State {
         return initial;
     }
 
-// Migrate missing keys (forward-compat for older files).
+    // Migrate missing keys (forward-compat for older files).
     const d = decoded as Partial<State>;
 
     return {

@@ -17,17 +17,17 @@ export function run(): void {
     const prefsDir = home + "/Library/Preferences";
     const plist = prefsDir + "/com.googlecode.iterm2.plist";
 
-// Ensure the preferences directory exists.
+    // Ensure the preferences directory exists.
     mkdirSync(prefsDir, {recursive: true});
 
-// Configure via defaults(1).
+    // Configure via defaults(1).
     runInherit(["defaults", "write", "com.googlecode.iterm2", "Normal Font", "-string", fontSpec]);
     runInherit(["defaults", "write", "com.googlecode.iterm2", "Non Ascii Font", "-string", fontSpec]);
     runInherit(["defaults", "write", "com.googlecode.iterm2", "UseNonASCIIFont", "-bool", "true"]);
 
-// Update the plist bookmarks profile (best-effort; PlistBuddy exits non-zero
-// when no profile exists yet — the return value is intentionally ignored).
-// The whole "Set :… value" string is a single argument to -c.
+    // Update the plist bookmarks profile (best-effort; PlistBuddy exits non-zero
+    // when no profile exists yet — the return value is intentionally ignored).
+    // The whole "Set :… value" string is a single argument to -c.
     exec(["/usr/libexec/PlistBuddy", "-c", `Set :New Bookmarks:0:Normal Font ${fontSpec}`, plist]);
     exec(["/usr/libexec/PlistBuddy", "-c", `Set :New Bookmarks:0:Non Ascii Font ${fontSpec}`, plist]);
     exec(["/usr/libexec/PlistBuddy", "-c", `Set :New Bookmarks:0:Use Non-ASCII Font true`, plist]);

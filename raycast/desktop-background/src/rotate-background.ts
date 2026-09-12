@@ -10,20 +10,20 @@ const execute = promisify(execFile);
 
 export async function rotateBackground(direction: 1 | -1): Promise<void> {
     await closeMainWindow();
-
     try {
-        const preferences = getPreferenceValues<{backgroundsDirectory?: string}>();
+        const preferences = getPreferenceValues<{ backgroundsDirectory?: string }>();
         const configured = preferences.backgroundsDirectory;
         const directory = configured
             ? resolve(configured.startsWith("~/") ? join(homedir(), configured.slice(2)) : configured)
             : join(homedir(), "Documents/GitHub/dotfiles/backgrounds");
+
         const images = await listImages(directory);
         const {stdout} = await execute("/usr/bin/osascript", [
             "-e",
             'tell application "System Events" to get picture of first desktop',
         ], {timeout: 30_000});
-        const image = selectImage(images, stdout.trim(), direction);
 
+        const image = selectImage(images, stdout.trim(), direction);
         for (const {argv, message} of macBackgroundCommands(image)) {
             const [file, ...args] = argv;
             try {

@@ -1,6 +1,6 @@
 // Shared argv commands for provisioning and the local Raycast extension.
 // Keep image paths as arguments rather than interpolating them into the script.
-export function macBackgroundCommands(image: string): {argv: string[]; message: string}[] {
+export function macBackgroundCommands(image: string): { argv: string[]; message: string }[] {
     // NSWorkspace sets the image and scaling together. Rewriting Index.plist and
     // restarting WallpaperAgent can restore an old image before macOS saves the new one.
     const script = `ObjC.import("AppKit");
