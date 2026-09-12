@@ -1,36 +1,14 @@
 /** @jsxImportSource @opentui/solid */
 import type {TuiPluginModule, TuiPromptRef} from "@opencode-ai/plugin/tui";
-import {readdirSync, statSync} from "node:fs";
-import {join, resolve} from "node:path";
+import {resolve} from "node:path";
 import {pathToFileURL} from "node:url";
+import {filePickerCommands, type FilePickerCommand, type FilePickerOption} from "../lib/file-picker-commands";
 
-function planDirectories(root: string): string[] {
-    const planningDirectory = join(root, "docs", "_planning");
-    try {
-        return readdirSync(planningDirectory, {withFileTypes: true})
-            .filter((entry) => {
-                if (!entry.isDirectory()) {
-                    return false;
-                }
-
-                try {
-                    return statSync(join(planningDirectory, entry.name, "plan.md")).isFile();
-                } catch {
-                    return false;
-                }
-            })
-            .map((entry) => entry.name)
-            .sort((left, right) => left.localeCompare(right));
-    } catch {
-        return [];
-    }
-}
-
-function setPlanReviewPrompt(prompt: TuiPromptRef, root: string, directory: string): void {
-    const path = `docs/_planning/${directory}/plan.md`;
+function setFilePickerPrompt(prompt: TuiPromptRef, root: string, command: FilePickerCommand, option: FilePickerOption): void {
+    const {path} = option;
     const mention = `@${path}`;
-    const input = `/plan-review ${mention}`;
-    const start = Bun.stringWidth("/plan-review ");
+    const input = `/${command.command} ${mention} `;
+    const start = Bun.stringWidth(`/${command.command} `);
 
     prompt.set({
         input,
@@ -38,7 +16,7 @@ function setPlanReviewPrompt(prompt: TuiPromptRef, root: string, directory: stri
         parts: [
             {
                 type: "file",
-                mime: "text/markdown",
+                mime: "text/plain",
                 filename: path,
                 url: pathToFileURL(resolve(root, path)).href,
                 source: {
@@ -61,7 +39,6 @@ function workspaceRoot(worktree: string, directory: string): string {
     return worktree === "/" ? directory : worktree;
 }
 
-const command = "custom.plan-review";
 const plugin: TuiPluginModule = {
     id: "custom",
     tui: async (api) => {
@@ -93,19 +70,19 @@ const plugin: TuiPluginModule = {
 
         api.keymap.registerLayer({
             commands: [
-                {
-                    name: command,
-                    title: "Select a plan to review",
+                ...filePickerCommands.map((command) => ({
+                    name: `custom.${command.command}`,
+                    title: command.title,
                     category: "Plugin",
-                    namespace: "palette",
-                    slashName: "plan-review",
+                    namespace: "palette" as const,
+                    slashName: command.command,
                     run() {
                         const root = workspaceRoot(api.state.path.worktree, api.state.path.directory);
-                        const plans = planDirectories(root);
-                        if (plans.length === 0) {
+                        const options = command.options(root);
+                        if (options.length === 0) {
                             api.ui.toast({
                                 variant: "warning",
-                                message: "No plan.md files found in docs/_planning.",
+                                message: command.emptyMessage,
                             });
 
                             return;
@@ -116,8 +93,8 @@ const plugin: TuiPluginModule = {
                         api.ui.dialog.setSize("medium");
                         api.ui.dialog.replace(() => (
                             <DialogSelect
-                            title="Select a plan to review"
-                            options={plans.map((directory) => ({title: directory, value: directory}))}
+                            title={command.title}
+                            options={options.map((option) => ({title: option.label, value: option.path}))}
                             onSelect={(option) => {
                                     api.ui.dialog.clear();
 
@@ -130,13 +107,16 @@ const plugin: TuiPluginModule = {
                                         return;
                                     }
 
-                                    setPlanReviewPrompt(prompt, root, option.value);
+                                    const selected = options.find((candidate) => candidate.path === option.value);
+                                    if (selected !== undefined) {
+                                        setFilePickerPrompt(prompt, root, command, selected);
+                                    }
                                 }}
 
                             />
                         ));
                     },
-                },
+                })),
             ],
         });
     },

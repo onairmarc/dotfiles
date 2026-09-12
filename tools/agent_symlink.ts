@@ -392,7 +392,7 @@ export function syncGlobalOpencode(): void {
 
     linkGlobalFile(join(dotfilesRoot, "agents", "AGENTS.md"), join(configDir, "AGENTS.md"), "Global mode");
     linkGlobalFile(join(dotfilesRoot, "opencode", "opencode.jsonc"), join(configDir, "opencode.jsonc"), "Global mode");
-    linkGlobalFile(join(dotfilesRoot, "opencode", "tui.jsonc"), join(configDir, "tui.jsonc"), "Global mode");
+    linkGlobalFile(join(dotfilesRoot, "opencode", "global", "tui.jsonc"), join(configDir, "tui.jsonc"), "Global mode");
 
     if (alreadyWriteThrough(legacyImplementorLink, join(agentsSource, "the-implementor.md"))) {
         unlinkSync(legacyImplementorLink);
@@ -439,9 +439,14 @@ export function syncGlobalOpencode(): void {
         linkGlobalFile(file, join(configDir, "agents", relative(agentsSource, file)), "Global mode");
     }
 
+    linkWriteThrough(customPluginSource, join(configDir, "plugins", "custom"), "Global mode");
+
     for (const file of findFiles(pluginsSource)) {
         const customPluginFile = !relative(customPluginSource, file).startsWith("..") && !isAbsolute(relative(customPluginSource, file));
-        const target = customPluginFile || file.endsWith(".ts") || file.endsWith(".js")
+        if (customPluginFile) {
+            continue;
+        }
+        const target = file.endsWith(".ts") || file.endsWith(".js")
             ? join(configDir, "plugins", relative(pluginsSource, file))
             : join(configDir, relative(pluginsSource, file));
         linkGlobalFile(file, target, "Global mode");

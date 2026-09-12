@@ -21,10 +21,6 @@ export const skillCommands = {
         description: "Reconcile an implementation plan with the current codebase.",
         skill: "plan-resync",
     },
-    "plan-review": {
-        description: "Review and improve an implementation plan.",
-        skill: "plan-review",
-    },
     "plan-split": {
         description: "Split an implementation plan into executable sub-plans.",
         skill: "plan-split",
