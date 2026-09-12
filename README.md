@@ -163,23 +163,26 @@ avoiding accidental command execution.
 `ioreg -rn AppleSmartBattery`, and `system_profiler SPPowerDataType`. It is
 exposed in the shell as the `battery` function (see `shell/40_func.plugin.zsh`).
 
-| Subcommand           | Description                                                      |
-|----------------------|------------------------------------------------------------------|
-| `battery` / `status` | Short human summary: percent, state, time, adapter, health, temp |
-| `battery percent`    | Charge percent as a bare integer (scriptable)                    |
-| `battery charging`   | Prints `yes`/`no`; exits 0 if charging, 1 if not                 |
-| `battery health`     | MaxCapacity / DesignCapacity %, cycle count, condition           |
-| `battery adapter`    | Adapter wattage, model, serial, connected/delivering state       |
-| `battery time`       | Time-to-full or time-to-empty (`calculating` when unknown)       |
-| `battery temp`       | Battery temperature in °C (1 decimal)                            |
-| `battery why`        | Decoded `NotChargingReason` + Optimized Battery Charging state   |
-| `battery raw`        | Full `ioreg -rn AppleSmartBattery` dump                          |
-| `battery json`       | All values as a single JSON object                               |
-| `battery watch [N]`  | Repaint summary every N seconds (default 5), Ctrl-C to exit      |
-| `battery help`       | Usage                                                            |
+| Subcommand           | Description                                                                     |
+|----------------------|---------------------------------------------------------------------------------|
+| `battery` / `status` | ASCII dashboard: charge, health, power, charging controls, and USB power owners |
+| `battery percent`    | Charge percent as a bare integer (scriptable)                                   |
+| `battery charging`   | Prints `yes`/`no`; exits 0 if charging, 1 if not                                |
+| `battery health`     | MaxCapacity / DesignCapacity %, cycle count, condition                          |
+| `battery adapter`    | Adapter wattage, model, serial, connected/delivering state                      |
+| `battery time`       | Time-to-full or time-to-empty (`calculating` when unknown)                      |
+| `battery temp`       | Battery temperature in °C (1 decimal)                                           |
+| `battery power`      | Adapter input, system draw, battery flow, and CPU load                          |
+| `battery diagnose`   | Charging limits, AC power settings, thermals, and USB power owners              |
+| `battery why`        | Decoded `NotChargingReason` + Optimized Battery Charging state                  |
+| `battery raw`        | Full `ioreg -rn AppleSmartBattery` dump                                         |
+| `battery json`       | All values as a single JSON object                                              |
+| `battery watch [N]`  | Repaint every N seconds (default 5)                                             |
+| `battery help`       | Usage                                                                           |
 
 Color is auto-disabled when stdout is not a TTY, when `NO_COLOR` is set, or when
-`--no-color` is passed. macOS only — exits with an error elsewhere.
+`--no-color` is passed. Pass `--basic` to use the prior one-line status display.
+macOS only — exits with an error elsewhere.
 
 ---
 

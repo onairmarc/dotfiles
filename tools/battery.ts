@@ -82,6 +82,26 @@ function ioregSubfield(block: string, key: string): string {
 
 let pmsetAcCache = "";
 
+let pmsetCustomCache = "";
+
+let pmsetThermCache = "";
+
+let pmsetAssertionsCache = "";
+
+let systemProfilerPowerCache = "";
+
+function loadSystemProfilerPower(): void {
+    if (systemProfilerPowerCache === "") {
+        systemProfilerPowerCache = capture(["system_profiler", "SPPowerDataType"]);
+    }
+}
+
+function systemProfilerPowerField(label: string): string {
+    loadSystemProfilerPower();
+    const match = systemProfilerPowerCache.match(new RegExp(`^\\s*${label}:\\s*(.+)$`, "mi"));
+    return match?.[1].trim() ?? "";
+}
+
 function loadPmsetAc(): void {
     if (pmsetAcCache !== "") {
         return;
@@ -104,6 +124,79 @@ function pmsetAcField(key: string): string {
     }
 
     return "";
+}
+
+function loadPmsetCustom(): void {
+    if (pmsetCustomCache === "") {
+        pmsetCustomCache = capture(["pmset", "-g", "custom"]);
+    }
+}
+
+function pmsetCustomField(source: string, key: string): string {
+    loadPmsetCustom();
+
+    let inSource = false;
+    for (const raw of pmsetCustomCache.split("\n")) {
+        const line = raw.trim();
+        if (/^[A-Za-z ]+:$/.test(line)) {
+            inSource = line.toLowerCase() === `${source.toLowerCase()}:`;
+            continue;
+        }
+
+        if (!inSource) {
+            continue;
+        }
+
+        const match = line.match(new RegExp(`^${key}\\s+(.+)$`, "i"));
+        if (match) {
+            return match[1];
+        }
+    }
+
+    return "";
+}
+
+function loadPmsetTherm(): void {
+    if (pmsetThermCache === "") {
+        pmsetThermCache = capture(["pmset", "-g", "therm"]);
+    }
+}
+
+function thermalField(key: string): string {
+    loadPmsetTherm();
+    const match = pmsetThermCache.match(new RegExp(`${key}\\s*=\\s*(\\d+)`, "i"));
+    return match?.[1] ?? "";
+}
+
+function thermalWarning(): boolean | null {
+    loadPmsetTherm();
+
+    if (pmsetThermCache === "") {
+        return null;
+    }
+
+    return !(/No thermal warning level has been recorded/i.test(pmsetThermCache)
+        && /No performance warning level has been recorded/i.test(pmsetThermCache));
+}
+
+function loadPmsetAssertions(): void {
+    if (pmsetAssertionsCache === "") {
+        pmsetAssertionsCache = capture(["pmset", "-g", "assertions"]);
+    }
+}
+
+function usbPowerAssertionOwners(): string[] {
+    loadPmsetAssertions();
+
+    const owners = new Set<string>();
+    for (const line of pmsetAssertionsCache.split("\n")) {
+        const match = line.match(/owner=(.+)$/);
+        if (match?.[1]) {
+            owners.add(match[1]);
+        }
+    }
+
+    return [...owners];
 }
 
 function adapterWatts(): string {
@@ -135,6 +228,26 @@ function adapterName(): string {
 
 function adapterSerial(): string {
     return ioregSubfield("AdapterDetails", "SerialString");
+}
+
+function adapterVoltage(): string {
+    const millivolts = ioregSubfield("AdapterDetails", "AdapterVoltage");
+    return /^\d+$/.test(millivolts) ? (Number(millivolts) / 1000).toFixed(1) : "";
+}
+
+function adapterCurrent(): string {
+    const milliamps = ioregSubfield("AdapterDetails", "Current");
+    return /^\d+$/.test(milliamps) ? (Number(milliamps) / 1000).toFixed(1) : "";
+}
+
+function adapterContract(): string {
+    const voltage = adapterVoltage();
+    const current = adapterCurrent();
+    if (voltage === "" && current === "") {
+        return "?";
+    }
+
+    return `${voltage || "?"}V / ${current || "?"}A`;
 }
 
 function signed64(raw: string): string {
@@ -176,6 +289,27 @@ function batteryWatts(): string {
     return ((Number(ma) / 1000.0) * (Number(mv) / 1000.0)).toFixed(1);
 }
 
+function telemetryWatts(key: string): string {
+    const raw = ioregSubfield("PowerTelemetryData", key);
+    if (!/^\d+$/.test(raw)) {
+        return "";
+    }
+
+    return (Number(raw) / 1000).toFixed(1);
+}
+
+function adapterInputWatts(): string {
+    return telemetryWatts("SystemPowerIn");
+}
+
+function powerTelemetryWatts(): string {
+    return telemetryWatts("SystemLoad");
+}
+
+function hardwareModel(): string {
+    return capture(["sysctl", "-n", "hw.model"]).trim();
+}
+
 function externalConnected(): boolean {
     return ioregField("ExternalConnected") === "Yes";
 }
@@ -196,6 +330,7 @@ function cmdAdapter(): void {
     process.stdout.write(`model:       ${m || "?"}\n`);
     process.stdout.write(`serial:      ${s || "?"}\n`);
     process.stdout.write(`manufacturer: ${mfg || "?"}\n`);
+    process.stdout.write(`contract:    ${adapterContract()}\n`);
 }
 
 function isCharging(): boolean {
@@ -238,6 +373,11 @@ function cycles(): string {
 }
 
 function condition(): string {
+    const macCondition = systemProfilerPowerField("Condition");
+    if (macCondition !== "") {
+        return macCondition;
+    }
+
     const h = healthPct();
     if (h === "?") {
         return "Unknown";
@@ -255,6 +395,12 @@ function condition(): string {
     return "Service Recommended";
 }
 
+function batteryBelowWarning(): string {
+    loadSystemProfilerPower();
+    const match = systemProfilerPowerCache.match(/warning level:\s*(.+)$/mi);
+    return match?.[1].trim() ?? "";
+}
+
 function cmdHealth(): void {
     const h = healthPct();
     const cyc = cycles();
@@ -267,7 +413,7 @@ function cmdHealth(): void {
 }
 
 function cmdHelp(): void {
-    process.stdout.write(`Usage: ${PROG} [--no-color] <subcommand> [args]
+    process.stdout.write(`Usage: ${PROG} [--basic] [--no-color] <subcommand> [args]
 
 Subcommands:
   status         Short human summary (default)
@@ -278,6 +424,7 @@ Subcommands:
   time           Time-to-full or time-to-empty (calculating when unknown)
   temp           Battery temperature in °C
   power          Current flow, adapter vs. system-draw budget, CPU load
+  diagnose       Charging limits, power settings, thermals, and USB devices
   why            Why isn't it charging while plugged in?
   raw            Full ioreg -rn AppleSmartBattery dump
   json           Emit all values as a single JSON object
@@ -286,6 +433,9 @@ Subcommands:
 
 Env:
   NO_COLOR=1     Disable ANSI color (also: pass --no-color)
+
+Flags:
+  --basic        Use the original one-line status display
 `);
 }
 
@@ -300,9 +450,9 @@ function loadPmsetBatt(): void {
 }
 
 function systemWatts(): string {
-    const aw = adapterWatts();
+    const aw = adapterInputWatts() || adapterWatts();
     const bw = batteryWatts();
-    if (!/^\d+$/.test(aw) || aw === "0" || bw === "") {
+    if (!/^\d+(\.\d+)?$/.test(aw) || aw === "0" || bw === "") {
         return "";
     }
 
@@ -326,7 +476,12 @@ function ncpu(): string {
     return capture(["sysctl", "-n", "hw.ncpu"]).trim();
 }
 
-function percent(): string {
+function rawPercent(): string {
+    const stateOfCharge = ioregSubfield("BatteryData", "StateOfCharge");
+    if (/^\d+$/.test(stateOfCharge)) {
+        return stateOfCharge;
+    }
+
     const fromNamed = roundPct(ioregField("CurrentCapacity"), ioregField("MaxCapacity"));
     if (fromNamed !== "") {
         return fromNamed;
@@ -334,6 +489,25 @@ function percent(): string {
 
     const fromRaw = roundPct(ioregField("AppleRawCurrentCapacity"), ioregField("AppleRawMaxCapacity"));
     return fromRaw !== "" ? fromRaw : "?";
+}
+
+function uiPercent(): string {
+    const uiSoc = ioregSubfield("BatteryData", "UISoc");
+    return /^\d+$/.test(uiSoc) ? uiSoc : "";
+}
+
+function percent(): string {
+    return uiPercent() || rawPercent();
+}
+
+function chargeCalibrationDelta(): string {
+    const ui = uiPercent();
+    const raw = rawPercent();
+    if (ui === "" || raw === "?" || !/^\d+$/.test(raw)) {
+        return "";
+    }
+
+    return String(Number(ui) - Number(raw));
 }
 
 function tempC(): string {
@@ -372,6 +546,12 @@ function pmsetTimeRemaining(): string {
     }
 
     return "";
+}
+
+function powerSource(): string {
+    loadPmsetBatt();
+    const match = pmsetBattCache.match(/Now drawing from '([^']+)'/);
+    return match?.[1] ?? "";
 }
 
 function notChargingReason(): string {
@@ -452,10 +632,15 @@ function cmdJson(): void {
     const amp = amperageMa();
     const bw = batteryWatts();
     const sw = systemWatts();
+    const telemetry = powerTelemetryWatts();
+    const input = adapterInputWatts();
     const net = netCharging();
     const load = loadavg();
     const cores = ncpu();
     const pct = percent();
+    const uiPct = uiPercent();
+    const rawPct = rawPercent();
+    const calibrationDelta = chargeCalibrationDelta();
     const cyc = cycles();
     const h = healthPct();
     const m = maxCap();
@@ -471,6 +656,9 @@ function cmdJson(): void {
 
     process.stdout.write("{");
     process.stdout.write(`"percent":${jsonNum(pct)},`);
+    process.stdout.write(`"ui_percent":${jsonNum(uiPct)},`);
+    process.stdout.write(`"raw_percent":${jsonNum(rawPct)},`);
+    process.stdout.write(`"charge_calibration_delta":${jsonNum(calibrationDelta)},`);
     process.stdout.write(`"state":${jsonStr(stateLabel())},`);
     process.stdout.write(`"charging":${isCharging()},`);
     process.stdout.write(`"external_connected":${externalConnected()},`);
@@ -479,6 +667,8 @@ function cmdJson(): void {
     process.stdout.write(`"amperage_ma":${jsonNum(amp)},`);
     process.stdout.write(`"battery_watts":${jsonNum(bw)},`);
     process.stdout.write(`"system_watts":${jsonNum(sw)},`);
+    process.stdout.write(`"power_telemetry_watts":${jsonNum(telemetry)},`);
+    process.stdout.write(`"adapter_input_watts":${jsonNum(input)},`);
     process.stdout.write(`"net_charging":${net === true},`);
     process.stdout.write(`"load_average":${jsonNum(load)},`);
     process.stdout.write(`"cpu_count":${jsonNum(cores)},`);
@@ -488,10 +678,14 @@ function cmdJson(): void {
     process.stdout.write(`"max_capacity_mah":${jsonNum(m)},`);
     process.stdout.write(`"design_capacity_mah":${jsonNum(d)},`);
     process.stdout.write(`"condition":${jsonStr(condition())},`);
+    process.stdout.write(`"battery_below_warning":${batteryBelowWarning() === "" ? "null" : batteryBelowWarning() === "Yes"},`);
+    process.stdout.write(`"power_source":${jsonStr(powerSource())},`);
     process.stdout.write(`"adapter":{`);
     process.stdout.write(`"connected":${externalConnected()},`);
     process.stdout.write(`"delivering":${adapterDelivering()},`);
     process.stdout.write(`"watts":${jsonNum(w)},`);
+    process.stdout.write(`"voltage":${jsonNum(adapterVoltage())},`);
+    process.stdout.write(`"current":${jsonNum(adapterCurrent())},`);
     process.stdout.write(`"name":${jsonStr(adapterName())},`);
     process.stdout.write(`"model":${jsonStr(adapterModel())},`);
     process.stdout.write(`"serial":${jsonStr(adapterSerial())},`);
@@ -500,6 +694,13 @@ function cmdJson(): void {
     process.stdout.write(`"not_charging_reason_code":${code},`);
     process.stdout.write(`"not_charging_reason":${jsonStr(notChargingReasonHuman(code))},`);
     process.stdout.write(`"optimized_charging":${jsonStr(optimizedState())},`);
+    process.stdout.write(`"ac_low_power_mode":${jsonNum(pmsetCustomField("AC Power", "lowpowermode"))},`);
+    process.stdout.write(`"ac_graphics_mode":${jsonNum(pmsetCustomField("AC Power", "gpuswitch"))},`);
+    const thermal = thermalWarning();
+    process.stdout.write(`"thermal_warning":${thermal === null ? "null" : thermal},`);
+    process.stdout.write(`"cpu_speed_limit_percent":${jsonNum(thermalField("CPU_Speed_Limit"))},`);
+    process.stdout.write(`"usb_power_assertion_owners":${JSON.stringify(usbPowerAssertionOwners())},`);
+    process.stdout.write(`"hardware_model":${jsonStr(hardwareModel())},`);
     process.stdout.write(`"arch":${jsonStr(arch())}`);
     process.stdout.write("}\n");
 }
@@ -522,7 +723,9 @@ function cmdPower(): void {
     const ma = amperageMa();
     const bw = batteryWatts();
     const aw = adapterWatts();
-    const sw = systemWatts();
+    const estimatedSw = systemWatts();
+    const telemetry = powerTelemetryWatts();
+    const input = adapterInputWatts();
     const load = loadavg();
     const cores = ncpu();
     const conn = externalConnected() ? "yes" : "no";
@@ -543,7 +746,9 @@ function cmdPower(): void {
     process.stdout.write(`current flow:   ${flow}\n`);
     process.stdout.write(`battery power:  ${bw === "" ? "" : `${bw}W`}\n`);
     process.stdout.write(`adapter rating: ${aw === "" ? "" : `${aw}W`}\n`);
-    process.stdout.write(`system draw:    ${sw === "" ? "" : `${sw}W (est.)`}\n`);
+    process.stdout.write(`adapter input:  ${input === "" ? "?" : `${input}W`}\n`);
+    process.stdout.write(`system draw:    ${estimatedSw === "" ? "?" : `${estimatedSw}W (est.)`}\n`);
+    process.stdout.write(`power telemetry: ${telemetry === "" ? "?" : `${telemetry}W`}\n`);
     process.stdout.write(`load average:   ${load || "?"} / ${cores || "?"} cores\n`);
 
     if (conn === "yes" && ma !== "" && Number(ma) <= 0 && !fullyCharged()) {
@@ -551,9 +756,10 @@ function cmdPower(): void {
             `\n${cBold}Verdict:${cReset} plugged in but ${cRed}not gaining charge${cReset}.\n`,
         );
 
-        if (sw !== "" && /^\d+$/.test(aw) && aw !== "0" && Number(sw) > Number(aw)) {
+        const saturated = input !== "" && /^\d+$/.test(aw) && aw !== "0" && Number(input) >= Number(aw) - 1;
+        if (saturated) {
             process.stdout.write(
-                `  System draw (~${sw}W) exceeds adapter rating (${aw}W) — battery covers the gap.\n`,
+                `  Adapter input (~${input}W) is at its rated output (${aw}W).\n`,
             );
         }
 
@@ -562,6 +768,44 @@ function cmdPower(): void {
                 `  High CPU load (${load} on ${cores} cores). Quit heavy apps or use a higher-wattage adapter.\n`,
             );
         }
+    }
+}
+
+function cmdDiagnose(): void {
+    const aw = adapterWatts();
+    const input = adapterInputWatts();
+    const draw = systemWatts();
+    const charging = isCharging();
+    const lowPowerMode = pmsetCustomField("AC Power", "lowpowermode");
+    const gpuSwitch = pmsetCustomField("AC Power", "gpuswitch");
+    const cpuLimit = thermalField("CPU_Speed_Limit");
+    const usbOwners = usbPowerAssertionOwners();
+    const uiPct = uiPercent();
+    const rawPct = rawPercent();
+    const calibrationDelta = chargeCalibrationDelta();
+
+    process.stdout.write(`model:              ${hardwareModel() || "?"}\n`);
+    process.stdout.write(`plugged in:         ${externalConnected() ? "yes" : "no"}\n`);
+    process.stdout.write(`charging:           ${charging ? "yes" : "no"}\n`);
+    process.stdout.write(`charge estimate:    ${uiPct === "" ? "?" : `${uiPct}% UI`} / ${rawPct}% raw${calibrationDelta === "" ? "" : ` (${calibrationDelta}% calibrated)`}\n`);
+    process.stdout.write(`adapter rating:     ${aw === "" ? "?" : `${aw}W`}\n`);
+    process.stdout.write(`adapter input:      ${input === "" ? "?" : `${input}W`}\n`);
+    process.stdout.write(`system draw:        ${draw === "" ? "?" : `${draw}W (est.)`}\n`);
+    process.stdout.write(`low power mode:     ${lowPowerMode === "" ? "?" : lowPowerMode === "1" ? "on" : "off"}\n`);
+    process.stdout.write(`graphics mode:      ${gpuSwitch === "" ? "?" : gpuSwitch === "0" ? "integrated" : gpuSwitch === "1" ? "discrete" : "automatic"}\n`);
+    const thermal = thermalWarning();
+    process.stdout.write(`thermal warning:    ${thermal === null ? "?" : thermal ? "yes" : "no"}\n`);
+    process.stdout.write(`CPU speed limit:    ${cpuLimit === "" ? "?" : `${cpuLimit}%`}\n`);
+    process.stdout.write(`USB power owners:   ${usbOwners.length === 0 ? "none" : usbOwners.join(", ")}\n`);
+
+    if (externalConnected() && !charging && aw !== "" && input !== "" && Number(input) >= Number(aw) - 1) {
+        process.stdout.write(`\n${cBold}Recommendation:${cReset} disconnect the dock and USB devices, then use a higher-wattage adapter directly.\n`);
+    } else if (externalConnected() && !charging) {
+        process.stdout.write(`\n${cBold}Recommendation:${cReset} run '${PROG} why' to inspect the charging block.\n`);
+    }
+
+    if (externalConnected() && !charging && lowPowerMode === "0") {
+        process.stdout.write(`\n${cBold}Recommendation:${cReset} enable AC Low Power Mode with 'sudo pmset -c lowpowermode 1'.\n`);
     }
 }
 
@@ -603,7 +847,88 @@ function pctColor(p: string): string {
 
 let cCyan = "";
 
-function cmdStatus(): void {
+let basicStatus = false;
+
+function chargeBar(pct: string, width = 20): string {
+    if (pct === "?" || !/^\d+$/.test(pct)) {
+        return "?".repeat(width);
+    }
+
+    const filled = Math.round(Math.min(100, Math.max(0, Number(pct))) / 100 * width);
+    return "#".repeat(filled) + "-".repeat(width - filled);
+}
+
+const dashboardWidth = 78;
+
+let statusFrame = "";
+
+function writeStatus(text: string): void {
+    statusFrame += text;
+}
+
+function dashboardBorder(): void {
+    writeStatus(`+${"-".repeat(dashboardWidth - 2)}+\n`);
+}
+
+function visibleLength(text: string): number {
+    return text.replace(/\x1b\[[0-9;]*m/g, "").length;
+}
+
+function dashboardRows(text: string): void {
+    const contentWidth = dashboardWidth - 4;
+    const words = text.split(/\s+/);
+    let line = "";
+
+    for (const word of words) {
+        const next = line === "" ? word : `${line} ${word}`;
+        if (visibleLength(next) > contentWidth && line !== "") {
+            writeStatus(`| ${line}${" ".repeat(contentWidth - visibleLength(line))} |\n`);
+            line = word;
+        } else {
+            line = next;
+        }
+    }
+
+    writeStatus(`| ${line}${" ".repeat(contentWidth - visibleLength(line))} |\n`);
+}
+
+function dashboardSection(title: string): void {
+    dashboardRows(`${cBold}${cCyan}${title}${cReset}`);
+    writeStatus(`| ${"-".repeat(dashboardWidth - 4)} |\n`);
+}
+
+function currentFlow(): string {
+    const ma = amperageMa();
+    if (ma === "") {
+        return "unknown";
+    }
+
+    const value = Number(ma);
+    if (value > 0) {
+        return `charging +${ma}mA`;
+    }
+
+    if (value < 0) {
+        return `discharging ${ma}mA`;
+    }
+
+    return "idle 0mA";
+}
+
+function stateColor(state: string): string {
+    if (state === "full") {
+        return cGreen;
+    }
+
+    if (state === "charging" || state === "plugged (not charging)") {
+        return cYellow;
+    }
+
+    return cRed;
+}
+
+function renderStatus(): string {
+    statusFrame = "";
     const pct = percent();
     const state = stateLabel();
     let t = pmsetTimeRemaining();
@@ -622,9 +947,58 @@ function cmdStatus(): void {
 
     const temp = tempC();
 
-    process.stdout.write(
-        `${iconState()} ${cBold}${pctColor(pct)}${pct}%${cReset}  ${cCyan}${state}${cReset}  time: ${t}  adapter: ${w}  health: ${h}%  cycles: ${cyc}  temp: ${temp}°C\n`,
-    );
+    if (basicStatus) {
+        writeStatus(
+            `${iconState()} ${cBold}${pctColor(pct)}${pct}%${cReset}  ${cCyan}${state}${cReset}  time: ${t}  adapter: ${w}  health: ${h}%  cycles: ${cyc}  temp: ${temp}°C\n`,
+        );
+        return statusFrame;
+    }
+
+    const uiPct = uiPercent();
+    const rawPct = rawPercent();
+    const calibrationDelta = chargeCalibrationDelta();
+    const capacity = `${maxCap() || "?"}/${designCap() || "?"}mAh`;
+    const warning = batteryBelowWarning().toLowerCase() || "?";
+    const input = adapterInputWatts();
+    const draw = systemWatts();
+    const batteryPower = batteryWatts();
+    const lowPowerMode = pmsetCustomField("AC Power", "lowpowermode");
+    const graphicsMode = pmsetCustomField("AC Power", "gpuswitch");
+    const thermal = thermalWarning();
+    const cpuLimit = thermalField("CPU_Speed_Limit");
+    const owners = usbPowerAssertionOwners();
+    const reason = notChargingReasonHuman(notChargingReason() || "0");
+    const displayedCharge = uiPct === ""
+        ? `${pctColor(pct)}[${chargeBar(pct)}] ${pct}% gauge${cReset}`
+        : `${pctColor(pct)}[${chargeBar(pct)}] ${pct}% UI${cReset} (${rawPct}% gauge${calibrationDelta === "" ? "" : `, ${calibrationDelta}% calibrated`})`;
+    const conditionColor = condition() === "Normal" ? cGreen : cRed;
+    const warningColor = warning === "no" ? cGreen : warning === "yes" ? cRed : cDim;
+    const flowColor = netCharging() === true ? cGreen : netCharging() === false ? cYellow : cDim;
+    const reasonColor = reason === "none" ? cGreen : cRed;
+    const thermalColor = thermal === false ? cGreen : thermal === true ? cRed : cDim;
+    const lowPowerColor = lowPowerMode === "1" ? cGreen : lowPowerMode === "0" ? cYellow : cDim;
+
+    dashboardBorder();
+    dashboardSection(`BATTERY ${stateColor(state)}(${state})${cReset}${cBold}${cCyan}`);
+    dashboardRows(`Charge: ${displayedCharge}`);
+    dashboardRows(`Time: ${t} | temperature: ${temp}C | low warning: ${warningColor}${warning}${cReset}`);
+    dashboardRows(`Health: ${pctColor(h)}[${chargeBar(h)}] ${h}%${cReset} | ${conditionColor}${condition()}${cReset} | ${capacity} | ${cyc} cycles`);
+    dashboardBorder();
+    dashboardSection("POWER AND CHARGING");
+    dashboardRows(`Source: ${cCyan}${powerSource() || "?"}${cReset} | adapter: ${cCyan}${w}${cReset} | contract: ${adapterContract()} | input: ${input === "" ? "?" : `${input}W`}`);
+    dashboardRows(`Battery flow: ${flowColor}${currentFlow()}${cReset}${batteryPower === "" ? "" : ` / ${batteryPower}W`} | system draw: ${draw === "" ? "?" : `${draw}W estimated`}`);
+    dashboardRows(`Optimized charging: ${optimizedState()} | charging blocker: ${reasonColor}${reason}${cReset}`);
+    dashboardRows(`Low Power Mode: ${lowPowerColor}${lowPowerMode === "1" ? "on" : lowPowerMode === "0" ? "off" : "?"}${cReset} | graphics: ${graphicsMode === "0" ? "integrated" : graphicsMode === "1" ? "discrete" : graphicsMode === "" ? "?" : "automatic"}`);
+    dashboardRows(`Thermal warning: ${thermalColor}${thermal === null ? "?" : thermal ? "yes" : "no"}${cReset} | CPU speed limit: ${cpuLimit === "" ? "?" : `${cpuLimit}%`}`);
+    dashboardBorder();
+    dashboardSection("USB POWER ASSERTION OWNERS");
+    dashboardRows(owners.length === 0 ? "None" : `${owners.length} active: ${owners.join(", ")}`);
+    dashboardBorder();
+    return statusFrame;
+}
+
+function cmdStatus(): void {
+    process.stdout.write(renderStatus());
 }
 
 function cmdTemp(): void {
@@ -638,8 +1012,18 @@ function cmdTime(): void {
 
 let useColor = true;
 
-function cmdWatch(intervalArg: string): void {
-    if (!/^\d+$/.test(intervalArg)) {
+function millisecondsUntilFollowingMinute(now: Date): number {
+    const elapsed = now.getSeconds() * 1000 + now.getMilliseconds();
+    return 60_000 - elapsed;
+}
+
+function millisecondsUntilNextRefresh(startedAt: Date, now: Date, intervalSeconds: number): number {
+    const regularRefresh = startedAt.getTime() + intervalSeconds * 1000 - now.getTime();
+    return Math.max(0, Math.min(regularRefresh, millisecondsUntilFollowingMinute(now)));
+}
+
+async function cmdWatch(intervalArg: string): Promise<void> {
+    if (!/^\d+$/.test(intervalArg) || Number(intervalArg) === 0) {
         die("watch interval must be a positive integer");
     }
 
@@ -651,21 +1035,24 @@ function cmdWatch(intervalArg: string): void {
     });
 
     while (true) {
+        const refreshStartedAt = new Date();
         ioregCache = "";
         pmsetBattCache = "";
         pmsetAcCache = "";
+        pmsetCustomCache = "";
+        pmsetThermCache = "";
+        pmsetAssertionsCache = "";
+        systemProfilerPowerCache = "";
 
-        if (useColor) {
-            process.stdout.write("\x1b[2J\x1b[H");
-        }
+        const status = renderStatus();
 
         const now = new Date();
         const hh = String(now.getHours()).padStart(2, "0");
         const mm = String(now.getMinutes()).padStart(2, "0");
         const ss = String(now.getSeconds()).padStart(2, "0");
-        process.stdout.write(`${cDim}${hh}:${mm}:${ss}${cReset} — every ${interval}s (Ctrl-C to exit)\n\n`);
-        cmdStatus();
-        Bun.sleepSync(interval * 1000);
+        const frame = `${cDim}${hh}:${mm}:${ss}${cReset} — every ${interval}s (Ctrl-C to exit)\n\n${status}`;
+        process.stdout.write(`${useColor ? "\x1b[2J\x1b[H" : ""}${frame}`);
+        await Bun.sleep(millisecondsUntilNextRefresh(refreshStartedAt, new Date(), interval));
     }
 }
 
@@ -742,7 +1129,7 @@ function requireMac(): void {
     }
 }
 
-function main(argv: string[]): void {
+async function main(argv: string[]): Promise<void> {
     requireMac();
 
     const args: string[] = [];
@@ -750,6 +1137,8 @@ function main(argv: string[]): void {
     for (const a of argv) {
         if (a === "--no-color") {
             useColor = false;
+        } else if (a === "--basic") {
+            basicStatus = true;
         } else {
             args.push(a);
         }
@@ -783,6 +1172,9 @@ function main(argv: string[]): void {
         case "power":
             cmdPower();
             break;
+        case "diagnose":
+            cmdDiagnose();
+            break;
         case "why":
             cmdWhy();
             break;
@@ -793,7 +1185,7 @@ function main(argv: string[]): void {
             cmdJson();
             break;
         case "watch":
-            cmdWatch(args[1] ?? "5");
+            await cmdWatch(args[1] ?? "5");
             break;
         case "help":
         case "-h":
@@ -806,5 +1198,5 @@ function main(argv: string[]): void {
 }
 
 if (import.meta.main) {
-    main(process.argv.slice(2));
+    void main(process.argv.slice(2));
 }
