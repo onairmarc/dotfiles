@@ -1,9 +1,14 @@
 import {readFileSync} from "node:fs";
 import {homedir} from "node:os";
 import {join} from "node:path";
-import type {Plugin} from "@opencode-ai/plugin";
 
-const routes = {
+export function skillTemplate(skill: string): string {
+    const configDirectory = process.env.XDG_CONFIG_HOME ?? join(homedir(), ".config");
+    const path = join(configDirectory, "opencode", "skills", skill, "SKILL.md");
+    return readFileSync(path, "utf8");
+}
+
+export const skillCommands = {
     "feature-planning": {
         description: "Create a feature implementation plan.",
         skill: "feature-planning",
@@ -25,23 +30,3 @@ const routes = {
         skill: "plan-split",
     },
 } as const;
-
-function skillTemplate(skill: string): string {
-    const configDirectory = process.env.XDG_CONFIG_HOME ?? join(homedir(), ".config");
-    const path = join(configDirectory, "opencode", "skills", skill, "SKILL.md");
-
-    return readFileSync(path, "utf8");
-}
-
-export default (async () => ({
-    config: async (config) => {
-        config.command ??= {};
-
-        for (const [command, route] of Object.entries(routes)) {
-            config.command[command] = {
-                description: route.description,
-                template: skillTemplate(route.skill),
-            };
-        }
-    },
-})) satisfies Plugin;
