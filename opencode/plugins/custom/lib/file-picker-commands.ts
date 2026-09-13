@@ -11,7 +11,7 @@ export type FilePickerOption = {
 };
 
 export type FilePickerCommand = {
-    argumentPlaceholder: "$ARGUMENTS" | "$PLAN_DIR";
+    argumentPlaceholder: string;
     command: string;
     description: string;
     emptyMessage: string;
@@ -23,24 +23,16 @@ export type FilePickerCommand = {
     title: string;
 };
 
-function hasSubPlans(directory: string): boolean {
-    try {
-        return readdirSync(directory, {withFileTypes: true})
-            .some((entry) => entry.isFile() && /^\d{2}-.+\.md$/.test(entry.name));
-    } catch {
-        return false;
-    }
-}
+type FilePickerSkill = {
+    argument: string;
+    argumentPlaceholder: string;
+    filePath: string;
+    retainsSelectedFileInPrompt: boolean;
+    skill: string;
+};
 
 function isPlanPath(path: string): boolean {
     return /^docs\/_planning\/[^/\s]+\/plan\.md$/.test(path);
-}
-
-function isSubPlanSelection(argument: string, filePath: string): boolean {
-    return /^docs\/_planning\/[^/\s]+$/.test(argument)
-        && filePath.startsWith(`${argument}/`)
-        && filePath !== `${argument}/plan.md`
-        && filePath.endsWith(".md");
 }
 
 function planOptions(root: string, excludesPlanningDirectory: (directory: string) => boolean = () => false): FilePickerOption[] {
@@ -72,34 +64,20 @@ function planOptions(root: string, excludesPlanningDirectory: (directory: string
     }
 }
 
-function setPrompt(prompt: TuiPromptRef, root: string, command: FilePickerCommand, option: FilePickerOption): void {
-    const mention = `@${option.argument}`;
-    const input = `/${command.command} ${mention} `;
-    const start = Bun.stringWidth(`/${command.command} `);
+function hasSubPlans(directory: string): boolean {
+    try {
+        return readdirSync(directory, {withFileTypes: true})
+            .some((entry) => entry.isFile() && /^\d{2}-.+\.md$/.test(entry.name));
+    } catch {
+        return false;
+    }
+}
 
-    prompt.set({
-        input,
-        mode: "normal",
-        parts: [
-            {
-                type: "file",
-                mime: "text/plain",
-                filename: option.filePath,
-                url: pathToFileURL(resolve(root, option.filePath)).href,
-                source: {
-                    type: "file",
-                    path: option.filePath,
-                    text: {
-                        start,
-                        end: start + Bun.stringWidth(mention),
-                        value: mention,
-                    },
-                },
-            },
-        ],
-    });
-
-    prompt.focus();
+function isSubPlanSelection(argument: string, filePath: string): boolean {
+    return /^docs\/_planning\/[^/\s]+$/.test(argument)
+        && filePath.startsWith(`${argument}/`)
+        && filePath !== `${argument}/plan.md`
+        && filePath.endsWith(".md");
 }
 
 function subPlanOptions(root: string): FilePickerOption[] {
@@ -130,10 +108,6 @@ function subPlanOptions(root: string): FilePickerOption[] {
     } catch {
         return [];
     }
-}
-
-function workspaceRoot(worktree: string, directory: string): string {
-    return worktree === "/" ? directory : worktree;
 }
 
 export const filePickerCommands: readonly FilePickerCommand[] = [
@@ -173,10 +147,95 @@ export const filePickerCommands: readonly FilePickerCommand[] = [
     },
 ];
 
+function expandedFilePickerSkill(text: string, parts: readonly unknown[]): FilePickerSkill | undefined {
+    for (const part of parts) {
+        if (typeof part !== "object" || part === null || !("type" in part) || part.type !== "file" || !("source" in part)) {
+            continue;
+        }
+
+        const {source} = part;
+        if (typeof source !== "object" || source === null || !("type" in source) || source.type !== "file" || !("path" in source)
+            || !("text" in source)) {
+            continue;
+        }
+
+        const filePath = source.path;
+        if (typeof filePath !== "string" || typeof source.text !== "object" || source.text === null
+            || !("value" in source.text) || typeof source.text.value !== "string" || !source.text.value.startsWith("@")) {
+            continue;
+        }
+
+        const argument = source.text.value.slice(1);
+        const command = filePickerCommands.find((candidate) => candidate.matchesSelection(argument, filePath)
+            && text.includes(candidate.argumentPlaceholder));
+
+        if (command !== undefined) {
+            return {
+                argument,
+                argumentPlaceholder: command.argumentPlaceholder,
+                filePath,
+                retainsSelectedFileInPrompt: command.retainsSelectedFileInPrompt,
+                skill: command.skill,
+            };
+        }
+    }
+}
+
+function removeSelectedFile(parts: unknown[], filePath: string): void {
+    const selectedFileIndex = parts.findIndex((candidate) => {
+        if (typeof candidate !== "object" || candidate === null || !("type" in candidate) || candidate.type !== "file"
+            || !("source" in candidate)) {
+            return false;
+        }
+
+        const {source} = candidate;
+        return typeof source === "object" && source !== null && "type" in source && source.type === "file" && "path" in source
+            && source.path === filePath;
+    });
+
+    if (selectedFileIndex !== -1) {
+        parts.splice(selectedFileIndex, 1);
+    }
+}
+
+function setPrompt(prompt: TuiPromptRef, root: string, command: FilePickerCommand, option: FilePickerOption): void {
+    const mention = `@${option.argument}`;
+    const input = `/${command.command} ${mention} `;
+    const start = Bun.stringWidth(`/${command.command} `);
+
+    prompt.set({
+        input,
+        mode: "normal",
+        parts: [
+            {
+                type: "file",
+                mime: "text/plain",
+                filename: option.filePath,
+                url: pathToFileURL(resolve(root, option.filePath)).href,
+                source: {
+                    type: "file",
+                    path: option.filePath,
+                    text: {
+                        start,
+                        end: start + Bun.stringWidth(mention),
+                        value: mention,
+                    },
+                },
+            },
+        ],
+    });
+
+    prompt.focus();
+}
+
+function workspaceRoot(worktree: string, directory: string): string {
+    return worktree === "/" ? directory : worktree;
+}
+
 export function filePickerSkill(
     text: string,
     parts: readonly unknown[],
-): { argument: string; argumentPlaceholder: "$ARGUMENTS" | "$PLAN_DIR"; filePath: string; retainsSelectedFileInPrompt: boolean; skill: string } | undefined {
+): FilePickerSkill | undefined {
     const filePaths = parts.flatMap((part) => {
         if (typeof part !== "object" || part === null || !("type" in part) || part.type !== "file" || !("source" in part)) {
             return [];
@@ -222,21 +281,31 @@ export function expandFilePickerCommand(output: { parts: unknown[] }, template: 
         }
 
         part.text = template(skill.skill).replaceAll(skill.argumentPlaceholder, `@${skill.argument}`).trim();
+
         if (!skill.retainsSelectedFileInPrompt) {
-            const selectedFileIndex = output.parts.findIndex((candidate) => {
-                if (typeof candidate !== "object" || candidate === null || !("type" in candidate) || candidate.type !== "file"
-                    || !("source" in candidate)) {
-                    return false;
-                }
+            removeSelectedFile(output.parts, skill.filePath);
+        }
 
-                const {source} = candidate;
-                return typeof source === "object" && source !== null && "type" in source && source.type === "file" && "path" in source
-                    && source.path === skill.filePath;
-            });
+        return;
+    }
 
-            if (selectedFileIndex !== -1) {
-                output.parts.splice(selectedFileIndex, 1);
-            }
+    // OpenCode expands skill commands before this hook runs, so the original
+    // slash command is no longer available to match.
+    for (const part of output.parts) {
+        if (typeof part !== "object" || part === null || !("type" in part) || part.type !== "text" || !("text" in part)
+            || typeof part.text !== "string" || ("synthetic" in part && part.synthetic)) {
+            continue;
+        }
+
+        const skill = expandedFilePickerSkill(part.text, output.parts);
+        if (skill === undefined) {
+            continue;
+        }
+
+        part.text = part.text.replaceAll(skill.argumentPlaceholder, `@${skill.argument}`);
+
+        if (!skill.retainsSelectedFileInPrompt) {
+            removeSelectedFile(output.parts, skill.filePath);
         }
 
         return;
