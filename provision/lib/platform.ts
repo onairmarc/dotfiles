@@ -8,17 +8,17 @@ import {homedir} from "node:os";
 
 export type Platform = "mac" | "windows";
 
-let _isAppleSilicon: boolean | null = null;
-
-// Resolved platform, set by init().
-let _platform: Platform | null = null;
-
 // Allowlist of recognized platform strings → canonical name.
 const PLATFORM_ALIASES: Record<string, Platform> = {
     mac: "mac",
     windows: "windows",
     win: "windows",
 };
+
+let _isAppleSilicon: boolean | null = null;
+
+// Resolved platform, set by init().
+let _platform: Platform | null = null;
 
 /** Return the canonical platform name ("mac" or "windows"). */
 export function current(): Platform {

@@ -29,6 +29,14 @@ export interface Backend {
     install(id: string, opts?: BackendOpts): void;
 }
 
+/** Split command output into a trimmed, non-empty line list. */
+function lines(text: string): string[] {
+    return text
+        .split(/\r?\n/)
+        .map((l) => l.trim())
+        .filter((l) => l !== "");
+}
+
 /**
  * Trust a Homebrew tap (Homebrew 6+ tap-trust).
  * Official taps are always trusted (brew prints a no-op). Soft-fails on older
@@ -42,24 +50,6 @@ function trustTap(tap: string): void {
     run(["brew", "trust", "--tap", tap]); // best-effort; ignore result
 }
 
-/** Ensure a tap is present and trusted before install. */
-function ensureTap(tap: string): void {
-    if (!tap || tap === "") {
-        return;
-    }
-
-    runAssert(["brew", "tap", tap], "brew tap failed: " + tap);
-    trustTap(tap);
-}
-
-/** Split command output into a trimmed, non-empty line list. */
-function lines(text: string): string[] {
-    return text
-        .split(/\r?\n/)
-        .map((l) => l.trim())
-        .filter((l) => l !== "");
-}
-
 /**
  * Extract a tap name from a tap-qualified package id.
  * "hashicorp/tap/terraform" → "hashicorp/tap"; "gh" → null.
@@ -71,6 +61,16 @@ function tapFromId(id: string): string | null {
 
     const m = id.match(/^([^/]+)\/([^/]+)\//);
     return m ? `${m[1]}/${m[2]}` : null;
+}
+
+/** Ensure a tap is present and trusted before install. */
+function ensureTap(tap: string): void {
+    if (!tap || tap === "") {
+        return;
+    }
+
+    runAssert(["brew", "tap", tap], "brew tap failed: " + tap);
+    trustTap(tap);
 }
 
 // ---------------------------------------------------------------------------

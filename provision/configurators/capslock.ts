@@ -4,6 +4,32 @@ import * as platform from "../lib/platform.ts";
 import {run, runAssert, runInherit} from "../lib/shell.ts";
 
 const LABEL = "com.user.capslock-escape";
+const COL_CYAN = "\x1b[0;36m";
+const COL_GREEN = "\x1b[0;32m";
+const COL_RESET = "\x1b[0m";
+const COL_YELLOW = "\x1b[1;33m";
+const HIDUTIL_CLEAR = '{"UserKeyMapping":[]}';
+const HIDUTIL_SET =
+    '{"UserKeyMapping":[{"HIDKeyboardModifierMappingSrc":0x700000039,"HIDKeyboardModifierMappingDst":0x700000029}]}';
+
+const PLIST = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.user.capslock-escape</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/bin/hidutil</string>
+        <string>property</string>
+        <string>--set</string>
+        <string>{"UserKeyMapping":[{"HIDKeyboardModifierMappingSrc":0x700000039,"HIDKeyboardModifierMappingDst":0x700000029}]}</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+</dict>
+</plist>
+`;
 
 function agentLoaded(): boolean {
     const {ok, stdout} = run(["launchctl", "list"]);
@@ -89,33 +115,6 @@ function showUsage(): never {
     process.stdout.write("  --disable     Disable Caps Lock to Escape remapping\n");
     process.exit(1);
 }
-
-const COL_CYAN = "\x1b[0;36m";
-const COL_GREEN = "\x1b[0;32m";
-const COL_RESET = "\x1b[0m";
-const COL_YELLOW = "\x1b[1;33m";
-const HIDUTIL_CLEAR = '{"UserKeyMapping":[]}';
-const HIDUTIL_SET =
-    '{"UserKeyMapping":[{"HIDKeyboardModifierMappingSrc":0x700000039,"HIDKeyboardModifierMappingDst":0x700000029}]}';
-
-const PLIST = `<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>Label</key>
-    <string>com.user.capslock-escape</string>
-    <key>ProgramArguments</key>
-    <array>
-        <string>/usr/bin/hidutil</string>
-        <string>property</string>
-        <string>--set</string>
-        <string>{"UserKeyMapping":[{"HIDKeyboardModifierMappingSrc":0x700000039,"HIDKeyboardModifierMappingDst":0x700000029}]}</string>
-    </array>
-    <key>RunAtLoad</key>
-    <true/>
-</dict>
-</plist>
-`;
 
 export function disable(): void {
     process.stdout.write(`${COL_CYAN}Disabling Caps Lock to Escape remapping...${COL_RESET}\n`);

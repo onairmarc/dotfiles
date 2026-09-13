@@ -3,6 +3,8 @@ import {dirname, isAbsolute, join, resolve} from "node:path";
 import * as platform from "./platform.ts";
 
 const BAK_PREFIXES = [".zshrc.bak.", ".bashrc.bak."];
+const START_MARK = "# >>> grok installer >>>";
+const END_MARK = "# <<< grok installer <<<";
 
 function removeBakFiles(dir: string): void {
     let names: string[];
@@ -45,9 +47,6 @@ function resolveFile(path: string): string | null {
 
     return stat.isFile() ? path : null;
 }
-
-const START_MARK = "# >>> grok installer >>>";
-const END_MARK = "# <<< grok installer <<<";
 
 function stripGrokBlock(path: string): void {
     const target = resolveFile(path);

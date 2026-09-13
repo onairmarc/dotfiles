@@ -1,6 +1,23 @@
 import {copyFileSync, mkdirSync, readdirSync, rmSync, statSync} from "node:fs";
 import {basename, dirname, join} from "node:path";
 
+const COL_RED = "\x1b[1;31m";
+const COL_RESET = "\x1b[0m";
+const COL_BLUE = "\x1b[34m";
+const COL_GREEN = "\x1b[0;32m";
+const IDES = [
+    "GoLand",
+    "PhpStorm",
+    "WebStorm",
+    "IntelliJIdea",
+    "Rider",
+    "PyCharm",
+    "CLion",
+    "RubyMine",
+    "DataGrip",
+    "AndroidStudio",
+];
+
 function ask(message: string): string | null {
     const answer = prompt(message);
     if (answer === null) {
@@ -18,14 +35,9 @@ function existsDir(path: string): boolean {
     }
 }
 
-const COL_RED = "\x1b[1;31m";
-const COL_RESET = "\x1b[0m";
-
 function logError(msg: string): void {
     process.stderr.write(`${COL_RED}${msg}${COL_RESET}\n`);
 }
-
-const COL_BLUE = "\x1b[34m";
 
 function logInfo(msg: string): void {
     process.stdout.write(`${COL_BLUE}${msg}${COL_RESET}\n`);
@@ -55,8 +67,6 @@ function stamp(): string {
     const p = (n: number) => String(n).padStart(2, "0");
     return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
 }
-
-const COL_GREEN = "\x1b[0;32m";
 
 function logSuccess(msg: string): void {
     process.stdout.write(`${COL_GREEN}${msg}${COL_RESET}\n`);
@@ -156,19 +166,6 @@ function detectPlatform(): { jetbrainsDir: string; platform: string } {
     logError("Error: Unsupported platform. This script supports Windows and macOS only.");
     process.exit(1);
 }
-
-const IDES = [
-    "GoLand",
-    "PhpStorm",
-    "WebStorm",
-    "IntelliJIdea",
-    "Rider",
-    "PyCharm",
-    "CLion",
-    "RubyMine",
-    "DataGrip",
-    "AndroidStudio",
-];
 
 function discoverIdeVersions(jetbrainsDir: string): string[] {
     if (!existsDir(jetbrainsDir)) {

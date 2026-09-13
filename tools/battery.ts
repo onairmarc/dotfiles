@@ -1,11 +1,10 @@
+const PROG = "battery";
 let ioregCache = "";
 
 function capture(argv: string[]): string {
     const r = Bun.spawnSync(argv, {stdout: "pipe", stderr: "pipe"});
     return r.stdout ? r.stdout.toString() : "";
 }
-
-const PROG = "battery";
 
 function die(msg: string): never {
     process.stderr.write(`${PROG}: ${msg}\n`);

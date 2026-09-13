@@ -15,6 +15,12 @@ const COLOR_ENABLED = useColor();
 // Colors are emitted only when stdout is a TTY and $NO_COLOR is unset.
 // ANSI escape codes.
 const RESET = "\x1b[0m";
+const BOLD = "\x1b[1m";
+const CYAN = "\x1b[36m";
+const GREEN = "\x1b[32m";
+const RED = "\x1b[31m";
+const WHITE = "\x1b[37m";
+const YELLOW = "\x1b[33m";
 
 function colorize(color: string, text: string): string {
     if (COLOR_ENABLED) {
@@ -23,13 +29,6 @@ function colorize(color: string, text: string): string {
 
     return text;
 }
-
-const BOLD = "\x1b[1m";
-const CYAN = "\x1b[36m";
-const GREEN = "\x1b[32m";
-const RED = "\x1b[31m";
-const WHITE = "\x1b[37m";
-const YELLOW = "\x1b[33m";
 
 /** Print an error message (red) to stderr. */
 export function error(label: string, msg?: string): void {

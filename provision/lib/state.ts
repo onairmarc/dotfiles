@@ -19,6 +19,8 @@
 import {readFileSync, writeFileSync} from "node:fs";
 import * as platform from "./platform.ts";
 
+const SCHEMA_VERSION = 1;
+
 export interface State {
     schema_version: number;
     tools_installed: Record<string, boolean | string>;
@@ -27,8 +29,6 @@ export interface State {
 }
 
 export type Category = "tools_installed" | "configurators_run" | "migrations_run";
-
-const SCHEMA_VERSION = 1;
 
 /** Build a blank state object with the correct schema. */
 function blankState(): State {
