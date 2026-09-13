@@ -13,16 +13,8 @@ export const skillCommands = {
         description: "Create a feature implementation plan.",
         skill: "feature-planning",
     },
-    "plan-execute": {
-        description: "Implement the sub-plans in a plan directory.",
-        skill: "plan-execute",
-    },
     "plan-resync": {
         description: "Reconcile an implementation plan with the current codebase.",
         skill: "plan-resync",
-    },
-    "plan-split": {
-        description: "Split an implementation plan into executable sub-plans.",
-        skill: "plan-split",
     },
 } as const;
