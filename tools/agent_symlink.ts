@@ -1,143 +1,48 @@
-// tools/agent_symlink.ts
+// Links repo files into OpenCode and optional Claude config paths.
 //
-// Links repo files into OpenCode (and optional Claude) config paths.
-//
-// Links are write-through: the path a program opens (`linkPath`) is a symlink
-// whose referent is the file or directory in this repo. The OpenCode custom
-// plugin is the exception because OpenCode requires a real copied directory.
-import {cpSync, lstatSync, mkdirSync, readdirSync, readFileSync, readlinkSync, renameSync, rmSync, symlinkSync, unlinkSync} from "node:fs";
-import {dirname, isAbsolute, join, relative} from "node:path";
-
-function alreadyWriteThrough(linkPath: string, referent: string): boolean {
-    try {
-        return lstatSync(linkPath).isSymbolicLink() && readlinkSync(linkPath) === referent;
-    } catch {
-        return false;
-    }
-}
-
-function resolveReferent(referent: string, linkPath: string): string {
-    if (isAbsolute(referent)) {
-        return referent;
-    }
-
-    return join(dirname(linkPath), referent);
-}
-
-function writeThroughType(referent: string, linkPath: string): "dir" | "file" | undefined {
-    if (process.platform !== "win32") {
-        return undefined;
-    }
-    try {
-        return lstatSync(resolveReferent(referent, linkPath)).isDirectory() ? "dir" : "file";
-    } catch {
-        return "file";
-    }
-}
-
-function createWriteThroughLink(referent: string, linkPath: string): void {
-    symlinkSync(referent, linkPath, writeThroughType(referent, linkPath));
-}
-
-function exists(path: string): boolean {
-    try {
-        lstatSync(path);
-
-        return true;
-    } catch {
-        return false;
-    }
-}
-
-function findFiles(root: string): string[] {
-    const out: string[] = [];
-    const walk = (dir: string): void => {
-        let entries;
-        try {
-            entries = readdirSync(dir, {withFileTypes: true});
-        } catch {
-            return;
-        }
-
-        for (const entry of entries) {
-            const path = join(dir, entry.name);
-
-            if (entry.isDirectory()) {
-                walk(path);
-            } else if (entry.isFile()) {
-                out.push(path);
-            }
-        }
-    };
-
-    walk(root);
-
-    return out;
-}
-
-function findNamedFiles(root: string, name: string): string[] {
-    const out: string[] = [];
-    const walk = (dir: string): void => {
-        let entries;
-        try {
-            entries = readdirSync(dir, {withFileTypes: true});
-        } catch {
-            return;
-        }
-
-        for (const entry of entries) {
-            const path = join(dir, entry.name);
-
-            if (entry.isDirectory()) {
-                walk(path);
-            } else if (entry.isFile() && entry.name === name) {
-                out.push(path);
-            }
-        }
-    };
-
-    walk(root);
-
-    return out;
-}
-
-function findSkillDirs(root: string): string[] {
-    const out: string[] = [];
-    const walk = (dir: string): void => {
-        let entries;
-        try {
-            entries = readdirSync(dir, {withFileTypes: true});
-        } catch {
-            return;
-        }
-
-        for (const entry of entries) {
-            const path = join(dir, entry.name);
-
-            if (entry.isDirectory()) {
-                walk(path);
-            } else if (entry.isFile() && entry.name === "SKILL.md") {
-                out.push(dir);
-            }
-        }
-    };
-
-    walk(root);
-
-    return out;
-}
-
-const RED = "\x1b[0;31m";
-const NC = "\x1b[0m";
-
-function logError(msg: string): void {
-    process.stderr.write(`${RED}[ERROR]${NC} ${msg}\n`);
-}
+// Links are write-through. The OpenCode custom plugin is copied because
+// OpenCode requires a real plugin directory.
+import {lstatSync, mkdirSync, readFileSync, renameSync, rmSync, unlinkSync} from "node:fs";
+import {dirname, join, relative} from "node:path";
+import {
+    alreadyWriteThrough,
+    copyDirectory,
+    createWriteThroughLink,
+    exists,
+    findDirectoriesContaining,
+    findFiles,
+    findFilesNamed,
+    gitTopLevel,
+    homeDirectory,
+    isDirectory,
+} from "./lib.ts";
 
 const GREEN = "\x1b[0;32m";
+const RED = "\x1b[0;31m";
+const YELLOW = "\x1b[1;33m";
+const NC = "\x1b[0m";
+const USAGE = "Usage: agent_symlink [--global] [--claude] [-r] [--debug]";
 
-function logInfo(msg: string): void {
-    process.stdout.write(`${GREEN}[INFO]${NC} ${msg}\n`);
+let debugMode = false;
+
+// region Logging
+
+function logDebug(message: string): void {
+    if (debugMode) {
+        process.stdout.write(`${GREEN}[DEBUG]${NC} ${message}\n`);
+    }
+}
+
+function logError(message: string): void {
+    process.stderr.write(`${RED}[ERROR]${NC} ${message}\n`);
+}
+
+function logInfo(message: string): void {
+    process.stdout.write(`${GREEN}[INFO]${NC} ${message}\n`);
+}
+
+function logWarn(message: string): void {
+    process.stdout.write(`${YELLOW}[WARN]${NC} ${message}\n`);
 }
 
 function finishSync(skillErrors: string[]): void {
@@ -149,47 +54,18 @@ function finishSync(skillErrors: string[]): void {
     logInfo("Sync complete!");
 }
 
-function gitTopLevel(cwd: string): string | null {
-    const r = Bun.spawnSync(["git", "rev-parse", "--show-toplevel"], {
-        cwd,
-        stdout: "pipe",
-        stderr: "pipe",
-    });
+// endregion Logging
 
-    if (r.exitCode !== 0) {
-        return null;
-    }
-
-    return r.stdout.toString().trim();
-}
-
-function homeDir(): string {
-    return process.env.HOME || process.env.USERPROFILE || "";
-}
-
-function isDir(path: string): boolean {
-    try {
-        return lstatSync(path).isDirectory();
-    } catch {
-        return false;
-    }
-}
-
-const YELLOW = "\x1b[1;33m";
-
-function logWarn(msg: string): void {
-    process.stdout.write(`${YELLOW}[WARN]${NC} ${msg}\n`);
-}
+// region Linking
 
 function linkGlobalFile(referent: string, linkPath: string, label: string): void {
-    if (!exists(resolveReferent(referent, linkPath))) {
+    if (!exists(referent)) {
         logWarn(`Source does not exist, skipping: ${referent}`);
 
         return;
     }
 
     mkdirSync(dirname(linkPath), {recursive: true});
-
     if (alreadyWriteThrough(linkPath, referent)) {
         logInfo(`${label}: ${linkPath} already write-through -> ${referent}`);
 
@@ -209,6 +85,50 @@ function linkGlobalFile(referent: string, linkPath: string, label: string): void
     createWriteThroughLink(referent, linkPath);
     logInfo(`${label}: ${linkPath} -> ${referent}`);
 }
+
+function linkWriteThrough(referent: string, linkPath: string, label: string): void {
+    if (!exists(join(dirname(linkPath), referent))) {
+        logWarn(`Source does not exist, skipping: ${referent}`);
+
+        return;
+    }
+
+    mkdirSync(dirname(linkPath), {recursive: true});
+    if (alreadyWriteThrough(linkPath, referent)) {
+        logInfo(`${label}: ${linkPath} already write-through -> ${referent}`);
+
+        return;
+    }
+
+    logInfo(`${label}: ${linkPath} -> ${referent}`);
+    if (exists(linkPath)) {
+        logInfo(`  Removing existing: ${linkPath}`);
+        rmSync(linkPath, {recursive: true, force: true});
+    }
+
+    createWriteThroughLink(referent, linkPath);
+    logInfo(`  Created write-through symlink: ${linkPath} -> ${referent}`);
+}
+
+function copyPlugin(source: string, target: string, label: string): void {
+    if (!exists(source)) {
+        logWarn(`Source does not exist, skipping: ${source}`);
+
+        return;
+    }
+
+    mkdirSync(dirname(target), {recursive: true});
+    if (exists(target)) {
+        rmSync(target, {recursive: true, force: true});
+    }
+
+    copyDirectory(source, target);
+    logInfo(`${label}: copied plugin ${source} -> ${target}`);
+}
+
+// endregion Linking
+
+// region Skill sync
 
 function skillFrontmatterError(skillDir: string): string | null {
     const path = join(skillDir, "SKILL.md");
@@ -244,26 +164,16 @@ function skillFrontmatterError(skillDir: string): string | null {
         return `${path}: missing name`;
     }
 
-    if (typeof fields.description !== "string" || fields.description.trim() === "") {
-        return `${path}: missing description`;
-    }
-
-    return null;
+    return typeof fields.description === "string" && fields.description.trim() !== ""
+        ? null
+        : `${path}: missing description`;
 }
 
-let debugMode = false;
-
-function logDebug(msg: string): void {
-    if (debugMode) {
-        process.stdout.write(`${GREEN}[DEBUG]${NC} ${msg}\n`);
-    }
-}
-
-function linkSkillsFlat(sourceRoot: string, label: string, targets: string[]): string[] {
-    const prefix = label !== "" ? `${label} ` : "";
+function linkSkills(sourceRoot: string, label: string, targets: string[]): string[] {
+    const prefix = label === "" ? "" : `${label} `;
     const errors: string[] = [];
 
-    for (const skillPath of findSkillDirs(sourceRoot)) {
+    for (const skillPath of findDirectoriesContaining(sourceRoot, "SKILL.md")) {
         const skillName = skillPath.split(/[/\\]/).pop() ?? skillPath;
         const frontmatterError = skillFrontmatterError(skillPath);
         if (frontmatterError !== null) {
@@ -272,13 +182,13 @@ function linkSkillsFlat(sourceRoot: string, label: string, targets: string[]): s
         }
 
         for (const targetDir of targets) {
-            const dest = join(targetDir, skillName);
-            if (exists(dest)) {
+            const target = join(targetDir, skillName);
+            if (exists(target)) {
                 logWarn(`  Skill collision on '${skillName}' in ${targetDir}: ${label || "later"} wins, overriding earlier`);
-                rmSync(dest, {recursive: true, force: true});
+                rmSync(target, {recursive: true, force: true});
             }
 
-            createWriteThroughLink(skillPath, dest);
+            createWriteThroughLink(skillPath, target);
             logDebug(`  Linked ${prefix}skill: ${skillName} -> ${targetDir}`);
         }
 
@@ -288,57 +198,10 @@ function linkSkillsFlat(sourceRoot: string, label: string, targets: string[]): s
     return errors;
 }
 
-function linkWriteThrough(referent: string, linkPath: string, label: string): void {
-    if (!exists(resolveReferent(referent, linkPath))) {
-        logWarn(`Source does not exist, skipping: ${referent}`);
-
-        return;
-    }
-
-    mkdirSync(dirname(linkPath), {recursive: true});
-
-    if (alreadyWriteThrough(linkPath, referent)) {
-        logInfo(`${label}: ${linkPath} already write-through -> ${referent}`);
-
-        return;
-    }
-
-    logInfo(`${label}: ${linkPath} -> ${referent}`);
-
-    if (exists(linkPath)) {
-        logInfo(`  Removing existing: ${linkPath}`);
-        rmSync(linkPath, {recursive: true, force: true});
-    }
-
-    createWriteThroughLink(referent, linkPath);
-    logInfo(`  Created write-through symlink: ${linkPath} -> ${referent}`);
-}
-
-function copyPlugin(source: string, target: string, label: string): void {
-    if (!exists(source)) {
-        logWarn(`Source does not exist, skipping: ${source}`);
-
-        return;
-    }
-
-    mkdirSync(dirname(target), {recursive: true});
-    if (exists(target)) {
-        rmSync(target, {recursive: true, force: true});
-    }
-
-    cpSync(source, target, {recursive: true});
-    logInfo(`${label}: copied plugin ${source} -> ${target}`);
-}
-
-const USAGE = "Usage: agent_symlink [--global] [--claude] [-r] [--debug]";
-
 function privateSkillsSource(privateDir: string): string {
     const agentsSkills = join(privateDir, "agents", "skills");
-    if (isDir(agentsSkills)) {
-        return agentsSkills;
-    }
 
-    return join(privateDir, ".agents", "skills");
+    return isDirectory(agentsSkills) ? agentsSkills : join(privateDir, ".agents", "skills");
 }
 
 function populateSkillsTargets(
@@ -348,115 +211,103 @@ function populateSkillsTargets(
     label: string,
     targets: string[],
 ): string[] {
-    for (const targetDir of targets) {
-        if (exists(targetDir)) {
-            logDebug(`  Removing existing: ${targetDir}`);
-            rmSync(targetDir, {recursive: true, force: true});
+    for (const target of targets) {
+        if (exists(target)) {
+            logDebug(`  Removing existing: ${target}`);
+            rmSync(target, {recursive: true, force: true});
         }
 
-        mkdirSync(targetDir, {recursive: true});
+        mkdirSync(target, {recursive: true});
     }
 
-    if (privateSource !== "" && isDir(privateSource)) {
+    if (privateSource !== "" && isDirectory(privateSource)) {
         logInfo(`${label}: interleaving public + private skills into ${targets.join(" ")}`);
         logDebug(`  Public:  ${publicSource}`);
         logDebug(`  Private: ${privateSource}`);
 
         return [
-            ...linkSkillsFlat(publicSource, "public", targets),
-            ...linkSkillsFlat(privateSource, "private", targets),
+            ...linkSkills(publicSource, "public", targets),
+            ...linkSkills(privateSource, "private", targets),
         ];
     }
 
     logInfo(`${label}: linking public skills into ${targets.join(" ")}`);
-
     if (privateDir !== "") {
         logDebug(`  (no private dotfiles found at ${privateDir})`);
     }
 
-    return linkSkillsFlat(publicSource, "", targets);
+    return linkSkills(publicSource, "", targets);
 }
+
+// endregion Skill sync
+
+// region Global cleanup
+
+function removeManagedLink(source: string, target: string, label: string): void {
+    if (alreadyWriteThrough(target, source)) {
+        unlinkSync(target);
+        logInfo(`${label}: removed managed link ${target}`);
+    }
+}
+
+function cleanupGlobalConfigLinks(dotfilesRoot: string, configDir: string): void {
+    removeManagedLink(join(dotfilesRoot, "opencode", "opencode.jsonc"), join(configDir, "opencode.jsonc"), "Global mode");
+    removeManagedLink(join(dotfilesRoot, "opencode", "global", "tui.jsonc"), join(configDir, "tui.jsonc"), "Global mode");
+}
+
+function cleanupRetiredGlobalLinks(configDir: string, agentsSource: string, pluginsSource: string): void {
+    removeManagedLink(join(agentsSource, "the-implementor.md"), join(configDir, "agents", "the-implementor.md"), "Global mode");
+
+    for (const agent of ["implementor.md", "orchestrator.md"]) {
+        removeManagedLink(join(agentsSource, agent), join(configDir, "agents", agent), "Global mode");
+    }
+
+    for (const command of ["feature-planning.md", "plan-execute.md", "plan-resync.md", "plan-review.md", "plan-split.md"]) {
+        removeManagedLink(join(pluginsSource, "..", "commands", command), join(configDir, "commands", command), "Global mode");
+    }
+
+    removeManagedLink(join(pluginsSource, "skill-command-router.ts"), join(configDir, "skill-command-router.ts"), "Global mode");
+    removeManagedLink(join(pluginsSource, "skill-command-router.ts"), join(configDir, "plugins", "skill-command-router.ts"), "Global mode");
+}
+
+function cleanupMisplacedCustomPluginLinks(configDir: string, pluginsSource: string, customPluginSource: string): void {
+    for (const file of findFiles(customPluginSource)) {
+        removeManagedLink(file, join(configDir, relative(pluginsSource, file)), "Global mode");
+    }
+}
+
+// endregion Global cleanup
+
+// region Global publish
 
 export function syncGlobalOpencode(): void {
     const dotfilesRoot = dirname(import.meta.dir);
+    const configDir = join(homeDirectory(), ".config", "opencode");
     const skillsSource = join(dotfilesRoot, "agents", "skills");
-    if (!isDir(skillsSource)) {
+    if (!isDirectory(skillsSource)) {
         throw new Error(`Source directory does not exist: ${skillsSource}`);
     }
 
-    const privateDir = process.env.DF_PRIVATE_DIRECTORY || join(homeDir(), "Documents", "GitHub", "dotfiles-private");
-    const privateSkills = privateSkillsSource(privateDir);
-    const configDir = join(homeDir(), ".config", "opencode");
+    const privateDir = process.env.DF_PRIVATE_DIRECTORY || join(homeDirectory(), "Documents", "GitHub", "dotfiles-private");
     const skillErrors = populateSkillsTargets(
         skillsSource,
-        privateSkills,
+        privateSkillsSource(privateDir),
         privateDir,
         "Global mode",
         [join(configDir, "skills")],
     );
-
     if (skillErrors.length > 0) {
         throw new Error(`${skillErrors.length} skill(s) have invalid SKILL.md frontmatter`);
     }
 
     const pluginsSource = join(dotfilesRoot, "opencode", "plugins");
     const customPluginSource = join(pluginsSource, "custom");
-    const commandsSource = join(dotfilesRoot, "opencode", "commands");
     const agentsSource = join(dotfilesRoot, "opencode", "agents");
-    const legacyImplementorLink = join(configDir, "agents", "the-implementor.md");
 
     linkGlobalFile(join(dotfilesRoot, "agents", "AGENTS.md"), join(configDir, "AGENTS.md"), "Global mode");
-
-    for (const [source, target] of [
-        [join(dotfilesRoot, "opencode", "opencode.jsonc"), join(configDir, "opencode.jsonc")],
-        [join(dotfilesRoot, "opencode", "global", "tui.jsonc"), join(configDir, "tui.jsonc")],
-    ]) {
-        if (alreadyWriteThrough(target, source)) {
-            unlinkSync(target);
-            logInfo(`Global mode: removed managed config link ${target}`);
-        }
-    }
-
-    if (alreadyWriteThrough(legacyImplementorLink, join(agentsSource, "the-implementor.md"))) {
-        unlinkSync(legacyImplementorLink);
-        logInfo(`Global mode: removed renamed agent link ${legacyImplementorLink}`);
-    }
-
-    for (const removedAgent of ["implementor.md", "orchestrator.md"]) {
-        const link = join(configDir, "agents", removedAgent);
-        if (alreadyWriteThrough(link, join(agentsSource, removedAgent))) {
-            unlinkSync(link);
-            logInfo(`Global mode: removed retired agent link ${link}`);
-        }
-    }
-
-    for (const retiredCommand of ["feature-planning.md", "plan-execute.md", "plan-resync.md", "plan-review.md", "plan-split.md"]) {
-        const link = join(configDir, "commands", retiredCommand);
-        if (alreadyWriteThrough(link, join(commandsSource, retiredCommand))) {
-            unlinkSync(link);
-            logInfo(`Global mode: removed retired command link ${link}`);
-        }
-    }
-
-    const legacyRouterLink = join(configDir, "skill-command-router.ts");
-    if (alreadyWriteThrough(legacyRouterLink, join(pluginsSource, "skill-command-router.ts"))) {
-        unlinkSync(legacyRouterLink);
-        logInfo(`Global mode: removed misplaced plugin link ${legacyRouterLink}`);
-    }
-
-    const retiredRouterLink = join(configDir, "plugins", "skill-command-router.ts");
-    if (alreadyWriteThrough(retiredRouterLink, join(pluginsSource, "skill-command-router.ts"))) {
-        unlinkSync(retiredRouterLink);
-        logInfo(`Global mode: removed retired plugin link ${retiredRouterLink}`);
-    }
-
-    for (const file of findFiles(customPluginSource)) {
-        const misplacedCustomPluginLink = join(configDir, relative(pluginsSource, file));
-        if (alreadyWriteThrough(misplacedCustomPluginLink, file)) {
-            unlinkSync(misplacedCustomPluginLink);
-            logInfo(`Global mode: removed misplaced custom plugin link ${misplacedCustomPluginLink}`);
-        }
-    }
+    cleanupGlobalConfigLinks(dotfilesRoot, configDir);
+    cleanupRetiredGlobalLinks(configDir, agentsSource, pluginsSource);
+    cleanupMisplacedCustomPluginLinks(configDir, pluginsSource, customPluginSource);
 
     for (const file of findFiles(agentsSource)) {
         linkGlobalFile(file, join(configDir, "agents", relative(agentsSource, file)), "Global mode");
@@ -465,151 +316,162 @@ export function syncGlobalOpencode(): void {
     copyPlugin(customPluginSource, join(configDir, "plugins", "custom"), "Global mode");
 
     for (const file of findFiles(pluginsSource)) {
-        const customPluginFile = !relative(customPluginSource, file).startsWith("..") && !isAbsolute(relative(customPluginSource, file));
-        if (customPluginFile) {
-            continue;
+        const isCustomPluginFile = !relative(customPluginSource, file).startsWith("..") && !relative(customPluginSource, file).startsWith("/");
+        if (!isCustomPluginFile) {
+            const target = file.endsWith(".ts") || file.endsWith(".js")
+                ? join(configDir, "plugins", relative(pluginsSource, file))
+                : join(configDir, relative(pluginsSource, file));
+            linkGlobalFile(file, target, "Global mode");
         }
-        const target = file.endsWith(".ts") || file.endsWith(".js")
-            ? join(configDir, "plugins", relative(pluginsSource, file))
-            : join(configDir, relative(pluginsSource, file));
-        linkGlobalFile(file, target, "Global mode");
     }
 
     logInfo("Sync complete!");
 }
 
-function main(argv: string[]): void {
-    let globalMode = false;
-    let claudeMode = false;
-    let recursiveMode = false;
+// endregion Global publish
 
-    for (const arg of argv) {
+// region Command execution
+
+type Options = {
+    claude: boolean;
+    global: boolean;
+    recursive: boolean;
+};
+
+function parseOptions(args: string[]): Options {
+    const options: Options = {claude: false, global: false, recursive: false};
+
+    for (const arg of args) {
         switch (arg) {
             case "--global":
-            globalMode = true;
-            break;
+                options.global = true;
+                break;
             case "--claude":
-            claudeMode = true;
-            break;
+                options.claude = true;
+                break;
             case "-r":
             case "--recursive":
-            recursiveMode = true;
-            break;
+                options.recursive = true;
+                break;
             case "--debug":
-            debugMode = true;
-            break;
+                debugMode = true;
+                break;
             default:
-            logError(`Unknown option: ${arg}`);
-            process.stdout.write(`${USAGE}\n`);
-            process.exit(1);
+                logError(`Unknown option: ${arg}`);
+                process.stdout.write(`${USAGE}\n`);
+                process.exit(1);
         }
     }
 
-    if (globalMode && recursiveMode) {
+    if (options.global && options.recursive) {
         logError("--global and -r cannot be used together");
         process.stdout.write(`${USAGE}\n`);
         process.exit(1);
     }
 
-    if (recursiveMode && !claudeMode) {
+    if (options.recursive && !options.claude) {
         logError("-r/--recursive is Claude-specific; pass --claude");
         process.stdout.write(`${USAGE}\n`);
         process.exit(1);
     }
 
-    const dotfilesRoot = dirname(import.meta.dir);
-    let repoRoot: string;
+    return options;
+}
 
-    if (globalMode) {
-        repoRoot = dotfilesRoot;
-    } else {
-        const top = gitTopLevel(process.cwd());
-        if (!top) {
-            logError("Not in a git repository. Please run this script from within a git repo.");
-            process.exit(1);
+function syncGlobalClaude(repoRoot: string): void {
+    const privateDir = process.env.DF_PRIVATE_DIRECTORY || join(homeDirectory(), "Documents", "GitHub", "dotfiles-private");
+    const skillErrors = populateSkillsTargets(
+        join(repoRoot, "agents", "skills"),
+        privateSkillsSource(privateDir),
+        privateDir,
+        "Claude global mode",
+        [join(homeDirectory(), ".claude", "skills")],
+    );
+
+    linkWriteThrough("AGENTS.md", join(homeDirectory(), ".claude", "CLAUDE.md"), "Global mode");
+    finishSync(skillErrors);
+}
+
+function syncRecursiveClaude(cwd: string): void {
+    logInfo(`Recursive mode: scanning for AGENTS.md files under ${cwd}`);
+
+    let created = 0;
+    let skipped = 0;
+    for (const agentsFile of findFilesNamed(cwd, "AGENTS.md")) {
+        const claudeFile = join(dirname(agentsFile), "CLAUDE.md");
+        if (exists(claudeFile)) {
+            logWarn(`  Skipping ${claudeFile}: already exists`);
+            skipped += 1;
+            continue;
         }
 
-        repoRoot = top;
+        createWriteThroughLink("AGENTS.md", claudeFile);
+        logInfo(`  Created write-through symlink: ${claudeFile} -> AGENTS.md`);
+        created += 1;
     }
 
-    if (globalMode) {
-        syncGlobalOpencode();
+    logInfo(`Sync complete! Created ${created} symlink(s), skipped ${skipped}.`);
+}
 
-        if (claudeMode) {
-            const skillsSource = join(repoRoot, "agents", "skills");
-            const privateDir = process.env.DF_PRIVATE_DIRECTORY
-                || join(homeDir(), "Documents", "GitHub", "dotfiles-private");
-
-            const privateSkills = privateSkillsSource(privateDir);
-            const skillErrors = populateSkillsTargets(
-                skillsSource,
-                privateSkills,
-                privateDir,
-                "Claude global mode",
-                [join(homeDir(), ".claude", "skills")],
-            );
-
-            linkWriteThrough(join(repoRoot, "agents", "AGENTS.md"), join(homeDir(), ".claude", "CLAUDE.md"), "Global mode");
-            finishSync(skillErrors);
-        }
-
-        return;
+function syncLocal(repoRoot: string, claude: boolean): void {
+    const skillsSource = join(repoRoot, "agents", "skills");
+    const targets = [join(repoRoot, ".opencode", "skills")];
+    if (claude) {
+        targets.push(join(repoRoot, ".claude", "skills"));
     }
 
-    if (recursiveMode) {
-        const cwd = process.cwd();
-        logInfo(`Recursive mode: scanning for AGENTS.md files under ${cwd}`);
-
-        let found = 0;
-        let skipped = 0;
-
-        for (const agentsFile of findNamedFiles(cwd, "AGENTS.md")) {
-            const dir = dirname(agentsFile);
-            const claudeFile = join(dir, "CLAUDE.md");
-            if (exists(claudeFile)) {
-                logWarn(`  Skipping ${claudeFile}: already exists`);
-                skipped += 1;
-                continue;
-            }
-
-            createWriteThroughLink("AGENTS.md", claudeFile);
-            logInfo(`  Created write-through symlink: ${claudeFile} -> AGENTS.md`);
-            found += 1;
-        }
-
-        logInfo(`Sync complete! Created ${found} symlink(s), skipped ${skipped}.`);
-
-        return;
+    const skillErrors = isDirectory(skillsSource)
+        ? populateSkillsTargets(skillsSource, "", "", "In-repo mode", targets)
+        : [];
+    if (!isDirectory(skillsSource)) {
+        logWarn(`Skipping skills: source does not exist (${skillsSource})`);
     }
 
-    const localSkillsSource = join(repoRoot, "agents", "skills");
-    const localSkillTargets = [join(repoRoot, ".opencode", "skills")];
-
-    if (claudeMode) {
-        localSkillTargets.push(join(repoRoot, ".claude", "skills"));
-    }
-
-    let skillErrors: string[] = [];
-
-    if (!isDir(localSkillsSource)) {
-        logWarn(`Skipping skills: source does not exist (${localSkillsSource})`);
-    } else {
-        skillErrors = populateSkillsTargets(localSkillsSource, "", "", "In-repo mode", localSkillTargets);
-    }
-
-    if (claudeMode) {
-        const claudeMdTarget = join(repoRoot, "CLAUDE.md");
-        const agentsMdSource = join(repoRoot, "AGENTS.md");
-        if (!exists(agentsMdSource)) {
+    if (claude) {
+        const source = join(repoRoot, "AGENTS.md");
+        if (!exists(source)) {
             logWarn("Skipping CLAUDE.md: source does not exist (AGENTS.md)");
         } else {
-            linkWriteThrough("AGENTS.md", claudeMdTarget, "In-repo mode");
+            linkWriteThrough("AGENTS.md", join(repoRoot, "CLAUDE.md"), "In-repo mode");
         }
     }
 
     finishSync(skillErrors);
 }
 
+// endregion Command execution
+
+// region Main Execution
+function main(args: string[]): void {
+    const options = parseOptions(args);
+    const dotfilesRoot = dirname(import.meta.dir);
+
+    if (options.global) {
+        syncGlobalOpencode();
+        if (options.claude) {
+            syncGlobalClaude(dotfilesRoot);
+        }
+
+        return;
+    }
+
+    const repoRoot = gitTopLevel(process.cwd());
+    if (repoRoot === null) {
+        logError("Not in a git repository. Please run this script from within a git repo.");
+        process.exit(1);
+    }
+
+    if (options.recursive) {
+        syncRecursiveClaude(process.cwd());
+
+        return;
+    }
+
+    syncLocal(repoRoot, options.claude);
+}
+
 if (import.meta.main) {
     main(process.argv.slice(2));
 }
+
+// endregion Main Execution
