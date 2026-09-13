@@ -2,11 +2,10 @@
 //
 // Links repo files into OpenCode (and optional Claude) config paths.
 //
-// Every link this tool creates is write-through: the path a program opens
-// (`linkPath`) is a symlink whose referent is the file or directory in this
-// repo. Writes through the link mutate the repo file. Never copy, never
-// hard-link, and never create a Windows junction.
-import {lstatSync, mkdirSync, readdirSync, readFileSync, readlinkSync, renameSync, rmSync, symlinkSync, unlinkSync} from "node:fs";
+// Links are write-through: the path a program opens (`linkPath`) is a symlink
+// whose referent is the file or directory in this repo. The OpenCode custom
+// plugin is the exception because OpenCode requires a real copied directory.
+import {cpSync, lstatSync, mkdirSync, readdirSync, readFileSync, readlinkSync, renameSync, rmSync, symlinkSync, unlinkSync} from "node:fs";
 import {dirname, isAbsolute, join, relative} from "node:path";
 
 function alreadyWriteThrough(linkPath: string, referent: string): boolean {
@@ -315,6 +314,22 @@ function linkWriteThrough(referent: string, linkPath: string, label: string): vo
     logInfo(`  Created write-through symlink: ${linkPath} -> ${referent}`);
 }
 
+function copyPlugin(source: string, target: string, label: string): void {
+    if (!exists(source)) {
+        logWarn(`Source does not exist, skipping: ${source}`);
+
+        return;
+    }
+
+    mkdirSync(dirname(target), {recursive: true});
+    if (exists(target)) {
+        rmSync(target, {recursive: true, force: true});
+    }
+
+    cpSync(source, target, {recursive: true});
+    logInfo(`${label}: copied plugin ${source} -> ${target}`);
+}
+
 const USAGE = "Usage: agent_symlink [--global] [--claude] [-r] [--debug]";
 
 function privateSkillsSource(privateDir: string): string {
@@ -391,8 +406,16 @@ export function syncGlobalOpencode(): void {
     const legacyImplementorLink = join(configDir, "agents", "the-implementor.md");
 
     linkGlobalFile(join(dotfilesRoot, "agents", "AGENTS.md"), join(configDir, "AGENTS.md"), "Global mode");
-    linkGlobalFile(join(dotfilesRoot, "opencode", "opencode.jsonc"), join(configDir, "opencode.jsonc"), "Global mode");
-    linkGlobalFile(join(dotfilesRoot, "opencode", "global", "tui.jsonc"), join(configDir, "tui.jsonc"), "Global mode");
+
+    for (const [source, target] of [
+        [join(dotfilesRoot, "opencode", "opencode.jsonc"), join(configDir, "opencode.jsonc")],
+        [join(dotfilesRoot, "opencode", "global", "tui.jsonc"), join(configDir, "tui.jsonc")],
+    ]) {
+        if (alreadyWriteThrough(target, source)) {
+            unlinkSync(target);
+            logInfo(`Global mode: removed managed config link ${target}`);
+        }
+    }
 
     if (alreadyWriteThrough(legacyImplementorLink, join(agentsSource, "the-implementor.md"))) {
         unlinkSync(legacyImplementorLink);
@@ -439,7 +462,7 @@ export function syncGlobalOpencode(): void {
         linkGlobalFile(file, join(configDir, "agents", relative(agentsSource, file)), "Global mode");
     }
 
-    linkWriteThrough(customPluginSource, join(configDir, "plugins", "custom"), "Global mode");
+    copyPlugin(customPluginSource, join(configDir, "plugins", "custom"), "Global mode");
 
     for (const file of findFiles(pluginsSource)) {
         const customPluginFile = !relative(customPluginSource, file).startsWith("..") && !isAbsolute(relative(customPluginSource, file));
