@@ -11,12 +11,14 @@ export type FilePickerOption = {
 };
 
 export type FilePickerCommand = {
+    argumentPlaceholder: "$ARGUMENTS" | "$PLAN_DIR";
     command: string;
     description: string;
     emptyMessage: string;
     excludesPlanningDirectory?(directory: string): boolean;
     matchesSelection(argument: string, filePath: string): boolean;
     options(root: string, excludesPlanningDirectory?: (directory: string) => boolean): FilePickerOption[];
+    retainsSelectedFileInPrompt: boolean;
     skill: string;
     title: string;
 };
@@ -136,30 +138,36 @@ function workspaceRoot(worktree: string, directory: string): string {
 
 export const filePickerCommands: readonly FilePickerCommand[] = [
     {
+        argumentPlaceholder: "$ARGUMENTS",
         command: "plan-review",
         description: "Select a plan to review",
         emptyMessage: "No plan.md files found in docs/_planning.",
         matchesSelection: (argument, filePath) => argument === filePath && isPlanPath(argument),
         options: planOptions,
+        retainsSelectedFileInPrompt: true,
         skill: "plan-review",
         title: "Select a plan to review",
     },
     {
+        argumentPlaceholder: "$ARGUMENTS",
         command: "plan-split",
         description: "Select a plan to split",
         emptyMessage: "No plan.md files found in docs/_planning.",
         excludesPlanningDirectory: hasSubPlans,
         matchesSelection: (argument, filePath) => argument === filePath && isPlanPath(argument),
         options: planOptions,
+        retainsSelectedFileInPrompt: true,
         skill: "plan-split",
         title: "Select a plan to split",
     },
     {
+        argumentPlaceholder: "$PLAN_DIR",
         command: "plan-execute",
         description: "Select sub-plans to execute",
         emptyMessage: "No sub-plan files found in docs/_planning.",
         matchesSelection: isSubPlanSelection,
         options: subPlanOptions,
+        retainsSelectedFileInPrompt: false,
         skill: "plan-execute",
         title: "Select sub-plans to execute",
     },
@@ -168,7 +176,7 @@ export const filePickerCommands: readonly FilePickerCommand[] = [
 export function filePickerSkill(
     text: string,
     parts: readonly unknown[],
-): { argument: string; skill: string } | undefined {
+): { argument: string; argumentPlaceholder: "$ARGUMENTS" | "$PLAN_DIR"; filePath: string; retainsSelectedFileInPrompt: boolean; skill: string } | undefined {
     const filePaths = parts.flatMap((part) => {
         if (typeof part !== "object" || part === null || !("type" in part) || part.type !== "file" || !("source" in part)) {
             return [];
@@ -188,8 +196,15 @@ export function filePickerSkill(
         }
 
         const argument = text.slice(prefix.length).trim();
-        if (argument !== "" && filePaths.some((filePath) => command.matchesSelection(argument, filePath))) {
-            return {argument, skill: command.skill};
+        const filePath = filePaths.find((path) => command.matchesSelection(argument, path));
+        if (argument !== "" && filePath !== undefined) {
+            return {
+                argument,
+                argumentPlaceholder: command.argumentPlaceholder,
+                filePath,
+                retainsSelectedFileInPrompt: command.retainsSelectedFileInPrompt,
+                skill: command.skill,
+            };
         }
     }
 }
@@ -206,7 +221,23 @@ export function expandFilePickerCommand(output: { parts: unknown[] }, template: 
             continue;
         }
 
-        part.text = template(skill.skill).replaceAll("$ARGUMENTS", `@${skill.argument}`).trim();
+        part.text = template(skill.skill).replaceAll(skill.argumentPlaceholder, `@${skill.argument}`).trim();
+        if (!skill.retainsSelectedFileInPrompt) {
+            const selectedFileIndex = output.parts.findIndex((candidate) => {
+                if (typeof candidate !== "object" || candidate === null || !("type" in candidate) || candidate.type !== "file"
+                    || !("source" in candidate)) {
+                    return false;
+                }
+
+                const {source} = candidate;
+                return typeof source === "object" && source !== null && "type" in source && source.type === "file" && "path" in source
+                    && source.path === skill.filePath;
+            });
+
+            if (selectedFileIndex !== -1) {
+                output.parts.splice(selectedFileIndex, 1);
+            }
+        }
 
         return;
     }

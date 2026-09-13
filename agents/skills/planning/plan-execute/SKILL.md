@@ -34,14 +34,7 @@ every step.
 
 ## Step 0 — Resolve the sub-plans directory
 
-If `$ARGUMENTS` contains a directory path, use it as `$PLAN_DIR`.
-
-Otherwise, use `question` to ask:
-
-> **Which directory contains the sub-plan files?**
-> Please provide the path to the directory produced by `/plan-split` (e.g. `docs/_planning/my-feature/`).
-
-Verify the directory exists. If it does not, stop with an error.
+`$PLAN_DIR` is the selected plan directory. Verify it exists, then use it as the complete execution scope.
 
 ---
 
@@ -53,6 +46,8 @@ List all `*.md` files in `$PLAN_DIR`. **Exclude `plan.md`** — that is the mast
 read it in full and record the contract's fields: `file` (filename), `sequence` (numeric prefix), `title` (H1 heading), `blocked_by` and `blocks` (the comma-separated
 filename lists from its `## Dependencies` section, empty when `none`), and `content` (the full file for orchestration context). Build an in-memory dependency map:
 `plan → set of plans it is waiting on`.
+
+Every discovered sub-plan belongs to the execution set. Do not select one file from it or silently omit a discovered sub-plan.
 
 ---
 
@@ -123,6 +118,8 @@ concurrently.
 
 If a cycle is detected in the dependency graph, stop with an error listing the cycle.
 
+Before executing, account for every file in the Step 1 inventory exactly once: it must be in the execution order or verified `complete`. Stop if any sub-plan is absent.
+
 Print the execution order before executing:
 
 ```
@@ -142,9 +139,12 @@ Execute one sub-plan at a time in dependency-respecting order. A plan never star
 
 ### 3a — Spawn sub-agents
 
-Use `task` to launch the hidden `implementor` subagent. Its agent definition owns the coding model and implementation-specific context.
+Use `task` to launch a coding subagent. Select the subagent type and model that fit the sub-plan's implementation work.
 Spawn exactly one sub-agent at a time. Make one `task` call for one sub-plan, wait for it to return, evaluate its result (Step 3c), and only then spawn the next sub-plan.
 Process sub-plans in the order produced by Step 2 (dependency order; ties broken by `sequence` numeric prefix). Never run two sub-agents at once.
+
+Give each sub-agent exactly one sub-plan file path. Its assignment ends after that file's acceptance criteria and scoped verification pass. Do not ask it to inspect,
+implement, or continue to another sub-plan, even when the next plan is unblocked.
 
 Each agent prompt must be self-contained. Use the appropriate template based on the sub-plan's status from Step 1b.
 
@@ -200,6 +200,8 @@ Because this rule always applies, do not omit the file.
 > You are a coding agent. Implement the following sub-plan exactly as specified. Do not skip steps. Do not ask
 > clarifying questions — all information needed is in the plan. If you encounter an ambiguity that would cause you to
 > make a significant architectural decision not described in the plan, stop and report it clearly rather than guessing.
+> Your scope is this one sub-plan only. Complete its acceptance criteria and scoped verification, report the result,
+> and stop. The orchestration agent dispatches every later sub-plan.
 >
 > **Sub-plan file:** `<$PLAN_DIR/<filename>>`
 >
@@ -229,6 +231,8 @@ Because this rule always applies, do not omit the file.
 
 > You are a coding agent. The following sub-plan has been partially implemented. Your job is to complete it —
 > implement only what is missing, do not re-create or overwrite work that already satisfies the plan's goals.
+> Your scope is this one sub-plan only. Complete its acceptance criteria and scoped verification, report the result,
+> and stop. The orchestration agent dispatches every later sub-plan.
 >
 > **Sub-plan file:** `<$PLAN_DIR/<filename>>`
 >
@@ -310,6 +314,8 @@ When retrying a failed sub-plan, wrap the original plan content with failure con
 > You are a coding agent. A previous attempt to implement the following sub-plan failed. Your goal is still to
 > implement the plan as specified — but adapt your approach based on the failure information below to find a
 > solution that works and still meets the plan's stated goals. Do not ask clarifying questions.
+> Your scope is this one sub-plan only. Complete its acceptance criteria and scoped verification, report the result,
+> and stop. The orchestration agent dispatches every later sub-plan.
 >
 > **Sub-plan file:** `<$PLAN_DIR/<filename>>`
 >
@@ -335,7 +341,8 @@ When retrying a failed sub-plan, wrap the original plan content with failure con
 
 ## Step 4 — Final report
 
-After all sub-plans complete, output a one-line-per-item status list:
+After every sub-plan in the Step 1 inventory is done or verified `complete`, output a one-line-per-item status list. Do not report execution complete for a partial
+directory.
 
 ```
 Execution complete — <$PLAN_DIR> — N sub-plans
@@ -382,6 +389,10 @@ Documentation-updates steps); the plan must not be committed as a lingering arti
   their output quality. Do not re-introduce concurrent implementation as an "optimization" — the reliability regression is the reason this rule exists. (This bans
   concurrent *implementing* agents only; bounded concurrency among read-only audit workers is a separate, permitted case.)
 - **Dependencies are non-negotiable.** Respect `blocked_by` strictly. Do not start a plan before all its blockers are marked complete.
+- **The directory is complete only as a whole.** Every discovered sub-plan must be done or verified `complete`. A skipped incomplete sub-plan leaves the directory
+  incomplete and prevents a successful execution report or plan-directory deletion.
+- **One sub-plan per coding agent.** Pass one file path to each sub-agent. Its work ends with that file's acceptance criteria and scoped verification; the orchestrator
+  dispatches later sub-plans.
 - **Pass file paths, not content.** Each sub-agent receives the sub-plan file path and reads it via `Read`. Never embed file content verbatim in agent prompts.
 - **Fail loudly and immediately.** The moment any agent result signals failure (internal error, empty output, no action taken), stop and surface it to the user via
   `question`. Do not start the next sub-plan, do not silently swallow the error. Consuming tokens while stuck is worse than stopping early.
@@ -390,4 +401,4 @@ Documentation-updates steps); the plan must not be committed as a lingering arti
 
 ---
 
-**Task:** $ARGUMENTS
+**Plan directory:** $PLAN_DIR
