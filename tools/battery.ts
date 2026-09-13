@@ -1155,51 +1155,51 @@ async function main(argv: string[]): Promise<void> {
     const sub = args[0] ?? "status";
     switch (sub) {
         case "status":
-        cmdStatus();
-        break;
+            cmdStatus();
+            break;
         case "percent":
-        cmdPercent();
-        break;
+            cmdPercent();
+            break;
         case "charging":
-        cmdCharging();
-        break;
+            cmdCharging();
+            break;
         case "health":
-        cmdHealth();
-        break;
+            cmdHealth();
+            break;
         case "adapter":
-        cmdAdapter();
-        break;
+            cmdAdapter();
+            break;
         case "time":
-        cmdTime();
-        break;
+            cmdTime();
+            break;
         case "temp":
-        cmdTemp();
-        break;
+            cmdTemp();
+            break;
         case "power":
-        cmdPower();
-        break;
+            cmdPower();
+            break;
         case "diagnose":
-        cmdDiagnose();
-        break;
+            cmdDiagnose();
+            break;
         case "why":
-        cmdWhy();
-        break;
+            cmdWhy();
+            break;
         case "raw":
-        cmdRaw();
-        break;
+            cmdRaw();
+            break;
         case "json":
-        cmdJson();
-        break;
+            cmdJson();
+            break;
         case "watch":
-        await cmdWatch(args[1] ?? "5");
-        break;
+            await cmdWatch(args[1] ?? "5");
+            break;
         case "help":
         case "-h":
         case "--help":
-        cmdHelp();
-        break;
+            cmdHelp();
+            break;
         default:
-        die(`unknown subcommand: ${sub} (try '${PROG} help')`);
+            die(`unknown subcommand: ${sub} (try '${PROG} help')`);
     }
 }
 

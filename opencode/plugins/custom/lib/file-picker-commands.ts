@@ -242,10 +242,14 @@ export function filePickerSkill(
         }
 
         const {source} = part;
-        return typeof source === "object" && source !== null && "type" in source && source.type === "file" && "path" in source
+        return typeof source === "object"
+            && source !== null
+            && "type" in source
+            && source.type === "file"
+            && "path" in source
             && typeof source.path === "string"
-                ? [source.path]
-                : [];
+            ? [source.path]
+            : [];
     });
 
     for (const command of filePickerCommands) {
