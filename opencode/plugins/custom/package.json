@@ -1,9 +1,0 @@
-{
-    "name": "opencode-custom",
-    "private": true,
-    "type": "module",
-    "exports": {
-        "./server": "./server/index.ts",
-        "./tui": "./tui/index.tsx"
-    }
-}

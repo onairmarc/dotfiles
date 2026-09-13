@@ -1,12 +1,8 @@
 // Links repo files into OpenCode and optional Claude config paths.
-//
-// Links are write-through. The OpenCode custom plugin is copied because
-// OpenCode requires a real plugin directory.
 import {lstatSync, mkdirSync, readFileSync, renameSync, rmSync, unlinkSync} from "node:fs";
 import {dirname, join, relative} from "node:path";
 import {
     alreadyWriteThrough,
-    copyDirectory,
     createWriteThroughLink,
     exists,
     findDirectoriesContaining,
@@ -45,12 +41,6 @@ function cleanupGlobalConfigLinks(dotfilesRoot: string, configDir: string): void
     removeManagedLink(join(dotfilesRoot, "opencode", "global", "tui.jsonc"), join(configDir, "tui.jsonc"), "Global mode");
 }
 
-function cleanupMisplacedCustomPluginLinks(configDir: string, pluginsSource: string, customPluginSource: string): void {
-    for (const file of findFiles(customPluginSource)) {
-        removeManagedLink(file, join(configDir, relative(pluginsSource, file)), "Global mode");
-    }
-}
-
 function cleanupRetiredGlobalLinks(configDir: string, agentsSource: string, pluginsSource: string): void {
     removeManagedLink(join(agentsSource, "the-implementor.md"), join(configDir, "agents", "the-implementor.md"), "Global mode");
 
@@ -68,23 +58,6 @@ function cleanupRetiredGlobalLinks(configDir: string, agentsSource: string, plug
 
 function logWarn(message: string): void {
     process.stdout.write(`${YELLOW}[WARN]${NC} ${message}\n`);
-}
-
-function copyPlugin(source: string, target: string, label: string): void {
-    if (!exists(source)) {
-        logWarn(`Source does not exist, skipping: ${source}`);
-
-        return;
-    }
-
-    mkdirSync(dirname(target), {recursive: true});
-
-    if (exists(target)) {
-        rmSync(target, {recursive: true, force: true});
-    }
-
-    copyDirectory(source, target);
-    logInfo(`${label}: copied plugin ${source} -> ${target}`);
 }
 
 function logError(message: string): void {
@@ -334,28 +307,22 @@ export function syncGlobalOpencode(): void {
     }
 
     const pluginsSource = join(dotfilesRoot, "opencode", "plugins");
-    const customPluginSource = join(pluginsSource, "custom");
     const agentsSource = join(dotfilesRoot, "opencode", "agents");
 
     linkGlobalFile(join(dotfilesRoot, "agents", "AGENTS.md"), join(configDir, "AGENTS.md"), "Global mode");
     cleanupGlobalConfigLinks(dotfilesRoot, configDir);
     cleanupRetiredGlobalLinks(configDir, agentsSource, pluginsSource);
-    cleanupMisplacedCustomPluginLinks(configDir, pluginsSource, customPluginSource);
+    rmSync(join(configDir, "plugins", "custom"), {recursive: true, force: true});
 
     for (const file of findFiles(agentsSource)) {
         linkGlobalFile(file, join(configDir, "agents", relative(agentsSource, file)), "Global mode");
     }
 
-    copyPlugin(customPluginSource, join(configDir, "plugins", "custom"), "Global mode");
-
     for (const file of findFiles(pluginsSource)) {
-        const isCustomPluginFile = !relative(customPluginSource, file).startsWith("..") && !relative(customPluginSource, file).startsWith("/");
-        if (!isCustomPluginFile) {
-            const target = file.endsWith(".ts") || file.endsWith(".js")
-                ? join(configDir, "plugins", relative(pluginsSource, file))
-                : join(configDir, relative(pluginsSource, file));
-            linkGlobalFile(file, target, "Global mode");
-        }
+        const target = file.endsWith(".ts") || file.endsWith(".js")
+            ? join(configDir, "plugins", relative(pluginsSource, file))
+            : join(configDir, relative(pluginsSource, file));
+        linkGlobalFile(file, target, "Global mode");
     }
 
     logInfo("Sync complete!");
