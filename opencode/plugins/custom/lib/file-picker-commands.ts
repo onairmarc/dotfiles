@@ -1,5 +1,5 @@
-import {createComponent} from "@opentui/solid";
 import type {TuiPluginApi, TuiPromptRef} from "@opencode-ai/plugin/tui";
+import {createComponent} from "@opentui/solid";
 import {readdirSync, statSync} from "node:fs";
 import {join, resolve} from "node:path";
 import {pathToFileURL} from "node:url";
@@ -14,15 +14,35 @@ export type FilePickerCommand = {
     command: string;
     description: string;
     emptyMessage: string;
+    excludesPlanningDirectory?(directory: string): boolean;
     matchesSelection(argument: string, filePath: string): boolean;
-    options(root: string): FilePickerOption[];
+    options(root: string, excludesPlanningDirectory?: (directory: string) => boolean): FilePickerOption[];
     skill: string;
     title: string;
 };
 
-function planOptions(root: string): FilePickerOption[] {
-    const planningDirectory = join(root, "docs", "_planning");
+function hasSubPlans(directory: string): boolean {
+    try {
+        return readdirSync(directory, {withFileTypes: true})
+            .some((entry) => entry.isFile() && /^\d{2}-.+\.md$/.test(entry.name));
+    } catch {
+        return false;
+    }
+}
 
+function isPlanPath(path: string): boolean {
+    return /^docs\/_planning\/[^/\s]+\/plan\.md$/.test(path);
+}
+
+function isSubPlanSelection(argument: string, filePath: string): boolean {
+    return /^docs\/_planning\/[^/\s]+$/.test(argument)
+        && filePath.startsWith(`${argument}/`)
+        && filePath !== `${argument}/plan.md`
+        && filePath.endsWith(".md");
+}
+
+function planOptions(root: string, excludesPlanningDirectory: (directory: string) => boolean = () => false): FilePickerOption[] {
+    const planningDirectory = join(root, "docs", "_planning");
     try {
         return readdirSync(planningDirectory, {withFileTypes: true})
             .filter((entry) => {
@@ -30,6 +50,9 @@ function planOptions(root: string): FilePickerOption[] {
                     return false;
                 }
 
+                if (excludesPlanningDirectory(join(planningDirectory, entry.name))) {
+                    return false;
+                }
                 try {
                     return statSync(join(planningDirectory, entry.name, "plan.md")).isFile();
                 } catch {
@@ -45,82 +68,6 @@ function planOptions(root: string): FilePickerOption[] {
     } catch {
         return [];
     }
-}
-
-function subPlanOptions(root: string): FilePickerOption[] {
-    const planningDirectory = join(root, "docs", "_planning");
-
-    try {
-        return readdirSync(planningDirectory, {withFileTypes: true})
-            .filter((entry) => entry.isDirectory())
-            .flatMap((entry) => {
-                const directory = join(planningDirectory, entry.name);
-                try {
-                    const subPlan = readdirSync(directory, {withFileTypes: true})
-                        .filter((file) => file.isFile() && file.name !== "plan.md" && file.name.endsWith(".md"))
-                        .map((file) => file.name)
-                        .sort((left, right) => left.localeCompare(right))[0];
-
-                    return subPlan === undefined
-                        ? []
-                        : [{
-                            argument: `docs/_planning/${entry.name}`,
-                            filePath: `docs/_planning/${entry.name}/${subPlan}`,
-                            label: entry.name,
-                        }];
-                } catch {
-                    return [];
-                }
-            })
-            .sort((left, right) => left.label.localeCompare(right.label));
-    } catch {
-        return [];
-    }
-}
-
-function isPlanPath(path: string): boolean {
-    return /^docs\/_planning\/[^/\s]+\/plan\.md$/.test(path);
-}
-
-function isSubPlanSelection(argument: string, filePath: string): boolean {
-    return /^docs\/_planning\/[^/\s]+$/.test(argument)
-        && filePath.startsWith(`${argument}/`)
-        && filePath !== `${argument}/plan.md`
-        && filePath.endsWith(".md");
-}
-
-export const filePickerCommands = [
-    {
-        command: "plan-review",
-        description: "Select a plan to review",
-        emptyMessage: "No plan.md files found in docs/_planning.",
-        matchesSelection: (argument, filePath) => argument === filePath && isPlanPath(argument),
-        options: planOptions,
-        skill: "plan-review",
-        title: "Select a plan to review",
-    },
-    {
-        command: "plan-split",
-        description: "Select a plan to split",
-        emptyMessage: "No plan.md files found in docs/_planning.",
-        matchesSelection: (argument, filePath) => argument === filePath && isPlanPath(argument),
-        options: planOptions,
-        skill: "plan-split",
-        title: "Select a plan to split",
-    },
-    {
-        command: "plan-execute",
-        description: "Select sub-plans to execute",
-        emptyMessage: "No sub-plan files found in docs/_planning.",
-        matchesSelection: isSubPlanSelection,
-        options: subPlanOptions,
-        skill: "plan-execute",
-        title: "Select sub-plans to execute",
-    },
-] as const satisfies readonly FilePickerCommand[];
-
-function workspaceRoot(worktree: string, directory: string): string {
-    return worktree === "/" ? directory : worktree;
 }
 
 function setPrompt(prompt: TuiPromptRef, root: string, command: FilePickerCommand, option: FilePickerOption): void {
@@ -153,6 +100,118 @@ function setPrompt(prompt: TuiPromptRef, root: string, command: FilePickerComman
     prompt.focus();
 }
 
+function subPlanOptions(root: string): FilePickerOption[] {
+    const planningDirectory = join(root, "docs", "_planning");
+    try {
+        return readdirSync(planningDirectory, {withFileTypes: true})
+            .filter((entry) => entry.isDirectory())
+            .flatMap((entry) => {
+                const directory = join(planningDirectory, entry.name);
+                try {
+                    const subPlan = readdirSync(directory, {withFileTypes: true})
+                        .filter((file) => file.isFile() && file.name !== "plan.md" && file.name.endsWith(".md"))
+                        .map((file) => file.name)
+                        .sort((left, right) => left.localeCompare(right))[0];
+
+                    return subPlan === undefined
+                        ? []
+                        : [{
+                            argument: `docs/_planning/${entry.name}`,
+                            filePath: `docs/_planning/${entry.name}/${subPlan}`,
+                            label: entry.name,
+                        }];
+                } catch {
+                    return [];
+                }
+            })
+                .sort((left, right) => left.label.localeCompare(right.label));
+    } catch {
+        return [];
+    }
+}
+
+function workspaceRoot(worktree: string, directory: string): string {
+    return worktree === "/" ? directory : worktree;
+}
+
+export const filePickerCommands: readonly FilePickerCommand[] = [
+    {
+        command: "plan-review",
+        description: "Select a plan to review",
+        emptyMessage: "No plan.md files found in docs/_planning.",
+        matchesSelection: (argument, filePath) => argument === filePath && isPlanPath(argument),
+        options: planOptions,
+        skill: "plan-review",
+        title: "Select a plan to review",
+    },
+    {
+        command: "plan-split",
+        description: "Select a plan to split",
+        emptyMessage: "No plan.md files found in docs/_planning.",
+        excludesPlanningDirectory: hasSubPlans,
+        matchesSelection: (argument, filePath) => argument === filePath && isPlanPath(argument),
+        options: planOptions,
+        skill: "plan-split",
+        title: "Select a plan to split",
+    },
+    {
+        command: "plan-execute",
+        description: "Select sub-plans to execute",
+        emptyMessage: "No sub-plan files found in docs/_planning.",
+        matchesSelection: isSubPlanSelection,
+        options: subPlanOptions,
+        skill: "plan-execute",
+        title: "Select sub-plans to execute",
+    },
+];
+
+export function filePickerSkill(
+    text: string,
+    parts: readonly unknown[],
+): { argument: string; skill: string } | undefined {
+    const filePaths = parts.flatMap((part) => {
+        if (typeof part !== "object" || part === null || !("type" in part) || part.type !== "file" || !("source" in part)) {
+            return [];
+        }
+
+        const {source} = part;
+        return typeof source === "object" && source !== null && "type" in source && source.type === "file" && "path" in source
+            && typeof source.path === "string"
+                ? [source.path]
+                : [];
+    });
+
+    for (const command of filePickerCommands) {
+        const prefix = `/${command.command} @`;
+        if (!text.startsWith(prefix)) {
+            continue;
+        }
+
+        const argument = text.slice(prefix.length).trim();
+        if (argument !== "" && filePaths.some((filePath) => command.matchesSelection(argument, filePath))) {
+            return {argument, skill: command.skill};
+        }
+    }
+}
+
+export function expandFilePickerCommand(output: { parts: unknown[] }, template: (skill: string) => string): void {
+    for (const part of output.parts) {
+        if (typeof part !== "object" || part === null || !("type" in part) || part.type !== "text" || !("text" in part)
+            || typeof part.text !== "string" || ("synthetic" in part && part.synthetic)) {
+            continue;
+        }
+
+        const skill = filePickerSkill(part.text, output.parts);
+        if (skill === undefined) {
+            continue;
+        }
+
+        part.text = template(skill.skill).replaceAll("$ARGUMENTS", `@${skill.argument}`).trim();
+
+        return;
+    }
+}
+
 export function registerFilePickerCommands(api: TuiPluginApi, prompt: () => TuiPromptRef | undefined): void {
     api.keymap.registerLayer({
         commands: filePickerCommands.map((command) => ({
@@ -163,7 +222,7 @@ export function registerFilePickerCommands(api: TuiPluginApi, prompt: () => TuiP
             slashName: command.command,
             run() {
                 const root = workspaceRoot(api.state.path.worktree, api.state.path.directory);
-                const options = command.options(root);
+                const options = command.options(root, command.excludesPlanningDirectory);
                 if (options.length === 0) {
                     api.ui.toast({
                         variant: "warning",
@@ -198,51 +257,4 @@ export function registerFilePickerCommands(api: TuiPluginApi, prompt: () => TuiP
             },
         })),
     });
-}
-
-export function filePickerSkill(
-    text: string,
-    parts: readonly unknown[],
-): {argument: string; skill: string} | undefined {
-    const filePaths = parts.flatMap((part) => {
-        if (typeof part !== "object" || part === null || !("type" in part) || part.type !== "file" || !("source" in part)) {
-            return [];
-        }
-
-        const {source} = part;
-        return typeof source === "object" && source !== null && "type" in source && source.type === "file" && "path" in source
-            && typeof source.path === "string"
-            ? [source.path]
-            : [];
-    });
-
-    for (const command of filePickerCommands) {
-        const prefix = `/${command.command} @`;
-        if (!text.startsWith(prefix)) {
-            continue;
-        }
-
-        const argument = text.slice(prefix.length).trim();
-        if (argument !== "" && filePaths.some((filePath) => command.matchesSelection(argument, filePath))) {
-            return {argument, skill: command.skill};
-        }
-    }
-}
-
-export function expandFilePickerCommand(output: {parts: unknown[]}, template: (skill: string) => string): void {
-    for (const part of output.parts) {
-        if (typeof part !== "object" || part === null || !("type" in part) || part.type !== "text" || !("text" in part)
-            || typeof part.text !== "string" || ("synthetic" in part && part.synthetic)) {
-            continue;
-        }
-
-        const skill = filePickerSkill(part.text, output.parts);
-        if (skill === undefined) {
-            continue;
-        }
-
-        part.text = template(skill.skill).replaceAll("$ARGUMENTS", `@${skill.argument}`).trim();
-
-        return;
-    }
 }
