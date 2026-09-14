@@ -54,10 +54,8 @@
         "xai"
     ],
     "provider": {
-        // Detected copilot authentication; opencode-quota added this global provider declaration.
-        "copilot": {},
-        // Detected xai authentication; opencode-quota added this global provider declaration.
-        "xai": {}
+        "xai": {},
+        "openai": {}
     },
     "permission": {
         "bash": {
