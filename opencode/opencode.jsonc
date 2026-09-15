@@ -29,6 +29,14 @@
             "headers": {
                 "Authorization": "Bearer {env:SERVICEPOINT_TOKEN}"
             }
+        },
+        "epp": {
+            "type": "remote",
+            "url": "https://portal.encoredigitalgroup.com/api/v1/mcp",
+            "oauth": false,
+            "headers": {
+                "Authorization": "Bearer {env:EPP_TOKEN}"
+            }
         }
     },
     "lsp": {
