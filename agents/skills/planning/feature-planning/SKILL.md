@@ -243,7 +243,7 @@ Do not proceed to Step 5 until the plan passes the northstar review with no unre
 
 ---
 
-## Step 5 — Final confirmation
+## Step 5 — Complete the plan
 
 Once the plan passes all lenses and (if applicable) the northstar review, present:
 
@@ -259,10 +259,7 @@ The plan is agent-ready. Key decisions made:
 - <bullet per significant decision>
 ```
 
-Then ask:
-
-> The plan has been written to `<path>`. Would you like to proceed to implementation, or is there anything else to
-> adjust?
+Tell the user that the plan is complete, then stop. Do not ask whether to proceed to implementation or make further adjustments.
 
 ---
 
@@ -273,7 +270,7 @@ Then ask:
 - **One source of truth.** All information lives in the plan file after every round.
 - **Simpler is better.** If you are unsure whether a step is necessary, ask whether it can be cut.
 - **Do not over-question.** If something is clear from context or discovered conventions, do not ask about it.
-- **Refer to discovered `CLAUDE.md` / `AGENTS.md`** for codebase conventions when drafting steps — do not contradict established patterns without flagging it.
+- **Refer to discovered `AGENTS.md`** for codebase conventions when drafting steps — do not contradict established patterns without flagging it.
 
 ---
 
