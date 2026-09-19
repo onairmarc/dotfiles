@@ -59,7 +59,8 @@
     ],
     "enabled_providers": [
         "openai",
-        "xai"
+        "xai",
+        "opencode"
     ],
     "provider": {
         "xai": {},
