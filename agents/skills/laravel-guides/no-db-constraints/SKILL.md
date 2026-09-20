@@ -12,7 +12,7 @@ equivalent application-level enforcement.
 
 ## File Operation Rules
 
-Read and follow `~/.config/opencode/skills/file-operations/SKILL.md`.
+Read and follow `~/.agents/skills/file-operations/SKILL.md`.
 
 ---
 

@@ -251,10 +251,10 @@ when the answer is genuinely ambiguous and cannot be resolved from available sig
 
 **E6 — Reference skill loaded redundantly**
 
-Look for: instructions to read a shared reference skill (e.g., `Read: ~/.config/opencode/skills/file-operations/SKILL.md`)
+Look for: instructions to read a shared reference skill (e.g., `Read: ~/.agents/skills/file-operations/SKILL.md`)
 appearing more than once in the skill body, or appearing inside a loop that executes per-item.
 
-Flag if: the same `Read: ~/.config/opencode/skills/...` instruction appears in multiple steps or could be executed multiple times during a single skill run.
+Flag if: the same `Read: ~/.agents/skills/...` instruction appears in multiple steps or could be executed multiple times during a single skill run.
 
 Recommendation: load reference skills once at the top of execution (Step 0 or Step 1). Store the rules in context and apply them throughout — do not re-read the same
 reference file per iteration.
@@ -281,11 +281,11 @@ lenses, verify each claim against current documentation.
 
 **Lenses requiring verification:**
 
-| Lens | Claim to verify                                                                                     |
-|------|-----------------------------------------------------------------------------------------------------|
-| A1   | Sub-agents can receive a file path in their prompt and read it themselves via `Read`                |
-| B1   | All sub-agent output accumulates in the orchestrator's context window                               |
-| C1   | Parallel `task` calls launch all sub-agents before the orchestrator receives results                |
+| Lens | Claim to verify                                                                      |
+|------|--------------------------------------------------------------------------------------|
+| A1   | Sub-agents can receive a file path in their prompt and read it themselves via `Read` |
+| B1   | All sub-agent output accumulates in the orchestrator's context window                |
+| C1   | Parallel `task` calls launch all sub-agents before the orchestrator receives results |
 
 **Only run this step if at least one finding from lenses A1, B1, or C1 was recorded in Step 2.**
 Skip entirely if none of those lenses triggered.

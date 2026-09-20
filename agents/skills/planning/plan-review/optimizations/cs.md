@@ -6,7 +6,7 @@ Avalonia check), so there is no `5a` step here.
 
 ## 5b–5d — Run the common procedure
 
-Follow `~/.config/opencode/skills/plan-review/optimizations/_common.md` with these parameters:
+Follow `~/.agents/skills/plan-review/optimizations/_common.md` with these parameters:
 
 - `{{OPTIMIZATION_SKILL}}` = `cs-optimization`
 - `{{PATH_NOUN}}` = `project`

@@ -10,7 +10,7 @@ This skill extends the base `code-review` skill with PHP/Laravel-specific rules.
 **Before doing anything else**, read the base skill:
 
 ```
-~/.config/opencode/skills/code-review/SKILL.md
+~/.agents/skills/code-review/SKILL.md
 ```
 
 Follow every step defined there, applying the overrides below in the matching steps. Where a section is marked **Extension point** in the base skill, replace it entirely

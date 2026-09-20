@@ -10,16 +10,16 @@ time, in dependency-respecting order. You do not implement anything yourself, an
 
 ## File Operation Rules
 
-Read and follow `~/.config/opencode/skills/file-operations/SKILL.md`.
+Read and follow `~/.agents/skills/file-operations/SKILL.md`.
 
 ## Plan-file deletion authority
 
-Read and follow `~/.config/opencode/skills/planning-commons/plan-file-deletion.md`. Reproduce the coding-sub-agent rule verbatim in
+Read and follow `~/.agents/skills/planning-commons/plan-file-deletion.md`. Reproduce the coding-sub-agent rule verbatim in
 `.agent-instructions.md` (Step 3a). You are the authorized orchestration agent for the deletion in Step 5.
 
 ## Delivery Constraints
 
-Read and follow `~/.config/opencode/skills/delivery-constraints/SKILL.md`. You do not implement, but you are responsible for making sure every sub-agent is bound by
+Read and follow `~/.agents/skills/delivery-constraints/SKILL.md`. You do not implement, but you are responsible for making sure every sub-agent is bound by
 these:
 sub-plans are implemented as vertical slices, in place on the currently checked-out branch — or on a new branch you create off main before spawning the first sub-agent,
 when your branch check shows main is checked out — and verified with the repository's own test tooling. Reproduce them in
@@ -27,7 +27,7 @@ when your branch check shows main is checked out — and verified with the repos
 
 ## Task tracking
 
-Read and follow `~/.config/opencode/skills/planning-commons/task-tracking.md`. Seed the list from the **plan-execute** starter before Step 0, and keep it current through
+Read and follow `~/.agents/skills/planning-commons/task-tracking.md`. Seed the list from the **plan-execute** starter before Step 0, and keep it current through
 every step.
 
 ---
@@ -40,7 +40,7 @@ every step.
 
 ## Step 1 — Discover and parse sub-plan files
 
-Parse the sub-plans per the **Dependency contract** in `~/.config/opencode/skills/planning-commons/plan-format.md` — the authoritative spec `plan-split` emits against.
+Parse the sub-plans per the **Dependency contract** in `~/.agents/skills/planning-commons/plan-format.md` — the authoritative spec `plan-split` emits against.
 
 List all `*.md` files in `$PLAN_DIR`. **Exclude `plan.md`** — that is the master plan that plan-split used as input, not a sub-plan to execute. For each remaining file,
 read it in full and record the contract's fields: `file` (filename), `sequence` (numeric prefix), `title` (H1 heading), `blocked_by` and `blocks` (the comma-separated
@@ -101,9 +101,9 @@ Before compiling the execution graph (Step 2), use `question` with exactly one q
 
 Treat any answer that is not an explicit yes as **No**.
 
-**If No:** do not read `~/.config/opencode/skills/planning-commons/parallel.md`. Continue from Step 2 exactly as written. Do not mention parallel execution again.
+**If No:** do not read `~/.agents/skills/planning-commons/parallel.md`. Continue from Step 2 exactly as written. Do not mention parallel execution again.
 
-**If Yes:** read `~/.config/opencode/skills/planning-commons/parallel.md` now, and apply the **plan-execute** section. Then continue from Step 2, applying those
+**If Yes:** read `~/.agents/skills/planning-commons/parallel.md` now, and apply the **plan-execute** section. Then continue from Step 2, applying those
 overrides.
 
 ---

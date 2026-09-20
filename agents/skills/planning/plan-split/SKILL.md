@@ -10,16 +10,15 @@ self-contained unit of work.
 
 ## File Operation Rules
 
-Read and follow `~/.config/opencode/skills/file-operations/SKILL.md`.
+Read and follow `~/.agents/skills/file-operations/SKILL.md`.
 
 ## Plan-file deletion authority
 
-Read and follow `~/.config/opencode/skills/planning-commons/plan-file-deletion.md`. Every emitted sub-plan must reproduce its plan-file deletion rule verbatim
-(see Step 3).
+Read and follow `~/.agents/skills/planning-commons/plan-file-deletion.md`. Every emitted sub-plan must reproduce its plan-file deletion rule verbatim (see Step 3).
 
 ## Delivery Constraints
 
-Read and follow `~/.config/opencode/skills/delivery-constraints/SKILL.md`. Two consequences govern this skill:
+Read and follow `~/.agents/skills/delivery-constraints/SKILL.md`. Two consequences govern this skill:
 
 - **Every sub-plan is a vertical slice.** Split boundaries are cut by behavior, never by layer. A sub-plan that delivers "the models", "the interfaces", or "the API
   surface" with its callers deferred to a later sub-plan is an invalid split — re-cut it.
@@ -29,7 +28,7 @@ Read and follow `~/.config/opencode/skills/delivery-constraints/SKILL.md`. Two c
 
 ## Task tracking
 
-Read and follow `~/.config/opencode/skills/planning-commons/task-tracking.md`. Seed the list from the **plan-split** starter before Step 0, and keep it current through
+Read and follow `~/.agents/skills/planning-commons/task-tracking.md`. Seed the list from the **plan-split** starter before Step 0, and keep it current through
 every step.
 
 ---
@@ -89,7 +88,7 @@ read, or a package install) may become sub-plan `01`. Keep it as small as possib
 slice. Anything that *can* live inside the first slice must.
 
 **Change-audit as final sub-plan:** the last sub-plan before plan-directory cleanup must be a change-audit pass. This sub-plan invokes the `change-audit` skill
-(`~/.config/opencode/skills/change-audit/SKILL.md`) to audit every file changed on the branch for materially useful simplifications and implement accepted fixes.
+(`~/.agents/skills/change-audit/SKILL.md`) to audit every file changed on the branch for materially useful simplifications and implement accepted fixes.
 It is blocked by all preceding sub-plans and blocks nothing (except the plan-deletion step, which is not a sub-plan). Its steps are: run `/change-audit`, confirm all
 tests pass after fixes are applied. If the master plan already contains a change-audit step, extract it into this final sub-plan; if it does not, add one.
 
@@ -140,7 +139,7 @@ Apply any corrections and re-present if changes were requested. Repeat until the
 ## Step 3 — Write the sub-plan files
 
 Once the user approves, write each sub-plan following the **Sub-plan structure**, **Content-extraction rules**, and **Dependency contract** in
-`~/.config/opencode/skills/planning-commons/plan-format.md`. In brief: filename `<sequence>-<slug>.md` written alongside the source plan; a `## Dependencies` header with
+`~/.agents/skills/planning-commons/plan-format.md`. In brief: filename `<sequence>-<slug>.md` written alongside the source plan; a `## Dependencies` header with
 mirror-image `**Blocked by:**` / `**Blocks:**` filename lists; the `## Delivery constraints` and `## Plan-file deletion` blocks reproduced verbatim (mandatory, never
 pointers); every sub-plan self-contained, with steps copied verbatim from the master plan and the applicable subset of `$PROJECT_STANDARDS` carried into each sub-plan's
 Context. Write all files before proceeding to Step 4.

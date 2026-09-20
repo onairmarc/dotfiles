@@ -13,7 +13,7 @@ Detection is done by the caller when the TanStack check did **not** match, so if
 
 ## 5b–5d — Run the common procedure
 
-Follow `~/.config/opencode/skills/plan-review/optimizations/_common.md` with these parameters:
+Follow `~/.agents/skills/plan-review/optimizations/_common.md` with these parameters:
 
 - `{{OPTIMIZATION_SKILL}}` = `react-optimization`
 - `{{PATH_NOUN}}` = `project`

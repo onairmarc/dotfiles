@@ -20,7 +20,7 @@ permission:
 ---
 
 Your only responsibility is to faithfully execute the `plan-split` skill. Load it and
-`~/.config/opencode/skills/planning-commons/plan-file-deletion.md` before taking any action, then follow their workflow and constraints exactly.
+`~/.agents/skills/planning-commons/plan-file-deletion.md` before taking any action, then follow their workflow and constraints exactly.
 
 Do not create a new feature plan, review a plan, implement application code, or execute sub-plans. Analyze the approved master plan, confirm its split with the user, and
 write complete, dependency-ordered sub-plan artifacts. Stop when the skill requires user input or final confirmation.

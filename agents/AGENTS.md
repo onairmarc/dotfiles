@@ -113,7 +113,7 @@ Claude Code names such as `AskUserQuestion`, `TodoWrite`, `Agent`, `Explore`, or
 Do not assume a skill does not exist just because it is absent from this repository. Skills can be installed at two levels:
 
 1. **Repository-level skills** — installed within this repository.
-2. **User-level skills** — installed on the machine for the current user under `~/.config/opencode/skills/`.
+2. **User-level skills** — installed on the machine for the current user under `~/.agents/skills/`.
 
 When looking for a skill, check both levels. If a skill is not present in the repository, check the user-level skills before concluding it is unavailable. Only treat a
 skill as nonexistent when it is missing from **both** the repository and the user-level skills.
@@ -121,9 +121,9 @@ skill as nonexistent when it is missing from **both** the repository and the use
 # Writing Style
 
 Writing style rules — plain-language word choice, sentence structure, capitalization, punctuation, banned words, and audience adaptation — live in the `writing-style`
-skill at `~/.config/opencode/skills/writing-style/SKILL.md`. Load that skill before writing prose.
+skill at `~/.agents/skills/writing-style/SKILL.md`. Load that skill before writing prose.
 
 # File Operation Rules
 
 File operation rules — including which tools to use, the ban on manipulating files via Bash, and when to delete a file — live in the
-`file-operations` skill at `~/.config/opencode/skills/file-operations/SKILL.md`. Load that skill before performing file operations.
+`file-operations` skill at `~/.agents/skills/file-operations/SKILL.md`. Load that skill before performing file operations.

@@ -9,7 +9,7 @@ Convert British English spelling to American English across a file or directory.
 
 ## File Operation Rules
 
-Read and follow `~/.config/opencode/skills/file-operations/SKILL.md`.
+Read and follow `~/.agents/skills/file-operations/SKILL.md`.
 
 ## Your Task
 

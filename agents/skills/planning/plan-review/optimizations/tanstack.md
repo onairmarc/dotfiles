@@ -7,7 +7,7 @@ You have already detected at least one `@tanstack/react-query`, `@tanstack/react
 
 ## 5b–5d — Run the common procedure
 
-Follow `~/.config/opencode/skills/plan-review/optimizations/_common.md` with these parameters:
+Follow `~/.agents/skills/plan-review/optimizations/_common.md` with these parameters:
 
 - `{{OPTIMIZATION_SKILL}}` = `tanstack-optimization`
 - `{{PATH_NOUN}}` = `project`

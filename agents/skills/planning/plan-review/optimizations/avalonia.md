@@ -6,7 +6,7 @@ You have already detected at least one `.csproj` containing an Avalonia `Package
 
 ## 5b–5d — Run the common procedure
 
-Follow `~/.config/opencode/skills/plan-review/optimizations/_common.md` with these parameters:
+Follow `~/.agents/skills/plan-review/optimizations/_common.md` with these parameters:
 
 - `{{OPTIMIZATION_SKILL}}` = `avalonia-optimization`
 - `{{PATH_NOUN}}` = `project`
