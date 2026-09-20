@@ -56,8 +56,12 @@ function cleanupRetiredGlobalLinks(configDir: string, agentsSource: string, plug
     removeManagedLink(join(pluginsSource, "skill-command-router.ts"), join(configDir, "plugins", "skill-command-router.ts"), "Global mode");
 }
 
-function logWarn(message: string): void {
-    process.stdout.write(`${YELLOW}[WARN]${NC} ${message}\n`);
+function cleanupRetiredGlobalSkills(configDir: string): void {
+    const skillsDir = join(configDir, "skills");
+    if (exists(skillsDir)) {
+        rmSync(skillsDir, {recursive: true, force: true});
+        logInfo(`Global mode: removed retired skills directory ${skillsDir}`);
+    }
 }
 
 function logError(message: string): void {
@@ -71,6 +75,10 @@ function finishSync(skillErrors: string[]): void {
     }
 
     logInfo("Sync complete!");
+}
+
+function logWarn(message: string): void {
+    process.stdout.write(`${YELLOW}[WARN]${NC} ${message}\n`);
 }
 
 function linkGlobalFile(referent: string, linkPath: string, label: string): void {
@@ -299,18 +307,15 @@ export function syncGlobalOpencode(): void {
         privateSkillsSource(privateDir),
         privateDir,
         "Global mode",
-        [join(configDir, "skills")],
+        [join(homeDirectory(), ".agents", "skills")],
     );
-
-    if (skillErrors.length > 0) {
-        throw new Error(`${skillErrors.length} skill(s) have invalid SKILL.md frontmatter`);
-    }
 
     const pluginsSource = join(dotfilesRoot, "opencode", "plugins");
     const agentsSource = join(dotfilesRoot, "opencode", "agents");
 
     linkGlobalFile(join(dotfilesRoot, "agents", "AGENTS.md"), join(configDir, "AGENTS.md"), "Global mode");
     cleanupGlobalConfigLinks(dotfilesRoot, configDir);
+    cleanupRetiredGlobalSkills(configDir);
     cleanupRetiredGlobalLinks(configDir, agentsSource, pluginsSource);
     rmSync(join(configDir, "plugins", "custom"), {recursive: true, force: true});
 
@@ -323,6 +328,10 @@ export function syncGlobalOpencode(): void {
             ? join(configDir, "plugins", relative(pluginsSource, file))
             : join(configDir, relative(pluginsSource, file));
         linkGlobalFile(file, target, "Global mode");
+    }
+
+    if (skillErrors.length > 0) {
+        throw new Error(`${skillErrors.length} skill(s) have invalid SKILL.md frontmatter`);
     }
 
     logInfo("Sync complete!");
