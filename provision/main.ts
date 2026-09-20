@@ -82,12 +82,14 @@ if (modeArg) {
     RUN_TOOLS = modeArg === "--tools-only";
     RUN_SCRIPTS = modeArg === "--scripts-only";
     RUN_CONFIGURATORS = modeArg === "--configurators-only";
+    RUN_CONFIGURATORS = modeArg === "--reconfigure";
     RUN_MIGRATIONS = modeArg === "--migrate";
 
     if (
         modeArg !== "--tools-only"
         && modeArg !== "--scripts-only"
         && modeArg !== "--configurators-only"
+        && modeArg !== "--reconfigure"
         && modeArg !== "--migrate"
     ) {
         process.stderr.write("[main] ERROR: unknown mode flag: " + modeArg + "\n");
@@ -208,9 +210,9 @@ if (RUN_CONFIGURATORS) {
                 ? "synchronizing configuration and skills…"
                 : name === "windows_terminal"
                     ? "synchronizing Shift+Enter input…"
-                : name === "desktop_background"
-                    ? "synchronizing desktop background…"
-                    : null;
+                    : name === "desktop_background"
+                        ? "synchronizing desktop background…"
+                        : null;
 
             if (synchronizationMessage) {
                 log.info(name, synchronizationMessage);
