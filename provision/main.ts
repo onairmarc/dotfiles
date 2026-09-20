@@ -206,6 +206,8 @@ if (RUN_CONFIGURATORS) {
         if (stateMod.hasRun(state, "configurators_run", name)) {
             const synchronizationMessage = name === "opencode"
                 ? "synchronizing configuration and skills…"
+                : name === "windows_terminal"
+                    ? "synchronizing Shift+Enter input…"
                 : name === "desktop_background"
                     ? "synchronizing desktop background…"
                     : null;
