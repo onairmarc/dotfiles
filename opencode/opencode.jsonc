@@ -22,9 +22,9 @@
             "url": "https://mcp.sentry.dev/mcp",
             "oauth": {}
         },
-        "servicepoint-projects": {
+        "servicepoint": {
             "type": "remote",
-            "url": "https://console.servicepointhq.com/api/v1/mcp/projects",
+            "url": "https://console.servicepointhq.com/api/v1/mcp",
             "oauth": false,
             "headers": {
                 "Authorization": "Bearer {env:SERVICEPOINT_TOKEN}"
