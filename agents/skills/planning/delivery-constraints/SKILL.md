@@ -1,6 +1,6 @@
 ---
 name: delivery-constraints
-description: Canonical delivery constraints shared across all planning skills — vertical slices, in-place branch discipline, and repository-native test tooling. Read this file at the start of any skill that plans, splits, reviews, resyncs, or executes an implementation plan.
+description: Canonical delivery constraints shared across all planning skills — vertical slices, in-place branch discipline, repository-native testing, and proved failure behavior. Read this file at the start of any skill that plans, splits, reviews, resyncs, or executes an implementation plan.
 ---
 
 # Delivery Constraints
@@ -93,3 +93,13 @@ then write tests that fit them.
 
 **If the repository has no test tooling at all:** say so explicitly in the plan and describe how the slice will be verified using what does exist (the app's own run
 command, an existing CLI entry point, a lint/build step). Do not invent a test framework or scaffold a harness to fill the gap without the user asking for one.
+
+---
+
+## 4. Prove and verify failure behavior
+
+Before finalizing a plan that changes executable behavior, run `fragility-audit --audit-only` over the intended affected code and its required call paths. Embed the
+validated report under `## Fragility audit report` after `## Goal` and follow `~/.agents/skills/fragility-commons/planning-contract.md`.
+
+After all behavioral slices and `/change-audit` complete, run `fragility-audit --verify-changes` as the final engineering gate. Do not delete the plan directory while
+it reports a proved finding. Follow `~/.agents/skills/fragility-commons/verification-contract.md`.

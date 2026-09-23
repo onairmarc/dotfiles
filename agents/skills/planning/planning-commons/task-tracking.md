@@ -29,13 +29,13 @@ Do not invent extra items for work the skill does not name. Do not drop a starte
 
 Seed before Step 0a:
 
-| content                                     | priority |
-|---------------------------------------------|----------|
-| Resolve the plan file                       | high     |
-| Analyze and decompose the plan              | high     |
-| Confirm the proposed split                  | high     |
-| Write the sub-plan files                    | high     |
-| Output the final summary                    | medium   |
+| content                        | priority |
+|--------------------------------|----------|
+| Resolve the plan file          | high     |
+| Analyze and decompose the plan | high     |
+| Confirm the proposed split     | high     |
+| Write the sub-plan files       | high     |
+| Output the final summary       | medium   |
 
 After the user approves the split, replace **Write the sub-plan files** with one item per `NN-slug.md`. An item is complete when that file is on disk with the dependency
 header, delivery-constraints block, steps, and acceptance criteria the skill requires. All files written → then the summary item.
@@ -46,14 +46,14 @@ header, delivery-constraints block, steps, and acceptance criteria the skill req
 
 Seed before Step 0:
 
-| content                                           | priority |
-|---------------------------------------------------|----------|
-| Resolve the sub-plans directory                   | high     |
-| Discover and parse sub-plan files                 | high     |
-| Build the execution order                         | high     |
-| Execute the sub-plans                             | high     |
-| Output the final report                           | medium   |
-| Delete the consumed plan directory                | medium   |
+| content                            | priority |
+|------------------------------------|----------|
+| Resolve the sub-plans directory    | high     |
+| Discover and parse sub-plan files  | high     |
+| Build the execution order          | high     |
+| Execute the sub-plans              | high     |
+| Output the final report            | medium   |
+| Delete the consumed plan directory | medium   |
 
 After Step 2, replace **Execute the sub-plans** with one item per sub-plan in execution order. An item is complete when its acceptance criteria and scoped verification
 pass. Cancel **Delete the consumed plan directory** when the skill withholds deletion because a sub-plan did not succeed.
@@ -64,20 +64,21 @@ pass. Cancel **Delete the consumed plan directory** when the skill withholds del
 
 Seed before Step 0:
 
-| content                                 | priority |
-|-----------------------------------------|----------|
-| Resolve the plan file                   | high     |
-| Discover project standards and policies | high     |
-| Lens 0 — standards and policy           | high     |
-| Lens A — ambiguity                      | high     |
-| Lens B — contradictions                 | high     |
-| Lens C — missing information            | high     |
-| Lens D — scope and completeness         | high     |
-| Lens E — delivery constraints           | high     |
-| Compile and group questions             | high     |
-| Review loop until clean                 | high     |
-| Final confirmation                      | medium   |
-| Performance optimization pass           | high     |
+| content                                  | priority |
+|------------------------------------------|----------|
+| Resolve the plan file                    | high     |
+| Discover project standards and policies  | high     |
+| Lens 0 — standards and policy            | high     |
+| Lens A — ambiguity                       | high     |
+| Lens B — contradictions                  | high     |
+| Lens C — missing information             | high     |
+| Lens D — scope and completeness          | high     |
+| Lens E — delivery constraints            | high     |
+| Lens F — fragility audit and remediation | high     |
+| Compile and group questions              | high     |
+| Review loop until clean                  | high     |
+| Final confirmation                       | medium   |
+| Performance optimization pass            | high     |
 
 A lens item is complete when every finding from that lens is recorded (or you have confirmed the lens has none). Run every lens; do not mark a later lens complete because
 an earlier one was noisy. If Step 2 finds the plan already complete, cancel the review-loop, confirmation, and optimization items after telling the user, and stop. Cancel
@@ -100,6 +101,7 @@ Seed before Step 0:
 | Lens E — ordering and dependency drift | high     |
 | Lens F — standards and policy drift    | high     |
 | Lens G — delivery constraint drift     | high     |
+| Lens H — fragility audit drift         | high     |
 | Classify mechanical vs ask             | high     |
 | Review loop until clean                | high     |
 | Final confirmation                     | medium   |

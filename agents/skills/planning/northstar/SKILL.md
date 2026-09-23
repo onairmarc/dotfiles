@@ -94,6 +94,9 @@ Ask the following in a **single `question` call**:
 Guiding principles are the heart of the northstar. The `feature-planning` skill will read each principle and its BLOCK/WARN annotation when reviewing a plan. A principle
 is only useful if it is specific enough to cause a real plan to fail.
 
+When a product needs specific failure or recovery behavior, capture it in an applicable guiding principle. `feature-planning` carries that requirement into its
+fragility-audit handoff; a northstar does not itself prove code failure paths.
+
 Ask in a **single `question` call**:
 
 > Please describe 3–10 principles that should guide all feature work in this product. For each, provide:

@@ -48,6 +48,12 @@ Written to `$PLAN_DIR/<kebab-case-feature-name>/plan.md` (create the directory i
 
 One paragraph: what problem this solves and what success looks like.
 
+## Fragility audit report
+
+Required when the plan changes executable behavior. Place this section immediately after `## Goal`. Include the validated findings, explicit skips, rejected
+speculative candidates, simplification assessments, and remediation order. If the plan changes no executable behavior, state that and explain why no fragility audit
+applies.
+
 ## Out of scope
 
 Explicit list of things this plan does NOT cover. If nothing is out of scope, say so.
@@ -82,11 +88,14 @@ Each step must be:
 - Scoped to one logical unit of work (one class, one migration, one endpoint)
 - Explicit about file paths
 
-The **second-to-last step** of every plan must run a change-audit pass on the branch. Invoke the `change-audit` skill
+The **third-to-last step** of every plan must run a change-audit pass on the branch. Invoke the `change-audit` skill
 (`~/.agents/skills/change-audit/SKILL.md`) to audit every file changed on the branch for materially useful simplifications and implement accepted fixes.
-This step runs after all behavioral slices are complete and all tests pass, but before the plan directory is deleted. State it explicitly, e.g.: "Run `/change-audit` —
-audit all changed files on this branch for data-structure, state-representation, and control-flow simplifications, and implement the accepted fixes. All tests must pass
-after fixes are applied."
+This step runs after all behavioral slices are complete and all tests pass. State it explicitly, e.g.: "Run `/change-audit` — audit all changed files on this branch
+for data-structure, state-representation, and control-flow simplifications, and implement the accepted fixes. All tests must pass after fixes are applied."
+
+The **second-to-last step** of every plan must run `fragility-audit --verify-changes` after `change-audit`. Follow
+`~/.agents/skills/fragility-commons/verification-contract.md`. If it finds a proved issue, stop before plan-directory deletion, retain this plan directory, and create
+the required remediation-plan handoff.
 
 The **final step** of every plan must hand plan-directory deletion to the agent running `plan-execute`, because plans are throwaway scaffolding (see
 `## Plan lifecycle`). State it explicitly, e.g.: "After every sub-plan succeeds, the agent running `plan-execute` deletes the `<$PLAN_DIR>/<feature>/` plan directory
@@ -154,8 +163,9 @@ is a short imperative kebab-case name (`create-user-model`). **Location:** the s
 ## Context
 
 <One paragraph: why this unit of work exists, what it produces, how it fits the overall feature. Include any constraints or decisions from the master plan relevant to
-this sub-plan only. State in one line what behavior is observable once this slice is complete. If this is a shared-groundwork sub-plan, state why the groundwork could not
-live inside the first behavioral slice.>
+this sub-plan only. For fragility work, include the finding IDs, proved failure chain, required handling behavior, selected simplification, and focused tests. State in
+one line what behavior is observable once this slice is complete. If this is a shared-groundwork sub-plan, state why the groundwork could not live inside the first
+behavioral slice.>
 
 ---
 
@@ -195,6 +205,8 @@ criteria; if the master plan has none, derive them from the steps.>
   that applies to each sub-plan's work in that sub-plan's Context — do not point back to the master plan.
 - **Plan-file deletion.** Reproduce the `## Plan-file deletion` block verbatim in every sub-plan. Preserve all plan artifacts until every sub-plan succeeds; only the
   agent running `plan-execute` can delete the consumed directory.
+- **Fragility context.** When a slice resolves a fragility finding, reproduce the applicable requirements from
+  `~/.agents/skills/fragility-commons/subplan-contract.md`. Never replace them with a pointer to the master plan.
 
 ---
 

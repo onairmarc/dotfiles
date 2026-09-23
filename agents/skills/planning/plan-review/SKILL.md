@@ -23,6 +23,11 @@ own test tooling. Lens E holds the plan against these, and any violation is repa
 Read and follow `~/.agents/skills/planning-commons/task-tracking.md`. Seed the list from the **plan-review** starter before Step 0, and keep it current through
 every step.
 
+## Fragility contracts
+
+Read and follow `~/.agents/skills/fragility-commons/review-contract.md`. Plans that change executable behavior must include a validated fragility report and final
+verification gate.
+
 ## Step 0 — Resolve the plan file
 
 If `$ARGUMENTS` contains a file path, use it.
@@ -124,6 +129,12 @@ Hold the plan against `~/.agents/skills/delivery-constraints/SKILL.md`. Every fi
 - **No bespoke harnesses.** Flag any throwaway driver script, scratch `main()`/`verify.*` runner, standalone sandbox project, or hand-rolled assertion/mocking layer that
   duplicates tooling the repository already provides. If the repository genuinely has no test tooling, the plan must say so and describe verification with what exists —
   not scaffold a harness.
+
+### Lens F — Fragility audit and remediation (blocker, ranks with Lens 0)
+
+Follow `~/.agents/skills/fragility-commons/review-contract.md` in full. For a plan that changes executable behavior, verify the embedded report, each finding's proof,
+the selected simplification or explicit rejection, target error behavior, focused tests, and final verification gate. If the report is absent, obtain an
+`fragility-audit --audit-only` handoff for the plan's affected scope before finalizing the plan.
 
 ---
 

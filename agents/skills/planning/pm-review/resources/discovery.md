@@ -132,6 +132,11 @@ null.>
 
 <Compliance, access-control, performance, and knowledge-base `constraints` this must respect. Flag any collision with a `non_goal`.>
 
+## Failure behavior and recovery expectations
+
+<For each product invariant affected by failure, state what a user, caller, or operator must observe; whether retry, rollback, or partial completion is allowed; and what
+must never be reported as successful. This informs `fragility-audit`; it does not prove a code failure path.>
+
 ## Open questions for planning
 
 <Only genuinely unresolved product decisions. Empty is a good outcome — it means discovery is complete.>

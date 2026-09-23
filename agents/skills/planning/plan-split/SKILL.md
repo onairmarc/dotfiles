@@ -26,6 +26,11 @@ Read and follow `~/.agents/skills/delivery-constraints/SKILL.md`. Two consequenc
   checked out, on a new branch created off main by the first sub-plan to run — and each verifies itself with the repository's own test tooling. Reproduce both rules in
   every sub-plan (see Step 3).
 
+## Fragility contracts
+
+Read and follow `~/.agents/skills/fragility-commons/subplan-contract.md` and `verification-contract.md`. Preserve each finding's failure contract when extracting
+sub-plans, and place final verification after `change-audit`.
+
 ## Task tracking
 
 Read and follow `~/.agents/skills/planning-commons/task-tracking.md`. Seed the list from the **plan-split** starter before Step 0, and keep it current through
@@ -87,10 +92,16 @@ state.
 read, or a package install) may become sub-plan `01`. Keep it as small as possible and state in that sub-plan's Context why it could not live inside the first behavioral
 slice. Anything that *can* live inside the first slice must.
 
-**Change-audit as final sub-plan:** the last sub-plan before plan-directory cleanup must be a change-audit pass. This sub-plan invokes the `change-audit` skill
-(`~/.agents/skills/change-audit/SKILL.md`) to audit every file changed on the branch for materially useful simplifications and implement accepted fixes.
-It is blocked by all preceding sub-plans and blocks nothing (except the plan-deletion step, which is not a sub-plan). Its steps are: run `/change-audit`, confirm all
-tests pass after fixes are applied. If the master plan already contains a change-audit step, extract it into this final sub-plan; if it does not, add one.
+**1. Change-audit sub-plan:** create the second-to-last sub-plan before plan-directory cleanup as the change-audit gate. It is blocked by every behavioral sub-plan and
+blocks the final fragility-verification sub-plan. It invokes `change-audit` (`~/.agents/skills/change-audit/SKILL.md`) to audit every file changed on the branch for
+materially useful simplifications, implement every accepted fix, and confirm all scoped tests pass after those fixes.
+
+**2. Fragility-verification sub-plan:** create the final sub-plan before plan-directory cleanup as the fragility-verification gate. It is blocked only by the
+change-audit sub-plan and blocks nothing except plan deletion. It invokes `fragility-audit --verify-changes` and follows
+`~/.agents/skills/fragility-commons/verification-contract.md`. If verification finds a proved issue, surface every proved issue to the user, stop before plan
+deletion, and retain the plan directory.
+
+Always create these two dedicated sub-plans in this order. If the master plan omits either gate, add it before presenting the proposed split.
 
 ### Producing the split
 

@@ -33,6 +33,11 @@ place on the currently checked-out branch — or on a new branch created off mai
 own test tooling. Lens G holds the remaining work against these. Restructuring leftover horizontal phases into vertical slices is a reconciliation, not a scope change —
 it does not alter what "done" means and does not need user approval, though a restructure that drops or adds outcomes does.
 
+## Fragility contracts
+
+Read and follow `~/.agents/skills/fragility-commons/planning-contract.md` and `review-contract.md`. Lens H keeps the embedded audit report and each remediation
+contract accurate as the code changes.
+
 ## Task tracking
 
 Read and follow `~/.agents/skills/planning-commons/task-tracking.md`. Seed the list from the **plan-resync** starter before Step 0, and keep it current through
@@ -150,6 +155,12 @@ Hold the plan's remaining work against `~/.agents/skills/delivery-constraints/SK
   strategy to the current tooling.
 - **Bespoke harnesses.** Does the remaining work prescribe a throwaway driver script, scratch runner, sandbox project, or hand-rolled assertion layer? Replace it with the
   repository's own tooling. If already-implemented work left such a harness behind, surface it as remediation the resynced plan should cover.
+
+### Lens H — Fragility audit drift (highest priority)
+
+For plans that change executable behavior, verify every finding in `## Fragility audit report` against the current code. Mark a finding complete only when the required
+handling behavior and focused failure-path tests exist. Re-run `fragility-audit --audit-only` when changed code invalidates the report's proof, changes a required call
+path, or adds a directly relevant error boundary. Update the report and remaining steps from the validated result; do not preserve stale evidence.
 
 ---
 

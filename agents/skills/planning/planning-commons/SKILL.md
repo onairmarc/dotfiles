@@ -16,6 +16,7 @@ it, exactly as skills already load `delivery-constraints` and `file-operations`.
 | Plan + sub-plan document format                   | [`plan-format.md`](plan-format.md)               | a skill emits a plan (`feature-planning`), emits sub-plans (`plan-split`), or parses them (`plan-execute`).                |
 | Plan-file deletion authority                      | [`plan-file-deletion.md`](plan-file-deletion.md) | `plan-split` emits sub-plans, or `plan-execute` deletes a consumed plan directory.                                         |
 | Task tracking (`todowrite`)                       | [`task-tracking.md`](task-tracking.md)           | `plan-split`, `plan-execute`, `plan-review`, or `plan-resync` starts — seed the list before Step 0 and keep it current.    |
+| Proven failure-path contracts                      | `~/.agents/skills/fragility-commons/`            | a planning skill creates, reviews, resyncs, splits, or executes a plan that changes executable behavior.                   |
 
 These docs describe *how the skill operates*; they are never pointed at from an emitted artifact. Emitted artifacts must remain self-contained — when a template here
 contains a block to reproduce, the skill copies that block into the artifact rather than linking back here.

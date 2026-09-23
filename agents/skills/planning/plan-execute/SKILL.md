@@ -25,6 +25,11 @@ sub-plans are implemented as vertical slices, in place on the currently checked-
 when your branch check shows main is checked out — and verified with the repository's own test tooling. Reproduce them in
 `.agent-instructions.md` (Step 3a) and never spawn an agent without that file present.
 
+## Fragility contracts
+
+Read and follow `~/.agents/skills/fragility-commons/subplan-contract.md` and `verification-contract.md`. Confirm the execution set ends with `change-audit` followed
+by `fragility-audit --verify-changes`; do not delete the plan directory after a failed final verification.
+
 ## Task tracking
 
 Read and follow `~/.agents/skills/planning-commons/task-tracking.md`. Seed the list from the **plan-execute** starter before Step 0, and keep it current through
@@ -48,6 +53,9 @@ filename lists from its `## Dependencies` section, empty when `none`), and `cont
 `plan → set of plans it is waiting on`.
 
 Every discovered sub-plan belongs to the execution set. Do not select one file from it or silently omit a discovered sub-plan.
+
+Verify the final two sub-plans are a `/change-audit` gate followed by `fragility-audit --verify-changes`. Stop and report a malformed plan set when either gate is
+missing, ordered incorrectly, or lacks its required acceptance criteria.
 
 ---
 
@@ -192,6 +200,9 @@ directory after every sub-plan succeeds and the repository's planning-lifecycle 
 ```
 
 Because this rule always applies, do not omit the file.
+
+Also state that every finding-specific failure contract and focused failure-path test in the sub-plan is mandatory. An agent must not replace a specified failure outcome
+with a generic catch, silent fallback, or untested retry.
 
 **Template A — pending (no prior implementation):**
 

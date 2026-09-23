@@ -21,6 +21,11 @@ lands in place on the currently checked-out branch — or, if that branch is mai
 with the repository's own test tooling rather than a bespoke harness. These constraints are enforced by Lens E in Step 2 and must be reproduced in the plan itself so an
 implementing agent reading only the plan is bound by them.
 
+## Fragility contracts
+
+Read and follow `~/.agents/skills/fragility-commons/planning-contract.md` and `review-contract.md`. Plans that change executable behavior require a validated
+`fragility-audit --audit-only` handoff and a final `fragility-audit --verify-changes` gate. These rules are enforced by Lens F and Lens G.
+
 ## General Design Principles
 
 Apply these throughout every phase. They are non-negotiable constraints, not suggestions.
@@ -132,20 +137,28 @@ every available source, then asking the user **only** about what none of those s
    `question`: name **what led you to have no questions** — e.g. "the discovery brief resolves scope and edge cases, the code shows the extension point in `X`, and
    convention `Y` fixes the rest" — and present the premise you are about to plan from (intended scope, affected components, key decisions). Give the user a clear path to
    **confirm** or **correct** it.
-    - If the user confirms, proceed to Step 1 and write the plan.
+    - If the user confirms, proceed to Step 0.5.
     - If the user corrects any part, fold the correction in and re-check for new unknowns before drafting.
 
    Never write the plan on an unconfirmed premise, even when you believe it is complete.
 
 ---
 
+## Step 0.5 — Audit fragility
+
+If the plan changes executable behavior, identify the intended affected code and required adjacent call paths from Step 0. Run `fragility-audit --audit-only` and
+retain its validated report as `$FRAGILITY_REPORT`. If this skill was invoked by `fragility-audit`, consume its supplied validated report instead of running a second
+audit. If the plan changes no executable behavior, record why the audit does not apply.
+
+---
+
 ## Step 1 — Draft the plan
 
-Using the answers from Step 0 and the context discovered in Pre-flight, draft the plan following the **Master plan structure** in
+Using the answers from Step 0, `$FRAGILITY_REPORT`, and the context discovered in Pre-flight, draft the plan following the **Master plan structure** in
 `~/.agents/skills/planning-commons/plan-format.md`. Write it to `$PLAN_DIR/<kebab-case-feature-name>/plan.md`, creating the directory if it does not exist.
-Reproduce that doc's `## Delivery constraints` block verbatim into the plan with the project's real test runner command filled in, organize `## Implementation steps` as
-vertical `### Slice N —` sections, and make the final step assign plan-directory deletion to the agent running `plan-execute`. Fill every section from the
-Pre-flight context and Step 0 answers — leave no placeholder.
+Embed the report immediately after `## Goal`, reproduce that doc's `## Delivery constraints` block verbatim into the plan with the project's real test runner command
+filled in, organize `## Implementation steps` as vertical `### Slice N —` sections, and make the final step assign plan-directory deletion to the agent running
+`plan-execute`. Fill every section from the Pre-flight context, Step 0 answers, and the fragility handoff — leave no placeholder.
 
 ---
 
@@ -212,11 +225,19 @@ Hold the plan against `~/.agents/skills/delivery-constraints/SKILL.md`. Every fi
 
 ### Lens F — Change audit step (blocker)
 
-- Does the plan include a second-to-last step that runs `/change-audit` after all behavioral slices are complete and all tests pass, but before the plan directory is
-  deleted?
+- Does the plan include a third-to-last step that runs `/change-audit` after all behavioral slices are complete and all tests pass?
 - Does the change-audit step explicitly require all tests to pass after fixes are applied?
 - If the step is missing, absent, or placed in the wrong position, this is a blocker — add it per the template in
   `~/.agents/skills/planning-commons/plan-format.md`.
+
+### Lens G — Fragility audit and verification (blocker)
+
+Follow `~/.agents/skills/fragility-commons/review-contract.md`.
+
+- Does every plan that changes executable behavior contain a validated `## Fragility audit report` immediately after `## Goal`?
+- Does each remediation slice map to finding IDs and define the target flow, error handling, cleanup, logging, observable behavior, and focused failure-path tests?
+- Does the plan evaluate simplification before selecting a more complex recovery design?
+- Does the second-to-last step run `fragility-audit --verify-changes` after `/change-audit` and before plan deletion?
 
 ---
 
