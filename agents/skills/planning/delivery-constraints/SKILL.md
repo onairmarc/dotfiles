@@ -34,7 +34,7 @@ five, one field instead of the whole form, the happy path before the edge cases.
 
 **Permitted exception:** genuinely shared groundwork that multiple slices depend on and that cannot be sensibly co-located with the first slice (for example a schema
 migration that three slices all read, or a package/dependency install). Keep it as small as possible, place it first, and state explicitly in the plan why it cannot live
-inside the first vertical slice. Anything that *can* live inside the first slice must.
+inside the first vertical slice. Anything that _can_ live inside the first slice must.
 
 ---
 
@@ -98,8 +98,9 @@ command, an existing CLI entry point, a lint/build step). Do not invent a test f
 
 ## 4. Prove and verify failure behavior
 
-Before finalizing a plan that changes executable behavior, run `fragility-audit --audit-only` over the intended affected code and its required call paths. Embed the
-validated report under `## Fragility audit report` after `## Goal` and follow `~/.agents/skills/fragility-commons/planning-contract.md`.
+Before finalizing a plan that changes executable behavior, load `fragility-audit` with the `skill` tool, then run its `--audit-only` mode over the intended affected
+code and its required call paths. Embed the validated report under `## Fragility audit report` after `## Goal` and follow
+`~/.agents/skills/fragility-commons/planning-contract.md`. Never pass this flag to OpenCode, a shell command, or a slash command.
 
-After all behavioral slices and `/change-audit` complete, run `fragility-audit --verify-changes` as the final engineering gate. Do not delete the plan directory while
-it reports a proved finding. Follow `~/.agents/skills/fragility-commons/verification-contract.md`.
+After all behavioral slices and the `change-audit` skill complete, load `fragility-audit` with the `skill` tool and run its `--verify-changes` mode as the final
+engineering gate. Do not delete the plan directory while it reports a proved finding. Follow `~/.agents/skills/fragility-commons/verification-contract.md`.

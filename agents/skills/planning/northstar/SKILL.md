@@ -29,15 +29,15 @@ Before gathering any input, orient yourself:
 
 2. **Check for existing northstar** — resolve `$NORTHSTAR_PATH` per the `$NORTHSTAR` ladder in `~/.agents/skills/planning-commons/paths.md` (durable home first,
    legacy locations after). If `$ARGUMENTS` contains a path to an existing northstar, use that instead. If one exists:
-    - Ask the user via `question`: **Refine the existing northstar, or start fresh?**
-        - **Refine**: read the existing file, treat its content as Step 0–4 answers, then jump to Step 5 (Review lenses)
-          and surface only what is missing or weak. If it currently lives outside `$PRODUCT_DIR` (a legacy location), write the refined version to
-          `$PRODUCT_DIR/northstar.md` in Step 5 and note the move to the user.
-        - **Start fresh**: proceed through all steps normally; the file is written to `$PRODUCT_DIR/northstar.md` at Step 5.
+   - Ask the user via `question`: **Refine the existing northstar, or start fresh?**
+     - **Refine**: read the existing file, treat its content as Step 0–4 answers, then jump to Step 5 (Review lenses)
+       and surface only what is missing or weak. If it currently lives outside `$PRODUCT_DIR` (a legacy location), write the refined version to
+       `$PRODUCT_DIR/northstar.md` in Step 5 and note the move to the user.
+     - **Start fresh**: proceed through all steps normally; the file is written to `$PRODUCT_DIR/northstar.md` at Step 5.
 
 3. **Read project conventions** — if any of the following exist, read them:
-    - `AGENTS.md`
-    - `docs/policies.md`
+   - `AGENTS.md`
+   - `docs/policies.md`
 
    Extract: project name, tech stack, architectural patterns, team conventions. Use this throughout to ground your questions and avoid asking for things already
    documented.
@@ -95,11 +95,12 @@ Guiding principles are the heart of the northstar. The `feature-planning` skill 
 is only useful if it is specific enough to cause a real plan to fail.
 
 When a product needs specific failure or recovery behavior, capture it in an applicable guiding principle. `feature-planning` carries that requirement into its
-fragility-audit handoff; a northstar does not itself prove code failure paths.
+`fragility-audit` skill handoff; a northstar does not itself prove code failure paths.
 
 Ask in a **single `question` call**:
 
 > Please describe 3–10 principles that should guide all feature work in this product. For each, provide:
+>
 > - A short name (2–5 words)
 > - A 1–2 sentence description of the constraint or rule
 > - Whether a violation should **BLOCK** the plan (must be resolved before implementation) or **WARN** (flag and acknowledge, but may proceed)
@@ -107,9 +108,9 @@ Ask in a **single `question` call**:
 > Here are three examples to anchor your thinking — adapt or replace them as fits your product:
 >
 > - **Solve a Real User Problem** — Every feature must trace to a concrete workflow for a named user role. BLOCK if a plan describes a feature without identifying a user
-    who benefits.
+>   who benefits.
 > - **Prefer Narrow Scope** — Build the minimum that solves the problem correctly. Do not design for hypothetical future requirements. WARN if a plan contains steps that
-    serve unconfirmed future needs.
+>   serve unconfirmed future needs.
 > - **Tests Are Not Optional** — Every step that contains logic must include a test strategy. BLOCK if a plan omits tests for a step with branching logic or side effects.
 
 If the user provides fewer than 3 principles, prompt them for at least one more before proceeding.
@@ -123,10 +124,10 @@ If the user provides fewer than 3 principles, prompt them for at least one more 
 Ask in a **single `question` call**:
 
 1. Which tool (s) does the team use to track approved and planned features?
-    - `_ideas.md` (a markdown file alongside this northstar)
-    - SP Projects (specify the project name)
-    - A combination (specify which)
-    - Other (specify)
+   - `_ideas.md` (a markdown file alongside this northstar)
+   - SP Projects (specify the project name)
+   - A combination (specify which)
+   - Other (specify)
 
 Record the answer as `$TRACKING_TOOLS`. Proceed to 4b before asking for the feature list.
 
@@ -181,9 +182,9 @@ If a legacy northstar was found outside `$PRODUCT_DIR` in Pre-flight, write the 
 
 ## Primary Users
 
-| Role     | Key Activities             |
-|----------|----------------------------|
-| <Role>   | <Activity 1>, <Activity 2> |
+| Role   | Key Activities             |
+| ------ | -------------------------- |
+| <Role> | <Activity 1>, <Activity 2> |
 
 ## Deployment Model
 
@@ -198,7 +199,7 @@ If a legacy northstar was found outside `$PRODUCT_DIR` in Pre-flight, write the 
 ## Explicit Out of Scope
 
 | Area                             | Reason                                                      |
-|----------------------------------|-------------------------------------------------------------|
+| -------------------------------- | ----------------------------------------------------------- |
 | <Thing this product will NOT do> | <Why: adjacent but out of mission, handled elsewhere, etc.> |
 
 ## Scale Target
@@ -217,6 +218,7 @@ If a legacy northstar was found outside `$PRODUCT_DIR` in Pre-flight, write the 
 [Each principle: bold name, 1–2 sentence description, then a blockquote BLOCK or WARN annotation.]
 
 1. **<Principle Name>.** <Description.>
+
    > BLOCK if <specific violation condition>.
 
 2. **<Principle Name>.** <Description.>
@@ -228,9 +230,9 @@ If a legacy northstar was found outside `$PRODUCT_DIR` in Pre-flight, write the 
 
 Features are tracked in: <tool name (s) and location — e.g., `_ideas.md` alongside this file / SP Projects "Project Name" / combination>
 
-| Feature         | Status  | Summary        |
-|-----------------|---------|----------------|
-| <Feature name>  | Planned | <One sentence> |
+| Feature        | Status  | Summary        |
+| -------------- | ------- | -------------- |
+| <Feature name> | Planned | <One sentence> |
 
 ## What This Document Is Not
 
@@ -310,7 +312,7 @@ Then ask:
 ## Guidelines
 
 - **Never invent answers.** If the user's intent is unclear, ask — do not assume product details.
-- **Preserve specificity.** Generic content helps no one. Every sentence should be true of *this* product and false of some other product.
+- **Preserve specificity.** Generic content helps no one. Every sentence should be true of _this_ product and false of some other product.
 - **One source of truth.** All information lives in the northstar file after every round — never hold unanswered questions in your head.
 - **Principles must be actionable.** If you cannot write a concrete BLOCK or WARN condition for a principle, the principle is too vague — ask the user to sharpen it.
 - **Do not over-question.** If something is clear from `AGENTS.md` or `docs/policies.md`, do not ask about it again.

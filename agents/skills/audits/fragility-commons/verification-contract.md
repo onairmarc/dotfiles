@@ -1,7 +1,7 @@
 # Fragility verification contract
 
-After all behavioral slices and `/change-audit` fixes pass their scoped tests, run `fragility-audit --verify-changes` over every branch change
-and directly affected call path.
+After all behavioral slices and `change-audit` fixes pass their scoped tests, load `fragility-audit` with the `skill` tool and run its `--verify-changes` mode over
+every branch change and directly affected call path. Never invoke it through OpenCode, a shell command, or a slash command.
 
 The verification confirms:
 

@@ -48,7 +48,7 @@ Carry these into the brief's "Vision fit" section and into the open questions if
 
 ## Step 3 — Apply the PM Lenses to the Idea
 
-Run **both** lens sets against the idea, forward-looking (what *would* this need / risk), not backward-looking (what a diff got wrong).
+Run **both** lens sets against the idea, forward-looking (what _would_ this need / risk), not backward-looking (what a diff got wrong).
 
 ### Universal lenses (always applied)
 
@@ -135,7 +135,7 @@ null.>
 ## Failure behavior and recovery expectations
 
 <For each product invariant affected by failure, state what a user, caller, or operator must observe; whether retry, rollback, or partial completion is allowed; and what
-must never be reported as successful. This informs `/fragility-audit`; it does not prove a code failure path.>
+must never be reported as successful. This informs the `fragility-audit` skill; it does not prove a code failure path.>
 
 ## Open questions for planning
 

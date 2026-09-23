@@ -2,9 +2,9 @@
 
 The canonical structure of the artifacts the planning pipeline produces and consumes:
 
-- **`feature-planning`** emits a **master plan** (`plan.md`) per the *Master plan structure* below.
-- **`plan-split`** decomposes a master plan into **sub-plan files** per the *Sub-plan structure* below, carrying the *Dependency contract*.
-- **`plan-execute`** parses those sub-plans per the *Dependency contract* and runs them.
+- **`feature-planning`** emits a **master plan** (`plan.md`) per the _Master plan structure_ below.
+- **`plan-split`** decomposes a master plan into **sub-plan files** per the _Sub-plan structure_ below, carrying the _Dependency contract_.
+- **`plan-execute`** parses those sub-plans per the _Dependency contract_ and runs them.
 
 These are the load-bearing cross-skill assumptions. A change to any of them must be made here, in one place, and honored by every skill above — an edit to the sub-plan
 Dependency contract that only lands in `plan-split` silently breaks `plan-execute`'s parser.
@@ -88,14 +88,14 @@ Each step must be:
 - Scoped to one logical unit of work (one class, one migration, one endpoint)
 - Explicit about file paths
 
-The **third-to-last step** of every plan must run a change-audit pass on the branch. Invoke the `change-audit` skill
+The **third-to-last step** of every plan must run a change-audit pass on the branch. Load the `change-audit` skill with the `skill` tool
 (`~/.agents/skills/change-audit/SKILL.md`) to audit every file changed on the branch for materially useful simplifications and implement accepted fixes.
-This step runs after all behavioral slices are complete and all tests pass. State it explicitly, e.g.: "Run `/change-audit` — audit all changed files on this branch
-for data-structure, state-representation, and control-flow simplifications, and implement the accepted fixes. All tests must pass after fixes are applied."
+This step runs after all behavioral slices are complete and all tests pass. State it explicitly, e.g.: "Load `change-audit` with the `skill` tool. Audit all changed
+files on this branch for data-structure, state-representation, and control-flow simplifications, implement the accepted fixes, and ensure all tests pass."
 
-The **second-to-last step** of every plan must run `fragility-audit --verify-changes` after `change-audit`. Follow
-`~/.agents/skills/fragility-commons/verification-contract.md`. If it finds a proved issue, stop before plan-directory deletion, retain this plan directory, and create
-the required remediation-plan handoff.
+The **second-to-last step** of every plan must load `fragility-audit` with the `skill` tool, then run its `--verify-changes` mode after `change-audit`. Follow
+`~/.agents/skills/fragility-commons/verification-contract.md`. Never invoke the skill as an OpenCode, shell, or slash command. If it finds a proved issue, stop before
+plan-directory deletion, retain this plan directory, and create the required remediation-plan handoff.
 
 The **final step** of every plan must hand plan-directory deletion to the agent running `plan-execute`, because plans are throwaway scaffolding (see
 `## Plan lifecycle`). State it explicitly, e.g.: "After every sub-plan succeeds, the agent running `plan-execute` deletes the `<$PLAN_DIR>/<feature>/` plan directory
@@ -129,7 +129,7 @@ List every doc that must be updated:
 - An **ADR** (Architecture Decision Record), when this plan settles a cross-cutting or architectural decision worth preserving — an approach chosen over alternatives, a
   boundary drawn, a trade-off accepted. Record it as a durable, numbered document at
   `docs/decisions/NNNN-<slug>.md` (or the owning module's `docs/decisions/` when the decision is module-scoped), capturing the question, the options weighed, the
-  decision, and its consequences. The plan is deleted; the ADR is the surviving record of *why* the code looks the way it does. If the project documents its own ADR
+  decision, and its consequences. The plan is deleted; the ADR is the surviving record of _why_ the code looks the way it does. If the project documents its own ADR
   convention (Documentation policy / glossary), follow it.
 
 Durable docs land in their real home (standards, root README/AGENTS, glossary, an ADR under `docs/decisions/`, or the module's own AGENTS/README). Never point shipped

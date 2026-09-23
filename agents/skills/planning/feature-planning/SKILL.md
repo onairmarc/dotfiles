@@ -24,7 +24,8 @@ implementing agent reading only the plan is bound by them.
 ## Fragility contracts
 
 Read and follow `~/.agents/skills/fragility-commons/planning-contract.md` and `review-contract.md`. Plans that change executable behavior require a validated
-`/fragility-audit --audit-only` handoff and a final `fragility-audit --verify-changes` gate. These rules are enforced by Lens F and Lens G.
+`fragility-audit` audit-only handoff and a final fragility-verification gate. Load `fragility-audit` with the `skill` tool; never invoke it as an OpenCode, shell, or
+slash command. These rules are enforced by Lens F and Lens G.
 
 ## General Design Principles
 
@@ -52,7 +53,7 @@ up. Avoid designs that require multiple coordinated deploys or manual steps.
 
 ### 5. Separation of concerns — at the right level
 
-Each component has a job. Do not bleed responsibilities across component boundaries. But do not create new abstraction layers *within* a component just to separate
+Each component has a job. Do not bleed responsibilities across component boundaries. But do not create new abstraction layers _within_ a component just to separate
 concerns that are naturally co-located.
 
 ### 6. Reliability without overkill
@@ -79,8 +80,8 @@ constraints` section).
 Before gathering requirements, orient yourself to the repository:
 
 1. **Parse flags from `$ARGUMENTS`** — scan `$ARGUMENTS` for `--output=<dir>`. If found:
-    - Strip the flag from `$ARGUMENTS` so the remainder is treated as the feature description.
-    - Resolve `<dir>` relative to the current working directory and record it as `$PLAN_DIR`. Skip the auto-detect step below entirely.
+   - Strip the flag from `$ARGUMENTS` so the remainder is treated as the feature description.
+   - Resolve `<dir>` relative to the current working directory and record it as `$PLAN_DIR`. Skip the auto-detect step below entirely.
 
 2. **Detect output directory** (skip if `--output` was provided) — resolve `$PLAN_DIR` per the `$PLAN_DIR` ladder in
    `~/.agents/skills/planning-commons/paths.md`.
@@ -96,9 +97,9 @@ Before gathering requirements, orient yourself to the repository:
 5. **Find a PM discovery brief** — the `pm-review` skill's discovery mode writes a **durable** product-side brief before planning begins. Unlike plans, briefs are
    permanent documentation and live **outside** `$PLAN_DIR`: resolve `$DISCOVERY_DIR` per the `$DISCOVERY_DIR` ladder in
    `~/.agents/skills/planning-commons/paths.md`. Look for a brief that matches this feature:
-    - If `$ARGUMENTS` names a feature, derive its kebab-case slug and check `$DISCOVERY_DIR/<slug>.md`.
-    - Otherwise, glob `$DISCOVERY_DIR/*.md`; if exactly one clearly matches the feature description, use it. If several plausibly match, ask the user which brief (if any)
-      this plan is for.
+   - If `$ARGUMENTS` names a feature, derive its kebab-case slug and check `$DISCOVERY_DIR/<slug>.md`.
+   - Otherwise, glob `$DISCOVERY_DIR/*.md`; if exactly one clearly matches the feature description, use it. If several plausibly match, ask the user which brief (if any)
+     this plan is for.
 
    If a brief is found, record its path as `$DISCOVERY_BRIEF` and read it in full — it carries the impacted domains, invariants at risk, affected personas, edge cases,
    success metrics, vision fit, risks/constraints, resolved open questions, and a recommended scope. If none is found, record `$DISCOVERY_BRIEF = null`. Never invent a
@@ -113,20 +114,20 @@ not an either/or with them.** The goal of this step is to reach the point where 
 every available source, then asking the user **only** about what none of those sources could answer.
 
 1. **Establish the starting description.**
-    - If `$DISCOVERY_BRIEF` is set, read it as the authoritative product-side starting point: seed the plan's Goal, scope, and affected components from its Summary,
-      Recommended scope, and Impacted domains; carry its Invariants at risk, Edge cases, and Risks & constraints forward as hard requirements; treat its Vision fit as the
-      settled reconciliation with the northstar. Do not re-litigate what the brief already decided.
-    - Otherwise, use `$ARGUMENTS` if it contains a clear description; if not, ask the user with `question`:
-      *"What feature are you planning? Describe it in a sentence or two — the problem it solves and the part of the system involved."*
+   - If `$DISCOVERY_BRIEF` is set, read it as the authoritative product-side starting point: seed the plan's Goal, scope, and affected components from its Summary,
+     Recommended scope, and Impacted domains; carry its Invariants at risk, Edge cases, and Risks & constraints forward as hard requirements; treat its Vision fit as the
+     settled reconciliation with the northstar. Do not re-litigate what the brief already decided.
+   - Otherwise, use `$ARGUMENTS` if it contains a clear description; if not, ask the user with `question`:
+     _"What feature are you planning? Describe it in a sentence or two — the problem it solves and the part of the system involved."_
 
 2. **Answer as much as you can yourself, from the brief + the code + the conventions.** For each area below, first try to determine the answer by reading the brief and
    tracing the actual code and documented conventions. Only what remains genuinely undetermined after that becomes a question for the user.
 
-    - **Scope**: the simplest useful version, and what is explicitly out of scope.
-    - **Components**: which parts of the system are affected; whether it crosses a process or service boundary.
-    - **Data**: whether it needs new tables, columns, or migrations, or is purely in-memory / config.
-    - **Configuration**: whether anything must be configurable, or is fixed behavior.
-    - **Existing code**: what this replaces, extends, or must stay compatible with.
+   - **Scope**: the simplest useful version, and what is explicitly out of scope.
+   - **Components**: which parts of the system are affected; whether it crosses a process or service boundary.
+   - **Data**: whether it needs new tables, columns, or migrations, or is purely in-memory / config.
+   - **Configuration**: whether anything must be configurable, or is fixed behavior.
+   - **Existing code**: what this replaces, extends, or must stay compatible with.
 
 3. **Ask only the residual unknowns.** Put the questions the combined sources could not answer to the user via
    `question` — focused, short-answer, highest-impact first, batched per the question rules in `~/.agents/skills/planning-commons/review-loop.md`.
@@ -137,8 +138,8 @@ every available source, then asking the user **only** about what none of those s
    `question`: name **what led you to have no questions** — e.g. "the discovery brief resolves scope and edge cases, the code shows the extension point in `X`, and
    convention `Y` fixes the rest" — and present the premise you are about to plan from (intended scope, affected components, key decisions). Give the user a clear path to
    **confirm** or **correct** it.
-    - If the user confirms, proceed to Step 0.5.
-    - If the user corrects any part, fold the correction in and re-check for new unknowns before drafting.
+   - If the user confirms, proceed to Step 0.5.
+   - If the user corrects any part, fold the correction in and re-check for new unknowns before drafting.
 
    Never write the plan on an unconfirmed premise, even when you believe it is complete.
 
@@ -146,9 +147,9 @@ every available source, then asking the user **only** about what none of those s
 
 ## Step 0.5 — Audit fragility
 
-If the plan changes executable behavior, identify the intended affected code and required adjacent call paths from Step 0. Run `fragility-audit --audit-only` and
-retain its validated report as `$FRAGILITY_REPORT`. If this skill was invoked by `/fragility-audit`, consume its supplied validated report instead of running a second
-audit. If the plan changes no executable behavior, record why the audit does not apply.
+If the plan changes executable behavior, identify the intended affected code and required adjacent call paths from Step 0. Load `fragility-audit` with the `skill` tool,
+then run its `--audit-only` mode and retain the validated report as `$FRAGILITY_REPORT`. If a `fragility-audit` skill handoff supplied a validated report, consume it
+instead of running a second audit. If the plan changes no executable behavior, record why the audit does not apply. Never pass `--audit-only` to OpenCode itself.
 
 ---
 
@@ -188,7 +189,7 @@ Treat every standards violation as a blocker: fix it in the plan, or if the poli
 
 ### Lens B — Ambiguity
 
-- Vague verbs: "handle", "process", "update", "manage", "ensure" — without saying *how*
+- Vague verbs: "handle", "process", "update", "manage", "ensure" — without saying _how_
 - Unquantified scope: "some", "a few", "as needed", "where appropriate"
 - Undefined terms or acronyms not explained in the plan
 - Conditional steps with undefined triggers: "if necessary", "when required"
@@ -225,7 +226,7 @@ Hold the plan against `~/.agents/skills/delivery-constraints/SKILL.md`. Every fi
 
 ### Lens F — Change audit step (blocker)
 
-- Does the plan include a third-to-last step that runs `/change-audit` after all behavioral slices are complete and all tests pass?
+- Does the plan include a third-to-last step that loads `change-audit` with the `skill` tool after all behavioral slices are complete and all tests pass?
 - Does the change-audit step explicitly require all tests to pass after fixes are applied?
 - If the step is missing, absent, or placed in the wrong position, this is a blocker — add it per the template in
   `~/.agents/skills/planning-commons/plan-format.md`.
@@ -237,7 +238,7 @@ Follow `~/.agents/skills/fragility-commons/review-contract.md`.
 - Does every plan that changes executable behavior contain a validated `## Fragility audit report` immediately after `## Goal`?
 - Does each remediation slice map to finding IDs and define the target flow, error handling, cleanup, logging, observable behavior, and focused failure-path tests?
 - Does the plan evaluate simplification before selecting a more complex recovery design?
-- Does the second-to-last step run `fragility-audit --verify-changes` after `/change-audit` and before plan deletion?
+- Does the second-to-last step load `fragility-audit` with the `skill` tool, run its `--verify-changes` mode after the `change-audit` skill, and finish before plan deletion?
 
 ---
 

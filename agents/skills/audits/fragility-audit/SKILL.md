@@ -1,6 +1,6 @@
 ---
 name: fragility-audit
-description: Audit a codebase or supplied path for proven unhandled failure paths, then create an evidence-based remediation plan.
+description: Audit a codebase or supplied path for proven unhandled failure paths, then create an evidence-based remediation plan. Invoke this through the skill tool, never as an OpenCode command.
 ---
 
 # Fragility audit
@@ -14,7 +14,7 @@ Read `~/.agents/skills/fragility-commons/proof-contract.md` before reviewing a f
 
 ## Modes
 
-- **Default:** perform the audit, create a remediation plan through `feature-planning`, and embed the report in that plan.
+- **Default:** perform the audit, load `feature-planning` with the `skill` tool, and create a remediation plan that embeds the report.
 - **`--audit-only`:** perform the audit and return the validated report to the calling planning skill. Do not create a plan.
 - **`--verify-changes`:** inspect branch changes and directly affected call paths after implementation. Follow
   `~/.agents/skills/fragility-commons/verification-contract.md`.
@@ -53,7 +53,8 @@ Add a distinct inventory row for every proved omission and review it before fina
 Build the report required by `~/.agents/skills/fragility-commons/report-format.md`.
 
 For `--audit-only`, return that report to the caller. For `--verify-changes`, stop cleanly when no findings remain; otherwise preserve the current plan directory and
-create a remediation-plan handoff. For the default mode, invoke `feature-planning` with the validated report, finding IDs, required behavior, and remediation order.
+create a remediation-plan handoff. For the default mode, load `feature-planning` with the `skill` tool, then provide the validated report, finding IDs, required
+behavior, and remediation order. Never invoke OpenCode, a shell command, or a slash command to run either skill.
 
 The audit is complete only when every scoped subsystem has an accepted finding or explicit skip, every finding meets the proof contract, and the
 audit-the-audit pass is clean.

@@ -90,16 +90,16 @@ state.
 
 **Shared groundwork exception:** groundwork that several slices depend on and that genuinely cannot be co-located with the first slice (e.g. a migration three slices
 read, or a package install) may become sub-plan `01`. Keep it as small as possible and state in that sub-plan's Context why it could not live inside the first behavioral
-slice. Anything that *can* live inside the first slice must.
+slice. Anything that _can_ live inside the first slice must.
 
 **1. Change-audit sub-plan:** create the second-to-last sub-plan before plan-directory cleanup as the change-audit gate. It is blocked by every behavioral sub-plan and
 blocks the final fragility-verification sub-plan. It invokes `change-audit` (`~/.agents/skills/change-audit/SKILL.md`) to audit every file changed on the branch for
 materially useful simplifications, implement every accepted fix, and confirm all scoped tests pass after those fixes.
 
 **2. Fragility-verification sub-plan:** create the final sub-plan before plan-directory cleanup as the fragility-verification gate. It is blocked only by the
-change-audit sub-plan and blocks nothing except plan deletion. It invokes `fragility-audit --verify-changes` and follows
-`~/.agents/skills/fragility-commons/verification-contract.md`. If verification finds a proved issue, surface every proved issue to the user, stop before plan
-deletion, and retain the plan directory.
+change-audit sub-plan and blocks nothing except plan deletion. It loads `fragility-audit` with the `skill` tool and runs its `--verify-changes` mode, following
+`~/.agents/skills/fragility-commons/verification-contract.md`. If verification finds a proved issue, surface every proved issue to the user, stop before plan deletion,
+and retain the plan directory.
 
 Always create these two dedicated sub-plans in this order. If the master plan omits either gate, add it before presenting the proposed split.
 
@@ -108,7 +108,7 @@ Always create these two dedicated sub-plans in this order. If the master plan om
 For each sub-plan, determine:
 
 | Field        | Meaning                                                                                          |
-|--------------|--------------------------------------------------------------------------------------------------|
+| ------------ | ------------------------------------------------------------------------------------------------ |
 | `sequence`   | Two-digit zero-padded number (01, 02, …) reflecting execution order                              |
 | `slug`       | Short kebab-case name describing the deliverable (e.g. `create-user-model`)                      |
 | `title`      | Human-readable title                                                                             |
@@ -133,13 +133,14 @@ Before writing any files, present the proposed split to the user via `question`:
 
 **Proposed split — N sub-plans**
 
-| #  | File         | Title | Blocked by | Blocks |
-|----|--------------|-------|------------|--------|
-| 01 | `01-slug.md` | Title | —          | 02, 03 |
-| 02 | `02-slug.md` | Title | 01         | 04     |
-| …  | …            | …     | …          | …      |
+| #   | File         | Title | Blocked by | Blocks |
+| --- | ------------ | ----- | ---------- | ------ |
+| 01  | `01-slug.md` | Title | —          | 02, 03 |
+| 02  | `02-slug.md` | Title | 01         | 04     |
+| …   | …            | …     | …          | …      |
 
 > Does this split look right? Reply with:
+>
 > - **Yes** to proceed
 > - Any corrections (e.g. "merge 03 and 04", "02 should also be blocked by 01", "rename 03 to setup-queue")
 

@@ -71,7 +71,7 @@ Every finding here is a blocker — surface it in Step 3 before ambiguity, contr
 
 Flag any statement that a reasonable engineer could interpret in two or more ways:
 
-- Vague verbs: "handle", "process", "update", "manage", "ensure" — without saying *how*
+- Vague verbs: "handle", "process", "update", "manage", "ensure" — without saying _how_
 - Unquantified scope: "some", "a few", "as needed", "where appropriate"
 - Pronouns without clear antecedents: "it", "this", "the component" when multiple exist
 - Undefined terms or acronyms that are not explained in the plan
@@ -100,7 +100,7 @@ Flag anything an agent would need that is absent:
 - Test strategy: what should be tested and at what level (unit, feature, integration)?
 - Environment-specific behavior that is not spelled out
 - Ordering constraints between steps that are not stated
-- Implementation steps that describe *how* code should be written using only prose — these must be backed by a code example
+- Implementation steps that describe _how_ code should be written using only prose — these must be backed by a code example
 
 ### Lens D — Scope and completeness
 
@@ -133,8 +133,8 @@ Hold the plan against `~/.agents/skills/delivery-constraints/SKILL.md`. Every fi
 ### Lens F — Fragility audit and remediation (blocker, ranks with Lens 0)
 
 Follow `~/.agents/skills/fragility-commons/review-contract.md` in full. For a plan that changes executable behavior, verify the embedded report, each finding's proof,
-the selected simplification or explicit rejection, target error behavior, focused tests, and final verification gate. If the report is absent, obtain an
-`fragility-audit --audit-only` handoff for the plan's affected scope before finalizing the plan.
+the selected simplification or explicit rejection, target error behavior, focused tests, and final verification gate. If the report is absent, load `fragility-audit`
+with the `skill` tool and obtain its `--audit-only` handoff for the plan's affected scope before finalizing the plan. Do not invoke it as a command.
 
 ---
 
@@ -158,7 +158,7 @@ If the plan is already complete and unambiguous, tell the user so and stop.
 
 Group your findings into labeled question blocks — each quoting the plan text that triggered it and asking one focused, short-answer question — and run the interactive
 review loop in `~/.agents/skills/planning-commons/review-loop.md`: batch at most 4 questions per call ranked by blast radius, write every answer back into the
-plan immediately (as a code example when it describes *how* to implement — see the **Code examples** guideline below), re-read, re-run the lenses, and repeat until no
+plan immediately (as a code example when it describes _how_ to implement — see the **Code examples** guideline below), re-read, re-run the lenses, and repeat until no
 findings remain. Label each round **Plan review: round N**. Every standards/policy and delivery-constraint finding is a blocker and is asked before ambiguity or scope.
 When no findings remain, proceed to Step 4.
 
@@ -192,13 +192,13 @@ Then ask:
 - **One source of truth.** All information lives in the plan file. After every round, the file should be a standalone document.
 - **Prefer precision to brevity.** A longer, unambiguous step is better than a short, vague one.
 - **Do not over-question.** If something is clear from context or standard engineering practice, do not ask about it.
-- **Code examples over prose for implementation.** Prose describes *what* a step does and *why* a decision was made. Whenever a step describes *how* code should be
+- **Code examples over prose for implementation.** Prose describes _what_ a step does and _why_ a decision was made. Whenever a step describes _how_ code should be
   implemented, replace or augment that prose with a code example:
-    - The example must be representative but not a full feature implementation — include enough structure, method signatures, types, and key logic that the coding agent
-      can accurately infer what is needed from the plan and the example together.
-    - **Migrations and model changes:** show only the changed or added portions (new columns, method bodies, relations), not the entire file. Exception: if the step
-      creates a brand-new migration or model, provide the complete file.
-    - If the plan currently describes an implementation step in prose only and you are not sure what the code should look like, ask the user rather than guessing.
+  - The example must be representative but not a full feature implementation — include enough structure, method signatures, types, and key logic that the coding agent
+    can accurately infer what is needed from the plan and the example together.
+  - **Migrations and model changes:** show only the changed or added portions (new columns, method bodies, relations), not the entire file. Exception: if the step
+    creates a brand-new migration or model, provide the complete file.
+  - If the plan currently describes an implementation step in prose only and you are not sure what the code should look like, ask the user rather than guessing.
 
 ---
 
@@ -211,7 +211,7 @@ After Step 4, detect the project type and run the matching optimization pass **b
 Evaluate the checks below in order. Multiple can match — record every optimization file that applies.
 
 | Check                                                                                                                                                                                                                        | Match label   | Optimization file           |
-|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|-----------------------------|
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | --------------------------- |
 | `composer.json` exists at repo root AND contains `"laravel/framework"` in `require`/`require-dev`, OR `"type": "library"` AND any `laravel/` package in `require`                                                            | **Laravel**   | `optimizations/laravel.md`  |
 | Any `.csproj` found (via `Bash(find * -name "*.csproj" -type f)`) AND any of those files contains `Avalonia` in a `PackageReference` or `<UseAvalonia>true`                                                                  | **Avalonia**  | `optimizations/avalonia.md` |
 | Any `.csproj` found AND the Avalonia check above did **not** match                                                                                                                                                           | **C# (.NET)** | `optimizations/cs.md`       |

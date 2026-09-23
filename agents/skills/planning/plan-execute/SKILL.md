@@ -27,8 +27,8 @@ when your branch check shows main is checked out — and verified with the repos
 
 ## Fragility contracts
 
-Read and follow `~/.agents/skills/fragility-commons/subplan-contract.md` and `verification-contract.md`. Confirm the execution set ends with `change-audit` followed
-by `/fragility-audit --verify-changes`; do not delete the plan directory after a failed final verification.
+Read and follow `~/.agents/skills/fragility-commons/subplan-contract.md` and `verification-contract.md`. Confirm the execution set ends with the `change-audit` skill
+followed by the `fragility-audit` skill in `--verify-changes` mode; do not delete the plan directory after a failed final verification.
 
 ## Task tracking
 
@@ -54,8 +54,8 @@ filename lists from its `## Dependencies` section, empty when `none`), and `cont
 
 Every discovered sub-plan belongs to the execution set. Do not select one file from it or silently omit a discovered sub-plan.
 
-Verify the final two sub-plans are a `/change-audit` gate followed by `fragility-audit --verify-changes`. Stop and report a malformed plan set when either gate is
-missing, ordered incorrectly, or lacks its required acceptance criteria.
+Verify the final two sub-plans load the `change-audit` skill, then load the `fragility-audit` skill and run its `--verify-changes` mode. Stop and report a malformed
+plan set when either gate is missing, ordered incorrectly, or lacks its required acceptance criteria.
 
 ---
 
@@ -68,7 +68,7 @@ still doing the job well. Pass the sub-plan file list and every deliverable/acce
 key artifacts (files, classes, methods, migrations) for each sub-plan and return a classification:
 
 | Status     | Meaning                                                                                            |
-|------------|----------------------------------------------------------------------------------------------------|
+| ---------- | -------------------------------------------------------------------------------------------------- |
 | `pending`  | No evidence of implementation found — execute normally                                             |
 | `partial`  | Some artifacts exist but the plan is not fully satisfied — execute with partial-completion context |
 | `complete` | All key deliverables are present and consistent with the plan — skip execution                     |
@@ -99,13 +99,13 @@ Before compiling the execution graph (Step 2), use `question` with exactly one q
   worktrees). Concurrent implementing agents have produced worse results and can collide on files. Independent nodes can run together even if `plan-split` was sequential,
   because `blocked_by` already encodes the graph. Is parallel execution permitted?
 - **options** (recommended first):
-    1. **label:** `No, sequential (Recommended)`
-       **description:** Compile a single ordered list and spawn one coding agent at a time, waiting for each to finish before starting the next. When several plans are
-       unblocked, run them in `sequence` order, never together. This is the current skill. Pick this unless you have a concrete reason to fan out.
-    2. **label:** `Yes, run in parallel`
-       **description:** Compile the graph into waves — each wave is every pending or partial sub-plan whose blockers are already complete — and spawn every sub-plan in a
-       wave at the same time. The next wave starts only after every agent in the current wave has returned. Real `blocked_by` edges are still honored. Shared groundwork
-       and change-audit stay sequential because of those edges.
+  1. **label:** `No, sequential (Recommended)`
+     **description:** Compile a single ordered list and spawn one coding agent at a time, waiting for each to finish before starting the next. When several plans are
+     unblocked, run them in `sequence` order, never together. This is the current skill. Pick this unless you have a concrete reason to fan out.
+  2. **label:** `Yes, run in parallel`
+     **description:** Compile the graph into waves — each wave is every pending or partial sub-plan whose blockers are already complete — and spawn every sub-plan in a
+     wave at the same time. The next wave starts only after every agent in the current wave has returned. Real `blocked_by` edges are still honored. Shared groundwork
+     and change-audit stay sequential because of those edges.
 
 Treat any answer that is not an explicit yes as **No**.
 
@@ -294,27 +294,27 @@ Treat any of the following as an immediate failure:
 1. Stop. Do not spawn the next sub-plan.
 2. Report the failure to the user, quoting the raw agent output:
 
-    ```
-    ## Sub-plan failure — <filename>
+   ```
+   ## Sub-plan failure — <filename>
 
-    The sub-agent returned an error and no code was written.
+   The sub-agent returned an error and no code was written.
 
-    **Raw agent output:**
-    <quoted output or "[Tool result missing due to internal error]">
+   **Raw agent output:**
+   <quoted output or "[Tool result missing due to internal error]">
 
-    **Options:**
-    1. Retry this sub-plan (re-spawn the same agent)
-    2. Skip this sub-plan and continue with the remaining sub-plans (may cause downstream failures)
-    3. Abort — stop all orchestration here
+   **Options:**
+   1. Retry this sub-plan (re-spawn the same agent)
+   2. Skip this sub-plan and continue with the remaining sub-plans (may cause downstream failures)
+   3. Abort — stop all orchestration here
 
-    What would you like to do?
-    ```
+   What would you like to do?
+   ```
 
 3. Use `question` to wait for the user's choice before taking any further action.
 4. Act on the user's response:
-    - **Retry**: re-spawn the agent using the failure-aware prompt template below — do not send the plain sub-plan prompt again.
-    - **Skip**: mark the sub-plan as skipped, warn that downstream plans may be affected, continue to the next sub-plan.
-    - **Abort**: stop all orchestration and report final status.
+   - **Retry**: re-spawn the agent using the failure-aware prompt template below — do not send the plain sub-plan prompt again.
+   - **Skip**: mark the sub-plan as skipped, warn that downstream plans may be affected, continue to the next sub-plan.
+   - **Abort**: stop all orchestration and report final status.
 
 #### Retry prompt template
 
@@ -331,11 +331,13 @@ When retrying a failed sub-plan, wrap the original plan content with failure con
 > **Sub-plan file:** `<$PLAN_DIR/<filename>>`
 >
 > **Previous attempt failed with:**
+>
 > ```
 > <first 400 characters of raw agent output from the failed attempt, or "[Tool result missing due to internal error]" if no output> [truncated if longer]
 > ```
 >
 > **Adaptation guidance:**
+>
 > - If the error indicates a missing dependency, check whether it needs to be created first.
 > - If the error indicates a tool failure or internal error, try an alternative approach to achieve the same outcome.
 > - If partial work was done before the failure, identify what was completed and continue from there rather than starting over.
@@ -398,7 +400,7 @@ Documentation-updates steps); the plan must not be committed as a lingering arti
 - **Sequential execution only.** Spawn a single sub-agent, wait for it, then spawn the next. Never run two sub-agents concurrently. Experience has shown sequential
   execution produces materially more reliable results than parallel execution: an orchestrator that fans out multiple implementing sub-agents at once measurably degrades
   their output quality. Do not re-introduce concurrent implementation as an "optimization" — the reliability regression is the reason this rule exists. (This bans
-  concurrent *implementing* agents only; bounded concurrency among read-only audit workers is a separate, permitted case.)
+  concurrent _implementing_ agents only; bounded concurrency among read-only audit workers is a separate, permitted case.)
 - **Dependencies are non-negotiable.** Respect `blocked_by` strictly. Do not start a plan before all its blockers are marked complete.
 - **The directory is complete only as a whole.** Every discovered sub-plan must be done or verified `complete`. A skipped incomplete sub-plan leaves the directory
   incomplete and prevents a successful execution report or plan-directory deletion.
