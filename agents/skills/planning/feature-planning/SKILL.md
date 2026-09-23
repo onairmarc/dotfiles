@@ -24,7 +24,7 @@ implementing agent reading only the plan is bound by them.
 ## Fragility contracts
 
 Read and follow `~/.agents/skills/fragility-commons/planning-contract.md` and `review-contract.md`. Plans that change executable behavior require a validated
-`fragility-audit --audit-only` handoff and a final `fragility-audit --verify-changes` gate. These rules are enforced by Lens F and Lens G.
+`/fragility-audit --audit-only` handoff and a final `fragility-audit --verify-changes` gate. These rules are enforced by Lens F and Lens G.
 
 ## General Design Principles
 
@@ -147,7 +147,7 @@ every available source, then asking the user **only** about what none of those s
 ## Step 0.5 — Audit fragility
 
 If the plan changes executable behavior, identify the intended affected code and required adjacent call paths from Step 0. Run `fragility-audit --audit-only` and
-retain its validated report as `$FRAGILITY_REPORT`. If this skill was invoked by `fragility-audit`, consume its supplied validated report instead of running a second
+retain its validated report as `$FRAGILITY_REPORT`. If this skill was invoked by `/fragility-audit`, consume its supplied validated report instead of running a second
 audit. If the plan changes no executable behavior, record why the audit does not apply.
 
 ---

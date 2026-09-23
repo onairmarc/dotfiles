@@ -10,4 +10,4 @@ Treat every failed check below as a BLOCK:
 - A planned test covers only the happy path or asserts no behavior for the proved failure.
 - A claim is speculative rather than proved under [`proof-contract.md`](proof-contract.md).
 
-For a plan that did not originate in `fragility-audit`, require an audit-only handoff before finalizing it whenever the plan changes executable behavior.
+For a plan that did not originate in `/fragility-audit`, require an audit-only handoff before finalizing it whenever the plan changes executable behavior.

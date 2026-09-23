@@ -28,7 +28,7 @@ when your branch check shows main is checked out — and verified with the repos
 ## Fragility contracts
 
 Read and follow `~/.agents/skills/fragility-commons/subplan-contract.md` and `verification-contract.md`. Confirm the execution set ends with `change-audit` followed
-by `fragility-audit --verify-changes`; do not delete the plan directory after a failed final verification.
+by `/fragility-audit --verify-changes`; do not delete the plan directory after a failed final verification.
 
 ## Task tracking
 
