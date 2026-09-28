@@ -1,6 +1,8 @@
 ---
 name: plan-execute
-description: Agent orchestrator that executes all sub-plans produced by plan-split. Reads the dependency graph from sub-plan files. Reconfirms whether parallel execution is permitted (default no) before compiling the graph. Sequential (the default) spawns one coding sub-agent at a time; parallel spawns ready sub-agents together per the graph. Invoke when asked to execute, run, or implement a set of split plans.
+description: -<
+    Agent orchestrator that executes all sub-plans produced by plan-split. Reads the dependency graph from sub-plan files and spawns one coding
+    sub-agent at a time in dependency-respecting order. Invoke when asked to execute, run, or implement a set of split plans.
 ---
 
 # Plan Execute
@@ -68,53 +70,24 @@ still doing the job well. Pass the sub-plan file list and every deliverable/acce
 key artifacts (files, classes, methods, migrations) for each sub-plan and return a classification:
 
 | Status     | Meaning                                                                                            |
-| ---------- | -------------------------------------------------------------------------------------------------- |
+|------------|----------------------------------------------------------------------------------------------------|
 | `pending`  | No evidence of implementation found — execute normally                                             |
 | `partial`  | Some artifacts exist but the plan is not fully satisfied — execute with partial-completion context |
 | `complete` | All key deliverables are present and consistent with the plan — skip execution                     |
 
-**For `complete` plans:** mark as done in the dependency graph and exclude from all waves.
+**For `complete` plans:** mark as done in the dependency graph and exclude from the execution order.
 
-**For `partial` plans:** include in normal wave order using Template B.
+**For `partial` plans:** include in the execution order using Template B.
 
-**For `pending` plans:** include in normal wave order using Template A.
+**For `pending` plans:** include in the execution order using Template A.
 
 When skipped (first run), treat all sub-plans as `pending`.
 
-Report pre-execution status as a one-liner before printing the wave plan:
+Report pre-execution status as a one-liner before printing the execution plan:
 
 ```
 Pre-execution: N complete (skipped), M partial, P pending
 ```
-
----
-
-## Step 1c — Reconfirm whether parallel execution is permitted
-
-Before compiling the execution graph (Step 2), use `question` with exactly one question:
-
-- **header:** `Parallel execution`
-- **question:** The sub-plans are parsed. Next is compiling the execution graph. Sequential runs one coding agent at a time in dependency order — more reliable, and the
-  way this skill is written. Parallel compiles the graph into waves and spawns every unblocked sub-plan in a wave at once, on the same branch and working tree (no
-  worktrees). Concurrent implementing agents have produced worse results and can collide on files. Independent nodes can run together even if `plan-split` was sequential,
-  because `blocked_by` already encodes the graph. Is parallel execution permitted?
-- **options** (recommended first):
-  1. **label:** `No, sequential (Recommended)`
-     **description:** Compile a single ordered list and spawn one coding agent at a time, waiting for each to finish before starting the next. When several plans are
-     unblocked, run them in `sequence` order, never together. This is the current skill. Pick this unless you have a concrete reason to fan out.
-  2. **label:** `Yes, run in parallel`
-     **description:** Compile the graph into waves — each wave is every pending or partial sub-plan whose blockers are already complete — and spawn every sub-plan in a
-     wave at the same time. The next wave starts only after every agent in the current wave has returned. Real `blocked_by` edges are still honored. Shared groundwork
-     and change-audit stay sequential because of those edges.
-
-Treat any answer that is not an explicit yes as **No**.
-
-**If No:** do not read `~/.agents/skills/planning-commons/parallel.md`. Continue from Step 2 exactly as written. Do not mention parallel execution again.
-
-**If Yes:** read `~/.agents/skills/planning-commons/parallel.md` now, and apply the **plan-execute** section. Then continue from Step 2, applying those
-overrides.
-
----
 
 ## Step 2 — Build the execution order
 
@@ -312,9 +285,9 @@ Treat any of the following as an immediate failure:
 
 3. Use `question` to wait for the user's choice before taking any further action.
 4. Act on the user's response:
-   - **Retry**: re-spawn the agent using the failure-aware prompt template below — do not send the plain sub-plan prompt again.
-   - **Skip**: mark the sub-plan as skipped, warn that downstream plans may be affected, continue to the next sub-plan.
-   - **Abort**: stop all orchestration and report final status.
+    - **Retry**: re-spawn the agent using the failure-aware prompt template below — do not send the plain sub-plan prompt again.
+    - **Skip**: mark the sub-plan as skipped, warn that downstream plans may be affected, continue to the next sub-plan.
+    - **Abort**: stop all orchestration and report final status.
 
 #### Retry prompt template
 
@@ -397,10 +370,7 @@ Documentation-updates steps); the plan must not be committed as a lingering arti
   worktrees — treat a sub-agent that reports doing any of those as a failure per Step 3c.
 - **Always write `.agent-instructions.md` first.** It carries the delivery constraints; spawning a sub-agent without it means the sub-agent is unbound.
 - **Never read `plan.md`.** It is the source document for plan-split, not a sub-plan.
-- **Sequential execution only.** Spawn a single sub-agent, wait for it, then spawn the next. Never run two sub-agents concurrently. Experience has shown sequential
-  execution produces materially more reliable results than parallel execution: an orchestrator that fans out multiple implementing sub-agents at once measurably degrades
-  their output quality. Do not re-introduce concurrent implementation as an "optimization" — the reliability regression is the reason this rule exists. (This bans
-  concurrent _implementing_ agents only; bounded concurrency among read-only audit workers is a separate, permitted case.)
+- **Sequential execution only.** Spawn one sub-agent, wait for it, evaluate its result, then spawn the next sub-agent.
 - **Dependencies are non-negotiable.** Respect `blocked_by` strictly. Do not start a plan before all its blockers are marked complete.
 - **The directory is complete only as a whole.** Every discovered sub-plan must be done or verified `complete`. A skipped incomplete sub-plan leaves the directory
   incomplete and prevents a successful execution report or plan-directory deletion.
