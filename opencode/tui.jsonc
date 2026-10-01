@@ -8,6 +8,6 @@
     // OpenCode Quota: loads the TUI sidebar, compact status, and local commands.
     "plugin": [
         "@encoredigitalgroup/opencode@latest",
-        "@slkiser/opencode-quota@latest"
+        "@slkiser/opencode-quota@4"
     ]
 }

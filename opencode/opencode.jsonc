@@ -54,7 +54,7 @@
     // OpenCode Quota: loads the server plugin for slash commands and quota checks.
     "plugin": [
         "@encoredigitalgroup/opencode@latest",
-        "@slkiser/opencode-quota@latest",
+        "@slkiser/opencode-quota@4",
         "@franlol/opencode-md-table-formatter@latest"
     ],
     "enabled_providers": [
