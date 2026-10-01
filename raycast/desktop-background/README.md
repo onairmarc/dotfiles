@@ -4,9 +4,9 @@ Local macOS extension with two commands: **Next Background** and **Previous Back
 
 ## Install locally
 
-Running `bash install.sh` from the repository root installs the extension during the macOS scripts phase. Setup installs Node.js and Raycast through Homebrew
-on Apple Silicon, installs the extension's locked dependencies, and builds and refreshes the local extension. On Intel Macs, install Node.js and Raycast first,
-following the repository's existing policy of skipping Homebrew there. Rerunning setup updates the extension without leaving a development watcher running.
+Running `bash install.sh` from the repository root registers the extension from this source directory during the macOS scripts phase. Setup installs Node.js and
+Raycast through Homebrew on Apple Silicon, installs the extension's locked dependencies, starts Raycast development mode until the first build succeeds, then
+stops it. On Intel Macs, install Node.js and Raycast first, following the repository's existing policy of skipping Homebrew there.
 
 To install or update only this extension, run from the repository root:
 
@@ -26,7 +26,7 @@ For manual installation:
    bun run install-local
    ```
 
-3. Wait for the build to finish. The commands are installed locally and remain available after the process exits.
+3. Wait for the initial development build to finish. The commands remain available after the process exits.
 4. Open **Raycast Settings → Extensions → Dotfiles Backgrounds** and assign hotkeys, for example:
    - **Next Background:** ⌃⌥⌘→
    - **Previous Background:** ⌃⌥⌘←
@@ -52,8 +52,8 @@ The image and stretch setting are applied together through Apple's `NSWorkspace`
 ## Development
 
 Keep this extension inside the dotfiles checkout: it imports `provision/lib/mac_background.ts`. Raycast bundles that shared module during the build.
-Run `bun run install-local` after source changes to update the locally installed extension, or `bun run dev` to rebuild automatically while editing.
-`bun run build` writes a validation build to `dist/` without updating the installed extension.
+Run `bun run install-local` after source changes to refresh the local extension. It starts development mode only until Raycast imports the initial build. Use
+`bun run dev` to keep the watcher running while editing. `bun run build` writes a validation build to `dist/` without updating the local extension.
 
 ```sh
 bun run build

@@ -168,7 +168,7 @@ const manifest: Manifest = {
 // installed by install.sh / install.ps1 before this manifest ever loads.
 // -------------------------------------------------------------------------
     scripts: [
-        // Build and refresh the local Raycast extension on every macOS setup run.
+        // Register the local Raycast extension on every macOS setup run.
         {
             name: "raycast-backgrounds",
             mac: {kind: "cmd", argv: ["bun", "provision/scripts/raycast_backgrounds.ts"]},

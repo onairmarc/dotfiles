@@ -11,12 +11,12 @@ if (process.platform !== "darwin") {
 }
 
 if (!node.ok || !(major > 22 || (major === 22 && minor >= 14))) {
-    throw new Error("Node.js 22.14 or later must be on PATH to install the Raycast backgrounds extension");
+    throw new Error("Node.js 22.14 or later must be on PATH to register the local Raycast backgrounds extension");
 }
 
 runAssert(
     ["/usr/bin/open", "-g", "-b", "com.raycast.macos"],
-    "Raycast must be installed before installing the backgrounds extension",
+    "Raycast must be installed before registering the local backgrounds extension",
 );
 
 for (const args of [["install", "--frozen-lockfile"], ["run", "install-local"]]) {
@@ -25,6 +25,6 @@ for (const args of [["install", "--frozen-lockfile"], ["run", "install-local"]])
     process.stderr.write(result.stderr);
 
     if (!result.ok) {
-        throw new Error(`Raycast backgrounds installation failed: bun ${args.join(" ")}`);
+        throw new Error(`Raycast backgrounds registration failed: bun ${args.join(" ")}`);
     }
 }
