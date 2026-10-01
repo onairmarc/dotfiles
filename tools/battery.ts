@@ -446,6 +446,10 @@ function cmdDiagnose(): void {
 }
 
 function maxCap(): string {
+    if (arch() === "arm64") {
+        return ioregField("AppleRawMaxCapacity");
+    }
+
     return ioregField("MaxCapacity");
 }
 
@@ -454,6 +458,14 @@ function designCap(): string {
 }
 
 function healthPct(): string {
+    if (arch() === "arm64") {
+        const reported = systemProfilerPowerField("Maximum Capacity");
+        const match = reported.match(/^(\d+)%$/);
+        if (match) {
+            return match[1];
+        }
+    }
+
     const rounded = roundPct(maxCap(), designCap());
     return rounded !== "" ? rounded : "?";
 }
