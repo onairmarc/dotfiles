@@ -98,8 +98,8 @@ materially useful simplifications, implement every accepted fix, and confirm all
 
 **2. Fragility-verification sub-plan:** create the final sub-plan before plan-directory cleanup as the fragility-verification gate. It is blocked only by the
 change-audit sub-plan and blocks nothing except plan deletion. It loads `fragility-audit` with the `skill` tool and runs its `--verify-changes` mode, following
-`~/.agents/skills/fragility-commons/verification-contract.md`. If verification finds a proved issue, surface every proved issue to the user, stop before plan deletion,
-and retain the plan directory.
+`~/.agents/skills/fragility-commons/verification-contract.md`. If verification finds a proved issue, remediate it within this sub-plan, run the focused tests, and
+re-verify until clean. Do not create or request another plan. Stop before plan deletion only when remediation needs a user decision.
 
 Always create these two dedicated sub-plans in this order. If the master plan omits either gate, add it before presenting the proposed split.
 

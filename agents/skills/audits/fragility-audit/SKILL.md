@@ -7,7 +7,8 @@ description: Audit a codebase or supplied path for proven unhandled failure path
 
 Audit the repository root by default, or the file or directory supplied in `$ARGUMENTS`. Review existing and newly changed code equally.
 
-This is read-only. Do not edit application code, run tests, commit, or push. Read-only inspection commands are allowed.
+The default and `--audit-only` modes are read-only. Do not edit application code, run tests, commit, or push. Read-only inspection commands are allowed.
+`--verify-changes` is the execution gate: it may remediate proved findings and run the focused tests needed to prove the remediation.
 
 Read `~/.agents/skills/fragility-commons/proof-contract.md` before reviewing a failure path. Read
 `~/.agents/skills/fragility-commons/report-format.md` before reporting.
@@ -16,7 +17,8 @@ Read `~/.agents/skills/fragility-commons/proof-contract.md` before reviewing a f
 
 - **Default:** perform the audit, load `feature-planning` with the `skill` tool, and create a remediation plan that embeds the report.
 - **`--audit-only`:** perform the audit and return the validated report to the calling planning skill. Do not create a plan.
-- **`--verify-changes`:** inspect branch changes and directly affected call paths after implementation. Follow
+- **`--verify-changes`:** inspect branch changes and directly affected call paths after implementation. Remediate every accepted finding in the
+  current execution, run its focused tests, then re-verify until no proved finding remains. Follow
   `~/.agents/skills/fragility-commons/verification-contract.md`.
 
 ## 1. Establish coverage
@@ -52,9 +54,11 @@ Add a distinct inventory row for every proved omission and review it before fina
 
 Build the report required by `~/.agents/skills/fragility-commons/report-format.md`.
 
-For `--audit-only`, return that report to the caller. For `--verify-changes`, stop cleanly when no findings remain; otherwise preserve the current plan directory and
-create a remediation-plan handoff. For the default mode, load `feature-planning` with the `skill` tool, then provide the validated report, finding IDs, required
-behavior, and remediation order. Never invoke OpenCode, a shell command, or a slash command to run either skill.
+For `--audit-only`, return that report to the caller. For `--verify-changes`, stop cleanly when no findings remain. When validation finds an accepted finding, remediate
+it in the current execution, run the required focused tests, and repeat validation. Do not create, request, or hand off to a new plan; do not invoke `feature-planning`,
+`plan-review`, `plan-resync`, or `plan-split`. If a finding cannot be remediated without a user decision, stop and ask that decision directly, retaining the current plan
+directory. For the default mode, load `feature-planning` with the `skill` tool, then provide the validated report, finding IDs, required behavior, and remediation order.
+Never invoke OpenCode, a shell command, or a slash command to run either skill.
 
 The audit is complete only when every scoped subsystem has an accepted finding or explicit skip, every finding meets the proof contract, and the
 audit-the-audit pass is clean.

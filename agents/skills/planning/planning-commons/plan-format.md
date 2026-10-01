@@ -94,8 +94,8 @@ This step runs after all behavioral slices are complete and all tests pass. Stat
 files on this branch for data-structure, state-representation, and control-flow simplifications, implement the accepted fixes, and ensure all tests pass."
 
 The **second-to-last step** of every plan must load `fragility-audit` with the `skill` tool, then run its `--verify-changes` mode after `change-audit`. Follow
-`~/.agents/skills/fragility-commons/verification-contract.md`. Never invoke the skill as an OpenCode, shell, or slash command. If it finds a proved issue, stop before
-plan-directory deletion, retain this plan directory, and create the required remediation-plan handoff.
+`~/.agents/skills/fragility-commons/verification-contract.md`. Never invoke the skill as an OpenCode, shell, or slash command. If it finds a proved issue, remediate it
+in the current verification sub-plan, run the focused tests, and re-verify until clean. Do not create or request another remediation plan.
 
 The **final step** of every plan must hand plan-directory deletion to the agent running `plan-execute`, because plans are throwaway scaffolding (see
 `## Plan lifecycle`). State it explicitly, e.g.: "After every sub-plan succeeds, the agent running `plan-execute` deletes the `<$PLAN_DIR>/<feature>/` plan directory

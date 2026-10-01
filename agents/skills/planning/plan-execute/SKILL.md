@@ -30,7 +30,8 @@ when your branch check shows main is checked out — and verified with the repos
 ## Fragility contracts
 
 Read and follow `~/.agents/skills/fragility-commons/subplan-contract.md` and `verification-contract.md`. Confirm the execution set ends with the `change-audit` skill
-followed by the `fragility-audit` skill in `--verify-changes` mode; do not delete the plan directory after a failed final verification.
+followed by the `fragility-audit` skill in `--verify-changes` mode. The final verification sub-plan must remediate accepted findings, run focused tests, and re-verify
+until clean; it must not create another plan. Do not delete the plan directory after a failed final verification.
 
 ## Task tracking
 
@@ -56,8 +57,9 @@ filename lists from its `## Dependencies` section, empty when `none`), and `cont
 
 Every discovered sub-plan belongs to the execution set. Do not select one file from it or silently omit a discovered sub-plan.
 
-Verify the final two sub-plans load the `change-audit` skill, then load the `fragility-audit` skill and run its `--verify-changes` mode. Stop and report a malformed
-plan set when either gate is missing, ordered incorrectly, or lacks its required acceptance criteria.
+Verify the final two sub-plans load the `change-audit` skill, then load the `fragility-audit` skill and run its `--verify-changes` mode. Verify the latter remediates
+accepted findings in the same sub-plan, runs focused tests, re-verifies until clean, and does not create another plan. Stop and report a malformed plan set when either
+gate is missing, ordered incorrectly, or lacks its required acceptance criteria.
 
 ---
 
@@ -176,6 +178,17 @@ Because this rule always applies, do not omit the file.
 
 Also state that every finding-specific failure contract and focused failure-path test in the sub-plan is mandatory. An agent must not replace a specified failure outcome
 with a generic catch, silent fallback, or untested retry.
+
+Also include this **fragility verification** block verbatim. It keeps final verification inside the execution that introduced the change instead of starting another
+planning cycle:
+
+```markdown
+## Fragility verification
+
+When this sub-plan runs `fragility-audit --verify-changes`, remediation is part of this sub-plan. For every accepted finding, make the smallest correct code and test
+change, run the focused tests, and repeat verification until no proved finding remains. Do not create, request, or hand off to a new remediation plan, and do not invoke
+`feature-planning`, `plan-review`, `plan-resync`, or `plan-split`. Stop before plan deletion only if remediation needs a user decision; ask that decision directly.
+```
 
 **Template A — pending (no prior implementation):**
 

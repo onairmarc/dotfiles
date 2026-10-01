@@ -238,7 +238,8 @@ Follow `~/.agents/skills/fragility-commons/review-contract.md`.
 - Does every plan that changes executable behavior contain a validated `## Fragility audit report` immediately after `## Goal`?
 - Does each remediation slice map to finding IDs and define the target flow, error handling, cleanup, logging, observable behavior, and focused failure-path tests?
 - Does the plan evaluate simplification before selecting a more complex recovery design?
-- Does the second-to-last step load `fragility-audit` with the `skill` tool, run its `--verify-changes` mode after the `change-audit` skill, and finish before plan deletion?
+- Does the second-to-last step load `fragility-audit` with the `skill` tool, run its `--verify-changes` mode after the `change-audit` skill, remediate and test every
+  accepted finding in that same execution, re-verify until clean, and finish before plan deletion without creating another plan?
 
 ---
 

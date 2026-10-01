@@ -10,5 +10,7 @@ The verification confirms:
 - `change-audit` fixes did not introduce a proved fragile path.
 - No new proved fragility finding remains in changed code or directly affected callers and callees.
 
-When verification finds a problem, stop before plan-directory deletion. Keep the plan directory and create a new fragility remediation plan from
-the validated findings.
+When verification finds a problem, remediate every accepted finding in the current verification sub-plan. Add or update focused failure-path tests, run the affected
+scoped test suite, and repeat verification until no proved finding remains. Do not create, request, or hand off to another plan. Delete the plan directory only after
+the clean re-verification passes. If remediation requires a user decision, stop before plan-directory deletion and ask that decision directly; do not turn it into a
+planning task.

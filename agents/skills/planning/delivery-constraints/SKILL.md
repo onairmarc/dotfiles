@@ -103,4 +103,5 @@ code and its required call paths. Embed the validated report under `## Fragility
 `~/.agents/skills/fragility-commons/planning-contract.md`. Never pass this flag to OpenCode, a shell command, or a slash command.
 
 After all behavioral slices and the `change-audit` skill complete, load `fragility-audit` with the `skill` tool and run its `--verify-changes` mode as the final
-engineering gate. Do not delete the plan directory while it reports a proved finding. Follow `~/.agents/skills/fragility-commons/verification-contract.md`.
+engineering gate. Remediate every proved finding during that same execution, test it, and re-verify until clean; do not defer it to another plan. Do not delete the plan
+directory while it reports a proved finding. Follow `~/.agents/skills/fragility-commons/verification-contract.md`.
