@@ -61,6 +61,17 @@ No separate output directory argument is accepted or needed.
 
 Read the plan in full. Identify the natural units of work that can be split into separate sub-plans.
 
+### Build a coverage matrix before proposing a split
+
+Before Step 2, create an internal coverage matrix. List every master-plan implementation step, API contract, schema rule, configuration key, failure-path contract,
+test requirement, documentation update, and final gate. Assign each item to exactly one behavioral sub-plan, except shared facts that must be copied into every sub-plan
+that uses them. Do not present the proposed split until every item has an owner.
+
+For each proposed sub-plan, list its owned master-plan sections and the concrete behavior that proves the slice is complete. If one master-plan step spans multiple
+behaviors, split the step at the behavioral boundary and assign each resulting part. Do not leave a clause unassigned because it seems like implementation detail.
+
+The matrix is an internal working artifact. Do not write it as a separate plan file unless the user asks. Its purpose is to prevent loss during extraction.
+
 ### What makes a good split boundary
 
 A good sub-plan boundary is where:
@@ -156,6 +167,42 @@ mirror-image `**Blocked by:**` / `**Blocks:**` filename lists; the `## Delivery 
 pointers); every sub-plan self-contained, with steps copied verbatim from the master plan and the applicable subset of `$PROJECT_STANDARDS` carried into each sub-plan's
 Context. Write all files before proceeding to Step 4.
 
+### Required extraction depth
+
+Do not summarize a master-plan step into a shorter instruction. Copy the relevant source text verbatim unless a small edit is needed to make it standalone. A sub-plan
+must include every concrete class, method, route, file path, DTO, migration field, enum value, lock key, authorization rule, middleware order, error response, logging
+requirement, retry rule, configuration key, test case, documentation update, and acceptance condition owned by its slice.
+
+When an owned master-plan section contains a code example, include that example in the sub-plan. When it defines an API table, schema, or state machine used by the
+slice, reproduce the relevant rows and rules. Do not replace details with phrases such as “complete account API,” “add the required models,” “preserve behavior,” or
+“update docs.” Those phrases are not executable instructions.
+
+Each behavioral sub-plan must contain these sections in addition to the canonical structure from `plan-format.md`:
+
+- `## Owned master-plan scope`: exact headings and step ranges extracted from the master plan.
+- `## Contracts`: relevant API, schema, state, configuration, authorization, and cross-module contracts copied from the master plan.
+- `## Failure behavior`: each assigned fragility finding's proof, target behavior, cleanup, logging, and focused test requirements.
+- `## Verification`: the exact affected suites, browser or integration tests when required, and scoped PHPStan command.
+- `## Documentation`: every assigned durable-document update, including ADR and module-isolation updates when the slice introduces the public surface.
+
+The change-audit and fragility-verification sub-plans include only their terminal-gate work, but must reproduce every applicable final-gate condition from the master
+plan. Assign durable documentation to the behavioral slice that introduces the documented surface; never leave all documentation as an implied final cleanup task.
+
+### Mandatory post-write completeness audit
+
+After writing every sub-plan and before Step 4, re-read the master plan and every emitted sub-plan. Use the coverage matrix to verify all of the following:
+
+1. Every master-plan implementation clause has exactly one owning behavioral sub-plan, or is copied as shared context wherever it is required.
+2. Every sub-plan is independently executable without reading the master plan or a sibling plan.
+3. Every fragility finding is reproduced in the context, steps, and acceptance criteria of each slice that remediates it.
+4. Every new route, model, migration, configuration value, job, middleware, service, and durable documentation update has a named owning sub-plan.
+5. Every behavioral sub-plan ends with the precise repository-native tests and scoped static analysis required for its changes.
+6. The delivery-constraints and plan-file-deletion blocks are copied verbatim from `plan-format.md` into every sub-plan.
+7. Dependency headers remain mirror images after any repair.
+
+If any check fails, repair the affected sub-plan files, re-read them, and repeat this audit. Do not output the final summary or claim the split is complete until every
+check passes.
+
 ---
 
 ## Step 4 — Final summary
@@ -196,6 +243,8 @@ Then ask:
   should implement them in. Two sub-plans that both depend only on 01 still get distinct sequence numbers (e.g. 02 and 03) and run back-to-back, never simultaneously.
 - **Slug naming:** use imperative verb phrases — `create-user-model`, `add-queue-worker`, `write-feature-tests`.
 - **Never omit acceptance criteria** from a sub-plan. If the master plan has none, derive them from the steps.
+- **Never abbreviate an executable plan.** A sub-plan is not a task-list summary. It is a complete handoff for one agent, bounded only by the slice's behavior.
+- **Audit your extraction.** The post-write completeness audit is mandatory. A successful file write is not proof that a sub-plan is complete.
 
 ---
 
