@@ -7,7 +7,7 @@
     // OpenCode Quota: tuiCommandDisplay chooses whether native TUI command output appears in the session transcript or a local popup dialog.
     // OpenCode Quota: loads the TUI sidebar, compact status, and local commands.
     "plugin": [
-        "@encoredigitalgroup/opencode@latest",
+        "@encoredigitalgroup/opencode@0.1.3",
         "@slkiser/opencode-quota@4"
     ]
 }
