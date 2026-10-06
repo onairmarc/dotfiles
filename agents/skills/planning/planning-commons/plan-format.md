@@ -156,6 +156,7 @@ is a short imperative kebab-case name (`create-user-model`). **Location:** the s
 ## Dependencies
 
 **Blocked by:** <comma-separated list of plan filenames, or "none">
+
 **Blocks:** <comma-separated list of plan filenames, or "none">
 
 ---
