@@ -190,8 +190,8 @@ const manifest: Manifest = {
         // OpenCode AI coding assistant (mac + win)
         {
             name: "opencode",
-            mac: {kind: "curl", url: "https://opencode.ai/install", pipe_to: "bash"},
-            win: {kind: "curl", url: "https://opencode.ai/install", pipe_to: "bash"},
+            mac: {kind: "curl", url: "https://opencode.ai/v2/install", pipe_to: "bash"},
+            win: {kind: "curl", url: "https://opencode.ai/v2/install", pipe_to: "bash"},
         },
         // Laravel Language Server through Herd (mac-only).
         {
