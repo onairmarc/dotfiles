@@ -4,7 +4,11 @@
         "name": "opencode"
     },
     "keybinds": {
-        "session.child.first": "alt+down"
+        "session.child.first": "alt+down",
+        "prompt.queue": [
+            "ctrl+shift+return",
+            "super+shift+return"
+        ]
     },
     "session": {
         "grouping": "none",
