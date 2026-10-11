@@ -2,11 +2,17 @@
 description: Writes code-verified developer or end-user documentation without changing application code. Use for developer docs, user docs, or their group modes.
 mode: subagent
 hidden: true
-color: info
-permission:
-  task: deny
-  bash: deny
-  question: deny
+color: "#0284c7"
+permissions:
+  - action: subagent
+    resource: "*"
+    effect: deny
+  - action: shell
+    resource: "*"
+    effect: deny
+  - action: question
+    resource: "*"
+    effect: deny
 ---
 
 Write documentation only. Do not change application code, tests, dependencies, build configuration, or CI files. Load `dev-docs` or `user-docs` based on the

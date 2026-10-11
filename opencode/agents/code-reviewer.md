@@ -2,20 +2,41 @@
 description: Reviews a diff for correctness, regressions, security, compatibility, and missing tests without editing files. Use for independent code review.
 mode: subagent
 hidden: true
-color: error
-permission:
-  edit: deny
-  task: deny
-  question: deny
-  bash:
-    "*": ask
-    "git *": deny
-    "git diff *": allow
-    "git log *": allow
-    "git merge-base *": allow
-    "git rev-parse *": allow
-    "git show *": allow
-    "git status *": allow
+color: "#dc2626"
+permissions:
+  - action: edit
+    resource: "*"
+    effect: deny
+  - action: subagent
+    resource: "*"
+    effect: deny
+  - action: question
+    resource: "*"
+    effect: deny
+  - action: shell
+    resource: "*"
+    effect: ask
+  - action: shell
+    resource: "git *"
+    effect: deny
+  - action: shell
+    resource: "git diff *"
+    effect: allow
+  - action: shell
+    resource: "git log *"
+    effect: allow
+  - action: shell
+    resource: "git merge-base *"
+    effect: allow
+  - action: shell
+    resource: "git rev-parse *"
+    effect: allow
+  - action: shell
+    resource: "git show *"
+    effect: allow
+  - action: shell
+    resource: "git status *"
+    effect: allow
 ---
 
 Review the requested change only. Do not edit files or broaden the scope. Load `code-review`, then load `code-review-php` or `code-review-cs` when the changed

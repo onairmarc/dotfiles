@@ -1,12 +1,13 @@
 {
-    "$schema": "https://opencode.ai/config.json",
-    "autoupdate": true,
+    "$schema": "https://opencode.ai/v2/config.json",
+    "update": "auto",
     "default_agent": "build",
-    "small_model": "openai/gpt-5.6-luna",
-    "agent": {
+    "agents": {
+        "title": {
+            "model": "openai/gpt-5.6-luna"
+        },
         "general": {
-            "model": "openai/gpt-5.6-luna",
-            "variant": "high"
+            "model": "openai/gpt-5.6-luna#high"
         },
         "explore": {
             "model": "openai/gpt-5.6-terra"
@@ -15,93 +16,162 @@
             "model": "openai/gpt-5.6-luna"
         }
     },
-    "subagent_depth": 3,
-    "mcp": {
-        "sentry": {
-            "type": "remote",
-            "url": "https://mcp.sentry.dev/mcp",
-            "oauth": {}
-        },
-        "servicepoint": {
-            "type": "remote",
-            "url": "https://console.servicepointhq.com/api/v1/mcp",
-            "oauth": false,
-            "headers": {
-                "Authorization": "Bearer {env:SERVICEPOINT_TOKEN}"
+    "experimental": {
+        "subagent_depth": 3,
+        "policies": [
+            {
+                "action": "provider.use",
+                "resource": "*",
+                "effect": "deny"
+            },
+            {
+                "action": "provider.use",
+                "resource": "openai",
+                "effect": "allow"
+            },
+            {
+                "action": "provider.use",
+                "resource": "xai",
+                "effect": "allow"
+            },
+            {
+                "action": "provider.use",
+                "resource": "opencode",
+                "effect": "allow"
             }
-        },
-        "epp": {
-            "type": "remote",
-            "url": "https://portal.encoredigitalgroup.com/api/v1/mcp",
-            "oauth": false,
-            "headers": {
-                "Authorization": "Bearer {env:EPP_TOKEN}"
-            }
-        }
+        ]
     },
-    "lsp": {
-        "laravel-lsp": {
-            "command": [
-                "laravel-lsp"
-            ],
-            "extensions": [
-                ".php",
-                ".blade.php"
-            ]
+    "mcp": {
+        "servers": {
+            "sentry": {
+                "type": "remote",
+                "url": "https://mcp.sentry.dev/mcp",
+                "oauth": {}
+            },
+            "servicepoint": {
+                "type": "remote",
+                "url": "https://console.servicepointhq.com/api/v1/mcp",
+                "oauth": false,
+                "headers": {
+                    "Authorization": "Bearer {env:SERVICEPOINT_TOKEN}"
+                }
+            },
+            "epp": {
+                "type": "remote",
+                "url": "https://portal.encoredigitalgroup.com/api/v1/mcp",
+                "oauth": false,
+                "headers": {
+                    "Authorization": "Bearer {env:EPP_TOKEN}"
+                }
+            }
         }
     },
     // OpenCode Quota: tuiCommandDisplay chooses whether native TUI command output appears in the session transcript or a local popup dialog.
     // OpenCode Quota: loads the server plugin for slash commands and quota checks.
-    "plugin": [
-        "@encoredigitalgroup/opencode@latest",
-        "@slkiser/opencode-quota@latest"
+    "plugins": [
+        {
+            "package": "@encoredigitalgroup/opencode@latest",
+            "options": {}
+        },
+        {
+            "package": "@slkiser/opencode-quota@latest",
+            "options": {}
+        }
     ],
-    "enabled_providers": [
-        "openai",
-        "xai",
-        "opencode"
-    ],
-    "provider": {
+    "providers": {
         "xai": {},
         "openai": {}
     },
-    "permission": {
-        "bash": {
-            "*": "allow",
-            "git push": "deny",
-            "git push *": "deny",
-            "git checkout": "deny",
-            "git checkout *": "deny",
-            "git reset": "deny",
-            "git reset *": "deny",
-            "git clean": "deny",
-            "git clean *": "deny",
-            "git restore": "deny",
-            "git restore *": "deny",
-            "git stash drop": "deny",
-            "git stash drop *": "deny",
-            "git stash clear": "deny",
-            "git stash clear *": "deny",
-            "git switch": "deny",
-            "git switch *": "deny",
-            "gh pr create": "deny",
-            "gh pr create *": "deny",
-            "gh pr edit": "deny",
-            "gh pr edit *": "deny",
-            "gh pr merge": "deny",
-            "gh pr merge *": "deny",
-            "gh pr ready": "deny",
-            "gh pr ready *": "deny",
-            "gh pr comment": "deny",
-            "gh pr comment *": "deny",
-            "gh issue create": "deny",
-            "gh issue create *": "deny",
-            "gh issue edit": "deny",
-            "gh issue edit *": "deny",
-            "gh issue comment": "deny",
-            "gh issue comment *": "deny",
-            "gh release create": "deny",
-            "gh release create *": "deny"
+    "permissions": [
+        {
+            "action": "shell",
+            "resource": "*",
+            "effect": "allow"
+        },
+        {
+            "action": "shell",
+            "resource": "git push *",
+            "effect": "deny"
+        },
+        {
+            "action": "shell",
+            "resource": "git checkout *",
+            "effect": "deny"
+        },
+        {
+            "action": "shell",
+            "resource": "git reset *",
+            "effect": "deny"
+        },
+        {
+            "action": "shell",
+            "resource": "git clean *",
+            "effect": "deny"
+        },
+        {
+            "action": "shell",
+            "resource": "git restore *",
+            "effect": "deny"
+        },
+        {
+            "action": "shell",
+            "resource": "git stash drop *",
+            "effect": "deny"
+        },
+        {
+            "action": "shell",
+            "resource": "git stash clear *",
+            "effect": "deny"
+        },
+        {
+            "action": "shell",
+            "resource": "git switch *",
+            "effect": "deny"
+        },
+        {
+            "action": "shell",
+            "resource": "gh pr create *",
+            "effect": "deny"
+        },
+        {
+            "action": "shell",
+            "resource": "gh pr edit *",
+            "effect": "deny"
+        },
+        {
+            "action": "shell",
+            "resource": "gh pr merge *",
+            "effect": "deny"
+        },
+        {
+            "action": "shell",
+            "resource": "gh pr ready *",
+            "effect": "deny"
+        },
+        {
+            "action": "shell",
+            "resource": "gh pr comment *",
+            "effect": "deny"
+        },
+        {
+            "action": "shell",
+            "resource": "gh issue create *",
+            "effect": "deny"
+        },
+        {
+            "action": "shell",
+            "resource": "gh issue edit *",
+            "effect": "deny"
+        },
+        {
+            "action": "shell",
+            "resource": "gh issue comment *",
+            "effect": "deny"
+        },
+        {
+            "action": "shell",
+            "resource": "gh release create *",
+            "effect": "deny"
         }
-    }
+    ]
 }

@@ -38,7 +38,8 @@ function removeManagedLink(source: string, target: string, label: string): void 
 
 function cleanupGlobalConfigLinks(dotfilesRoot: string, configDir: string): void {
     removeManagedLink(join(dotfilesRoot, "opencode", "opencode.jsonc"), join(configDir, "opencode.jsonc"), "Global mode");
-    removeManagedLink(join(dotfilesRoot, "opencode", "global", "tui.jsonc"), join(configDir, "tui.jsonc"), "Global mode");
+    removeManagedLink(join(dotfilesRoot, "opencode", "tui.jsonc"), join(configDir, "tui.jsonc"), "Global mode");
+    removeManagedLink(join(dotfilesRoot, "opencode", "cli.jsonc"), join(configDir, "cli.jsonc"), "Global mode");
 }
 
 function cleanupRetiredGlobalLinks(configDir: string, agentsSource: string, pluginsSource: string): void {
@@ -312,7 +313,7 @@ export function syncGlobalOpencode(): void {
 
     const pluginsSource = join(dotfilesRoot, "opencode", "plugins");
     const configFile = join(dotfilesRoot, "opencode", "opencode.jsonc");
-    const tuiConfigFile = join(dotfilesRoot, "opencode", "tui.jsonc");
+    const cliConfigFile = join(dotfilesRoot, "opencode", "cli.jsonc");
     const agentsSource = join(dotfilesRoot, "opencode", "agents");
 
     cleanupGlobalConfigLinks(dotfilesRoot, configDir);
@@ -320,7 +321,7 @@ export function syncGlobalOpencode(): void {
     cleanupRetiredGlobalLinks(configDir, agentsSource, pluginsSource);
     linkGlobalFile(join(dotfilesRoot, "agents", "AGENTS.md"), join(configDir, "AGENTS.md"), "Global mode");
     linkGlobalFile(configFile, join(configDir, "opencode.jsonc"), "Global mode");
-    linkGlobalFile(tuiConfigFile, join(configDir, "tui.jsonc"), "Global mode");
+    linkGlobalFile(cliConfigFile, join(configDir, "cli.jsonc"), "Global mode");
     rmSync(join(configDir, "plugins", "custom"), {recursive: true, force: true});
 
     for (const file of findFiles(agentsSource)) {

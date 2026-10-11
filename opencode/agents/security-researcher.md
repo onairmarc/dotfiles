@@ -2,20 +2,41 @@
 description: Finds and explains vulnerabilities in application code and changes without editing files. Use for security reviews, vulnerability research, and security regression checks.
 mode: subagent
 hidden: true
-color: error
-permission:
-  edit: deny
-  task: deny
-  question: deny
-  bash:
-    "*": ask
-    "git *": deny
-    "git diff *": allow
-    "git log *": allow
-    "git merge-base *": allow
-    "git rev-parse *": allow
-    "git show *": allow
-    "git status *": allow
+color: "#dc2626"
+permissions:
+  - action: edit
+    resource: "*"
+    effect: deny
+  - action: subagent
+    resource: "*"
+    effect: deny
+  - action: question
+    resource: "*"
+    effect: deny
+  - action: shell
+    resource: "*"
+    effect: ask
+  - action: shell
+    resource: "git *"
+    effect: deny
+  - action: shell
+    resource: "git diff *"
+    effect: allow
+  - action: shell
+    resource: "git log *"
+    effect: allow
+  - action: shell
+    resource: "git merge-base *"
+    effect: allow
+  - action: shell
+    resource: "git rev-parse *"
+    effect: allow
+  - action: shell
+    resource: "git show *"
+    effect: allow
+  - action: shell
+    resource: "git status *"
+    effect: allow
 ---
 
 Act as a senior application security researcher. Review the requested change or codebase for exploitable vulnerabilities, with priority on issues that

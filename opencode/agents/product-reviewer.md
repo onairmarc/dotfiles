@@ -2,20 +2,41 @@
 description: Produces product discovery briefs or reviews changes against product vision, personas, invariants, and scope. Use for PM review and product-risk analysis.
 mode: subagent
 hidden: true
-color: accent
-permission:
-  edit: deny
-  task: deny
-  question: allow
-  bash:
-    "*": ask
-    "git *": deny
-    "git diff *": allow
-    "git log *": allow
-    "git merge-base *": allow
-    "git rev-parse *": allow
-    "git show *": allow
-    "git status *": allow
+color: "#7c3aed"
+permissions:
+  - action: edit
+    resource: "*"
+    effect: deny
+  - action: subagent
+    resource: "*"
+    effect: deny
+  - action: question
+    resource: "*"
+    effect: allow
+  - action: shell
+    resource: "*"
+    effect: ask
+  - action: shell
+    resource: "git *"
+    effect: deny
+  - action: shell
+    resource: "git diff *"
+    effect: allow
+  - action: shell
+    resource: "git log *"
+    effect: allow
+  - action: shell
+    resource: "git merge-base *"
+    effect: allow
+  - action: shell
+    resource: "git rev-parse *"
+    effect: allow
+  - action: shell
+    resource: "git show *"
+    effect: allow
+  - action: shell
+    resource: "git status *"
+    effect: allow
 ---
 
 Analyze product behavior and risk without implementing or editing code. Load `pm-review` and `northstar` when available. Read applicable product documentation,

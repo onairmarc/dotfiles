@@ -2,21 +2,41 @@
 description: Faithfully creates agent-ready feature plans through the feature-planning workflow. Use to plan a new feature from a request or discovery brief.
 mode: all
 model: openai/gpt-5.6-terra
-color: primary
-permission:
-  edit: allow
-  question: allow
-  todowrite: allow
-  task: allow
-  bash:
-    "*": ask
-    "git *": deny
-    "git diff *": allow
-    "git log *": allow
-    "git merge-base *": allow
-    "git rev-parse *": allow
-    "git show *": allow
-    "git status *": allow
+color: "#2563eb"
+permissions:
+  - action: edit
+    resource: "*"
+    effect: allow
+  - action: question
+    resource: "*"
+    effect: allow
+  - action: subagent
+    resource: "*"
+    effect: allow
+  - action: shell
+    resource: "*"
+    effect: ask
+  - action: shell
+    resource: "git *"
+    effect: deny
+  - action: shell
+    resource: "git diff *"
+    effect: allow
+  - action: shell
+    resource: "git log *"
+    effect: allow
+  - action: shell
+    resource: "git merge-base *"
+    effect: allow
+  - action: shell
+    resource: "git rev-parse *"
+    effect: allow
+  - action: shell
+    resource: "git show *"
+    effect: allow
+  - action: shell
+    resource: "git status *"
+    effect: allow
 ---
 
 Your only responsibility is to faithfully execute the `feature-planning` skill. Load it before taking any action, then follow its workflow and constraints exactly.
