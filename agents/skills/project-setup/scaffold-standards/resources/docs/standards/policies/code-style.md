@@ -18,6 +18,47 @@ a file header — is stated below so it is a rule rather than a reviewer's prefe
   grouping the formatter leaves alone. Author from {{PRIMARY_LANGUAGE}} conventions; ask the user for anything genuinely discretionary.}}
 - {{GEN:name the formatter and its configuration file, detected from the repo tooling config.}}
 
+## React JSX input formatting
+
+`tsfmt` remains the final authority for TypeScript and TSX output. Authors must still format JSX input to make the rendered tree clear before `tsfmt` runs. Readable input
+lets a human review nested forms, callbacks, conditions, and mapped children without reconstructing their structure from a dense line of code.
+
+**Rules:**
+
+- Put a JSX element with several props or children across lines, with one prop per line and child nodes indented beneath the opening tag.
+- Put a render callback on its own indented line. When it returns a JSX element, put that element and its children on their own lines rather than compressing them into the
+  callback expression.
+- Put conditional and mapped child expressions on their own lines. Indent the callback body and multiline child element beneath the expression.
+- Keep a simple one-line element only when it has no nested children and remains easy to read. Do not manually run `tsfmt`, Prettier, ESLint, or any other style tool.
+
+```tsx
+<form.Field name="contactMethod">
+    {(field) =>
+        <TextField
+            select
+            label="Contact method"
+            value={field.state.value ?? ""}
+            error={fieldError(field.state.meta.errors) !== undefined}
+            helperText={fieldError(field.state.meta.errors)}
+            onBlur={field.handleBlur}
+            onChange={
+                (event) => field.handleChange(event.target.value === ""
+                    ? undefined
+                    : event.target.value)
+            }
+        >
+            <MenuItem value="">Choose a contact method</MenuItem>
+            {
+                contactMethods.map((method) =>
+                    <MenuItem key={method.value} value={method.value}>
+                        {method.label}
+                    </MenuItem>)
+            }
+        </TextField>
+    }
+</form.Field>
+```
+
 **Example:**
 
 {{GEN:a short {{PRIMARY_LANGUAGE}} snippet contrasting a hand-formatted, intent-obscuring version ("Bad") with the same code written plainly and left to the formatter (
