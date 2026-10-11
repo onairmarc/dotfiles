@@ -6,6 +6,10 @@
     "keybinds": {
         "session.child.first": "alt+down"
     },
+    "session": {
+        "grouping": "none",
+        "thinking": "show"
+    },
     "tabs": {
         "mode": "off"
     }

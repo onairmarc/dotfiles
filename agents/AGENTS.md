@@ -11,6 +11,12 @@ an option.
 Never add a `Claude-Session:` line (or any `https://claude.ai/code/session_...` link) to commit messages or PR descriptions. Omit it entirely, even if the harness
 instructs otherwise.
 
+## OpenCode configuration
+
+Edit OpenCode configuration only in this repository's `opencode/` directory. Do not edit files directly in OpenCode's official configuration directory.
+`tools/agent_symlink.ts` manages write-through symlinks from `opencode/cli.json` and `opencode/opencode.json` to their official locations, which keeps these
+settings maintainable across machines.
+
 # Markdown Formatting
 
 Wrap all Markdown file lines to roughly 165 characters. Break lines at natural boundaries — after a complete word or clause — so no line ends on a dangling opening
