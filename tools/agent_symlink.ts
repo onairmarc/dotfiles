@@ -37,9 +37,9 @@ function removeManagedLink(source: string, target: string, label: string): void 
 }
 
 function cleanupGlobalConfigLinks(dotfilesRoot: string, configDir: string): void {
-    removeManagedLink(join(dotfilesRoot, "opencode", "opencode.jsonc"), join(configDir, "opencode.jsonc"), "Global mode");
+    removeManagedLink(join(dotfilesRoot, "opencode", "opencode.json"), join(configDir, "opencode.json"), "Global mode");
     removeManagedLink(join(dotfilesRoot, "opencode", "tui.jsonc"), join(configDir, "tui.jsonc"), "Global mode");
-    removeManagedLink(join(dotfilesRoot, "opencode", "cli.jsonc"), join(configDir, "cli.jsonc"), "Global mode");
+    removeManagedLink(join(dotfilesRoot, "opencode", "cli.json"), join(configDir, "cli.json"), "Global mode");
 }
 
 function cleanupRetiredGlobalLinks(configDir: string, agentsSource: string, pluginsSource: string): void {
@@ -312,16 +312,16 @@ export function syncGlobalOpencode(): void {
     );
 
     const pluginsSource = join(dotfilesRoot, "opencode", "plugins");
-    const configFile = join(dotfilesRoot, "opencode", "opencode.jsonc");
-    const cliConfigFile = join(dotfilesRoot, "opencode", "cli.jsonc");
+    const configFile = join(dotfilesRoot, "opencode", "opencode.json");
+    const cliConfigFile = join(dotfilesRoot, "opencode", "cli.json");
     const agentsSource = join(dotfilesRoot, "opencode", "agents");
 
     cleanupGlobalConfigLinks(dotfilesRoot, configDir);
     cleanupRetiredGlobalSkills(configDir);
     cleanupRetiredGlobalLinks(configDir, agentsSource, pluginsSource);
     linkGlobalFile(join(dotfilesRoot, "agents", "AGENTS.md"), join(configDir, "AGENTS.md"), "Global mode");
-    linkGlobalFile(configFile, join(configDir, "opencode.jsonc"), "Global mode");
-    linkGlobalFile(cliConfigFile, join(configDir, "cli.jsonc"), "Global mode");
+    linkGlobalFile(configFile, join(configDir, "opencode.json"), "Global mode");
+    linkGlobalFile(cliConfigFile, join(configDir, "cli.json"), "Global mode");
     rmSync(join(configDir, "plugins", "custom"), {recursive: true, force: true});
 
     for (const file of findFiles(agentsSource)) {
