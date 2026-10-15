@@ -17,7 +17,7 @@
     },
     // Optional bundled maintainer Home announcements.
     "maintainerAnnouncements": {
-        "enabled": true,
-        "home": true
+        "enabled": false,
+        "home": false
     }
 }
