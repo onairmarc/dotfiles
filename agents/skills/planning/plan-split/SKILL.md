@@ -50,6 +50,8 @@ Otherwise, use `question` to ask the user:
 Once you have a path:
 
 - Read the file with `Read`. If it does not exist, stop with an error.
+- Check its `## Plan validation` section. If the `**Status:**` line does not begin with `Validated by`, load `plan-review` with the `skill` tool once, complete that
+  review, then re-read the source plan. Do not run a second review after a validated marker is present.
 - Derive the **output directory** as the directory that contains the plan file (i.e. `dirname` of the resolved path). The sub-plan files will be written alongside the
   source plan in this same directory.
 

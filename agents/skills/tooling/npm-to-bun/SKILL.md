@@ -156,6 +156,9 @@ If the install fails:
 
 Run the build script: `bun run build`.
 
+If the repository defines a test script, run its focused project test command through Bun after the build succeeds. Do not invent a test command when no test script or
+repository-documented command exists.
+
 If the build succeeds, report success.
 
 If the build fails:
@@ -172,7 +175,7 @@ Summarize:
 
 1. Files changed (list each file and what changed).
 2. Lock file status (`bun.lock` generated, `package-lock.json` / `yarn.lock` removed).
-3. Build result (pass / fail and reason if fail).
+3. Build and test result (pass / fail and reason if fail).
 4. Any items that need manual follow-up (e.g. private registry auth, publish flow, bun-incompatible packages).
 
 ---

@@ -135,6 +135,16 @@ List every doc that must be updated:
 Durable docs land in their real home (standards, root README/AGENTS, glossary, an ADR under `docs/decisions/`, or the module's own AGENTS/README). Never point shipped
 docs or code at this plan file — the plan is deleted once implemented.
 
+## Plan validation
+
+**Status:** Pending final review.
+
+Before `plan-split` may extract this plan, the skill that last creates, reviews, or resyncs it replaces this line with:
+
+`**Status:** Validated by <feature-planning | plan-review | plan-resync>; workflow lenses and planning review are complete.`
+
+The marker prevents `plan-split` from repeating completed review work. A missing or pending marker requires one `plan-review` run before splitting.
+
 ## Plan lifecycle
 
 This plan is **throwaway scaffolding**, not durable documentation. Once every sub-plan succeeds and its durable docs land, the agent running `plan-execute` deletes the

@@ -219,6 +219,14 @@ change, run the focused tests, and repeat verification until no proved finding r
 > scratch runner, sandbox project, or hand-rolled assertion layer. The sub-plan is not complete until those scoped
 > suites pass. If a suite fails, fix the failures before reporting done. If you cannot make it pass, stop and report
 > the failing tests with their output instead of declaring success.
+>
+> End your response with exactly this block:
+>
+> ```text
+> RESULT: done | failed
+> FILES: <comma-separated repository-relative paths, or "none">
+> TESTS: <each command and pass/fail result, or "not applicable">
+> ```
 
 ---
 
@@ -257,6 +265,14 @@ change, run the focused tests, and repeat verification until no proved finding r
 > scratch runner, sandbox project, or hand-rolled assertion layer. The sub-plan is not complete until those scoped
 > suites pass. If a suite fails, fix the failures before reporting done. If you cannot make it pass, stop and report
 > the failing tests with their output instead of declaring success.
+>
+> End your response with exactly this block:
+>
+> ```text
+> RESULT: done | failed
+> FILES: <comma-separated repository-relative paths, or "none">
+> TESTS: <each command and pass/fail result, or "not applicable">
+> ```
 
 ---
 
@@ -274,6 +290,11 @@ Treat any of the following as an immediate failure:
 - Result is empty or contains no meaningful output
 - Result explicitly reports an error, exception, or states it could not proceed
 - Agent appears to have taken no action (no files created, no changes described)
+- Result omits the required `RESULT`, `FILES`, or `TESTS` block, reports a result other than `done`, or reports failed or unrun required tests
+
+For a reported success, compare `FILES` with the current `git diff --name-only` output and the sub-plan's expected changed files. Stop if the agent reports a changed file
+that is absent, or reports `none` for a sub-plan that requires a code or documentation change. This is a completion check, not a replacement for the sub-plan's acceptance
+criteria or terminal audit gates.
 
 **On failure, immediately:**
 
@@ -289,9 +310,8 @@ Treat any of the following as an immediate failure:
    <quoted output or "[Tool result missing due to internal error]">
 
    **Options:**
-   1. Retry this sub-plan (re-spawn the same agent)
-   2. Skip this sub-plan and continue with the remaining sub-plans (may cause downstream failures)
-   3. Abort — stop all orchestration here
+    1. Retry this sub-plan (re-spawn the same agent)
+    2. Abort — stop all orchestration here
 
    What would you like to do?
    ```
@@ -299,7 +319,6 @@ Treat any of the following as an immediate failure:
 3. Use `question` to wait for the user's choice before taking any further action.
 4. Act on the user's response:
     - **Retry**: re-spawn the agent using the failure-aware prompt template below — do not send the plain sub-plan prompt again.
-    - **Skip**: mark the sub-plan as skipped, warn that downstream plans may be affected, continue to the next sub-plan.
     - **Abort**: stop all orchestration and report final status.
 
 #### Retry prompt template

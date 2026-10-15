@@ -167,11 +167,8 @@ filled in, organize `## Implementation steps` as vertical `### Slice N —` sect
 
 After drafting, re-read the plan against all lenses below. Note every issue.
 
-Read each document once before applying its matching lens. Loading a document provides its rules and evidence requirements; it is not a separate evaluation.
-
-- `~/.agents/skills/audit-commons/outage-readiness.md` for Lens H.
-- `~/.agents/skills/audit-commons/deletion-first.md` for Lens I.
-- `~/.agents/skills/audit-commons/simplicity-first.md` for Lens J.
+Read `~/.agents/skills/audit-commons/workflow-lenses.md` once. Apply every lens it requires once. Loading the index provides the lens rules and evidence requirements;
+it is not a separate evaluation.
 
 ### Lens 0 — Standards & policy compliance (highest priority)
 
@@ -247,18 +244,6 @@ Follow `~/.agents/skills/fragility-commons/review-contract.md`.
 - Does the second-to-last step load `fragility-audit` with the `skill` tool, run its `--verify-changes` mode after the `change-audit` skill, remediate and test every
   accepted finding in that same execution, re-verify until clean, and finish before plan deletion without creating another plan?
 
-### Lens H — 2 AM outage readiness
-
-Apply `outage-readiness.md` once to the plan. Record and resolve every evidence-backed finding before proceeding.
-
-### Lens I — Deletion-first design
-
-Apply `deletion-first.md` once to the plan. Record and resolve every evidence-backed finding before proceeding.
-
-### Lens J — Simplicity first
-
-Apply `simplicity-first.md` once to the plan. Record and resolve every evidence-backed finding before proceeding.
-
 ---
 
 ## Step 3 — Iterate via question
@@ -287,6 +272,8 @@ Do not proceed to Step 5 until the plan passes the northstar review with no unre
 ## Step 5 — Complete the plan
 
 Once the plan passes all lenses and (if applicable) the northstar review, present:
+
+Update the plan's `## Plan validation` status to `Validated by feature-planning; workflow lenses and planning review are complete.` before presenting the summary.
 
 ```
 ## Plan complete ✓

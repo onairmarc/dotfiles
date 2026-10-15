@@ -263,9 +263,18 @@ Prompt:
 
 ---
 
-## Step 5 — Write the upgrade plan
+## Step 5 — Invoke feature planning
 
-Once confirmed, write the plan to `$PLAN_DIR/livewire-4-upgrade/plan.md`.
+Once confirmed, load `feature-planning` with the `skill` tool and pass the complete Step 4 findings table, refreshed breaking-change catalog, project conventions, and
+target Livewire version as the feature description. Require the plan to preserve the upgrade's stated scope: remediate confirmed Livewire 4 breaking changes only, without
+adopting optional Livewire 4 features.
+
+`feature-planning` owns plan creation, workflow lenses, delivery constraints, fragility audit and verification, change-audit, plan review, and the plan lifecycle. Do not
+write a second plan or apply the local review lenses after this handoff. Stop when `feature-planning` completes.
+
+## Archived direct-plan template (do not execute)
+
+The former template remains as source material for the feature-planning handoff. Do not create a plan from it or apply its local review process.
 
 Use this structure (aligned with `feature-planning` conventions):
 
@@ -466,7 +475,7 @@ For each implementation step:
 
 ---
 
-## Step 6 — Apply review lenses
+## Archived local review lenses (do not execute)
 
 Re-read the written plan against all lenses:
 
@@ -497,7 +506,7 @@ If gaps are found, fix them directly in the plan file, then re-read.
 
 ---
 
-## Step 7 — Final confirmation
+## Archived direct-plan confirmation (do not execute)
 
 Present:
 

@@ -56,11 +56,8 @@ Lens 0 holds the plan against.
 Read the plan in full. Then evaluate every section against all the following lenses. For each lens, note every specific issue you find, including the exact quote or
 section it refers to.
 
-Read each document once before applying its matching lens. Loading a document provides its rules and evidence requirements; it is not a separate evaluation.
-
-- `~/.agents/skills/audit-commons/outage-readiness.md` for Lens G.
-- `~/.agents/skills/audit-commons/deletion-first.md` for Lens H.
-- `~/.agents/skills/audit-commons/simplicity-first.md` for Lens I.
+Read `~/.agents/skills/audit-commons/workflow-lenses.md` once. Apply every lens it requires once. Loading the index provides the lens rules and evidence requirements;
+it is not a separate evaluation.
 
 ### Lens 0 — Standards & policy compliance (highest priority)
 
@@ -142,18 +139,6 @@ Follow `~/.agents/skills/fragility-commons/review-contract.md` in full. For a pl
 the selected simplification or explicit rejection, target error behavior, focused tests, and final verification gate. If the report is absent, load `fragility-audit`
 with the `skill` tool and obtain its `--audit-only` handoff for the plan's affected scope before finalizing the plan. Do not invoke it as a command.
 
-### Lens G — 2 AM outage readiness
-
-Apply `outage-readiness.md` once to the plan. Record and resolve every evidence-backed finding before proceeding.
-
-### Lens H — Deletion-first design
-
-Apply `deletion-first.md` once to the plan. Record and resolve every evidence-backed finding before proceeding.
-
-### Lens I — Simplicity first
-
-Apply `simplicity-first.md` once to the plan. Record and resolve every evidence-backed finding before proceeding.
-
 ---
 
 ## Step 2 — Compile and group your questions
@@ -168,7 +153,7 @@ Aim for the minimum number of questions that would resolve all issues. Consolida
 
 **Do not ask about things that are already unambiguous in the plan.**
 
-If the plan is already complete and unambiguous, tell the user so and stop.
+If the plan is already complete and unambiguous, proceed to Step 4 without asking questions.
 
 ---
 
@@ -185,6 +170,8 @@ When no findings remain, proceed to Step 4.
 ## Step 4 — Final confirmation
 
 Once the plan passes all lenses with no remaining issues, present a brief summary to the user:
+
+Update the plan's `## Plan validation` status to `Validated by plan-review; workflow lenses and planning review are complete.` before presenting the summary.
 
 ```
 ## Plan review complete ✓

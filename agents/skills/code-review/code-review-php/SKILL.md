@@ -161,14 +161,8 @@ If user approved PHPStan execution:
 vendor/bin/phpstan analyse path/to/File1.php path/to/File2.php --error-format=json
 ```
 
-**B. Run PHPStan on the entire repository:**
-
-```bash
-vendor/bin/phpstan analyse --error-format=json
-```
-
-Parse the JSON output. Classify each PHPStan finding as Actionable or Nitpick and add it to your findings collection. Clearly note whether an issue came from a changed
-file or the broader codebase.
+Parse the JSON output. Classify each PHPStan finding as Actionable or Nitpick and add it to your findings collection. Keep analysis scoped to the changed files unless the
+user explicitly asks for a whole-repository review.
 
 ---
 

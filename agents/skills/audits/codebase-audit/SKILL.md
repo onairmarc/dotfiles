@@ -28,6 +28,9 @@ No additional scope qualifier — workers review the full subsystem.
 
 Read [`audit-commons/validation.md`](../audit-commons/validation.md) and follow the validation and synthesis pass.
 
+Read [`audit-commons/workflow-lenses.md`](../audit-commons/workflow-lenses.md). Apply each required lens once for every subsystem and record its result as a
+recommendation or explicit skip.
+
 # 4. Audit the audit
 
 Read [`audit-commons/validation.md`](../audit-commons/validation.md) and follow the audit-the-audit pass.

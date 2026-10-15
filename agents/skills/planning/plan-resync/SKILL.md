@@ -87,6 +87,9 @@ Record findings in a working list — you do not write to the plan yet.
 Evaluate the plan against the codebase using the following lenses. For each lens, capture every specific drift point, quoting the exact plan text it refers to and citing
 the file/line of the conflicting code.
 
+Read `~/.agents/skills/audit-commons/workflow-lenses.md` once. Apply every lens it requires once. Loading the index provides the lens rules and evidence requirements;
+it is not a separate evaluation.
+
 ### Lens A — Already implemented
 
 Steps, acceptance criteria, or sub-tasks the plan still describes as pending that are in fact already done in the codebase. Distinguish:
@@ -174,7 +177,7 @@ For each drift point, classify the resolution:
    it, or replace it?). Ask the user.
 3. **Scope question** — already-done work may change the plan's remaining scope; confirm with the user before removing steps.
 
-If the plan is already fully in sync with the codebase, tell the user so and stop.
+If the plan is already fully in sync with the codebase, proceed to Step 5 without questions.
 
 ---
 
@@ -198,6 +201,8 @@ Re-read and re-run the lenses against the codebase after each round — new drif
 ## Step 5 — Final confirmation
 
 Once the plan is fully in sync with the codebase, present a brief summary to the user:
+
+Update the plan's `## Plan validation` status to `Validated by plan-resync; workflow lenses and planning review are complete.` before presenting the summary.
 
 ```
 ## Plan resync complete ✓

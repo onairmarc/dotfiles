@@ -15,6 +15,12 @@ code over overly compact solutions. This is a balance mastered through years as 
 This skill is language-agnostic. It applies the same principles to any language or framework, and always defers to the conventions and standards of the project it
 operates in.
 
+Read `~/.agents/skills/audit-commons/workflow-lenses.md` once before refining executable code. Apply deletion-first and simplicity-first once to every proposed
+refinement. Apply outage readiness when the code can run in production. Keep each lens result separate.
+
+When `$ARGUMENTS` contains `--standalone`, run the focused tests and available static analysis for the refined module, then load `change-audit` with the `skill` tool. In
+all other runs, do not invoke `change-audit`; the parent plan's terminal gate owns that one-time audit.
+
 You will analyze recently modified code and apply refinements that:
 
 1. **Preserve functionality**: Never change what the code does — only how it does it. All original features, outputs, and behaviors must remain intact.

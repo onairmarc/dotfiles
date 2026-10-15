@@ -14,6 +14,9 @@ equivalent application-level enforcement.
 
 Read and follow `~/.agents/skills/file-operations/SKILL.md`.
 
+When `$ARGUMENTS` contains `--standalone`, run the focused tests and available static analysis for the changed module, then load `change-audit` with the `skill` tool. In
+all other runs, do not invoke `change-audit`; the parent plan's terminal gate owns that one-time audit.
+
 ---
 
 ## The Rules (non-negotiable)
@@ -41,7 +44,7 @@ Read and follow `~/.agents/skills/file-operations/SKILL.md`.
 
 Before talking to the user, gather context:
 
-1. **Detect target scope** from `$ARGUMENTS`. It may be:
+1. **Detect target scope** from `$ARGUMENTS`. Remove `--standalone` first, recording `$STANDALONE = true` when it is present. The remaining input may be:
     - A file path (single migration, model, or plan file)
     - A directory path (scan for violations within it)
     - Empty (scan the whole repo)
