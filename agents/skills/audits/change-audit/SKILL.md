@@ -43,6 +43,15 @@ was already modified on this branch."
 
 Read [`audit-commons/validation.md`](../audit-commons/validation.md) and follow the validation and synthesis pass.
 
+Read [`audit-commons/outage-readiness.md`](../audit-commons/outage-readiness.md). Evaluate the outage-readiness lens for every changed subsystem and record its result
+as a recommendation or explicit skip.
+
+Read [`audit-commons/deletion-first.md`](../audit-commons/deletion-first.md). Evaluate the deletion-first lens independently for every changed subsystem and record its
+result as a recommendation or explicit skip.
+
+Read [`audit-commons/simplicity-first.md`](../audit-commons/simplicity-first.md). Evaluate the simplicity-first lens independently for every changed subsystem and record
+its result as a recommendation or explicit skip.
+
 # 4. Audit the audit
 
 Read [`audit-commons/validation.md`](../audit-commons/validation.md) and follow the audit-the-audit pass. Scope the coverage check to the changed files — if the pass

@@ -43,6 +43,14 @@ smallest remediation scope, focused tests, severity, confidence, and dependencie
 Independently retrace every finding. Reject, narrow, or merge findings that are speculative, duplicate another chain, misunderstand intentional behavior, or lack a
 concrete outcome. Record explicit skips and rejected candidates as completed coverage.
 
+Read `audit-commons/outage-readiness.md`. Evaluate the outage-readiness lens for every scoped subsystem and record its result as an accepted finding or explicit skip.
+
+Read `audit-commons/deletion-first.md`. Evaluate the deletion-first lens independently for every scoped subsystem and record its result as an accepted finding or explicit
+skip. A simpler design that removes a proved failure path takes precedence over adding recovery complexity.
+
+Read `audit-commons/simplicity-first.md`. Evaluate the simplicity-first lens independently for every scoped subsystem and record its result as an accepted finding or
+explicit skip.
+
 Rank accepted findings by impact, reachability, confidence, blast radius, remediation effort, and dependencies.
 
 ## 4. Audit the audit

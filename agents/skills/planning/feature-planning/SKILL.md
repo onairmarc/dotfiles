@@ -167,6 +167,12 @@ filled in, organize `## Implementation steps` as vertical `### Slice N —` sect
 
 After drafting, re-read the plan against all lenses below. Note every issue.
 
+Read each document once before applying its matching lens. Loading a document provides its rules and evidence requirements; it is not a separate evaluation.
+
+- `~/.agents/skills/audit-commons/outage-readiness.md` for Lens H.
+- `~/.agents/skills/audit-commons/deletion-first.md` for Lens I.
+- `~/.agents/skills/audit-commons/simplicity-first.md` for Lens J.
+
 ### Lens 0 — Standards & policy compliance (highest priority)
 
 Hold every step against `$PROJECT_STANDARDS` discovered in Pre-flight. This lens runs first and no plan is finalized while it has an open finding.
@@ -240,6 +246,18 @@ Follow `~/.agents/skills/fragility-commons/review-contract.md`.
 - Does the plan evaluate simplification before selecting a more complex recovery design?
 - Does the second-to-last step load `fragility-audit` with the `skill` tool, run its `--verify-changes` mode after the `change-audit` skill, remediate and test every
   accepted finding in that same execution, re-verify until clean, and finish before plan deletion without creating another plan?
+
+### Lens H — 2 AM outage readiness
+
+Apply `outage-readiness.md` once to the plan. Record and resolve every evidence-backed finding before proceeding.
+
+### Lens I — Deletion-first design
+
+Apply `deletion-first.md` once to the plan. Record and resolve every evidence-backed finding before proceeding.
+
+### Lens J — Simplicity first
+
+Apply `simplicity-first.md` once to the plan. Record and resolve every evidence-backed finding before proceeding.
 
 ---
 

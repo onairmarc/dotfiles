@@ -56,6 +56,12 @@ Lens 0 holds the plan against.
 Read the plan in full. Then evaluate every section against all the following lenses. For each lens, note every specific issue you find, including the exact quote or
 section it refers to.
 
+Read each document once before applying its matching lens. Loading a document provides its rules and evidence requirements; it is not a separate evaluation.
+
+- `~/.agents/skills/audit-commons/outage-readiness.md` for Lens G.
+- `~/.agents/skills/audit-commons/deletion-first.md` for Lens H.
+- `~/.agents/skills/audit-commons/simplicity-first.md` for Lens I.
+
 ### Lens 0 — Standards & policy compliance (highest priority)
 
 Hold every part of the plan against `$PROJECT_STANDARDS` from Step 0.5. This lens outranks the others: a standards violation is always a blocker.
@@ -135,6 +141,18 @@ Hold the plan against `~/.agents/skills/delivery-constraints/SKILL.md`. Every fi
 Follow `~/.agents/skills/fragility-commons/review-contract.md` in full. For a plan that changes executable behavior, verify the embedded report, each finding's proof,
 the selected simplification or explicit rejection, target error behavior, focused tests, and final verification gate. If the report is absent, load `fragility-audit`
 with the `skill` tool and obtain its `--audit-only` handoff for the plan's affected scope before finalizing the plan. Do not invoke it as a command.
+
+### Lens G — 2 AM outage readiness
+
+Apply `outage-readiness.md` once to the plan. Record and resolve every evidence-backed finding before proceeding.
+
+### Lens H — Deletion-first design
+
+Apply `deletion-first.md` once to the plan. Record and resolve every evidence-backed finding before proceeding.
+
+### Lens I — Simplicity first
+
+Apply `simplicity-first.md` once to the plan. Record and resolve every evidence-backed finding before proceeding.
 
 ---
 

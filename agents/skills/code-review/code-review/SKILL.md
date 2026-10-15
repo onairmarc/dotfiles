@@ -84,6 +84,15 @@ Use the question tool. If denied, continue with manual review only.
 
 For each changed file, collect findings using the structure below. This powers both the full report and the AI agent prompts.
 
+Read `../audits/audit-commons/outage-readiness.md`. Evaluate the outage-readiness lens across the changed behavior and its required unchanged call paths. Add every
+evidence-backed concern or explicit skip to the review record.
+
+Read `../audits/audit-commons/deletion-first.md`. Evaluate the deletion-first lens independently across the changed behavior and its required unchanged call paths. Add
+every evidence-backed concern or explicit skip to the review record.
+
+Read `../audits/audit-commons/simplicity-first.md`. Evaluate the simplicity-first lens independently across the changed behavior and its required unchanged call paths.
+Add every evidence-backed concern or explicit skip to the review record.
+
 #### Get File Diff
 
 ```bash
