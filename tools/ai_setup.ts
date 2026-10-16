@@ -1,6 +1,6 @@
 // Installs third-party skills and synchronizes global OpenCode configuration.
 import {lstatSync, mkdirSync, readFileSync, renameSync, rmSync, unlinkSync} from "node:fs";
-import {dirname, join, relative} from "node:path";
+import {basename, dirname, join, relative} from "node:path";
 import {
     alreadyWriteThrough,
     createWriteThroughLink,
@@ -15,7 +15,7 @@ const GREEN = "\x1b[0;32m";
 const NC = "\x1b[0m";
 const RED = "\x1b[0;31m";
 const YELLOW = "\x1b[1;33m";
-const USAGE = "Usage: ai_setup [--sync] [--reinstall] [--global] [--debug]";
+const USAGE = "Usage: ai_setup [--sync] [--reinstall] [--debug]";
 
 const SKILLS = [
     {repository: "mattpocock/skills", skill: "*"},
@@ -74,9 +74,6 @@ function parseOptions(args: string[]): Options {
             case "--reinstall":
                 options.reinstall = true;
                 break;
-            case "--global":
-                // All operations target the global OpenCode configuration. Kept for muscle memory reasons.
-                break;
             case "--sync":
                 options.sync = true;
                 break;
@@ -99,14 +96,11 @@ function parseOptions(args: string[]): Options {
 function removeManagedLink(source: string, target: string, label: string): void {
     if (alreadyWriteThrough(target, source)) {
         unlinkSync(target);
-        logInfo(`${label}: removed managed link ${target}`);
     }
 }
 
-function cleanupGlobalConfigLinks(dotfilesRoot: string, configDir: string): void {
-    removeManagedLink(join(dotfilesRoot, "opencode", "opencode.json"), join(configDir, "opencode.json"), "Global mode");
+function cleanupRetiredGlobalConfigLinks(dotfilesRoot: string, configDir: string): void {
     removeManagedLink(join(dotfilesRoot, "opencode", "tui.jsonc"), join(configDir, "tui.jsonc"), "Global mode");
-    removeManagedLink(join(dotfilesRoot, "opencode", "cli.json"), join(configDir, "cli.json"), "Global mode");
 }
 
 function cleanupRetiredGlobalLinks(configDir: string, agentsSource: string, pluginsSource: string): void {
@@ -132,7 +126,7 @@ function cleanupRetiredGlobalSkills(configDir: string): void {
     }
 }
 
-function linkGlobalFile(referent: string, linkPath: string, label: string): void {
+function linkGlobalFile(referent: string, linkPath: string, label: string, debug: boolean): void {
     if (!exists(referent)) {
         logWarn(`Source does not exist, skipping: ${referent}`);
 
@@ -142,7 +136,9 @@ function linkGlobalFile(referent: string, linkPath: string, label: string): void
     mkdirSync(dirname(linkPath), {recursive: true});
 
     if (alreadyWriteThrough(linkPath, referent)) {
-        logInfo(`${label}: ${linkPath} already write-through -> ${referent}`);
+        if (debug) {
+            logInfo(`${label}: already synced ${basename(linkPath)}`);
+        }
 
         return;
     }
@@ -152,13 +148,13 @@ function linkGlobalFile(referent: string, linkPath: string, label: string): void
         if (stat.isSymbolicLink()) {
             unlinkSync(linkPath);
         } else if (stat.isFile()) {
-            logInfo(`${label}: backing up existing ${linkPath} to ${linkPath}.bak`);
+            logInfo(`${label}: backed up ${basename(linkPath)}`);
             renameSync(linkPath, linkPath + ".bak");
         }
     }
 
     createWriteThroughLink(referent, linkPath);
-    logInfo(`${label}: ${linkPath} -> ${referent}`);
+    logInfo(`${label}: synced ${basename(linkPath)}`);
 }
 
 function skillFrontmatterError(skillDir: string): string | null {
@@ -212,6 +208,14 @@ function linkSkills(sourceRoot: string, label: string, targetDir: string, debug:
         }
 
         const target = join(targetDir, skillName);
+        if (alreadyWriteThrough(target, skillPath)) {
+            if (debug) {
+                logInfo(`  ${label} skill already linked: ${skillName}`);
+            }
+
+            continue;
+        }
+
         if (exists(target)) {
             logWarn(`  Skill collision on '${skillName}' in ${targetDir}: ${label} wins, overriding earlier`);
             rmSync(target, {recursive: true, force: true});
@@ -244,11 +248,11 @@ function syncGlobalSkills(dotfilesRoot: string, debug: boolean): string[] {
 
     const privateDir = process.env.DF_PRIVATE_DIRECTORY || join(homeDirectory(), "Documents", "GitHub", "dotfiles-private");
     const privateSource = privateSkillsSource(privateDir);
-    logInfo(`Global mode: linking public skills into ${target}`);
+    logInfo("Global mode: syncing public skills");
     const errors = linkSkills(publicSource, "public", target, debug);
 
     if (isDirectory(privateSource)) {
-        logInfo(`Global mode: linking private skills into ${target}`);
+        logInfo("Global mode: syncing private skills");
         errors.push(...linkSkills(privateSource, "private", target, debug));
     } else if (debug) {
         logInfo(`Global mode: no private skills found at ${privateDir}`);
@@ -266,23 +270,23 @@ export function syncGlobalOpencode(debug = false): void {
     const cliConfigFile = join(dotfilesRoot, "opencode", "cli.json");
     const agentsSource = join(dotfilesRoot, "opencode", "agents");
 
-    cleanupGlobalConfigLinks(dotfilesRoot, configDir);
+    cleanupRetiredGlobalConfigLinks(dotfilesRoot, configDir);
     cleanupRetiredGlobalSkills(configDir);
     cleanupRetiredGlobalLinks(configDir, agentsSource, pluginsSource);
-    linkGlobalFile(join(dotfilesRoot, "agents", "AGENTS.md"), join(configDir, "AGENTS.md"), "Global mode");
-    linkGlobalFile(configFile, join(configDir, "opencode.json"), "Global mode");
-    linkGlobalFile(cliConfigFile, join(configDir, "cli.json"), "Global mode");
+    linkGlobalFile(join(dotfilesRoot, "agents", "AGENTS.md"), join(configDir, "AGENTS.md"), "Global mode", debug);
+    linkGlobalFile(configFile, join(configDir, "opencode.json"), "Global mode", debug);
+    linkGlobalFile(cliConfigFile, join(configDir, "cli.json"), "Global mode", debug);
     rmSync(join(configDir, "plugins", "custom"), {recursive: true, force: true});
 
     for (const file of findFiles(agentsSource)) {
-        linkGlobalFile(file, join(configDir, "agents", relative(agentsSource, file)), "Global mode");
+        linkGlobalFile(file, join(configDir, "agents", relative(agentsSource, file)), "Global mode", debug);
     }
 
     for (const file of findFiles(pluginsSource)) {
         const target = file.endsWith(".ts") || file.endsWith(".js")
             ? join(configDir, "plugins", relative(pluginsSource, file))
             : join(configDir, relative(pluginsSource, file));
-        linkGlobalFile(file, target, "Global mode");
+        linkGlobalFile(file, target, "Global mode", debug);
     }
 
     if (skillErrors.length > 0) {
