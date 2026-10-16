@@ -93,29 +93,29 @@ function parseOptions(args: string[]): Options {
     return options;
 }
 
-function removeManagedLink(source: string, target: string, label: string): void {
+function removeManagedLink(source: string, target: string): void {
     if (alreadyWriteThrough(target, source)) {
         unlinkSync(target);
     }
 }
 
 function cleanupRetiredGlobalConfigLinks(dotfilesRoot: string, configDir: string): void {
-    removeManagedLink(join(dotfilesRoot, "opencode", "tui.jsonc"), join(configDir, "tui.jsonc"), "Global mode");
+    removeManagedLink(join(dotfilesRoot, "opencode", "tui.jsonc"), join(configDir, "tui.jsonc"));
 }
 
 function cleanupRetiredGlobalLinks(configDir: string, agentsSource: string, pluginsSource: string): void {
-    removeManagedLink(join(agentsSource, "the-implementor.md"), join(configDir, "agents", "the-implementor.md"), "Global mode");
+    removeManagedLink(join(agentsSource, "the-implementor.md"), join(configDir, "agents", "the-implementor.md"));
 
     for (const agent of ["implementor.md", "orchestrator.md"]) {
-        removeManagedLink(join(agentsSource, agent), join(configDir, "agents", agent), "Global mode");
+        removeManagedLink(join(agentsSource, agent), join(configDir, "agents", agent));
     }
 
     for (const command of ["feature-planning.md", "plan-execute.md", "plan-resync.md", "plan-review.md", "plan-split.md"]) {
-        removeManagedLink(join(pluginsSource, "..", "commands", command), join(configDir, "commands", command), "Global mode");
+        removeManagedLink(join(pluginsSource, "..", "commands", command), join(configDir, "commands", command));
     }
 
-    removeManagedLink(join(pluginsSource, "skill-command-router.ts"), join(configDir, "skill-command-router.ts"), "Global mode");
-    removeManagedLink(join(pluginsSource, "skill-command-router.ts"), join(configDir, "plugins", "skill-command-router.ts"), "Global mode");
+    removeManagedLink(join(pluginsSource, "skill-command-router.ts"), join(configDir, "skill-command-router.ts"));
+    removeManagedLink(join(pluginsSource, "skill-command-router.ts"), join(configDir, "plugins", "skill-command-router.ts"));
 }
 
 function cleanupRetiredGlobalSkills(configDir: string): void {
@@ -126,7 +126,7 @@ function cleanupRetiredGlobalSkills(configDir: string): void {
     }
 }
 
-function linkGlobalFile(referent: string, linkPath: string, label: string, debug: boolean): void {
+function linkGlobalFile(referent: string, linkPath: string, debug: boolean): void {
     if (!exists(referent)) {
         logWarn(`Source does not exist, skipping: ${referent}`);
 
@@ -137,7 +137,7 @@ function linkGlobalFile(referent: string, linkPath: string, label: string, debug
 
     if (alreadyWriteThrough(linkPath, referent)) {
         if (debug) {
-            logInfo(`${label}: already synced ${basename(linkPath)}`);
+            logInfo(`Global mode: already synced ${basename(linkPath)}`);
         }
 
         return;
@@ -148,13 +148,13 @@ function linkGlobalFile(referent: string, linkPath: string, label: string, debug
         if (stat.isSymbolicLink()) {
             unlinkSync(linkPath);
         } else if (stat.isFile()) {
-            logInfo(`${label}: backed up ${basename(linkPath)}`);
+            logInfo(`Global mode: backed up ${basename(linkPath)}`);
             renameSync(linkPath, linkPath + ".bak");
         }
     }
 
     createWriteThroughLink(referent, linkPath);
-    logInfo(`${label}: synced ${basename(linkPath)}`);
+    logInfo(`Global mode: synced ${basename(linkPath)}`);
 }
 
 function skillFrontmatterError(skillDir: string): string | null {
@@ -273,20 +273,20 @@ export function syncGlobalOpencode(debug = false): void {
     cleanupRetiredGlobalConfigLinks(dotfilesRoot, configDir);
     cleanupRetiredGlobalSkills(configDir);
     cleanupRetiredGlobalLinks(configDir, agentsSource, pluginsSource);
-    linkGlobalFile(join(dotfilesRoot, "agents", "AGENTS.md"), join(configDir, "AGENTS.md"), "Global mode", debug);
-    linkGlobalFile(configFile, join(configDir, "opencode.json"), "Global mode", debug);
-    linkGlobalFile(cliConfigFile, join(configDir, "cli.json"), "Global mode", debug);
+    linkGlobalFile(join(dotfilesRoot, "agents", "AGENTS.md"), join(configDir, "AGENTS.md"), debug);
+    linkGlobalFile(configFile, join(configDir, "opencode.json"), debug);
+    linkGlobalFile(cliConfigFile, join(configDir, "cli.json"), debug);
     rmSync(join(configDir, "plugins", "custom"), {recursive: true, force: true});
 
     for (const file of findFiles(agentsSource)) {
-        linkGlobalFile(file, join(configDir, "agents", relative(agentsSource, file)), "Global mode", debug);
+        linkGlobalFile(file, join(configDir, "agents", relative(agentsSource, file)), debug);
     }
 
     for (const file of findFiles(pluginsSource)) {
         const target = file.endsWith(".ts") || file.endsWith(".js")
             ? join(configDir, "plugins", relative(pluginsSource, file))
             : join(configDir, relative(pluginsSource, file));
-        linkGlobalFile(file, target, "Global mode", debug);
+        linkGlobalFile(file, target, debug);
     }
 
     if (skillErrors.length > 0) {
