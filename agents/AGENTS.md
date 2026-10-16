@@ -14,7 +14,7 @@ instructs otherwise.
 ## OpenCode configuration
 
 Edit OpenCode configuration only in this repository's `opencode/` directory. Do not edit files directly in OpenCode's official configuration directory.
-`tools/agent_symlink.ts` manages write-through symlinks from `opencode/cli.json` and `opencode/opencode.json` to their official locations, which keeps these
+`tools/ai_setup.ts` manages write-through symlinks from `opencode/cli.json` and `opencode/opencode.json` to their official locations, which keeps these
 settings maintainable across machines.
 
 # Markdown Formatting

@@ -11,11 +11,15 @@ art() {
 }
 
 agent_symlink () {
-  bun "$DF_ROOT_DIRECTORY/tools/agent_symlink.ts" "$@"
+  ai_sync "$@"
 }
 
 ai_setup () {
   bun "$DF_ROOT_DIRECTORY/tools/ai_setup.ts" "$@"
+}
+
+ai_sync () {
+  bun "$DF_ROOT_DIRECTORY/tools/ai_setup.ts" --sync "$@"
 }
 
 battery () {
