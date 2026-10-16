@@ -14,6 +14,10 @@ agent_symlink () {
   bun "$DF_ROOT_DIRECTORY/tools/agent_symlink.ts" "$@"
 }
 
+ai_setup () {
+  bun "$DF_ROOT_DIRECTORY/tools/ai_setup.ts" "$@"
+}
+
 battery () {
   bun "$DF_ROOT_DIRECTORY/tools/battery.ts" "$@"
 }
