@@ -234,7 +234,17 @@ function chargeBar(pct: string, width = 20): string {
 
 function uiPercent(): string {
     const uiSoc = ioregSubfield("BatteryData", "UISoc");
-    return /^\d+$/.test(uiSoc) ? uiSoc : "";
+    if (/^\d+$/.test(uiSoc)) {
+        return uiSoc;
+    }
+
+    const current = ioregField("CurrentCapacity");
+    const max = ioregField("MaxCapacity");
+    if (/^\d+$/.test(current) && max === "100") {
+        return current;
+    }
+
+    return "";
 }
 
 function roundPct(cur: string, max: string): string {
@@ -663,29 +673,27 @@ function notChargingReasonHuman(code: string): string {
         return "none";
     }
 
-    const n = Number(code);
-    const parts: string[] = [];
-    if (n & 1) parts.push("not-charging-requested");
-    if (n & 2) parts.push("fully-charged");
-    if (n & 4) parts.push("optimized-battery-charging-paused");
-    if (n & 8) parts.push("charger-thermal-limit");
-    if (n & 16) parts.push("battery-thermal-limit");
-    if (n & 32) parts.push("voltage-limit");
-    if (n & 64) parts.push("charger-fault");
-    if (n & 128) parts.push("battery-fault");
-    if (n & 256) parts.push("hardware-limit");
-    return parts.length > 0 ? parts.join(", ") : `unknown(raw=${code})`;
+    if (!/^\d+$/.test(code) || arch() !== "arm64") {
+        return `unknown(raw=${code})`;
+    }
+
+    const n = BigInt(code);
+    const externalPowerUnavailable = 1n << 7n;
+    if (!(n & externalPowerUnavailable)) {
+        return `unknown(raw=${code})`;
+    }
+
+    if ((n & ~externalPowerUnavailable) !== 0n) {
+        return `external-power-unavailable, unknown(raw=${code})`;
+    }
+
+    return "external-power-unavailable";
 }
 
 function optimizedState(): string {
     loadPmsetBatt();
 
     if (/optimized/i.test(pmsetBattCache)) {
-        return "engaged";
-    }
-
-    const code = notChargingReason();
-    if (code !== "" && code !== "0" && (Number(code) & 4)) {
         return "engaged";
     }
 
@@ -983,7 +991,8 @@ function renderStatus(): string {
     const thermal = thermalWarning();
     const cpuLimit = thermalField("CPU_Speed_Limit");
     const owners = usbPowerAssertionOwners();
-    const reason = notChargingReasonHuman(notChargingReason() || "0");
+    const rawReason = notChargingReasonHuman(notChargingReason() || "0");
+    const reason = externalConnected() ? rawReason : "on battery";
     const displayedCharge = uiPct === ""
         ? `${pctColor(pct)}[${chargeBar(pct)}] ${pct}% gauge${cReset}`
         : `${pctColor(pct)}[${chargeBar(pct)}] ${pct}% UI${cReset} (${rawPct}% gauge${calibrationDelta === "" ? "" : `, ${calibrationDelta}% calibrated`})`;
@@ -991,7 +1000,7 @@ function renderStatus(): string {
     const conditionColor = condition() === "Normal" ? cGreen : cRed;
     const warningColor = warning === "no" ? cGreen : warning === "yes" ? cRed : cDim;
     const flowColor = netCharging() === true ? cGreen : netCharging() === false ? cYellow : cDim;
-    const reasonColor = reason === "none" ? cGreen : cRed;
+    const reasonColor = reason === "none" ? cGreen : reason === "on battery" ? cDim : cRed;
     const thermalColor = thermal === false ? cGreen : thermal === true ? cRed : cDim;
     const lowPowerColor = lowPowerMode === "1" ? cGreen : lowPowerMode === "0" ? cYellow : cDim;
 
