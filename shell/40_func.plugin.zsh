@@ -325,9 +325,10 @@ rt () {
 }
 
 openvpn_fix () {
-  sudo launchctl unload -w /Library/LaunchDaemons/org.openvpn.client.plist
+  sudo launchctl bootstrap system /Library/LaunchDaemons/org.openvpn.client.plist
+#  sudo launchctl unload -w /Library/LaunchDaemons/org.openvpn.client.plist
 #  ps auxww | grep ovpnagent
-  sudo launchctl load -w /Library/LaunchDaemons/org.openvpn.client.plist
+#  sudo launchctl load -w /Library/LaunchDaemons/org.openvpn.client.plist
 #  ps auxww | grep ovpnagent
 }
 
