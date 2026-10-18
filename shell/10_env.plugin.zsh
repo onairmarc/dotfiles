@@ -57,6 +57,7 @@ _append_path_mac "/usr/local/bin/node"
 _append_path_mac "/usr/local/opt/openjdk@11/bin"
 _append_path_mac "/Library/Java/JavaVirtualMachines/microsoft-11.jdk/Contents/Home"
 _append_path_mac "/usr/local/opt/mysql-client/bin"
+_append_path_windows "$HOME/.qlty/bin"
 
 # Prepended (higher priority — last call wins highest)
 _prepend_path "$ANDROID_HOME/build-tools"
