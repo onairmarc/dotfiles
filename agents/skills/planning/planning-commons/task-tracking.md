@@ -51,6 +51,7 @@ Seed before Step 0:
 | Resolve the sub-plans directory    | high     |
 | Discover and parse sub-plan files  | high     |
 | Build the execution order          | high     |
+| Check Qlty code smells             | high     |
 | Execute the sub-plans              | high     |
 | Output the final report            | medium   |
 | Delete the consumed plan directory | medium   |
@@ -68,6 +69,7 @@ Seed before Step 0:
 |------------------------------------------|----------|
 | Resolve the plan file                    | high     |
 | Discover project standards and policies  | high     |
+| Check Qlty code smells                   | high     |
 | Lens 0 — standards and policy            | high     |
 | Lens A — ambiguity                       | high     |
 | Lens B — contradictions                  | high     |
@@ -75,6 +77,7 @@ Seed before Step 0:
 | Lens D — scope and completeness          | high     |
 | Lens E — delivery constraints            | high     |
 | Lens F — fragility audit and remediation | high     |
+| Lens G — Qlty code-smell reduction       | high     |
 | Compile and group questions              | high     |
 | Review loop until clean                  | high     |
 | Final confirmation                       | medium   |
@@ -102,6 +105,7 @@ Seed before Step 0:
 | Lens F — standards and policy drift    | high     |
 | Lens G — delivery constraint drift     | high     |
 | Lens H — fragility audit drift         | high     |
+| Lens I — Qlty code-smell drift         | high     |
 | Classify mechanical vs ask             | high     |
 | Review loop until clean                | high     |
 | Final confirmation                     | medium   |

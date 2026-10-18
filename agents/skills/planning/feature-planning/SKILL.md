@@ -105,6 +105,8 @@ Before gathering requirements, orient yourself to the repository:
    success metrics, vision fit, risks/constraints, resolved open questions, and a recommended scope. If none is found, record `$DISCOVERY_BRIEF = null`. Never invent a
    brief; its absence just means discovery was not run through `pm-review`. The brief is durable — never delete or move it during plan cleanup.
 
+6. **Check Qlty readiness** — read `~/.agents/skills/planning-commons/qlty-smells.md` and determine whether its prerequisites hold. Do not install or configure Qlty.
+
 ---
 
 ## Step 0 — Gather requirements
@@ -151,6 +153,9 @@ If the plan changes executable behavior, identify the intended affected code and
 then run its `--audit-only` mode and retain the validated report as `$FRAGILITY_REPORT`. If a `fragility-audit` skill handoff supplied a validated report, consume it
 instead of running a second audit. If the plan changes no executable behavior, record why the audit does not apply. Never pass `--audit-only` to OpenCode itself.
 
+When the Qlty prerequisites hold, run `qlty smells --all` from the repository root and record findings relevant to the intended affected code as `$QLTY_BASELINE`.
+Otherwise record `$QLTY_BASELINE = unavailable` and continue without Qlty.
+
 ---
 
 ## Step 1 — Draft the plan
@@ -160,6 +165,10 @@ Using the answers from Step 0, `$FRAGILITY_REPORT`, and the context discovered i
 Embed the report immediately after `## Goal`, reproduce that doc's `## Delivery constraints` block verbatim into the plan with the project's real test runner command
 filled in, organize `## Implementation steps` as vertical `### Slice N —` sections, and make the final step assign plan-directory deletion to the agent running
 `plan-execute`. Fill every section from the Pre-flight context, Step 0 answers, and the fragility handoff — leave no placeholder.
+
+When `$QLTY_BASELINE` is available, assign each relevant existing smell to the behavioral slice that changes its code. Include the exact `qlty smells --all <affected
+paths>` command in that slice's verification and require its baseline findings to be removed without introducing new smells. Include the repository-wide final scan in the
+final verification step.
 
 ---
 

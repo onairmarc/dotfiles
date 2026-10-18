@@ -33,6 +33,12 @@ Read and follow `~/.agents/skills/fragility-commons/subplan-contract.md` and `ve
 followed by the `fragility-audit` skill in `--verify-changes` mode. The final verification sub-plan must remediate accepted findings, run focused tests, and re-verify
 until clean; it must not create another plan. Do not delete the plan directory after a failed final verification.
 
+## Qlty code-smell reduction
+
+Read and follow `~/.agents/skills/planning-commons/qlty-smells.md`. Check its prerequisites once before spawning sub-agents. When available, reproduce the Qlty rule in
+`.agent-instructions.md`: sub-agents run assigned affected-path scans and fix assigned baseline smells without adding new ones; the final verification sub-plan runs
+`qlty smells --all`. When unavailable, do not ask any sub-agent to install or configure Qlty.
+
 ## Task tracking
 
 Read and follow `~/.agents/skills/planning-commons/task-tracking.md`. Seed the list from the **plan-execute** starter before Step 0, and keep it current through
@@ -188,6 +194,16 @@ planning cycle:
 When this sub-plan runs `fragility-audit --verify-changes`, remediation is part of this sub-plan. For every accepted finding, make the smallest correct code and test
 change, run the focused tests, and repeat verification until no proved finding remains. Do not create, request, or hand off to a new remediation plan, and do not invoke
 `feature-planning`, `plan-review`, `plan-resync`, or `plan-split`. Stop before plan deletion only if remediation needs a user decision; ask that decision directly.
+```
+
+When Qlty is available, also include this block:
+
+```markdown
+## Qlty code-smell reduction
+
+Qlty was already installed and configured before this execution. Run only the `qlty smells` commands assigned to this sub-plan. For every assigned baseline smell, fix
+the changed code and rerun `qlty smells --all <affected paths>` until that smell is gone and no new smell appears in changed code. The final verification sub-plan must
+run `qlty smells --all` from the repository root and compare it with the recorded baseline. Do not install Qlty, run `qlty init`, or edit `.qlty/qlty.toml`.
 ```
 
 **Template A — pending (no prior implementation):**

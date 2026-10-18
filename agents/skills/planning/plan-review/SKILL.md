@@ -49,6 +49,9 @@ Before analyzing the plan, locate where this project documents its coding standa
 Follow the standards-discovery procedure in `~/.agents/skills/planning-commons/paths.md` and record the extracted rules as `$PROJECT_STANDARDS` — the checklist
 Lens 0 holds the plan against.
 
+Also read `~/.agents/skills/planning-commons/qlty-smells.md`. When its prerequisites hold, run the baseline scan and record `$QLTY_BASELINE`; otherwise record that
+Qlty is unavailable and continue without it.
+
 ---
 
 ## Step 1 — Analyze the plan
@@ -138,6 +141,11 @@ Hold the plan against `~/.agents/skills/delivery-constraints/SKILL.md`. Every fi
 Follow `~/.agents/skills/fragility-commons/review-contract.md` in full. For a plan that changes executable behavior, verify the embedded report, each finding's proof,
 the selected simplification or explicit rejection, target error behavior, focused tests, and final verification gate. If the report is absent, load `fragility-audit`
 with the `skill` tool and obtain its `--audit-only` handoff for the plan's affected scope before finalizing the plan. Do not invoke it as a command.
+
+### Lens G — Qlty code-smell reduction (conditional)
+
+When `$QLTY_BASELINE` is available, verify that the plan assigns relevant existing smells in affected code to a behavioral slice, runs `qlty smells --all <affected
+paths>` after that slice, and runs `qlty smells --all` as final verification. Repair omissions directly in the plan. Do not add unrelated cleanup work.
 
 ---
 

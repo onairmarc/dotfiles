@@ -1,6 +1,10 @@
 ---
 name: planning-commons
-description: Canonical shared references for the planning skills — path resolution and standards discovery, the question review loop and BLOCK/WARN severity, the plan/sub-plan document format, and todowrite task tracking. Read the relevant file at the start of any planning skill that resolves repo paths, runs an interactive review loop, emits or consumes a plan file, or tracks skill steps to completion, so the rule lives in one place instead of being restated per skill.
+description: >-
+  Canonical shared references for the planning skills — path resolution and standards discovery, Qlty code-smell reduction, the question review loop and BLOCK/WARN
+  severity, the plan/sub-plan document format, and todowrite task tracking. Read the relevant file at the start of any planning skill that resolves repo paths, checks
+  configured Qlty code smells, runs an interactive review loop, emits or consumes a plan file, or tracks skill steps to completion, so the rule lives in one place
+  instead of being restated per skill.
 ---
 
 # Planning Commons
@@ -16,6 +20,7 @@ it, exactly as skills already load `delivery-constraints` and `file-operations`.
 | Plan + sub-plan document format                   | [`plan-format.md`](plan-format.md)               | a skill emits a plan (`feature-planning`), emits sub-plans (`plan-split`), or parses them (`plan-execute`).                |
 | Plan-file deletion authority                      | [`plan-file-deletion.md`](plan-file-deletion.md) | `plan-split` emits sub-plans, or `plan-execute` deletes a consumed plan directory.                                         |
 | Task tracking (`todowrite`)                       | [`task-tracking.md`](task-tracking.md)           | `plan-split`, `plan-execute`, `plan-review`, or `plan-resync` starts — seed the list before Step 0 and keep it current.    |
+| Qlty code-smell reduction                         | [`qlty-smells.md`](qlty-smells.md)               | a skill plans, reviews, resyncs, splits, or executes code changes; use only when Qlty is already installed and configured. |
 | Proven failure-path contracts                      | `~/.agents/skills/fragility-commons/`            | a planning skill creates, reviews, resyncs, splits, or executes a plan that changes executable behavior.                   |
 
 These docs describe *how the skill operates*; they are never pointed at from an emitted artifact. Emitted artifacts must remain self-contained — when a template here

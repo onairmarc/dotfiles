@@ -78,6 +78,9 @@ current location | note`. Also ask it to surface newly added neighbors of plan-t
 4. **Discover project standards & policies (mandatory).** Standards drift too — a policy the plan predates may now forbid something it prescribes. Follow the
    standards-discovery procedure in `~/.agents/skills/planning-commons/paths.md` and record the extracted rules as `$PROJECT_STANDARDS` for Lens F.
 
+5. **Check Qlty readiness.** Read `~/.agents/skills/planning-commons/qlty-smells.md`. When its prerequisites hold, run the baseline scan and record `$QLTY_BASELINE`;
+   otherwise record that Qlty is unavailable and continue without it.
+
 Record findings in a working list — you do not write to the plan yet.
 
 ---
@@ -165,6 +168,11 @@ For plans that change executable behavior, verify every finding in `## Fragility
 handling behavior and focused failure-path tests exist. When changed code invalidates the report's proof, changes a required call path, or adds a directly relevant
 error boundary, load `fragility-audit` with the `skill` tool and re-run its `--audit-only` mode. Update the report and remaining steps from the validated result; do
 not preserve stale evidence.
+
+### Lens I — Qlty code-smell drift (conditional)
+
+When `$QLTY_BASELINE` is available, check whether the plan's assigned smell fixes still target the current files and whether each remaining affected slice names its
+`qlty smells --all <affected paths>` verification. Update stale locations and the final repository-wide scan mechanically. Do not add unrelated cleanup.
 
 ---
 

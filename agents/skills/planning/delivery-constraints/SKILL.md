@@ -105,3 +105,10 @@ code and its required call paths. Embed the validated report under `## Fragility
 After all behavioral slices and the `change-audit` skill complete, load `fragility-audit` with the `skill` tool and run its `--verify-changes` mode as the final
 engineering gate. Remediate every proved finding during that same execution, test it, and re-verify until clean; do not defer it to another plan. Do not delete the plan
 directory while it reports a proved finding. Follow `~/.agents/skills/fragility-commons/verification-contract.md`.
+
+---
+
+## 5. Reduce configured Qlty code smells
+
+When planning or executing code changes, read and follow `~/.agents/skills/planning-commons/qlty-smells.md`. Qlty is optional only when the repository has not already
+installed and configured it. When it is available, plan and verify narrowly scoped fixes for existing smells in affected code, without adding smells in changed code.

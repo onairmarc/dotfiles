@@ -31,6 +31,12 @@ Read and follow `~/.agents/skills/delivery-constraints/SKILL.md`. Two consequenc
 Read and follow `~/.agents/skills/fragility-commons/subplan-contract.md` and `verification-contract.md`. Preserve each finding's failure contract when extracting
 sub-plans, and place final verification after `change-audit`.
 
+## Qlty code-smell reduction
+
+Read and follow `~/.agents/skills/planning-commons/qlty-smells.md`. When the master plan records an available Qlty baseline, preserve every assigned smell remediation
+and its affected-path scan in the owning behavioral sub-plan. The final verification sub-plan must run the repository-wide final scan. Do not add Qlty work when the
+master plan records Qlty as unavailable.
+
 ## Task tracking
 
 Read and follow `~/.agents/skills/planning-commons/task-tracking.md`. Seed the list from the **plan-split** starter before Step 0, and keep it current through
@@ -201,6 +207,7 @@ After writing every sub-plan and before Step 4, re-read the master plan and ever
 5. Every behavioral sub-plan ends with the precise repository-native tests and scoped static analysis required for its changes.
 6. The delivery-constraints and plan-file-deletion blocks are copied verbatim from `plan-format.md` into every sub-plan.
 7. Dependency headers remain mirror images after any repair.
+8. Every Qlty remediation and affected-path scan belongs to its owning behavioral sub-plan, and the final repository-wide scan belongs to the final verification sub-plan.
 
 If any check fails, repair the affected sub-plan files, re-read them, and repeat this audit. Do not output the final summary or claim the split is complete until every
 check passes.

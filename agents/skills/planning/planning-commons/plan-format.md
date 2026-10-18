@@ -97,6 +97,10 @@ The **second-to-last step** of every plan must load `fragility-audit` with the `
 `~/.agents/skills/fragility-commons/verification-contract.md`. Never invoke the skill as an OpenCode, shell, or slash command. If it finds a proved issue, remediate it
 in the current verification sub-plan, run the focused tests, and re-verify until clean. Do not create or request another remediation plan.
 
+When the plan's Pre-flight found an already-installed, already-configured Qlty CLI, each behavioral slice that owns a baseline smell must run
+`qlty smells --all <affected paths>` after its repository-native tests. The final verification step must also run `qlty smells --all` from the repository root, compare
+the result with the baseline, and remediate every assigned baseline smell. Do not include a Qlty step when the prerequisites were unavailable.
+
 The **final step** of every plan must hand plan-directory deletion to the agent running `plan-execute`, because plans are throwaway scaffolding (see
 `## Plan lifecycle`). State it explicitly, e.g.: "After every sub-plan succeeds, the agent running `plan-execute` deletes the `<$PLAN_DIR>/<feature>/` plan directory
 — the feature is implemented and its durable docs now live in their real home; the plan must not be committed as a lingering artifact."
@@ -117,6 +121,9 @@ Name the project's test framework and the exact runner command up front. Every t
 bespoke harness, scratch script, or standalone sandbox. For each slice: what is being tested (unit, integration, or end-to-end); which test project or directory, and
 which existing base class / factory / fixture it builds on; key scenarios (happy path + at least one failure/edge case per logical unit); the runner command that must
 pass before the next slice starts. If the repository has no test tooling, say so explicitly and state how each slice is verified with what does exist instead.
+
+When Qlty was available during Pre-flight, list its assigned baseline smells alongside the owning slice's tests, including the exact affected-path command and the
+required final repository-wide `qlty smells --all` scan. Otherwise, state that Qlty was unavailable and no Qlty verification is included.
 
 ## Documentation updates
 
@@ -203,7 +210,7 @@ detail. Each step actionable without referring back to the master plan.>
 ## Acceptance Criteria
 
 <The acceptance criteria from the master plan that apply to this sub-plan's deliverable. Reproduce only the subset this sub-plan is responsible for. Never omit acceptance
-criteria; if the master plan has none, derive them from the steps.>
+criteria; if the master plan has none, derive them from the steps. Include Qlty baseline-smell removal and its affected-path scan when this sub-plan owns Qlty work.>
 ```
 
 ### Content-extraction rules
