@@ -120,6 +120,8 @@ const manifest: Manifest = {
         {name: "node", mac: {backend: "brew", id: "node"}},
         // Pygments — syntax highlighter (Python, mac-only)
         {name: "pygments", mac: {backend: "brew", id: "pygments"}},
+        // Qlty — code quality CLI via the Qlty tap (mac-only)
+        {name: "qlty", mac: {backend: "brew", id: "qltysh/tap/qlty", tap: "qltysh/tap"}},
         // Raycast — launcher (mac-only cask)
         {name: "raycast", mac: {backend: "cask", id: "raycast", app: "/Applications/Raycast.app"}},
         // rsync — file synchronization
@@ -192,6 +194,11 @@ const manifest: Manifest = {
             name: "opencode",
             mac: {kind: "curl", url: "https://opencode.ai/v2/install", pipe_to: "bash"},
             win: {kind: "curl", url: "https://opencode.ai/v2/install", pipe_to: "bash"},
+        },
+        // Qlty code quality CLI (Windows installer).
+        {
+            name: "qlty",
+            win: {kind: "powershell", url: "https://qlty.sh"},
         },
         // Laravel Language Server through Herd (mac-only).
         {
