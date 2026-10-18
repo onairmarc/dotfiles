@@ -9,6 +9,12 @@
 import {mkdirSync} from "node:fs";
 import {run as exec, runInherit} from "../lib/shell.ts";
 
+function setProfileColor(plist: string, colorKey: string): void {
+    for (const component of ["Red\\ Component", "Green\\ Component", "Blue\\ Component"]) {
+        exec(["/usr/libexec/PlistBuddy", "-c", `Set :New\\ Bookmarks:0:${colorKey}:${component} 0`, plist]);
+    }
+}
+
 export function run(): void {
     const fontName = "JetBrainsMono-Regular";
     const fontSize = "18";
@@ -24,11 +30,21 @@ export function run(): void {
     runInherit(["defaults", "write", "com.googlecode.iterm2", "Normal Font", "-string", fontSpec]);
     runInherit(["defaults", "write", "com.googlecode.iterm2", "Non Ascii Font", "-string", fontSpec]);
     runInherit(["defaults", "write", "com.googlecode.iterm2", "UseNonASCIIFont", "-bool", "true"]);
+    // 2 means remember the size and position of recently closed windows.
+    runInherit(["defaults", "write", "com.googlecode.iterm2", "WindowPlacement", "-int", "2"]);
+    runInherit(["defaults", "write", "com.googlecode.iterm2", "QuitWhenAllWindowsClosed", "-bool", "true"]);
 
     // Update the plist bookmarks profile (best-effort; PlistBuddy exits non-zero
     // when no profile exists yet — the return value is intentionally ignored).
-    // The whole "Set :… value" string is a single argument to -c.
-    exec(["/usr/libexec/PlistBuddy", "-c", `Set :New Bookmarks:0:Normal Font ${fontSpec}`, plist]);
-    exec(["/usr/libexec/PlistBuddy", "-c", `Set :New Bookmarks:0:Non Ascii Font ${fontSpec}`, plist]);
-    exec(["/usr/libexec/PlistBuddy", "-c", `Set :New Bookmarks:0:Use Non-ASCII Font true`, plist]);
+    // PlistBuddy uses escaped spaces in key paths. The whole command is passed
+    // as one argument, so TypeScript needs double backslashes to preserve them.
+    exec(["/usr/libexec/PlistBuddy", "-c", `Set :New\\ Bookmarks:0:Normal\\ Font ${fontSpec}`, plist]);
+    exec(["/usr/libexec/PlistBuddy", "-c", `Set :New\\ Bookmarks:0:Non\\ Ascii\\ Font ${fontSpec}`, plist]);
+    exec(["/usr/libexec/PlistBuddy", "-c", `Set :New\\ Bookmarks:0:Use\\ Non-ASCII\\ Font true`, plist]);
+    exec(["/usr/libexec/PlistBuddy", "-c", "Set :New\\ Bookmarks:0:Transparency 0", plist]);
+    exec(["/usr/libexec/PlistBuddy", "-c", "Set :New\\ Bookmarks:0:Use\\ Separate\\ Colors\\ for\\ Light\\ and\\ Dark\\ Mode true", plist]);
+
+    for (const colorKey of ["Background\\ Color", "Background\\ Color\\ (Dark)", "Background\\ Color\\ (Light)"]) {
+        setProfileColor(plist, colorKey);
+    }
 }
