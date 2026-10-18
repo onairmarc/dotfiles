@@ -98,6 +98,8 @@ const manifest: Manifest = {
         {name: "herd", mac: {backend: "cask", id: "herd", app: "/Applications/Herd.app"}},
         // htop — interactive process viewer (mac-only — no Chocolatey package available)
         {name: "htop", mac: {backend: "brew", id: "htop"}},
+        // iTerm2 terminal emulator (mac-only cask)
+        {name: "iterm2", mac: {backend: "cask", id: "iterm2", app: "/Applications/iTerm.app"}},
         // JetBrains Toolbox (cask / choco)
         {
             name: "jetbrains-toolbox",
