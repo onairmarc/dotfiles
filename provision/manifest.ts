@@ -94,8 +94,6 @@ const manifest: Manifest = {
         {name: "git-extras", mac: {backend: "brew", id: "git-extras"}},
         // git-filter-repo — history rewriting tool (mac-only)
         {name: "git-filter-repo", mac: {backend: "brew", id: "git-filter-repo"}},
-        // Laravel Herd (mac-only cask)
-        {name: "herd", mac: {backend: "cask", id: "herd", app: "/Applications/Herd.app"}},
         // htop — interactive process viewer (mac-only — no Chocolatey package available)
         {name: "htop", mac: {backend: "brew", id: "htop"}},
         // iTerm2 terminal emulator (mac-only cask)
@@ -202,7 +200,6 @@ const manifest: Manifest = {
             name: "qlty",
             win: {kind: "powershell", url: "https://qlty.sh"},
         },
-        // Laravel Language Server through Herd (mac-only).
         {
             name: "laravel-lsp",
             mac: {kind: "cmd", argv: ["bun", "provision/scripts/laravel_lsp.ts"]},
