@@ -1,32 +1,38 @@
 <keymap version="1" name="MB Rider Keymap" parent="MB Base Keymap">
-    <action id="ActivateNuGetToolWindow">
-        <keyboard-shortcut first-keystroke="shift ctrl n"/>
-    </action>
-    <action id="ActivateUnitTestsToolWindow">
-        <keyboard-shortcut first-keystroke="shift ctrl t"/>
-    </action>
-    <action id="CloseContent">
-        <keyboard-shortcut first-keystroke="meta w"/>
-        <keyboard-shortcut first-keystroke="ctrl w"/>
-    </action>
-    <action id="CommentByBlockComment">
-        <keyboard-shortcut first-keystroke="shift alt a"/>
-        <keyboard-shortcut first-keystroke="shift ctrl slash"/>
-    </action>
-    <action id="EditorBackSpace">
-        <keyboard-shortcut first-keystroke="back_space"/>
-    </action>
-    <action id="EditorPasteSimple">
-        <keyboard-shortcut first-keystroke="shift ctrl alt v"/>
-        <keyboard-shortcut first-keystroke="shift ctrl v"/>
-    </action>
-    <action id="GotoSymbol">
-        <keyboard-shortcut first-keystroke="shift ctrl o"/>
-    </action>
-    <action id="MyPlugin.Editor.actions.OpenInCodeSnapAction">
-        <keyboard-shortcut first-keystroke="shift alt 4"/>
-    </action>
-    <action id="one.util.ideaplugin.screenshoter.SaveImageAction">
-        <keyboard-shortcut first-keystroke="shift alt 4"/>
-    </action>
+  <action id="ActivateNuGetToolWindow">
+    <keyboard-shortcut first-keystroke="shift ctrl n" />
+  </action>
+  <action id="ActivateUnitTestsToolWindow" />
+  <action id="CloseContent">
+    <keyboard-shortcut first-keystroke="meta w" />
+    <keyboard-shortcut first-keystroke="ctrl w" />
+  </action>
+  <action id="CommentByBlockComment">
+    <keyboard-shortcut first-keystroke="shift alt a" />
+    <keyboard-shortcut first-keystroke="shift ctrl slash" />
+  </action>
+  <action id="EditorBackSpace">
+    <keyboard-shortcut first-keystroke="back_space" />
+  </action>
+  <action id="EditorPasteSimple">
+    <keyboard-shortcut first-keystroke="shift ctrl alt v" />
+    <keyboard-shortcut first-keystroke="shift ctrl v" />
+  </action>
+  <action id="GotoSymbol">
+    <keyboard-shortcut first-keystroke="shift ctrl o" />
+  </action>
+  <action id="MyPlugin.Editor.actions.OpenInCodeSnapAction">
+    <keyboard-shortcut first-keystroke="shift alt 4" />
+  </action>
+  <action id="ReopenClosedTab" />
+  <action id="ServiceView.ShowServices" />
+  <action id="Terminal.NewTab">
+    <keyboard-shortcut first-keystroke="shift ctrl back_quote" />
+    <keyboard-shortcut first-keystroke="shift meta t" />
+    <keyboard-shortcut first-keystroke="shift ctrl t" />
+    <keyboard-shortcut first-keystroke="shift alt t" />
+  </action>
+  <action id="one.util.ideaplugin.screenshoter.SaveImageAction">
+    <keyboard-shortcut first-keystroke="shift alt 4" />
+  </action>
 </keymap>
