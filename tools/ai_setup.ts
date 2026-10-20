@@ -19,6 +19,7 @@ const USAGE = "Usage: ai_setup [--sync] [--reinstall] [--debug]";
 
 const SKILLS = [
     {repository: "mattpocock/skills", skill: "*"},
+    {repository: "emilkowalski/skills", skill: "*"},
     {repository: "vercel-labs/agent-skills", skill: "vercel-react-best-practices"},
     {repository: "JuliusBrussee/caveman", skill: "*"},
 ];
