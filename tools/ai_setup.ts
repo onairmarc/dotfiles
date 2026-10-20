@@ -264,6 +264,7 @@ function syncGlobalSkills(dotfilesRoot: string, debug: boolean): string[] {
 
 export function syncGlobalOpencode(debug = false): void {
     const dotfilesRoot = dirname(import.meta.dir);
+    const userLevelAgentDest = join(homeDirectory(), ".agents", "skills");
     const configDir = join(homeDirectory(), ".config", "opencode");
     const skillErrors = syncGlobalSkills(dotfilesRoot, debug);
     const pluginsSource = join(dotfilesRoot, "opencode", "plugins");
@@ -271,9 +272,12 @@ export function syncGlobalOpencode(debug = false): void {
     const cliConfigFile = join(dotfilesRoot, "opencode", "cli.json");
     const agentsSource = join(dotfilesRoot, "opencode", "agents");
 
-    cleanupRetiredGlobalConfigLinks(dotfilesRoot, configDir);
-    cleanupRetiredGlobalSkills(configDir);
-    cleanupRetiredGlobalLinks(configDir, agentsSource, pluginsSource);
+    [userLevelAgentDest, configDir].map(directory => {
+        cleanupRetiredGlobalConfigLinks(dotfilesRoot, directory);
+        cleanupRetiredGlobalSkills(directory);
+        cleanupRetiredGlobalLinks(directory, agentsSource, pluginsSource);
+    });
+
     linkGlobalFile(join(dotfilesRoot, "agents", "AGENTS.md"), join(configDir, "AGENTS.md"), debug);
     linkGlobalFile(configFile, join(configDir, "opencode.json"), debug);
     linkGlobalFile(cliConfigFile, join(configDir, "cli.json"), debug);
