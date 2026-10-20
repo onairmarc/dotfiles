@@ -183,6 +183,26 @@ Because this rule always applies, do not omit the file.
 Also state that every finding-specific failure contract and focused failure-path test in the sub-plan is mandatory. An agent must not replace a specified failure outcome
 with a generic catch, silent fallback, or untested retry.
 
+Always include this **automatic plan-execution retries** block verbatim in `$PLAN_DIR/.agent-instructions.md`. This is the required retry policy for this workflow;
+it binds the orchestrator and every coding sub-agent without relying on global agent instructions:
+
+```markdown
+## Required policy: automatic plan-execution retries
+
+Retries during plan execution are preauthorized. When a sub-agent fails, returns empty output, hits an internal tool error, omits its required completion report, or
+leaves verification incomplete, the orchestrator retries that same sub-plan automatically without asking for permission. This applies to every retry, not only the first.
+
+Keep execution sequential and dependent sub-plans blocked until the current sub-plan passes. Preserve completed work, carry forward the failure evidence, and adapt
+the retry rather than repeating an unchanged attempt. For a report-only failure, recover the missing report and verify its evidence without reimplementing completed work.
+Do not impose an arbitrary retry limit or ask whether to retry or abort. Give concise progress updates when useful.
+
+Coding sub-agents report failures and blockers with the required completion block, then stop. Only the orchestrator dispatches retries or later sub-plans; retry
+authorization does not permit a coding sub-agent to launch another agent, expand its assignment, or continue to another sub-plan.
+
+Retry authorization does not authorize broader scope, destructive actions, new permissions, or architectural/product decisions. Ask only for the specific decision or
+permission that blocks further progress; never ask the user to reauthorize the retry itself. Honor an explicit user cancellation.
+```
+
 Also include this **fragility verification** block verbatim. It keeps final verification inside the execution that introduced the change instead of starting another
 planning cycle:
 
@@ -294,7 +314,7 @@ run `qlty smells --all` from the repository root and compare it with the recorde
 
 Wait for the current sub-agent to return before spawning the next sub-plan.
 
-### 3c — Detect failure and surface immediately
+### 3c — Detect failure and retry automatically
 
 Inspect the returned agent result before spawning the next sub-plan.
 
@@ -312,32 +332,17 @@ criteria or terminal audit gates.
 
 **On failure, immediately:**
 
-1. Stop. Do not spawn the next sub-plan.
-2. Report the failure to the user, quoting the raw agent output:
-
-   ```
-   ## Sub-plan failure — <filename>
-
-   The sub-agent returned an error and no code was written.
-
-   **Raw agent output:**
-   <quoted output or "[Tool result missing due to internal error]">
-
-   **Options:**
-    1. Retry this sub-plan (re-spawn the same agent)
-    2. Abort — stop all orchestration here
-
-   What would you like to do?
-   ```
-
-3. Use `question` to wait for the user's choice before taking any further action.
-4. Act on the user's response:
-    - **Retry**: re-spawn the agent using the failure-aware prompt template below — do not send the plain sub-plan prompt again.
-    - **Abort**: stop all orchestration and report final status.
+1. Keep the current sub-plan incomplete and its dependents blocked. Preserve existing work and capture the raw failure output.
+2. Apply the required automatic-retry policy reproduced verbatim in `.agent-instructions.md` by Step 3a. Give a concise progress update when useful, accurately stating
+   whether changes were written.
+3. Resume the same agent when possible, or launch a replacement for the same sub-plan, using the failure-aware prompt below. Include the previous failure and an
+   adapted approach. For missing report fields, request the missing evidence first; do not reimplement or rerun successful work without a verification reason.
+4. Evaluate the retry under these same completion checks. Continue retrying sequentially until the sub-plan passes or the user cancels. If progress needs a genuine
+   user decision, broader scope, destructive action, or new permission, ask for that specific blocker—not permission to retry. Preserve plans while blocked.
 
 #### Retry prompt template
 
-When retrying a failed sub-plan, wrap the original plan content with failure context so the agent can adapt:
+When retrying a failed sub-plan, pass its file path with failure context so the agent can adapt:
 
 ---
 
@@ -360,10 +365,19 @@ When retrying a failed sub-plan, wrap the original plan content with failure con
 > - If the error indicates a missing dependency, check whether it needs to be created first.
 > - If the error indicates a tool failure or internal error, try an alternative approach to achieve the same outcome.
 > - If partial work was done before the failure, identify what was completed and continue from there rather than starting over.
+> - If only the completion report was missing, verify existing evidence and return the missing fields without reimplementing completed work.
 > - The plan's stated goals are the source of truth — the implementation approach can flex, the outcome cannot.
 >
 > Read `$PLAN_DIR/.agent-instructions.md` (mandatory — its delivery constraints bind you) and the sub-plan file using the Read tool before
 > implementing.
+>
+> End your response with the required completion block, choosing the actual result:
+>
+> ```text
+> RESULT: done | failed
+> FILES: <comma-separated repository-relative paths, or "none">
+> TESTS: <each exact command and pass/fail result, or "not applicable">
+> ```
 
 ---
 
@@ -423,10 +437,9 @@ Documentation-updates steps); the plan must not be committed as a lingering arti
 - **One sub-plan per coding agent.** Pass one file path to each sub-agent. Its work ends with that file's acceptance criteria and scoped verification; the orchestrator
   dispatches later sub-plans.
 - **Pass file paths, not content.** Each sub-agent receives the sub-plan file path and reads it via `Read`. Never embed file content verbatim in agent prompts.
-- **Fail loudly and immediately.** The moment any agent result signals failure (internal error, empty output, no action taken), stop and surface it to the user via
-  `question`. Do not start the next sub-plan, do not silently swallow the error. Consuming tokens while stuck is worse than stopping early.
-- **`[Tool result missing due to internal error]` = hard failure.** Treat this verbatim string as a fatal agent error. Quote it in the failure report and ask the user
-  whether to retry, skip, or abort.
+- **Retry failures automatically.** Follow Step 3c and the required retry-policy block in Step 3a. Preserve work, adapt each retry, and keep later sub-plans blocked until success.
+  Ask only for genuine decisions or permissions, not retry authorization. Never skip a failed sub-plan or treat missing evidence as success.
+- **`[Tool result missing due to internal error]` = failed attempt.** Preserve this exact error in the retry context and retry the same sub-plan automatically.
 
 ---
 
