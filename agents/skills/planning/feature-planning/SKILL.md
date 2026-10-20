@@ -10,20 +10,24 @@ agent given only this plan and the codebase should be able to implement it witho
 
 ---
 
+## Shared planning references
+
+Read `~/.agents/skills/planning-commons/SKILL.md` before pre-flight. Follow its shared-reference applicability and timing rules; recheck them when scope changes.
+
 ## File Operation Rules
 
 Read and follow `~/.agents/skills/file-operations/SKILL.md`.
 
 ## Delivery Constraints
 
-Read and follow `~/.agents/skills/delivery-constraints/SKILL.md`. Every plan this skill produces must be structured as vertical slices, must assume the work
+Under the delivery constraints selected by the shared index, every plan must be structured as vertical slices and must assume the work
 lands in place on the currently checked-out branch — or, if that branch is main, on a new branch created off it after an explicit branch check — and must verify itself
 with the repository's own test tooling rather than a bespoke harness. These constraints are enforced by Lens E in Step 2 and must be reproduced in the plan itself so an
 implementing agent reading only the plan is bound by them.
 
 ## Fragility contracts
 
-Read and follow `~/.agents/skills/fragility-commons/planning-contract.md` and `review-contract.md`. Plans that change executable behavior require a validated
+Under the fragility contracts selected by the shared index, plans that change executable behavior require a validated
 `fragility-audit` audit-only handoff and a final fragility-verification gate. Load `fragility-audit` with the `skill` tool; never invoke it as an OpenCode, shell, or
 slash command. These rules are enforced by Lens F and Lens G.
 

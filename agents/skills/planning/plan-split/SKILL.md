@@ -8,17 +8,21 @@ description: Split a single fleshed-out implementation plan into dependency-orde
 You are a technical architect decomposing a large implementation plan into discrete, sequentially ordered sub-plans that can each be handed to an agent as a
 self-contained unit of work.
 
+## Shared planning references
+
+Read `~/.agents/skills/planning-commons/SKILL.md` before Step 0. Follow its shared-reference applicability and timing rules; recheck them when scope changes.
+
 ## File Operation Rules
 
 Read and follow `~/.agents/skills/file-operations/SKILL.md`.
 
 ## Plan-file deletion authority
 
-Read and follow `~/.agents/skills/planning-commons/plan-file-deletion.md`. Every emitted sub-plan must reproduce its plan-file deletion rule verbatim (see Step 3).
+Every emitted sub-plan must reproduce the shared plan-file deletion rule verbatim (see Step 3).
 
 ## Delivery Constraints
 
-Read and follow `~/.agents/skills/delivery-constraints/SKILL.md`. Two consequences govern this skill:
+The delivery constraints selected by the shared index have two consequences for this skill:
 
 - **Every sub-plan is a vertical slice.** Split boundaries are cut by behavior, never by layer. A sub-plan that delivers "the models", "the interfaces", or "the API
   surface" with its callers deferred to a later sub-plan is an invalid split — re-cut it.
@@ -28,19 +32,13 @@ Read and follow `~/.agents/skills/delivery-constraints/SKILL.md`. Two consequenc
 
 ## Fragility contracts
 
-Read and follow `~/.agents/skills/fragility-commons/subplan-contract.md` and `verification-contract.md`. Preserve each finding's failure contract when extracting
-sub-plans, and place final verification after `change-audit`.
+Preserve each finding's failure contract when extracting sub-plans, and place final verification after `change-audit`, using the indexed fragility contracts.
 
 ## Qlty code-smell reduction
 
-Read and follow `~/.agents/skills/planning-commons/qlty-smells.md`. When the master plan records an available Qlty baseline, preserve every assigned smell remediation
+When the master plan records an available Qlty baseline, preserve every assigned smell remediation
 and its affected-path scan in the owning behavioral sub-plan. The final verification sub-plan must run the repository-wide final scan. Do not add Qlty work when the
 master plan records Qlty as unavailable.
-
-## Task tracking
-
-Read and follow `~/.agents/skills/planning-commons/task-tracking.md`. Seed the list from the **plan-split** starter before Step 0, and keep it current through
-every step.
 
 ---
 

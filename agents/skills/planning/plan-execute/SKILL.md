@@ -10,39 +10,37 @@ description: -<
 You are an orchestration agent. Your only job is to read a set of sub-plan files, resolve their dependency graph, and spawn coding sub-agents to execute them — one at a
 time, in dependency-respecting order. You do not implement anything yourself, and you never run sub-agents concurrently.
 
+## Shared planning references
+
+Read `~/.agents/skills/planning-commons/SKILL.md` before Step 0. Follow its shared-reference applicability and timing rules; recheck them when scope changes.
+
 ## File Operation Rules
 
 Read and follow `~/.agents/skills/file-operations/SKILL.md`.
 
 ## Plan-file deletion authority
 
-Read and follow `~/.agents/skills/planning-commons/plan-file-deletion.md`. Reproduce the coding-sub-agent rule verbatim in
+Reproduce the shared coding-sub-agent plan-file deletion rule verbatim in
 `.agent-instructions.md` (Step 3a). You are the authorized orchestration agent for the deletion in Step 5.
 
 ## Delivery Constraints
 
-Read and follow `~/.agents/skills/delivery-constraints/SKILL.md`. You do not implement, but you are responsible for making sure every sub-agent is bound by
-these:
+You do not implement, but you are responsible for making sure every sub-agent is bound by the indexed delivery constraints:
 sub-plans are implemented as vertical slices, in place on the currently checked-out branch — or on a new branch you create off main before spawning the first sub-agent,
 when your branch check shows main is checked out — and verified with the repository's own test tooling. Reproduce them in
 `.agent-instructions.md` (Step 3a) and never spawn an agent without that file present.
 
 ## Fragility contracts
 
-Read and follow `~/.agents/skills/fragility-commons/subplan-contract.md` and `verification-contract.md`. Confirm the execution set ends with the `change-audit` skill
+Under the indexed fragility contracts, confirm the execution set ends with the `change-audit` skill
 followed by the `fragility-audit` skill in `--verify-changes` mode. The final verification sub-plan must remediate accepted findings, run focused tests, and re-verify
 until clean; it must not create another plan. Do not delete the plan directory after a failed final verification.
 
 ## Qlty code-smell reduction
 
-Read and follow `~/.agents/skills/planning-commons/qlty-smells.md`. Check its prerequisites once before spawning sub-agents. When available, reproduce the Qlty rule in
+Check the indexed Qlty prerequisites once before spawning sub-agents. When available, reproduce the Qlty rule in
 `.agent-instructions.md`: sub-agents run assigned affected-path scans and fix assigned baseline smells without adding new ones; the final verification sub-plan runs
 `qlty smells --all`. When unavailable, do not ask any sub-agent to install or configure Qlty.
-
-## Task tracking
-
-Read and follow `~/.agents/skills/planning-commons/task-tracking.md`. Seed the list from the **plan-execute** starter before Step 0, and keep it current through
-every step.
 
 ---
 

@@ -22,26 +22,24 @@ was written to achieve must still be the outcome the resynced plan achieves.
   change.
 - When in doubt about whether a change in the code aligns with the original intent, ask the user before editing the plan.
 
+## Shared planning references
+
+Read `~/.agents/skills/planning-commons/SKILL.md` before Step 0. Follow its shared-reference applicability and timing rules; recheck them when scope changes.
+
 ## File Operation Rules
 
 Read and follow `~/.agents/skills/file-operations/SKILL.md`.
 
 ## Delivery Constraints
 
-Read and follow `~/.agents/skills/delivery-constraints/SKILL.md`. The resynced plan's **remaining** work must be structured as vertical slices, must land in
+Under the delivery constraints selected by the shared index, the resynced plan's **remaining** work must be structured as vertical slices and must land in
 place on the currently checked-out branch — or on a new branch created off main when a branch check shows main is checked out — and must be verified with the repository's
 own test tooling. Lens G holds the remaining work against these. Restructuring leftover horizontal phases into vertical slices is a reconciliation, not a scope change —
 it does not alter what "done" means and does not need user approval, though a restructure that drops or adds outcomes does.
 
 ## Fragility contracts
 
-Read and follow `~/.agents/skills/fragility-commons/planning-contract.md` and `review-contract.md`. Lens H keeps the embedded audit report and each remediation
-contract accurate as the code changes.
-
-## Task tracking
-
-Read and follow `~/.agents/skills/planning-commons/task-tracking.md`. Seed the list from the **plan-resync** starter before Step 0, and keep it current through
-every step.
+Apply the fragility contracts selected by the shared index. Lens H keeps the embedded audit report and each remediation contract accurate as the code changes.
 
 ## Step 0 — Resolve the plan file
 

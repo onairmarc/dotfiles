@@ -22,6 +22,10 @@ Follow these steps precisely.
 
 ---
 
+## Shared planning references
+
+Read `~/.agents/skills/planning-commons/SKILL.md` before Step 0. Follow its shared-reference applicability and timing rules; recheck them when scope changes.
+
 ## Step 0 — Detect Mode
 
 Scan `$ARGUMENTS`:

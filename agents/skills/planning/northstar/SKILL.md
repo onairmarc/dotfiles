@@ -11,6 +11,10 @@ repository's product vision, scope, and guiding principles that every future fea
 The output is a `northstar.md` file that the `feature-planning` skill reads automatically in its review step. Every section you write must be specific enough that a
 coding agent given only this file and a feature description can make a principled decision about whether the feature fits the product's intent.
 
+## Shared planning references
+
+Read `~/.agents/skills/planning-commons/SKILL.md` before pre-flight. Follow its shared-reference applicability and timing rules; recheck them when scope changes.
+
 ## File Operation Rules
 
 Read and follow `~/.agents/skills/file-operations/SKILL.md`.
