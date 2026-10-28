@@ -70,10 +70,6 @@
         {
             "package": "@encoredigitalgroup/opencode@latest",
             "options": {}
-        },
-        {
-            "package": "@slkiser/opencode-quota@latest",
-            "options": {}
         }
     ],
     "providers": {
