@@ -49,6 +49,7 @@ _prepend_path_windows() {
 }
 
 # Appended (lower priority than system PATH)
+_append_path "$HOME/.dotnetup"
 _append_path_mac "$HOME/Library/Application Support/Flock/bin"
 _append_path_mac "$HOME/Library/Application Support/Flock/node-global/current/bin"
 _append_path_mac "/usr/local/bin/node"

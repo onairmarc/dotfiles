@@ -200,6 +200,12 @@ const manifest: Manifest = {
             name: "qlty",
             win: {kind: "powershell", url: "https://qlty.sh"},
         },
+        // dotnetup — .NET SDK version manager.
+        {
+            name: "dotnetup",
+            mac: {kind: "curl", url: "https://aka.ms/dotnetup/get-dotnetup.sh", pipe_to: "bash"},
+            win: {kind: "powershell", url: "https://aka.ms/dotnetup/get-dotnetup.ps1"},
+        },
         {
             name: "laravel-lsp",
             mac: {kind: "cmd", argv: ["bun", "provision/scripts/laravel_lsp.ts"]},
