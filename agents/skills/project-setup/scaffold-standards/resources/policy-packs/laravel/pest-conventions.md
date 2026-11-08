@@ -10,9 +10,10 @@ and isolation assumptions than the ones CI enforces.
 
 - `test('does the thing', fn () => ...)` — not `it(...)`. PHPUnit-style test classes are not added to new code.
 - Group related cases with `describe('subject', function () { ... })`.
-- Use Pest datasets (`->with([...])`) for repeated-input cases rather than copy-pasted bodies. A near-duplicate test that pays a full HTTP or Livewire boot belongs in one
-  dataset-driven test. Merge or delete a source test only when every assertion it currently makes survives in the destination. Keep tests separate when the fixture or
-  behavior is actually different. See [Test suite performance](./test-suite-performance.md).
+- Use Pest datasets (`->with([...])`) when one test body covers the same contract for different declared inputs and expected outputs. A one-row dataset is valid when the
+  contract is naturally data-driven and another row can be added without changing the test body. A near-duplicate test that pays a full HTTP or Livewire boot belongs in
+  one dataset-driven test. Merge or delete a source test only when every assertion it currently makes survives in the destination. Keep tests separate when setup,
+  fixture state, cleanup, timing, or the asserted behavior differs. See [Test suite performance](./test-suite-performance.md).
 - Prefer intention-revealing assertions (`assertForbidden()`, `assertNotFound()`) over raw status codes.
 - Create tests with `php artisan make:test --pest <name>` and move the file into the correct tests tree before committing.
 - {{GEN:state the exact suite invocation this project standardizes on — including any flag such as `--parallel` that must always be present, the scoped-subset form, and
@@ -34,6 +35,14 @@ test('rejects empty email', function () {
     $this->post('/users', ['email' => ''])->assertSessionHasErrors('email');
     assertDatabaseMissing(User::class, ['email' => '']);
 });
+
+// Good — one request and assertion shape, with each invalid value visible as a dataset row.
+test('rejects invalid email', function (string $email) {
+    $this->post('/users', ['email' => $email])->assertSessionHasErrors('email');
+})->with([
+    'empty email' => '',
+    'malformed email' => 'not-an-email',
+]);
 ```
 
 > Severity for plan review: **BLOCK**.

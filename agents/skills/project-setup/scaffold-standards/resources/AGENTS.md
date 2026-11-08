@@ -42,12 +42,13 @@ hub methods, and invariants before making changes.
 | Project terminology and acronyms           | [`{{DOCS_PATH}}/glossary.md`]({{DOCS_PATH}}/glossary.md)                                       |
 
 {{GEN:add a row for Testing that points at `testing.md` and `test-suite-performance.md` (always written; if the Laravel pack superseded `test-suite-performance.md`, the
-pack file is the one on disk under the same name). Add a row for `module-isolation.md` ("Cross-module reach, published surface") only if that Tier 2 policy was actually
-written. Add a row for `cache-key-naming.md` ("Cache keys / lock keys") only if that Tier 2 policy was written. Add a Frontend row for each written frontend policy,
-including component testing, React domain-state composition, and Inertia wire contracts. Add a row for `authorization-identifier-naming.md` ("Permission / role
-identifier naming") only if that Tier 2 policy was written. Then add one row per repo-level skill found under the project's skills directory — the note above promises
-this table lists them, so an existing skill that is missing here makes that promise false; give each row the domain it covers and a link to its `SKILL.md`. Then add a row
-for any other area-specific doc this project has. Do NOT list a doc or skill that does not exist. If the project has no skills directory, add no skill rows.}}
+pack file is the one on disk under the same name). Add `pest-conventions.md`, `xunit-theories.md`, and `react-inertia-data-driven-tests.md` to that Testing row when the
+corresponding pack policy was written. Add a row for `module-isolation.md` ("Cross-module reach, published surface") only if that Tier 2 policy was actually written. Add
+a row for `cache-key-naming.md` ("Cache keys / lock keys") only if that Tier 2 policy was written. Add a Frontend row for each written frontend policy, including
+component testing, React domain-state composition, and Inertia wire contracts. Add a row for `authorization-identifier-naming.md` ("Permission / role identifier naming")
+only if that Tier 2 policy was written. Then add one row per repo-level skill found under the project's skills directory — the note above promises this table lists them,
+so an existing skill that is missing here makes that promise false; give each row the domain it covers and a link to its `SKILL.md`. Then add a row for any other
+area-specific doc this project has. Do NOT list a doc or skill that does not exist. If the project has no skills directory, add no skill rows.}}
 
 ## Project Overview
 

@@ -9,6 +9,7 @@ with the user; apply each policy only when its individual gate matches.
 |-------------------------------------|----------|----------------|----------------------------------------------------------------------------------|------------------------|
 | `react-domain-state-composition.md` | BLOCK    | Frontend       | A TanStack Query dependency is installed                                         | —                      |
 | `inertia-wire-contracts.md`         | BLOCK    | Frontend       | The project generates, ships, or otherwise owns typed server-to-client contracts | —                      |
+| `react-inertia-data-driven-tests.md` | BLOCK    | Testing and documentation | A component or browser test runner supports `test.each` or `it.each` | —                      |
 
 **Notes for the skill:**
 
@@ -16,5 +17,7 @@ with the user; apply each policy only when its individual gate matches.
   component-testing ownership.
 - `inertia-wire-contracts.md` extends the project's DTO policy. When a Laravel pack replaces `data-transfer-objects.md` with `eloquent-vs-dto.md`, link there;
   otherwise link to the core policy.
-- Add a `Frontend` section to `policies.md` when either policy is written.
-- The generated root `AGENTS.md` must route frontend state and wire-contract work to the written pack policies.
+- `react-inertia-data-driven-tests.md` extends `testing.md`; write both and have `testing.md` link to the pack policy when it is written.
+- Add a `Frontend` section to `policies.md` when `react-domain-state-composition.md` or `inertia-wire-contracts.md` is written. Add
+  `react-inertia-data-driven-tests.md` to the existing Testing and documentation section.
+- The generated root `AGENTS.md` must route frontend state, wire-contract work, and data-driven component-test work to the written pack policies.

@@ -1,6 +1,9 @@
 ---
 name: scaffold-standards
-description: Scaffold the documentation and coding-standards surface for any project, regardless of language. Interactively interviews the project (stack, test/build/static-analysis/format commands, logging sink, module layout), then copies and fills language-agnostic templates into docs/standards/ — a policies.md index plus one file per policy under docs/standards/policies/, each tagged BLOCK or WARN — along with a docs/_planning/ lifecycle README, root AGENTS.md + README.md, and per-module AGENTS.md + README.md for every discovered sub-project (skeletons for all, deep-dive for the top few). Framework-specific rules come from optional policy packs (Laravel ships today) applied only when the stack matches, and a final review-lens pass iterates the whole surface until it is complete, specific, stack-correct, and internally consistent. Use when the user wants to bootstrap a docs directory, set up coding standards, add a standards/policies doc, or establish convention docs for a new or existing repository.
+description: >-
+  Scaffold the documentation and coding-standards surface for any project. Interview the project for its stack, commands, logging, and modules, then fill templates
+  into policies, planning docs, and root and module guidance. Optional Laravel, React/Inertia, and C# policy packs apply only when their stack matches. Use when
+  bootstrapping project docs, coding standards, policies, or conventions.
 ---
 
 # Scaffold Standards Skill
@@ -180,8 +183,8 @@ Packs live at `<skill_dir>/resources/policy-packs/<framework>/`, each with an `_
 [`resources/policy-packs/README.md`](resources/policy-packs/README.md) before using one. The flow:
 
 1. Check every pack's gate against the detected stack. The shipped **`laravel`** pack gates on `composer.json` requiring `laravel/framework` or an `illuminate/*`
-   package. The shipped **`react-inertia`** pack gates on `package.json` requiring `react` and an Inertia client adapter. Read each matching manifest for its policy
-   gates.
+   package. The shipped **`react-inertia`** pack gates on `package.json` requiring `react` and an Inertia client adapter. The shipped **`csharp`** pack gates on a
+   `.sln` or `*.csproj` file. Read each matching manifest for its policy gates.
 2. If a pack gates in, **confirm it with the user via `question` before adopting it.** A pack is never applied silently, and the user may decline it and keep the
    agnostic core policies instead.
 3. For each row in the manifest, evaluate that policy's own gate. Copy in only the ones that match.

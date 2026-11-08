@@ -11,6 +11,10 @@ regresses. Bug fixes start with a failing test because that is the only proof th
 - Every behavioral change ships tests. A bug fix starts with a failing test that reproduces the bug.
 - The suite runs with `{{TEST_COMMAND}}` and must be green before a change merges.
 - Follow the idioms of **{{TEST_FRAMEWORK}}**; do not invent a parallel test style alongside it.
+- Prefer the framework's data-driven test form when one test body covers the same contract for different declared inputs and expected outputs. A one-row
+  parameterized test is valid when the contract is naturally data-driven and another row can be added without changing the test body.
+- Keep a standalone test when a case needs different setup, asynchronous sequencing, fixture state, cleanup, cancellation, platform requirement, or assertion shape.
+  Preserve every converted source case as a separate, visible data row.
 - **Never skip, mark pending, or delete a failing test to reach green.** Fix the code, or fix the expectation with a stated reason. A skipped test is a hidden regression.
 - Assert what the system promises, not how the implementation phrases it. One test, one behavior — a single failing assertion should name the broken behavior without a
   debugger.
@@ -19,8 +23,8 @@ regresses. Bug fixes start with a failing test because that is the only proof th
   pins.
 - {{GEN:where tests live given {{MODULE_LAYOUT}}, the test-file naming convention for {{TEST_FRAMEWORK}}, how to run a scoped subset, the project's coverage expectation,
   and any shared fixture an author must know about (a global test context, a seeded tenant/account, a container the suite boots). Detect from the repo; ask the user for
-  the coverage bar and the fixture semantics if they cannot be detected. Name the runner's collected paths so an uncollected file is not added. If `pest-conventions.md`
-  was written, point at it for Pest `test()` / `describe()` / dataset rules.}}
+  the coverage bar and the fixture semantics if they cannot be detected. Name the runner's collected paths so an uncollected file is not added. If `pest-conventions.md`,
+  `xunit-theories.md`, or `react-inertia-data-driven-tests.md` was written, point at it for the framework-specific data-driven test form.}}
 
 **Example:**
 
