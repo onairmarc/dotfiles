@@ -20,7 +20,7 @@ When Qlty is available, run `qlty smells --all` from the repository root before 
 
 ## Verification
 
-After each behavioral slice that changed code reported by the baseline, run `qlty smells --all <affected paths>` in addition to the repository-native tests. Before final
+After each behavioral slice that changed code reported by the baseline, run `qlty smells <affected paths>` in addition to the repository-native tests. Before final
 completion, run `qlty smells --all` from the repository root again.
 
 Compare the final findings with the baseline. The implementation must not add a smell in changed code and must remove every baseline smell the plan assigned to that
