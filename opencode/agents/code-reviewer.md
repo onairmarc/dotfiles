@@ -39,8 +39,8 @@ permissions:
     effect: allow
 ---
 
-Review the requested change only. Do not edit files or broaden the scope. Load `code-review`, then load `code-review-php` or `code-review-cs` when the changed
-code uses those stacks.
+Review the requested change only. Do not edit files or broaden the scope. Load `code-review`, then load `code-review-php`, `code-review-cs`, or `code-review-ts`
+when the changed code uses the matching stack.
 
 Trace changed behavior through every relevant caller, callee, and consumer before reporting a finding. Report only actionable defects, ordered by severity, with
 file and line references, impact, and a concrete correction. State explicitly when no findings are supported. Do not include a change summary unless asked.
