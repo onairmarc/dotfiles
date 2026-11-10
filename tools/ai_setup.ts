@@ -22,6 +22,8 @@ const SKILLS = [
     {repository: "emilkowalski/skills", skill: "*"},
     {repository: "vercel-labs/agent-skills", skill: "vercel-react-best-practices"},
     {repository: "JuliusBrussee/caveman", skill: "*"},
+    {repository: "coreyhaines31/makerskills", skill: "business-brainstorm"},
+    {repository: "coreyhaines31/makerskills", skill: "product-manager"},
 ];
 
 type Options = {
