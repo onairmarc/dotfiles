@@ -11,6 +11,7 @@
         ]
     },
     "session": {
+        "verbosity": "medium",
         "grouping": "none",
         "thinking": "show"
     },
