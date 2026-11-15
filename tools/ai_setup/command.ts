@@ -22,12 +22,6 @@ export function createAiSetupProgram(): Command {
         .showHelpAfterError();
 
     program
-        .option("--debug", "Show already-synchronized files")
-        .action((options: {debug?: boolean}) => {
-            installAndSync(options.debug);
-        });
-
-    program
         .command("install")
         .description("Install third-party skills and synchronize OpenCode")
         .option("--debug", "Show already-synchronized files")
