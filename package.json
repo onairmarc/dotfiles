@@ -5,6 +5,7 @@
         "@opentui/keymap": "0.4.5",
         "@opentui/solid": "0.4.5",
         "@types/bun": "^1.4.0",
+        "commander": "^15.1.0",
         "tsfmt": "0.3.0-beta12"
     }
 }

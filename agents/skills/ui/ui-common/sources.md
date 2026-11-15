@@ -8,7 +8,7 @@ The local accessibility, scope-control, and conflict-resolution rules are house 
 
 ## Third-party UI inventory
 
-`tools/ai_setup.ts` installs `emilkowalski/skills` and `mattpocock/skills` with wildcard selections, plus
+`tools/ai_setup/lib.ts` installs `emilkowalski/skills` and `mattpocock/skills` with wildcard selections, plus
 `vercel-react-best-practices` from `vercel-labs/agent-skills`. Wildcard installs and name collisions can change which skill a name resolves to.
 Use the actual installed `SKILL.md` as the source of behavior, not another router's summary or an assumed upstream owner.
 

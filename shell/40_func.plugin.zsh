@@ -15,15 +15,15 @@ agent_symlink () {
 }
 
 ai_setup () {
-  bun "$DF_ROOT_DIRECTORY/tools/ai_setup.ts" "$@"
+  bun "$DF_ROOT_DIRECTORY/tools/ai_setup/command.ts" "$@"
 }
 
 ai_ide () {
-  ai_setup --mcp ide "$1"
+  ai_setup mcp ide "$1"
 }
 
 ai_sync () {
-  bun "$DF_ROOT_DIRECTORY/tools/ai_setup.ts" --sync "$@"
+  bun "$DF_ROOT_DIRECTORY/tools/ai_setup/command.ts" sync "$@"
 }
 
 battery () {

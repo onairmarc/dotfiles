@@ -10,13 +10,12 @@ import {
     gitTopLevel,
     homeDirectory,
     isDirectory,
-} from "./lib.ts";
+} from "../lib.ts";
 
 const GREEN = "\x1b[0;32m";
 const NC = "\x1b[0m";
-const RED = "\x1b[0;31m";
 const YELLOW = "\x1b[1;33m";
-const USAGE = "Usage: ai_setup [--sync] [--reinstall] [--debug] | --mcp ide (rider | phpstorm)";
+const dotfilesRoot = dirname(dirname(import.meta.dir));
 
 const SKILLS = [
     {repository: "mattpocock/skills", skill: "*"},
@@ -27,25 +26,13 @@ const SKILLS = [
     {repository: "coreyhaines31/makerskills", skill: "product-manager"},
 ];
 
-type Options = {
-    debug: boolean;
-    mcpServer: JetBrainsMcpServer | null;
-    reinstall: boolean;
-    sync: boolean;
-};
-
-type JetBrainsMcpServer = "rider" | "phpstorm";
+export type JetBrainsMcpServer = "rider" | "phpstorm";
 
 type JsonObject = {
     [key: string]: JsonValue;
 };
 
 type JsonValue = boolean | JsonObject | JsonValue[] | number | string | null;
-
-function fail(message: string): never {
-    process.stderr.write(`${RED}[ERROR]${NC} ${message}\n${USAGE}\n`);
-    process.exit(1);
-}
 
 function logInfo(message: string): void {
     process.stdout.write(`${GREEN}[INFO]${NC} ${message}\n`);
@@ -62,70 +49,18 @@ function run(command: string[]): void {
     }
 }
 
-function installSkills(): void {
+export function installSkills(): void {
     for (const {repository, skill} of SKILLS) {
         run(["bunx", "skills@latest", "add", repository, "--global", "--skill", skill, "--agent", "opencode", "-y"]);
     }
 }
 
-function removeSkills(): void {
+export function removeSkills(): void {
     try {
         run(["bunx", "skills@latest", "remove", "--global", "--skill", "*", "--agent", "opencode", "-y"]);
     } catch {
         // The remove command is best effort so a first installation still succeeds.
     }
-}
-
-function parseOptions(args: string[]): Options {
-    const options: Options = {debug: false, mcpServer: null, reinstall: false, sync: false};
-
-    for (let index = 0; index < args.length; index++) {
-        const arg = args[index];
-        switch (arg) {
-            case "--debug":
-                options.debug = true;
-                break;
-            case "--mcp":
-                if (options.mcpServer !== null) {
-                    fail("--mcp can only be specified once");
-                }
-
-                if (args[index + 1] !== "ide") {
-                    fail("--mcp requires the type 'ide'");
-                }
-
-                const server = args[index + 2];
-                if (server !== "phpstorm" && server !== "rider") {
-                    fail("--mcp ide requires either 'phpstorm' or 'rider'");
-                }
-
-                options.mcpServer = server;
-                index += 2;
-                break;
-            case "--reinstall":
-                options.reinstall = true;
-                break;
-            case "--sync":
-                options.sync = true;
-                break;
-            case "-h":
-            case "--help":
-                process.stdout.write(`${USAGE}\n`);
-                process.exit(0);
-            default:
-                fail(`unknown option: ${arg}`);
-        }
-    }
-
-    if (options.mcpServer !== null) {
-        if (options.sync || options.reinstall) {
-            fail("--mcp cannot be used with --sync or --reinstall");
-        }
-    } else if (options.sync && options.reinstall) {
-        fail("--reinstall cannot be used with --sync");
-    }
-
-    return options;
 }
 
 function removeManagedLink(source: string, target: string): void {
@@ -333,7 +268,6 @@ export function setLocalJetBrainsMcpServer(
         throw new Error(`Could not find a Git repository from ${projectDirectory}`);
     }
 
-    const dotfilesRoot = dirname(import.meta.dir);
     const globalConfig = readJsonObject(join(dotfilesRoot, "opencode", "opencode.json"));
     const globalMcp = jsonObject(globalConfig.mcp, "Global OpenCode mcp configuration");
     const globalServers = jsonObject(globalMcp.servers, "Global OpenCode mcp.servers configuration");
@@ -352,7 +286,6 @@ export function setLocalJetBrainsMcpServer(
 }
 
 export function syncGlobalOpencode(debug = false): void {
-    const dotfilesRoot = dirname(import.meta.dir);
     const userLevelAgentDest = join(homeDirectory(), ".agents", "skills");
     const configDir = join(homeDirectory(), ".config", "opencode");
     const skillErrors = syncGlobalSkills(dotfilesRoot, debug);
@@ -388,36 +321,4 @@ export function syncGlobalOpencode(debug = false): void {
     }
 
     logInfo("Sync complete!");
-}
-
-function main(args: string[]): void {
-    const options = parseOptions(args);
-
-    if (options.mcpServer !== null) {
-        setLocalJetBrainsMcpServer(options.mcpServer, true);
-
-        return;
-    }
-
-    if (options.sync) {
-        syncGlobalOpencode(options.debug);
-
-        return;
-    }
-
-    if (options.reinstall) {
-        removeSkills();
-    }
-
-    installSkills();
-    syncGlobalOpencode(options.debug);
-}
-
-if (import.meta.main) {
-    try {
-        main(process.argv.slice(2));
-    } catch (error) {
-        process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
-        process.exit(1);
-    }
 }
