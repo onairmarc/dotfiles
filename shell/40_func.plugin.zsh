@@ -18,6 +18,10 @@ ai_setup () {
   bun "$DF_ROOT_DIRECTORY/tools/ai_setup.ts" "$@"
 }
 
+ai_ide () {
+  ai_setup --mcp ide "$1"
+}
+
 ai_sync () {
   bun "$DF_ROOT_DIRECTORY/tools/ai_setup.ts" --sync "$@"
 }

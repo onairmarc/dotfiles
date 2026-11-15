@@ -1,5 +1,5 @@
 // Installs third-party skills and synchronizes global OpenCode configuration.
-import {lstatSync, mkdirSync, readFileSync, renameSync, rmSync, unlinkSync} from "node:fs";
+import {lstatSync, mkdirSync, readFileSync, renameSync, rmSync, unlinkSync, writeFileSync} from "node:fs";
 import {basename, dirname, join, relative} from "node:path";
 import {
     alreadyWriteThrough,
@@ -7,6 +7,7 @@ import {
     exists,
     findDirectoriesContaining,
     findFiles,
+    gitTopLevel,
     homeDirectory,
     isDirectory,
 } from "./lib.ts";
@@ -15,7 +16,7 @@ const GREEN = "\x1b[0;32m";
 const NC = "\x1b[0m";
 const RED = "\x1b[0;31m";
 const YELLOW = "\x1b[1;33m";
-const USAGE = "Usage: ai_setup [--sync] [--reinstall] [--debug]";
+const USAGE = "Usage: ai_setup [--sync] [--reinstall] [--debug] | --mcp ide (rider | phpstorm)";
 
 const SKILLS = [
     {repository: "mattpocock/skills", skill: "*"},
@@ -28,9 +29,18 @@ const SKILLS = [
 
 type Options = {
     debug: boolean;
+    mcpServer: JetBrainsMcpServer | null;
     reinstall: boolean;
     sync: boolean;
 };
+
+type JetBrainsMcpServer = "rider" | "phpstorm";
+
+type JsonObject = {
+    [key: string]: JsonValue;
+};
+
+type JsonValue = boolean | JsonObject | JsonValue[] | number | string | null;
 
 function fail(message: string): never {
     process.stderr.write(`${RED}[ERROR]${NC} ${message}\n${USAGE}\n`);
@@ -67,12 +77,30 @@ function removeSkills(): void {
 }
 
 function parseOptions(args: string[]): Options {
-    const options: Options = {debug: false, reinstall: false, sync: false};
+    const options: Options = {debug: false, mcpServer: null, reinstall: false, sync: false};
 
-    for (const arg of args) {
+    for (let index = 0; index < args.length; index++) {
+        const arg = args[index];
         switch (arg) {
             case "--debug":
                 options.debug = true;
+                break;
+            case "--mcp":
+                if (options.mcpServer !== null) {
+                    fail("--mcp can only be specified once");
+                }
+
+                if (args[index + 1] !== "ide") {
+                    fail("--mcp requires the type 'ide'");
+                }
+
+                const server = args[index + 2];
+                if (server !== "phpstorm" && server !== "rider") {
+                    fail("--mcp ide requires either 'phpstorm' or 'rider'");
+                }
+
+                options.mcpServer = server;
+                index += 2;
                 break;
             case "--reinstall":
                 options.reinstall = true;
@@ -89,7 +117,11 @@ function parseOptions(args: string[]): Options {
         }
     }
 
-    if (options.sync && options.reinstall) {
+    if (options.mcpServer !== null) {
+        if (options.sync || options.reinstall) {
+            fail("--mcp cannot be used with --sync or --reinstall");
+        }
+    } else if (options.sync && options.reinstall) {
         fail("--reinstall cannot be used with --sync");
     }
 
@@ -264,6 +296,61 @@ function syncGlobalSkills(dotfilesRoot: string, debug: boolean): string[] {
     return errors;
 }
 
+function jsonObject(value: JsonValue | undefined, description: string): JsonObject {
+    if (value === undefined) {
+        return {};
+    }
+
+    if (value === null || typeof value !== "object" || Array.isArray(value)) {
+        throw new Error(`${description} must be a JSON object`);
+    }
+
+    return value;
+}
+
+function readJsonObject(path: string): JsonObject {
+    try {
+        return jsonObject(JSON.parse(readFileSync(path, "utf8")) as JsonValue, path);
+    } catch (error) {
+        if (error instanceof Error) {
+            throw new Error(`Could not read ${path}: ${error.message}`);
+        }
+
+        throw error;
+    }
+}
+
+/**
+ * Enables or disables one JetBrains MCP server for the Git project containing projectDirectory.
+ */
+export function setLocalJetBrainsMcpServer(
+    server: JetBrainsMcpServer,
+    enabled: boolean,
+    projectDirectory = process.cwd(),
+): void {
+    const projectRoot = gitTopLevel(projectDirectory);
+    if (projectRoot === null) {
+        throw new Error(`Could not find a Git repository from ${projectDirectory}`);
+    }
+
+    const dotfilesRoot = dirname(import.meta.dir);
+    const globalConfig = readJsonObject(join(dotfilesRoot, "opencode", "opencode.json"));
+    const globalMcp = jsonObject(globalConfig.mcp, "Global OpenCode mcp configuration");
+    const globalServers = jsonObject(globalMcp.servers, "Global OpenCode mcp.servers configuration");
+    const globalServer = jsonObject(globalServers[server], `Global OpenCode ${server} MCP configuration`);
+    const localConfigPath = join(projectRoot, "opencode.json");
+    const localConfig = exists(localConfigPath) ? readJsonObject(localConfigPath) : {};
+    const localMcp = jsonObject(localConfig.mcp, "Local OpenCode mcp configuration");
+    const localServers = jsonObject(localMcp.servers, "Local OpenCode mcp.servers configuration");
+
+    localServers[server] = {...globalServer, disabled: !enabled};
+    localMcp.servers = localServers;
+    localConfig.mcp = localMcp;
+
+    writeFileSync(localConfigPath, JSON.stringify(localConfig, null, 4) + "\n");
+    logInfo(`${enabled ? "Enabled" : "Disabled"} ${server} MCP server in ${localConfigPath}`);
+}
+
 export function syncGlobalOpencode(debug = false): void {
     const dotfilesRoot = dirname(import.meta.dir);
     const userLevelAgentDest = join(homeDirectory(), ".agents", "skills");
@@ -305,6 +392,12 @@ export function syncGlobalOpencode(debug = false): void {
 
 function main(args: string[]): void {
     const options = parseOptions(args);
+
+    if (options.mcpServer !== null) {
+        setLocalJetBrainsMcpServer(options.mcpServer, true);
+
+        return;
+    }
 
     if (options.sync) {
         syncGlobalOpencode(options.debug);
