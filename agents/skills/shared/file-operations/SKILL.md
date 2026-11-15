@@ -16,6 +16,8 @@ Use the dedicated file tools for all file operations:
 Never manipulate files via `bash` (`echo >`, `cat <<EOF`, `sed -i`, `awk -i`, `tee`, redirection, etc.). `edit`, `apply_patch`, and `write` are the only approved
 methods of file editing. `rm` is the only approved method of file deletion.
 
+Keep patch tool calls small. Large patch calls are slow and can interfere with `todotracker` enforcement. Split unrelated or large changes into focused patch calls.
+
 ## When to Copy or Move Files
 
 If the task at hand is purely file organization, you may run the platform native copy or move command.
