@@ -273,7 +273,9 @@ export function setLocalJetBrainsMcpServer(
     const globalServers = jsonObject(globalMcp.servers, "Global OpenCode mcp.servers configuration");
     const globalServer = jsonObject(globalServers[server], `Global OpenCode ${server} MCP configuration`);
     const localConfigPath = join(projectRoot, "opencode.json");
-    const localConfig = exists(localConfigPath) ? readJsonObject(localConfigPath) : {};
+    const localConfig = exists(localConfigPath)
+        ? readJsonObject(localConfigPath)
+        : {$schema: "https://opencode.ai/config.json"};
     const localMcp = jsonObject(localConfig.mcp, "Local OpenCode mcp configuration");
     const localServers = jsonObject(localMcp.servers, "Local OpenCode mcp.servers configuration");
 
