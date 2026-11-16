@@ -1,5 +1,11 @@
 # Global Agent Instructions
 
+# Verify the requested outcome
+
+Before ending your turn or stopping work, audit the original request and check every requirement against verifiable evidence, such as the resulting files, command output,
+or test results. Thinking the work is done is not proof. Continue working until the requested outcome is fully achieved and verified. If a blocker prevents further
+progress, end your turn by reporting the blocker and missing evidence; do not claim the outcome was achieved.
+
 ## Git Worktrees
 
 **Never use git worktrees.** Do not create them, do not delegate work into them, and do not launch agents with
