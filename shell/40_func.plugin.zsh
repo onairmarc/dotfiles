@@ -460,6 +460,20 @@ tfplan_staging () {
   terraform plan -out plan -var-file=environments/staging.tfvars
 }
 
+trivy_cleanup() {
+  local current_dir="$PWD"
+  local result
+
+  cd "$HOME" || return 1
+  if find ./Documents -type f -name "trivy.db" -delete; then
+    result=0
+  else
+    result=$?
+  fi
+  cd "$current_dir" || return 1
+  return "$result"
+}
+
 xdb() {
   if [ "$XDEBUG_MODE" = "coverage,debug,develop" ]; then
       export XDEBUG_MODE="coverage"
