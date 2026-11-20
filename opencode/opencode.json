@@ -79,7 +79,9 @@
     "plugins": [
         {
             "package": "@encoredigitalgroup/opencode@latest",
-            "options": {}
+            "options": {
+                "goals": false
+            }
         }
     ],
     "providers": {
