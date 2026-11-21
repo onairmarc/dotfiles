@@ -18,6 +18,10 @@ ai_setup () {
   bun "$DF_ROOT_DIRECTORY/tools/ai_setup/command.ts" "$@"
 }
 
+ai_skills () {
+  ai_setup skills "$@"
+}
+
 ai_ide () {
   ai_setup mcp ide "$1"
 }

@@ -17,13 +17,40 @@ const NC = "\x1b[0m";
 const YELLOW = "\x1b[1;33m";
 const dotfilesRoot = dirname(dirname(import.meta.dir));
 
-const SKILLS = [
-    {repository: "mattpocock/skills", skill: "*"},
-    {repository: "emilkowalski/skills", skill: "*"},
-    {repository: "vercel-labs/agent-skills", skill: "vercel-react-best-practices"},
-    {repository: "JuliusBrussee/caveman", skill: "*"},
-    {repository: "coreyhaines31/makerskills", skill: "business-brainstorm"},
-    {repository: "coreyhaines31/makerskills", skill: "product-manager"},
+type SkillInstall = {
+    enabled?: boolean;
+    repository: string;
+    skill?: string;
+};
+
+type InstalledSkill = {
+    name: string;
+    source: string | null;
+};
+
+const SKILLS: SkillInstall[] = [
+    {
+        repository: "mattpocock/skills",
+    },
+    {
+        repository: "emilkowalski/skills",
+    },
+    {
+        repository: "vercel-labs/agent-skills",
+        skill: "vercel-react-best-practices",
+    },
+    {
+        repository: "JuliusBrussee/caveman",
+        enabled: false
+    },
+    {
+        repository: "coreyhaines31/makerskills",
+        skill: "business-brainstorm",
+    },
+    {
+        repository: "coreyhaines31/makerskills",
+        skill: "product-manager",
+    },
 ];
 
 export type JetBrainsMcpServer = "rider" | "phpstorm";
@@ -49,10 +76,72 @@ function run(command: string[]): void {
     }
 }
 
+function runAndRead(command: string[]): string {
+    const result = Bun.spawnSync(command, {stdin: "inherit", stdout: "pipe", stderr: "inherit"});
+    if (result.exitCode !== 0) {
+        throw new Error(`command failed: ${command.join(" ")}`);
+    }
+
+    return result.stdout.toString();
+}
+
+function installedSkills(): InstalledSkill[] {
+    let data: unknown;
+    try {
+        data = JSON.parse(runAndRead(["bunx", "skills@latest", "list", "--global", "--agent", "opencode", "--json"]));
+    } catch (error) {
+        throw new Error(`Could not list installed skills: ${error instanceof Error ? error.message : String(error)}`);
+    }
+
+    if (!Array.isArray(data)) {
+        throw new Error("Could not list installed skills: expected a JSON array");
+    }
+
+    return data.map((skill, index) => {
+        if (skill === null || typeof skill !== "object" || Array.isArray(skill)) {
+            throw new Error(`Could not list installed skills: entry ${index + 1} is not an object`);
+        }
+
+        const {name, source} = skill as Record<string, unknown>;
+        if (typeof name !== "string" || (source !== null && typeof source !== "string")) {
+            throw new Error(`Could not list installed skills: entry ${index + 1} is invalid`);
+        }
+
+        return {name, source};
+    });
+}
+
+function removeDisabledSkills(): void {
+    const disabled = SKILLS.filter(({enabled = true}) => !enabled);
+    if (disabled.length === 0) {
+        return;
+    }
+
+    const names = new Set<string>();
+    for (const installed of installedSkills()) {
+        if (disabled.some(({repository, skill = "*"}) => installed.source === repository && (skill === "*" || skill === installed.name))) {
+            names.add(installed.name);
+        }
+    }
+
+    if (names.size > 0) {
+        run(["bunx", "skills@latest", "remove", "--global", "--agent", "opencode", "--yes", ...names]);
+    }
+}
+
 export function installSkills(): void {
-    for (const {repository, skill} of SKILLS) {
+    for (const {enabled = true, repository, skill = "*"} of SKILLS) {
+        if (!enabled) {
+            continue;
+        }
+
         run(["bunx", "skills@latest", "add", repository, "--global", "--skill", skill, "--agent", "opencode", "-y"]);
     }
+}
+
+export function syncSkills(): void {
+    removeDisabledSkills();
+    installSkills();
 }
 
 export function removeSkills(): void {

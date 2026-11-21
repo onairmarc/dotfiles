@@ -1,17 +1,17 @@
 import {Argument, Command} from "commander";
 import {
     type JetBrainsMcpServer,
-    installSkills,
     removeSkills,
     setLocalJetBrainsMcpServer,
     syncGlobalOpencode,
+    syncSkills,
 } from "./lib.ts";
 
 const NC = "\x1b[0m";
 const RED = "\x1b[0;31m";
 
 function installAndSync(debug = false): void {
-    installSkills();
+    syncSkills();
     syncGlobalOpencode(debug);
 }
 
@@ -44,6 +44,13 @@ export function createAiSetupProgram(): Command {
         .option("--debug", "Show already-synchronized files")
         .action((_options: {debug?: boolean}, command: Command) => {
             syncGlobalOpencode(command.optsWithGlobals().debug);
+        });
+
+    program
+        .command("skills")
+        .description("Install enabled skills and remove disabled skills from the manifest")
+        .action(() => {
+            syncSkills();
         });
 
     program
