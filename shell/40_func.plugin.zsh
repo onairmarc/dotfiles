@@ -19,7 +19,7 @@ ai_setup () {
 }
 
 ai_skills () {
-  ai_setup skills "$@"
+  ai_setup skills "$@" && ai_sync
 }
 
 ai_ide () {

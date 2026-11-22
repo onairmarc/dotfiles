@@ -111,27 +111,37 @@ function installedSkills(): InstalledSkill[] {
     });
 }
 
-function removeDisabledSkills(): void {
+function matchesSkill({repository, skill = "*"}: SkillInstall, installed: InstalledSkill): boolean {
+    return installed.source === repository && (skill === "*" || skill === installed.name);
+}
+
+function removeDisabledSkills(installedSkills: InstalledSkill[]): InstalledSkill[] {
     const disabled = SKILLS.filter(({enabled = true}) => !enabled);
     if (disabled.length === 0) {
-        return;
+        return installedSkills;
     }
 
     const names = new Set<string>();
-    for (const installed of installedSkills()) {
-        if (disabled.some(({repository, skill = "*"}) => installed.source === repository && (skill === "*" || skill === installed.name))) {
+    for (const installed of installedSkills) {
+        if (disabled.some(skill => matchesSkill(skill, installed))) {
             names.add(installed.name);
         }
     }
 
     if (names.size > 0) {
-        run(["bunx", "skills@latest", "remove", "--global", "--agent", "opencode", "--yes", ...names]);
+        run(["bunx", "skills@latest", "remove", "--global", "--yes", ...names]);
     }
+
+    return installedSkills.filter(installed => !disabled.some(skill => matchesSkill(skill, installed)));
 }
 
-export function installSkills(): void {
+export function installSkills(installed = installedSkills()): void {
     for (const {enabled = true, repository, skill = "*"} of SKILLS) {
         if (!enabled) {
+            continue;
+        }
+
+        if (installed.some(installedSkill => matchesSkill({repository, skill}, installedSkill))) {
             continue;
         }
 
@@ -140,8 +150,7 @@ export function installSkills(): void {
 }
 
 export function syncSkills(): void {
-    removeDisabledSkills();
-    installSkills();
+    installSkills(removeDisabledSkills(installedSkills()));
 }
 
 export function removeSkills(): void {
