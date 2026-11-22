@@ -16,7 +16,12 @@ Use the dedicated file tools for all file operations:
 Never manipulate files via `bash` (`echo >`, `cat <<EOF`, `sed -i`, `awk -i`, `tee`, redirection, etc.). `edit`, `apply_patch`, and `write` are the only approved
 methods of file editing. `rm` is the only approved method of file deletion.
 
-Keep patch tool calls small. Large patch calls are slow and can interfere with `todotracker` enforcement. Split unrelated or large changes into focused patch calls.
+Keep every file-editing tool call small and focused. Large patch preparation and large patch calls can take too long, trigger timeouts, and interfere with
+`todotracker` enforcement. A timeout in this situation is not a permission or harness block.
+
+After a timeout or required `todotracker` update, do not retry the same large operation. Break it into smaller, progressive edits, complete one focused change per tool
+call, and continue from the updated file state. Treat edits as related only when each is necessary for the same indivisible behavior change, such as its implementation
+and direct test. If an edit can be applied, reviewed, or verified independently, it is unrelated and must use a separate tool call. When in doubt, split the calls.
 
 ## When to Copy or Move Files
 

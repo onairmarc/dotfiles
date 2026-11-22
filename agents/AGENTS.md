@@ -132,4 +132,4 @@ skill at `~/.agents/skills/writing-style/SKILL.md`. Load that skill before writi
 # File Operation Rules
 
 File operation rules — including which tools to use, the ban on manipulating files via Bash, and when to delete a file — live in the
-`file-operations` skill at `~/.agents/skills/file-operations/SKILL.md`. Load that skill before performing file operations.
+`file-operations` skill at `~/.agents/skills/file-operations/SKILL.md`. Load and follow that skill before every file operation; its rules are mandatory.
