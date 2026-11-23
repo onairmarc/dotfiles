@@ -80,7 +80,10 @@
         {
             "package": "@encoredigitalgroup/opencode@latest",
             "options": {
-                "goals": false
+                "goals": false,
+                "workflow": {
+                    "enforced": true
+                }
             }
         }
     ],
