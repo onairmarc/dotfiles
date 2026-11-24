@@ -52,6 +52,13 @@ const SKILLS: SkillInstall[] = [
         skill: "product-manager",
     },
     {
+        repository: "coreyhaines31/marketingskills",
+        skill: "copywriting",
+    }, {
+        repository: "coreyhaines31/marketingskills",
+        skill: "copy-editing",
+    },
+    {
         repository: "hardikpandya/stop-slop",
     },
 ];
