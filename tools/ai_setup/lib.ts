@@ -51,6 +51,9 @@ const SKILLS: SkillInstall[] = [
         repository: "coreyhaines31/makerskills",
         skill: "product-manager",
     },
+    {
+        repository: "hardikpandya/stop-slop",
+    },
 ];
 
 export type JetBrainsMcpServer = "rider" | "phpstorm";
