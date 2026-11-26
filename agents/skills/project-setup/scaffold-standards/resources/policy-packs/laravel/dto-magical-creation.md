@@ -22,10 +22,10 @@ constructors to named creation methods: neither is written just to move data acr
 - **Do not add a `from<Type>()` method — or any hand-written pass-through constructor — when the DTO's properties map 1:1 to the source's attributes.** Default `::from()`
   hydration, plus any `#[MapInputName(...)]` input mapper, already fills them. A pass-through method is redundant boilerplate and cuts against the "no ceremony" spirit of
   [DTO Class Properties](./dto-class-properties.md).
-- **When a transformer (a `JsonResource`, or a service assembling a payload) derives its output from a DTO, build the DTO once and read its typed properties.**
-  `$dto = SomeData::from($model);` then read `$dto->someProp` — one `::from()` per transformer, no second source→struct mapping alongside it. Assembling output from typed
-  DTO property reads makes a renamed or removed DTO field a static-analysis failure, which is what closes the type drift the DTO exists to prevent (relevant whenever the
-  DTO is also the generated-client-type source via `#[TypeScript]` — see [Eloquent vs DTO](./eloquent-vs-dto.md)).
+- **When a `JsonResource` or `ApiResource` derives its representation from a DTO, build the DTO once and read its typed properties.** `$dto =
+  SomeData::from($model);` then read `$dto->someProp` — one `::from()` per Resource, no second source→struct mapping alongside it. A Resource, not the DTO, produces the
+  HTTP response. Reading typed DTO properties makes a renamed or removed DTO field a static-analysis failure, which closes the type drift the DTO exists to prevent
+  (relevant whenever the DTO is also the generated-client-type source via `#[TypeScript]` — see [Eloquent vs DTO](./eloquent-vs-dto.md)).
 
 **Example:**
 

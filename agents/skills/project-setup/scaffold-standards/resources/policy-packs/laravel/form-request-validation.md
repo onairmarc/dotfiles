@@ -1,23 +1,21 @@
 # Request validation
 
-User-supplied data is validated once at the request boundary. Controllers and component actions assume the input is already valid.
+Every HTTP endpoint accepts user-supplied data through a dedicated Form Request. Controllers and component actions assume the input is already valid.
 
 The boundary is the only place that knows the full rule set for an endpoint, including custom messages and authorization. Spreading rules across the controller, service,
-and model creates separate contracts that drift. Laravel supports Form Requests for request-shaped input and, when `spatie/laravel-data` is installed, Data-as-request for
-a payload modeled by a Data class.
+and model creates separate contracts that drift. A Form Request gives each endpoint one named input contract while keeping `spatie/laravel-data` `Data` objects available
+for cross-module and serialization contracts rather than HTTP input.
 
 **Rules:**
 
-- Every HTTP endpoint that accepts input uses `Illuminate\Foundation\Http\FormRequest` or, when the payload is a `spatie/laravel-data` shape, Data-as-request.
-- Controllers type-hint the boundary object in the action signature. Never call `$request->validate(...)` or `Validator::make(...)` inline.
+- Every HTTP endpoint that accepts input type-hints a concrete subclass of `Illuminate\Foundation\Http\FormRequest` in its action signature.
+- Never accept HTTP input through a `spatie/laravel-data` `Data` object. `Data` objects are for structured cross-module and serialization contracts.
+- Controllers type-hint the Form Request. Never call `$request->validate(...)` or `Validator::make(...)` inline.
 - A Form Request owns `rules()`, `authorize()`, and custom messages.
-- A Data-as-request class owns `rules()` and `withValidator()`. Keep authorization as `Gate::authorize(...)` at the top of the controller action; do not declare an
-  `authorize()` method on the Data class unless the project deliberately adopts laravel-data's authorization pipe.
 - Livewire components validate through `rules()` or `#[Validate]` attributes; the rules live in one place per component.
-- Custom messages live beside the rules in the Form Request or Data class.
+- Custom messages live beside the rules in the Form Request.
 - Client-side validation is a UX convenience; the server remains authoritative and a `422` is the final word.
-- {{GEN:when `spatie/laravel-data` is installed, name its configured request-validation strategy and whether Data-as-request has a project-specific authorization rule.
-Otherwise, remove the Data-as-request rules above and state that Form Requests are the only HTTP boundary shape.}}
+- {{GEN:name where Form Requests live given {{MODULE_LAYOUT}}, and how a controller maps validated input into the project's cross-module Data contracts. Detect and confirm.}}
 
 **Example:**
 
@@ -33,7 +31,7 @@ public function store(Request $request)
 // Good - Form Request owns the contract
 public function store(StoreCustomerRequest $request)
 {
-    return Customer::create($request->validated());
+    return new CustomerResource(Customer::create($request->validated()));
 }
 ```
 

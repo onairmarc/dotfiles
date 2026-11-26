@@ -27,8 +27,8 @@ is written, and the per-module working list.
   count.
 - A module never imports, queries, or constructs another module's models, query builders, repositories, or persistence types. Those are internal to the owning module, as
   are its jobs, handlers, HTTP and UI layers, and private helpers.
-- What a service method **returns** may be the owning module's own domain object — the consumer reads it, it does not query it. Receiving an object across the boundary is
-  fine; reaching across the boundary to fetch one is not.
+- A service method returns only values the owning module publishes as contracts. Never pass its models, query builders, repositories, or other persistence objects across
+  the boundary. A framework-specific policy may require a particular contract type for structured cross-module data.
 - Cross-module signaling uses events; the handler lives in the consuming module.
 - Internal background work stays internal — another module asks the owner to run it rather than dispatching it directly.
 - A grouping directory is not a back door: nested modules follow the same rules as top-level ones.
@@ -92,13 +92,13 @@ This deliberately overrides [Simplicity First](./simplicity-first.md)'s "do not 
 {{GEN:a table with columns "touchpoint", "allowed?", "notes" enumerating the concrete cross-module operations for this project's stack. Author the Yes/No calls consistent
 with the Principles above and {{PRIMARY_LANGUAGE}} idioms. At minimum, mark as **No**: querying another module's models, importing its persistence types, joining to its
 tables, writing its state directly, dispatching its internal jobs, and re-implementing its invariants. Mark as **Yes**: calling its public service methods, subscribing to
-its events, and receiving its domain objects as return values.}}
+its events, and receiving its published contract values as return values.}}
 
 ### Exported contracts (boundary types)
 
-Use an explicit boundary type at exported contracts — data crossing an HTTP/API request or response, an external integration, or a queue/serialization boundary where the
-consumer cannot trust in-process state. Do not introduce a boundary type for an in-process call, **including one that crosses a module boundary**; passing the domain
-object is fine there. The shape rules for those types are in [Data Transfer Objects](./data-transfer-objects.md).
+Use an explicit boundary type at exported HTTP/API contracts, external integrations, and queue/serialization boundaries where the consumer cannot trust in-process state.
+Never expose a module's persistence objects as a published contract. A framework-specific policy may also require explicit types for structured cross-module service
+traffic. The shape rules for those types are in [Data Transfer Objects](./data-transfer-objects.md).
 
 {{GEN:name the concrete boundary-type mechanism this project uses (the DTO library, resource class, or serialization type for {{PRIMARY_LANGUAGE}}/{{STACK}}) and the
 exact situations that require it. Omit if the project has no distinct boundary-type convention.}}

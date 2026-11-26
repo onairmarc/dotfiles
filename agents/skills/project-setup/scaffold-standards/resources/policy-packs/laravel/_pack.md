@@ -51,6 +51,8 @@ the user; adopt each individual policy only when its own gate matches.
   What the pack contributes is the *mechanism*: resolve that policy's tooling `{{GEN}}` block to Composer's own reporting (`composer licenses`, and the `license` field in
   each manifest), and note that the resolved tree lives in the root `composer.lock` even for requirements declared in a module manifest.
 - `no-db-facade.md` and `no-raw-sql.md` together replace the agnostic `data-access.md`; write both pack files and skip the core file.
+- `eloquent-vs-dto.md` owns Laravel boundary contracts: Form Requests for HTTP input, API or JSON Resources for HTTP output, and `Data` objects for structured
+  cross-module and serialization contracts.
 - When a pack policy is skipped by its individual gate but supersedes a core policy, write the **core** policy instead — the concern still applies, only the Laravel
   mechanism does not.
 - Two categories in this manifest (`Authorization and panels`, `Frontend`) do not exist in the core index. Add the section to `policies.md` only when a policy lands in
@@ -60,7 +62,7 @@ the user; adopt each individual policy only when its own gate matches.
     - `no-foreign-key-constraints.md` → core `module-isolation.md`
     - `no-db-facade.md` and `queue-jobs.md` → pack `cache-lock-over-lockforupdate.md`
     - `cache-lock-over-lockforupdate.md` → core `cache-key-naming.md`
-    - `queue-jobs.md` and `data-transfer-objects` rules in `eloquent-vs-dto.md` → core `module-isolation.md`
+    - `queue-jobs.md` and `eloquent-vs-dto.md`'s cross-module and serialization rules → core `module-isolation.md`
     - `queue-jobs.md` → pack `eloquent-vs-dto.md` and pack `ambient-log-context.md`
     - `dto-class-properties.md` → pack `eloquent-vs-dto.md` and pack `dto-magical-creation.md`
     - `dto-magical-creation.md` → pack `dto-class-properties.md` and pack `eloquent-vs-dto.md`
